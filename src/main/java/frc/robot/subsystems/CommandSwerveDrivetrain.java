@@ -6,6 +6,7 @@ import java.util.function.Supplier;
 
 import com.ctre.phoenix6.SignalLogger;
 import com.ctre.phoenix6.Utils;
+import com.ctre.phoenix6.configs.CANcoderConfiguration;
 import com.ctre.phoenix6.swerve.SwerveDrivetrainConstants;
 import com.ctre.phoenix6.swerve.SwerveModuleConstants;
 import com.ctre.phoenix6.swerve.SwerveRequest;
@@ -15,19 +16,23 @@ import com.pathplanner.lib.config.PIDConstants;
 import com.pathplanner.lib.config.RobotConfig;
 import com.pathplanner.lib.controllers.PPHolonomicDriveController;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
+import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.Notifier;
+import edu.wpi.first.wpilibj.Preferences;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
-
+import frc.robot.generated.TunerConstants;
 import frc.robot.generated.TunerConstants.TunerSwerveDrivetrain;
 
 /**
@@ -117,7 +122,15 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
     public CommandSwerveDrivetrain(SwerveDrivetrainConstants drivetrainConstants,
             SwerveModuleConstants<?, ?, ?>... modules)
     {
-        super(drivetrainConstants, modules);
+        super(drivetrainConstants,
+            modules[0].withEncoderOffset(Rotations.of(Preferences.getDouble("kSwerveOffsetFrontLeft",
+                TunerConstants.FrontLeft.EncoderOffset))),
+            modules[1].withEncoderOffset(Rotations.of(Preferences.getDouble("kSwerveOffsetFrontRight",
+                TunerConstants.FrontLeft.EncoderOffset))),
+            modules[2].withEncoderOffset(Rotations.of(Preferences.getDouble("kSwerveOffsetBackLeft",
+                TunerConstants.FrontLeft.EncoderOffset))),
+            modules[3].withEncoderOffset(Rotations.of(Preferences.getDouble("kSwerveOffsetBackRight",
+                TunerConstants.FrontLeft.EncoderOffset))));
         if (Utils.isSimulation())
         {
             startSimThread();
@@ -324,5 +337,70 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
     {
         super.addVisionMeasurement(visionRobotPoseMeters, Utils.fpgaToCurrentTime(timestampSeconds),
                 visionMeasurementStdDevs);
+    }
+
+    /**
+     * Resets the angle of the specified module's encoder to the specified angle.
+     * This is useful for calibrating the module's encoder to a known angle.
+     * @param moduleIdx the index of the module to reset
+     * @param targetAngle the angle to set the encoder to
+     * @return the new offset of the encoder
+     */
+    private Angle resetEncoderAngle(int moduleIdx, Angle targetAngle)
+    {
+        final var module = getModule(moduleIdx);
+        final var currentAngle = Rotations.of(module.getCurrentState().angle.getRotations());
+        final var delta = targetAngle.minus(currentAngle);
+        final var cancoder = module.getEncoder();
+        final var config = new CANcoderConfiguration();
+        cancoder.getConfigurator().refresh(config);
+        final var currentOffest = Rotations.of(config.MagnetSensor.MagnetOffset);
+        var newOffset = currentOffest.plus(delta);
+        newOffset = Radians.of(MathUtil.angleModulus(newOffset.in(Radians)));
+        config.MagnetSensor.MagnetOffset = newOffset.in(Rotations);
+        cancoder.getConfigurator().apply(config);
+        return newOffset;
+    }
+
+    /**
+     * Resets the angle of all modules' encoders to the specified angles. This is
+     * useful for calibrating the module's encoders to known angles.
+     * @param targetAngles the angles to set the encoders to
+     * @return the new offsets of the encoders
+     */
+    public Angle[] resetEncoderAngles(Angle[] targetAngles)
+    {
+        final var newOffsets = new Angle[targetAngles.length];
+        for (int i = 0; i < targetAngles.length; i++)
+        {
+            newOffsets[i] = resetEncoderAngle(i, targetAngles[i]);
+        }
+        return newOffsets;
+    }
+
+    /**
+     * Resets the angle of all modules' encoders to zero. This is
+     * useful for calibrating the module's encoders to known angles.
+     * This saves the offsets to the preferences so they can be
+     * retrieved later.
+     */
+    public void resetDriveEncoders()
+    {
+        final var offsets = resetEncoderAngles(new Angle[]
+        { Degrees.of(0), Degrees.of(0), Degrees.of(0), Degrees.of(0) });
+        Preferences.setDouble("kSwerveOffsetFrontLeft", offsets[0].in(Rotations));
+        Preferences.setDouble("kSwerveOffsetFrontRight", offsets[1].in(Rotations));
+        Preferences.setDouble("kSwerveOffsetBackLeft", offsets[2].in(Rotations));
+        Preferences.setDouble("kSwerveOffsetBackRight", offsets[3].in(Rotations));
+    }
+
+    /**
+     * Resets the angle of all modules' encoders to zero. This is
+     * useful for calibrating the module's encoders to known angles.
+     * @return a command that resets the encoders
+     */
+    public Command resetEncoders()
+    {
+        return Commands.runOnce(this::resetDriveEncoders);
     }
 }
