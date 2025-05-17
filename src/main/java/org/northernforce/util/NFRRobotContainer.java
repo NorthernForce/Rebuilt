@@ -1,6 +1,7 @@
 package org.northernforce.util;
 
 import edu.wpi.first.wpilibj2.command.Command;
+import frc.robot.subsystems.CommandSwerveDrivetrain;
 
 /**
  * A robot container should contain all subsystems and states. Has various
@@ -9,14 +10,9 @@ import edu.wpi.first.wpilibj2.command.Command;
 public interface NFRRobotContainer
 {
     /**
-     * Bind the driver OI to the commands
+     * Bind the OI to the commands
      */
-    public void bindDriverOI();
-
-    /**
-     * Bind the programmer OI to the commands
-     */
-    public void bindProgrammerOI();
+    public void bindOI();
 
     /** Runs periodically (every 20 ms) regardless of mode. */
     public default void periodic()
@@ -59,4 +55,6 @@ public interface NFRRobotContainer
      * @return the selected autonomous command
      */
     public Command getAutonomousCommand();
+
+    public CommandSwerveDrivetrain getDrivetrain();
 }
