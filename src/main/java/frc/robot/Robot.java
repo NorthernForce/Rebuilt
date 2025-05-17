@@ -4,6 +4,11 @@
 
 package frc.robot;
 
+import java.util.Map;
+
+import org.northernforce.util.NFRRobotChooser;
+import org.northernforce.util.NFRRobotContainer;
+
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
@@ -14,11 +19,12 @@ public class Robot extends TimedRobot
 {
     private Command m_autonomousCommand;
 
-    private final ZippyContainer m_robotContainer;
+    private final NFRRobotContainer m_robotContainer;
 
     public Robot()
     {
-        m_robotContainer = new ZippyContainer();
+        NFRRobotChooser chooser = new NFRRobotChooser(() -> new ZippyContainer(), Map.of());
+        m_robotContainer = chooser.getNFRRobotContainer();
     }
 
     @Override

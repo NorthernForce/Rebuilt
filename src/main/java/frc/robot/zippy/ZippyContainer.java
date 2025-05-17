@@ -6,6 +6,10 @@ package frc.robot.zippy;
 
 import static edu.wpi.first.units.Units.*;
 
+import java.lang.foreign.Linker.Option;
+
+import org.northernforce.util.NFRRobotContainer;
+
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 
@@ -16,6 +20,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
@@ -23,7 +28,7 @@ import frc.robot.Telemetry;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 
-public class ZippyContainer
+public class ZippyContainer implements NFRRobotContainer
 {
     private double MaxSpeed = TunerConstants.kSpeedAt12Volts.in(MetersPerSecond); // kSpeedAt12Volts desired top speed
     private double MaxAngularRate = RotationsPerSecond.of(0.75).in(RadiansPerSecond); // 3/4 of a rotation per second
@@ -102,5 +107,15 @@ public class ZippyContainer
     {
         /* Run the path selected from the auto chooser */
         return autoChooser.getSelected();
+    }
+
+    @Override
+    public void bindDriverOI()
+    {
+    }
+
+    @Override
+    public void bindProgrammerOI()
+    {
     }
 }
