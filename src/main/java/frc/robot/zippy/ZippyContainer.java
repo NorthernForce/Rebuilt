@@ -61,16 +61,6 @@ public class ZippyContainer implements NFRRobotContainer
         FollowPathCommand.warmupCommand().schedule();
     }
 
-    /**
-     * get the drivetrain object
-     */
-
-    @Override
-    public CommandSwerveDrivetrain getDrivetrain()
-    {
-        return drivetrain;
-    }
-
     public Command getAutonomousCommand()
     {
         /* Run the path selected from the auto chooser */
