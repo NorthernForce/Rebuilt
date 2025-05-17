@@ -123,14 +123,14 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
             SwerveModuleConstants<?, ?, ?>... modules)
     {
         super(drivetrainConstants,
-            modules[0].withEncoderOffset(Rotations.of(Preferences.getDouble("kSwerveOffsetFrontLeft",
-                TunerConstants.FrontLeft.EncoderOffset))),
-            modules[1].withEncoderOffset(Rotations.of(Preferences.getDouble("kSwerveOffsetFrontRight",
-                TunerConstants.FrontLeft.EncoderOffset))),
-            modules[2].withEncoderOffset(Rotations.of(Preferences.getDouble("kSwerveOffsetBackLeft",
-                TunerConstants.FrontLeft.EncoderOffset))),
-            modules[3].withEncoderOffset(Rotations.of(Preferences.getDouble("kSwerveOffsetBackRight",
-                TunerConstants.FrontLeft.EncoderOffset))));
+                modules[0].withEncoderOffset(Rotations
+                        .of(Preferences.getDouble("kSwerveOffsetFrontLeft", TunerConstants.FrontLeft.EncoderOffset))),
+                modules[1].withEncoderOffset(Rotations
+                        .of(Preferences.getDouble("kSwerveOffsetFrontRight", TunerConstants.FrontLeft.EncoderOffset))),
+                modules[2].withEncoderOffset(Rotations
+                        .of(Preferences.getDouble("kSwerveOffsetBackLeft", TunerConstants.FrontLeft.EncoderOffset))),
+                modules[3].withEncoderOffset(Rotations
+                        .of(Preferences.getDouble("kSwerveOffsetBackRight", TunerConstants.FrontLeft.EncoderOffset))));
         if (Utils.isSimulation())
         {
             startSimThread();
@@ -342,7 +342,8 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
     /**
      * Resets the angle of the specified module's encoder to the specified angle.
      * This is useful for calibrating the module's encoder to a known angle.
-     * @param moduleIdx the index of the module to reset
+     * 
+     * @param moduleIdx   the index of the module to reset
      * @param targetAngle the angle to set the encoder to
      * @return the new offset of the encoder
      */
@@ -365,6 +366,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
     /**
      * Resets the angle of all modules' encoders to the specified angles. This is
      * useful for calibrating the module's encoders to known angles.
+     * 
      * @param targetAngles the angles to set the encoders to
      * @return the new offsets of the encoders
      */
@@ -379,10 +381,9 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
     }
 
     /**
-     * Resets the angle of all modules' encoders to zero. This is
-     * useful for calibrating the module's encoders to known angles.
-     * This saves the offsets to the preferences so they can be
-     * retrieved later.
+     * Resets the angle of all modules' encoders to zero. This is useful for
+     * calibrating the module's encoders to known angles. This saves the offsets to
+     * the preferences so they can be retrieved later.
      */
     public void resetDriveEncoders()
     {
@@ -395,8 +396,9 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
     }
 
     /**
-     * Resets the angle of all modules' encoders to zero. This is
-     * useful for calibrating the module's encoders to known angles.
+     * Resets the angle of all modules' encoders to zero. This is useful for
+     * calibrating the module's encoders to known angles.
+     * 
      * @return a command that resets the encoders
      */
     public Command resetEncoders()
