@@ -89,13 +89,12 @@ public class AprilTagVisionIOPhotonVisionSim implements AprilTagVision.AprilTagV
             try
             {
                 fieldLayout = AprilTagFieldLayout.loadFromResource(AprilTagFields.kDefaultField.m_resourceFile);
+                visionSystemSim.addAprilTags(fieldLayout);
             } catch (IOException e)
             {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-                fieldLayout = null;
+                System.err.println("Failed to load AprilTagFieldLayout: " + e.getMessage());
+                throw new RuntimeException("Unable to initialize VisionSystemSim due to missing field layout.", e);
             }
-            visionSystemSim.addAprilTags(fieldLayout);
         }
         return visionSystemSim;
     }
