@@ -15,15 +15,24 @@ import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.geometry.Transform3d;
 import frc.robot.subsystems.apriltagvision.AprilTagVision.Pose2dWithTimestamp;
-public class AprilTagVisionIOPhotonVisionSim implements AprilTagVision.AprilTagVisionIO {
+
+public class AprilTagVisionIOPhotonVisionSim implements AprilTagVision.AprilTagVisionIO
+{
     private final PhotonCameraSim cameraSim;
     private static VisionSystemSim visionSystemSim = null;
     private PhotonPoseEstimator poseEstimator;
-    public AprilTagVisionIOPhotonVisionSim(String cameraName, SimCameraProperties cameraProperties, Transform3d robotToCamera) {
+
+    public AprilTagVisionIOPhotonVisionSim(String cameraName, SimCameraProperties cameraProperties,
+            Transform3d robotToCamera)
+    {
         cameraSim = new PhotonCameraSim(new PhotonCamera(cameraName), cameraProperties);
-        try {
-            poseEstimator = new PhotonPoseEstimator(AprilTagFieldLayout.loadFromResource(AprilTagFields.kDefaultField.m_resourceFile), PhotonPoseEstimator.PoseStrategy.LOWEST_AMBIGUITY, robotToCamera);
-        } catch (IOException e) {
+        try
+        {
+            poseEstimator = new PhotonPoseEstimator(
+                    AprilTagFieldLayout.loadFromResource(AprilTagFields.kDefaultField.m_resourceFile),
+                    PhotonPoseEstimator.PoseStrategy.LOWEST_AMBIGUITY, robotToCamera);
+        } catch (IOException e)
+        {
             // TODO Auto-generated catch block
             e.printStackTrace();
             poseEstimator = null;
@@ -31,27 +40,35 @@ public class AprilTagVisionIOPhotonVisionSim implements AprilTagVision.AprilTagV
         getVisionSystemSim().addCamera(cameraSim, robotToCamera);
     }
 
-    public List<Pose2dWithTimestamp> getPose() {
+    public List<Pose2dWithTimestamp> getPose()
+    {
         List<PhotonPipelineResult> poseResults = cameraSim.getCamera().getAllUnreadResults();
         List<Pose2dWithTimestamp> poses = new ArrayList<>();
-        for (PhotonPipelineResult result : poseResults) {
-            if (result.hasTargets()) {
+        for (PhotonPipelineResult result : poseResults)
+        {
+            if (result.hasTargets())
+            {
                 var pose = poseEstimator.update(result);
                 if (pose.isPresent())
-                    poses.add(new Pose2dWithTimestamp(pose.get().estimatedPose.toPose2d(), result.getTimestampSeconds()));
+                    poses.add(
+                            new Pose2dWithTimestamp(pose.get().estimatedPose.toPose2d(), result.getTimestampSeconds()));
             }
         }
 
         return poses;
     }
 
-    public static VisionSystemSim getVisionSystemSim() {
-        if (visionSystemSim == null) {
+    public static VisionSystemSim getVisionSystemSim()
+    {
+        if (visionSystemSim == null)
+        {
             visionSystemSim = new VisionSystemSim("main");
             AprilTagFieldLayout fieldLayout;
-            try {
+            try
+            {
                 fieldLayout = AprilTagFieldLayout.loadFromResource(AprilTagFields.kDefaultField.m_resourceFile);
-            } catch (IOException e) {
+            } catch (IOException e)
+            {
                 // TODO Auto-generated catch block
                 e.printStackTrace();
                 fieldLayout = null;
