@@ -1,6 +1,8 @@
 package frc.robot.subsystems.apriltagvision;
 
 import java.util.List;
+
+import edu.wpi.first.math.geometry.Rotation2d;
 import frc.robot.LimelightHelpers;
 
 /**
@@ -47,9 +49,9 @@ public class AprilTagVisionIOLimelight implements AprilTagVisionIO
      * @param heading The heading of the robot in degrees.
      */
     @Override
-    public void setHeading(double heading, double yawRate)
+    public void setHeading(Rotation2d heading, Rotation2d yawRate)
     {
-        LimelightHelpers.SetRobotOrientation("limelight", heading, yawRate, 0, 0, 0, 0);
+        LimelightHelpers.SetRobotOrientation("limelight", heading.getDegrees(), yawRate.getDegrees(), 0, 0, 0, 0);
     }
 
     /**

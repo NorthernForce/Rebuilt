@@ -12,6 +12,7 @@ import org.photonvision.simulation.SimCameraProperties;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.commands.FollowPathCommand;
 
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -39,7 +40,7 @@ public class ZippyContainer implements NFRRobotContainer
     {
         if (RobotBase.isSimulation())
         {
-            aprilTagVisionIO = new AprilTagVisionIOPhotonVisionSim("ZippyCam", new SimCameraProperties(),
+            aprilTagVisionIO = new AprilTagVisionIOPhotonVisionSim("ZippyCamSim", new SimCameraProperties(),
                     ZippyConstants.VisionConstants.PhotonVisionConstants.kRobotToCamera);
         } else
         {
@@ -65,8 +66,8 @@ public class ZippyContainer implements NFRRobotContainer
             AprilTagVisionIOPhotonVisionSim.getVisionSystemSim().update(drivetrain.getState().Pose);
         } else
         {
-            double robotYaw = drivetrain.getState().Pose.getRotation().getDegrees();
-            aprilTagVisionIO.setHeading(robotYaw, 0);
+            Rotation2d robotYaw = drivetrain.getState().Pose.getRotation();
+            aprilTagVisionIO.setHeading(robotYaw, Rotation2d.fromDegrees(0));
             drivetrain.addVisionMeasurement(aprilTagVisionIO.getPose().get(0).pose(),
                     aprilTagVisionIO.getPose().get(0).timestamp());
         }
