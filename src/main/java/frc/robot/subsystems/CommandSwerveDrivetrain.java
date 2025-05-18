@@ -354,8 +354,8 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         final var cancoder = module.getEncoder();
         final var config = new CANcoderConfiguration();
         cancoder.getConfigurator().refresh(config);
-        final var currentOffest = Rotations.of(config.MagnetSensor.MagnetOffset);
-        var newOffset = currentOffest.plus(delta);
+        final var currentOffset = Rotations.of(config.MagnetSensor.MagnetOffset);
+        var newOffset = currentOffset.plus(delta);
         newOffset = Radians.of(MathUtil.angleModulus(newOffset.in(Radians)));
         config.MagnetSensor.MagnetOffset = newOffset.in(Rotations);
         cancoder.getConfigurator().apply(config);
