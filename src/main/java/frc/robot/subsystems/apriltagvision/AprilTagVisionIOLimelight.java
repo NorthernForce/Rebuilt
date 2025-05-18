@@ -64,9 +64,7 @@ public class AprilTagVisionIOLimelight implements AprilTagVision.AprilTagVisionI
     public List<Pose2dWithTimestamp> getPose()
     {
         var poseData = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(limelightName);
-        if (LimelightHelpers.validPoseEstimate(poseData)) // seems to be the way to check if the camera sees a tag, thus
-                                                          // if the
-            // pose is present.
+        if (LimelightHelpers.validPoseEstimate(poseData))
             return List.of();
         return List.of(new Pose2dWithTimestamp(poseData.pose, poseData.timestampSeconds));
     }
