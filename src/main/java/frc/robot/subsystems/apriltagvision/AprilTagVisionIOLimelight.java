@@ -1,18 +1,15 @@
 package frc.robot.subsystems.apriltagvision;
 
 import java.util.List;
-import java.util.function.Supplier;
-
-import edu.wpi.first.math.estimator.PoseEstimator;
 import frc.robot.LimelightHelpers;
-import frc.robot.subsystems.apriltagvision.AprilTagVision.Pose2dWithTimestamp;
+import frc.robot.zippy.ZippyConstants.Pose2dWithTimestamp;
 
 /**
  * This class is used to interface with Limelight for AprilTag detection. It
  * uses the LimelightHelpers library to get the pose of the robot relative to
  * the AprilTag.
  */
-public class AprilTagVisionIOLimelight implements AprilTagVision.AprilTagVisionIO
+public class AprilTagVisionIOLimelight
 {
     /**
      * The name of the Limelight camera to use for AprilTag detection.
@@ -60,7 +57,6 @@ public class AprilTagVisionIOLimelight implements AprilTagVision.AprilTagVisionI
     /**
      * Get the list of poses of the robot relative to the AprilTag.
      */
-    @Override
     public List<Pose2dWithTimestamp> getPose()
     {
         var poseData = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(limelightName);
