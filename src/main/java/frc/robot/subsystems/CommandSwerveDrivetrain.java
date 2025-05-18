@@ -32,8 +32,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
-import frc.robot.generated.TunerConstants;
-import frc.robot.generated.TunerConstants.TunerSwerveDrivetrain;
+import frc.robot.zippy.generated.ZippyTunerConstants.TunerSwerveDrivetrain;
 
 /**
  * Class that extends the Phoenix 6 SwerveDrivetrain class and implements
@@ -123,14 +122,14 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
             SwerveModuleConstants<?, ?, ?>... modules)
     {
         super(drivetrainConstants,
-                modules[0].withEncoderOffset(Rotations
-                        .of(Preferences.getDouble("kSwerveOffsetFrontLeft", TunerConstants.FrontLeft.EncoderOffset))),
-                modules[1].withEncoderOffset(Rotations
-                        .of(Preferences.getDouble("kSwerveOffsetFrontRight", TunerConstants.FrontLeft.EncoderOffset))),
-                modules[2].withEncoderOffset(Rotations
-                        .of(Preferences.getDouble("kSwerveOffsetBackLeft", TunerConstants.FrontLeft.EncoderOffset))),
-                modules[3].withEncoderOffset(Rotations
-                        .of(Preferences.getDouble("kSwerveOffsetBackRight", TunerConstants.FrontLeft.EncoderOffset))));
+                modules[0].withEncoderOffset(
+                        Rotations.of(Preferences.getDouble("kSwerveOffsetFrontLeft", modules[0].EncoderOffset))),
+                modules[1].withEncoderOffset(
+                        Rotations.of(Preferences.getDouble("kSwerveOffsetFrontRight", modules[1].EncoderOffset))),
+                modules[2].withEncoderOffset(
+                        Rotations.of(Preferences.getDouble("kSwerveOffsetBackLeft", modules[2].EncoderOffset))),
+                modules[3].withEncoderOffset(
+                        Rotations.of(Preferences.getDouble("kSwerveOffsetBackRight", modules[3].EncoderOffset))));
         if (Utils.isSimulation())
         {
             startSimThread();
