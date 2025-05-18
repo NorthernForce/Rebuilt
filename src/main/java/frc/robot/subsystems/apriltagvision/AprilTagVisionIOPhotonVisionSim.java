@@ -55,6 +55,8 @@ public class AprilTagVisionIOPhotonVisionSim implements AprilTagVision.AprilTagV
     /**
      * Get the list of poses of the robot relative to the AprilTag.
      */
+
+    @Override
     public List<Pose2dWithTimestamp> getPose()
     {
         List<PhotonPipelineResult> poseResults = cameraSim.getCamera().getAllUnreadResults();
