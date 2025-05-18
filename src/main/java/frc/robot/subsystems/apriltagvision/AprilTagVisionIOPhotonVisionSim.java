@@ -16,12 +16,24 @@ import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.geometry.Transform3d;
 import frc.robot.subsystems.apriltagvision.AprilTagVision.Pose2dWithTimestamp;
 
+/**
+ * This class is used to interface with PhotonVision for AprilTag detection to
+ * enable simulations.
+ */
 public class AprilTagVisionIOPhotonVisionSim implements AprilTagVision.AprilTagVisionIO
 {
     private final PhotonCameraSim cameraSim;
     private static VisionSystemSim visionSystemSim = null;
     private PhotonPoseEstimator poseEstimator;
 
+    /**
+     * Constructor for the AprilTagVisionIOPhotonVisionSim class.
+     * 
+     * @param cameraName       The name of the PhotonVision camera to use for
+     *                         AprilTag detection.
+     * @param cameraProperties The properties of the camera to simulate.
+     * @param robotToCamera    The transform from the robot to the camera.
+     */
     public AprilTagVisionIOPhotonVisionSim(String cameraName, SimCameraProperties cameraProperties,
             Transform3d robotToCamera)
     {
@@ -40,6 +52,9 @@ public class AprilTagVisionIOPhotonVisionSim implements AprilTagVision.AprilTagV
         getVisionSystemSim().addCamera(cameraSim, robotToCamera);
     }
 
+    /**
+     * Get the list of poses of the robot relative to the AprilTag.
+     */
     public List<Pose2dWithTimestamp> getPose()
     {
         List<PhotonPipelineResult> poseResults = cameraSim.getCamera().getAllUnreadResults();
@@ -58,6 +73,11 @@ public class AprilTagVisionIOPhotonVisionSim implements AprilTagVision.AprilTagV
         return poses;
     }
 
+    /**
+     * Retrieves and sets the camera simulation object for PhotonVision.
+     * 
+     * @return the camera simulation object.
+     */
     public static VisionSystemSim getVisionSystemSim()
     {
         if (visionSystemSim == null)

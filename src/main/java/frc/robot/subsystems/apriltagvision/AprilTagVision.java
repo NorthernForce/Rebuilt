@@ -12,11 +12,17 @@ public class AprilTagVision extends SubsystemBase
 
     }
 
+    /**
+     * Interface for the AprilTagVision subsystem with simulation/Limelight
+     */
     public static interface AprilTagVisionIO
     {
         public List<Pose2dWithTimestamp> getPose();
     }
 
+    /**
+     * A simple record to hold the pose and timestamp of the AprilTag
+     */
     public record Pose2dWithTimestamp(Pose2d pose, double timestamp) {
     }
 }
