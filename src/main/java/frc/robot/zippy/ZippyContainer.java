@@ -15,8 +15,10 @@ import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import frc.robot.LimelightHelpers;
 import frc.robot.Telemetry;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
+import frc.robot.subsystems.apriltagvision.AprilTagVisionIOLimelight;
 import frc.robot.subsystems.apriltagvision.AprilTagVisionIOPhotonVisionSim;
 import frc.robot.zippy.generated.ZippyTunerConstants;
 
@@ -24,10 +26,11 @@ public class ZippyContainer implements NFRRobotContainer
 {
     private double MaxSpeed = ZippyTunerConstants.kSpeedAt12Volts.in(MetersPerSecond); // kSpeedAt12Volts desired top
                                                                                        // speed
-
     private final Telemetry logger = new Telemetry(MaxSpeed);
 
     public final CommandSwerveDrivetrain drivetrain = ZippyTunerConstants.createDrivetrain();
+
+    public final AprilTagVisionIOLimelight aprilTagVisionIO = new AprilTagVisionIOLimelight("limelight");
 
     /* Path follower */
     private final SendableChooser<Command> autoChooser;
@@ -50,6 +53,10 @@ public class ZippyContainer implements NFRRobotContainer
         if (RobotBase.isSimulation())
         {
             AprilTagVisionIOPhotonVisionSim.getVisionSystemSim().update(drivetrain.getState().Pose);
+        } else
+        {
+            double robotYaw = drivetrain.getState().Pose.getRotation().getDegrees();
+            aprilTagVisionIO.setHeading(robotYaw, 0, 0, 0, 0, 0);
         }
     }
 

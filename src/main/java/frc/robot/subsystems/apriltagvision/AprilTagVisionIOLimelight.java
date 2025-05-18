@@ -1,7 +1,9 @@
 package frc.robot.subsystems.apriltagvision;
 
 import java.util.List;
+import java.util.function.Supplier;
 
+import edu.wpi.first.math.estimator.PoseEstimator;
 import frc.robot.LimelightHelpers;
 import frc.robot.subsystems.apriltagvision.AprilTagVision.Pose2dWithTimestamp;
 
@@ -28,6 +30,31 @@ public class AprilTagVisionIOLimelight implements AprilTagVision.AprilTagVisionI
     {
         this.limelightName = limelightName;
         LimelightHelpers.SetFiducialIDFiltersOverride(limelightName, validIds);
+
+    }
+
+    /**
+     * Constructor for the AprilTagVisionIOLimelight class.
+     * 
+     * @param limelightName The name of the Limelight camera to use for AprilTag
+     *                      detection.
+     */
+
+    public AprilTagVisionIOLimelight(String limelightName)
+    {
+        this.limelightName = limelightName;
+    }
+
+    /**
+     * Set the heading of the robot to the Limelight camera.
+     * 
+     * @param heading The heading of the robot in degrees.
+     */
+
+    public void setHeading(double heading, double yawRate, double pitch, double pitchRate, double roll, double rollRate)
+    {
+        LimelightHelpers.SetRobotOrientation("limelight", heading, yawRate, pitch, pitchRate, roll, rollRate);
+
     }
 
     /**
@@ -37,8 +64,9 @@ public class AprilTagVisionIOLimelight implements AprilTagVision.AprilTagVisionI
     public List<Pose2dWithTimestamp> getPose()
     {
         var poseData = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(limelightName);
-        if (LimelightHelpers.getTV(limelightName)) // seems to be the way to check if the camera sees a tag, thus if the
-                                                   // pose is present.
+        if (LimelightHelpers.validPoseEstimate(poseData)) // seems to be the way to check if the camera sees a tag, thus
+                                                          // if the
+            // pose is present.
             return List.of();
         return List.of(new Pose2dWithTimestamp(poseData.pose, poseData.timestampSeconds));
     }
