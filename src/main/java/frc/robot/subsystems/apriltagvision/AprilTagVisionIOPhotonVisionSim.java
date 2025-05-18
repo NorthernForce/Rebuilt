@@ -14,13 +14,12 @@ import org.photonvision.targeting.PhotonPipelineResult;
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.geometry.Transform3d;
-import frc.robot.zippy.ZippyConstants.Pose2dWithTimestamp;
 
 /**
  * This class is used to interface with PhotonVision for AprilTag detection to
  * enable simulations.
  */
-public class AprilTagVisionIOPhotonVisionSim
+public class AprilTagVisionIOPhotonVisionSim implements AprilTagVisionIO
 {
     private final PhotonCameraSim cameraSim;
     private static VisionSystemSim visionSystemSim = null;
@@ -56,6 +55,7 @@ public class AprilTagVisionIOPhotonVisionSim
      * Get the list of poses of the robot relative to the AprilTag.
      */
 
+    @Override
     public List<Pose2dWithTimestamp> getPose()
     {
         List<PhotonPipelineResult> poseResults = cameraSim.getCamera().getAllUnreadResults();

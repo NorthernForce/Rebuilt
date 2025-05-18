@@ -7,6 +7,7 @@ package frc.robot.zippy;
 import static edu.wpi.first.units.Units.*;
 
 import org.northernforce.util.NFRRobotContainer;
+import org.photonvision.simulation.SimCameraProperties;
 
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.commands.FollowPathCommand;
@@ -18,8 +19,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.LimelightHelpers;
 import frc.robot.Telemetry;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
-import frc.robot.subsystems.apriltagvision.AprilTagVisionIOLimelight;
-import frc.robot.subsystems.apriltagvision.AprilTagVisionIOPhotonVisionSim;
+import frc.robot.subsystems.apriltagvision.*;
 import frc.robot.zippy.generated.ZippyTunerConstants;
 
 public class ZippyContainer implements NFRRobotContainer
@@ -28,15 +28,25 @@ public class ZippyContainer implements NFRRobotContainer
                                                                                        // speed
     private final Telemetry logger = new Telemetry(MaxSpeed);
 
-    public final CommandSwerveDrivetrain drivetrain = ZippyTunerConstants.createDrivetrain();
+    private final CommandSwerveDrivetrain drivetrain = ZippyTunerConstants.createDrivetrain();
 
-    public final AprilTagVisionIOLimelight aprilTagVisionIO = new AprilTagVisionIOLimelight("limelight");
+    private final AprilTagVisionIO aprilTagVisionIO;
 
     /* Path follower */
     private final SendableChooser<Command> autoChooser;
 
     public ZippyContainer()
     {
+        if (RobotBase.isSimulation())
+        {
+            aprilTagVisionIO = new AprilTagVisionIOPhotonVisionSim("ZippyCam", new SimCameraProperties(),
+                    ZippyConstants.VisionConstants.PhotonVisionConstants.kRobotToCamera);
+        } else
+        {
+            aprilTagVisionIO = new AprilTagVisionIOLimelight("ZippyCam");
+            LimelightHelpers.SetFiducialIDFiltersOverride("ZippyCam",
+                    ZippyConstants.VisionConstants.LimeLightConstants.kValidIds);
+        }
         autoChooser = AutoBuilder.buildAutoChooser("Tests");
         SmartDashboard.putData("Auto Mode", autoChooser);
 
@@ -56,7 +66,9 @@ public class ZippyContainer implements NFRRobotContainer
         } else
         {
             double robotYaw = drivetrain.getState().Pose.getRotation().getDegrees();
-            aprilTagVisionIO.setHeading(robotYaw, 0, 0, 0, 0, 0);
+            aprilTagVisionIO.setHeading(robotYaw, 0);
+            drivetrain.addVisionMeasurement(aprilTagVisionIO.getPose().get(0).pose(),
+                    aprilTagVisionIO.getPose().get(0).timestamp());
         }
     }
 
