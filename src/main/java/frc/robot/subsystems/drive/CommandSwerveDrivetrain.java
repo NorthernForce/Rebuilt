@@ -1,12 +1,14 @@
-package frc.robot.subsystems;
+package frc.robot.subsystems.drive;
 
 import static edu.wpi.first.units.Units.*;
 
+import java.util.function.DoubleSupplier;
 import java.util.function.Supplier;
 
 import com.ctre.phoenix6.SignalLogger;
 import com.ctre.phoenix6.Utils;
 import com.ctre.phoenix6.swerve.SwerveDrivetrainConstants;
+import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 import com.ctre.phoenix6.swerve.SwerveModuleConstants;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 
@@ -20,14 +22,19 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
+import edu.wpi.first.units.measure.AngularVelocity;
+import edu.wpi.first.units.measure.Distance;
+import edu.wpi.first.units.measure.LinearVelocity;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.Notifier;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.zippy.generated.ZippyTunerConstants.TunerSwerveDrivetrain;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 
 /**
  * Class that extends the Phoenix 6 SwerveDrivetrain class and implements
@@ -53,6 +60,14 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
     private final SwerveRequest.SysIdSwerveTranslation m_translationCharacterization = new SwerveRequest.SysIdSwerveTranslation();
     private final SwerveRequest.SysIdSwerveSteerGains m_steerCharacterization = new SwerveRequest.SysIdSwerveSteerGains();
     private final SwerveRequest.SysIdSwerveRotation m_rotationCharacterization = new SwerveRequest.SysIdSwerveRotation();
+
+    private final LinearVelocity maxVelocity;
+    private final AngularVelocity maxAngularVelocity;
+
+    private static AngularVelocity convertMaxVelocityToAngularVelocity(LinearVelocity maxVelocity, Distance radius)
+    {
+        return RadiansPerSecond.of(maxVelocity.in(MetersPerSecond) / radius.in(Meters));
+    }
 
     /*
      * SysId routine for characterizing translation. This is used to find PID gains
@@ -100,9 +115,6 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
                 SignalLogger.writeDouble("Rotational_Rate", output.in(Volts));
             }, null, this));
 
-    /* The SysId routine to test */
-    private SysIdRoutine m_sysIdRoutineToApply = m_sysIdRoutineTranslation;
-
     /**
      * Constructs a CTRE SwerveDrivetrain using the specified constants.
      * <p>
@@ -113,67 +125,13 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
      * @param drivetrainConstants Drivetrain-wide constants for the swerve drive
      * @param modules             Constants for each specific module
      */
-    public CommandSwerveDrivetrain(SwerveDrivetrainConstants drivetrainConstants,
+    public CommandSwerveDrivetrain(SwerveDrivetrainConstants drivetrainConstants, LinearVelocity maxSpeed,
             SwerveModuleConstants<?, ?, ?>... modules)
     {
         super(drivetrainConstants, modules);
-        if (Utils.isSimulation())
-        {
-            startSimThread();
-        }
-        configureAutoBuilder();
-    }
-
-    /**
-     * Constructs a CTRE SwerveDrivetrain using the specified constants.
-     * <p>
-     * This constructs the underlying hardware devices, so users should not
-     * construct the devices themselves. If they need the devices, they can access
-     * them through getters in the classes.
-     *
-     * @param drivetrainConstants     Drivetrain-wide constants for the swerve drive
-     * @param odometryUpdateFrequency The frequency to run the odometry loop. If
-     *                                unspecified or set to 0 Hz, this is 250 Hz on
-     *                                CAN FD, and 100 Hz on CAN 2.0.
-     * @param modules                 Constants for each specific module
-     */
-    public CommandSwerveDrivetrain(SwerveDrivetrainConstants drivetrainConstants, double odometryUpdateFrequency,
-            SwerveModuleConstants<?, ?, ?>... modules)
-    {
-        super(drivetrainConstants, odometryUpdateFrequency, modules);
-        if (Utils.isSimulation())
-        {
-            startSimThread();
-        }
-        configureAutoBuilder();
-    }
-
-    /**
-     * Constructs a CTRE SwerveDrivetrain using the specified constants.
-     * <p>
-     * This constructs the underlying hardware devices, so users should not
-     * construct the devices themselves. If they need the devices, they can access
-     * them through getters in the classes.
-     *
-     * @param drivetrainConstants       Drivetrain-wide constants for the swerve
-     *                                  drive
-     * @param odometryUpdateFrequency   The frequency to run the odometry loop. If
-     *                                  unspecified or set to 0 Hz, this is 250 Hz
-     *                                  on CAN FD, and 100 Hz on CAN 2.0.
-     * @param odometryStandardDeviation The standard deviation for odometry
-     *                                  calculation in the form [x, y, theta]ᵀ, with
-     *                                  units in meters and radians
-     * @param visionStandardDeviation   The standard deviation for vision
-     *                                  calculation in the form [x, y, theta]ᵀ, with
-     *                                  units in meters and radians
-     * @param modules                   Constants for each specific module
-     */
-    public CommandSwerveDrivetrain(SwerveDrivetrainConstants drivetrainConstants, double odometryUpdateFrequency,
-            Matrix<N3, N1> odometryStandardDeviation, Matrix<N3, N1> visionStandardDeviation,
-            SwerveModuleConstants<?, ?, ?>... modules)
-    {
-        super(drivetrainConstants, odometryUpdateFrequency, odometryStandardDeviation, visionStandardDeviation,
-                modules);
+        this.maxVelocity = maxSpeed;
+        this.maxAngularVelocity = convertMaxVelocityToAngularVelocity(maxSpeed, Meters.of(
+                Math.sqrt(modules[0].LocationX * modules[0].LocationX + modules[0].LocationY * modules[0].LocationY)));
         if (Utils.isSimulation())
         {
             startSimThread();
@@ -224,27 +182,23 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
     }
 
     /**
-     * Runs the SysId Quasistatic test in the given direction for the routine
-     * specified by {@link #m_sysIdRoutineToApply}.
-     *
-     * @param direction Direction of the SysId Quasistatic test
+     * Runs sysId characterization on the drivetrain. This will run the specified
+     * SysId. Translation, steer, and rotation are all run in sequence.
+     * 
      * @return Command to run
      */
-    public Command sysIdQuasistatic(SysIdRoutine.Direction direction)
+    public Command sysId()
     {
-        return m_sysIdRoutineToApply.quasistatic(direction);
-    }
-
-    /**
-     * Runs the SysId Dynamic test in the given direction for the routine specified
-     * by {@link #m_sysIdRoutineToApply}.
-     *
-     * @param direction Direction of the SysId Dynamic test
-     * @return Command to run
-     */
-    public Command sysIdDynamic(SysIdRoutine.Direction direction)
-    {
-        return m_sysIdRoutineToApply.dynamic(direction);
+        return Commands.sequence(m_sysIdRoutineTranslation.dynamic(Direction.kForward),
+                m_sysIdRoutineTranslation.dynamic(Direction.kReverse),
+                m_sysIdRoutineTranslation.quasistatic(Direction.kForward),
+                m_sysIdRoutineTranslation.quasistatic(Direction.kReverse),
+                m_sysIdRoutineSteer.dynamic(Direction.kForward), m_sysIdRoutineSteer.dynamic(Direction.kReverse),
+                m_sysIdRoutineSteer.quasistatic(Direction.kForward),
+                m_sysIdRoutineSteer.quasistatic(Direction.kReverse), m_sysIdRoutineRotation.dynamic(Direction.kForward),
+                m_sysIdRoutineRotation.dynamic(Direction.kReverse),
+                m_sysIdRoutineRotation.quasistatic(Direction.kForward),
+                m_sysIdRoutineRotation.quasistatic(Direction.kReverse));
     }
 
     @Override
@@ -323,5 +277,23 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
     {
         super.addVisionMeasurement(visionRobotPoseMeters, Utils.fpgaToCurrentTime(timestampSeconds),
                 visionMeasurementStdDevs);
+    }
+
+    /**
+     * Drives the robot using joystick inputs. This is field-centric and uses
+     * velocity control.
+     * 
+     * @param forward  a supplier for the forward velocity [-1, 1]
+     * @param strafe   a supplier for the strafe velocity [-1, 1]
+     * @param rotation a supplier for the rotational velocity [-1, 1]
+     * @return
+     */
+    public Command driveByJoystick(DoubleSupplier forward, DoubleSupplier strafe, DoubleSupplier rotation)
+    {
+        SwerveRequest.FieldCentric fieldCentric = new SwerveRequest.FieldCentric()
+                .withDriveRequestType(DriveRequestType.Velocity);
+        return applyRequest(() -> fieldCentric.withVelocityX(forward.getAsDouble() * maxVelocity.in(MetersPerSecond))
+                .withVelocityY(strafe.getAsDouble() * maxVelocity.in(MetersPerSecond))
+                .withRotationalRate(rotation.getAsDouble() * maxAngularVelocity.in(RadiansPerSecond)));
     }
 }
