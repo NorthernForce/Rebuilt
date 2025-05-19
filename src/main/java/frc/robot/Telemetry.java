@@ -20,6 +20,9 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj.util.Color8Bit;
 
+/**
+ * A Phoenix6 generated class to log telemetry in hoot files
+ */
 public class Telemetry
 {
     private final double MaxSpeed;
@@ -85,6 +88,8 @@ public class Telemetry
     /**
      * Accept the swerve drive state and telemeterize it to SmartDashboard and
      * SignalLogger.
+     * 
+     * @param state The swerve drive state to telemeterize
      */
     public void telemeterize(SwerveDriveState state)
     {

@@ -110,3 +110,10 @@ spotless {
         eclipse().configFile('.vscode/java-formatter.xml')
     }
 }
+
+tasks.named('javadoc') {
+    options.addStringOption('Xwerror', '-Xwerror')
+    exclude '**/*TunerConstants.java'
+    exclude '**/LimelightHelpers.java'
+    exclude '**/Main.java'
+}
