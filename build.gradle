@@ -116,4 +116,5 @@ tasks.named('javadoc') {
     exclude '**/*TunerConstants.java'
     exclude '**/LimelightHelpers.java'
     exclude '**/Main.java'
+    options.encoding = 'UTF-8'
 }
