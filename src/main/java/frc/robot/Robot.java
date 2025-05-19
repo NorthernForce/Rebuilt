@@ -14,12 +14,21 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.zippy.ZippyContainer;
 
+/**
+ * The main robot class. This is where the robot code starts and ends. This
+ * class is responsible for creating the robot-specific container and running
+ * the robot code.
+ */
 public class Robot extends TimedRobot
 {
     private Command m_autonomousCommand;
 
     private final NFRRobotContainer m_robotContainer;
 
+    /**
+     * The robot container is the main class for the robot. It is responsible for
+     * creating the robot-specific container and running the robot code.
+     */
     public Robot()
     {
         NFRRobotChooser chooser = new NFRRobotChooser(() -> new ZippyContainer(), Map.of());

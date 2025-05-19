@@ -12,8 +12,8 @@ import edu.wpi.first.wpilibj.RobotController;
  */
 public class NFRRobotChooser
 {
-    protected final Supplier<NFRRobotContainer> defaultRobot;
-    protected final Map<String, Supplier<NFRRobotContainer>> otherRobots;
+    private final Supplier<NFRRobotContainer> defaultRobot;
+    private final Map<String, Supplier<NFRRobotContainer>> otherRobots;
 
     /**
      * Creates a new robot chooser.

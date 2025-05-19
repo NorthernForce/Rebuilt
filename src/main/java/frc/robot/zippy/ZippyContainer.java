@@ -18,6 +18,10 @@ import frc.robot.Telemetry;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.zippy.generated.ZippyTunerConstants;
 
+/**
+ * This is the main robot container for the Zippy robot. It contains the robot's
+ * subsystems, commands, and OI (operator interface) bindings.
+ */
 public class ZippyContainer implements NFRRobotContainer
 {
     private double MaxSpeed = ZippyTunerConstants.kSpeedAt12Volts.in(MetersPerSecond); // kSpeedAt12Volts desired top
@@ -25,11 +29,20 @@ public class ZippyContainer implements NFRRobotContainer
 
     private final Telemetry logger = new Telemetry(MaxSpeed);
 
+    /**
+     * This is the swerve drivetrain subsystem for the Zippy robot. It is
+     * responsible for controlling the robot's movement and handling the swerve
+     * drive mechanism.
+     */
     public final CommandSwerveDrivetrain drivetrain = ZippyTunerConstants.createDrivetrain();
 
     /* Path follower */
     private final SendableChooser<Command> autoChooser;
 
+    /**
+     * Creates a new ZippyContainer. This is where the robot's subsystems, commands,
+     * and OI (operator interface) bindings are created.
+     */
     public ZippyContainer()
     {
         autoChooser = AutoBuilder.buildAutoChooser("Tests");
