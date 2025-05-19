@@ -53,7 +53,7 @@ public class NFRXBoxController extends CommandXboxController
     @Override
     public double getLeftY()
     {
-        return processJoystick(super.getLeftX());
+        return processJoystick(super.getLeftY());
     }
 
     /**
@@ -66,7 +66,7 @@ public class NFRXBoxController extends CommandXboxController
     @Override
     public double getLeftX()
     {
-        return processJoystick(super.getLeftY());
+        return processJoystick(super.getLeftX());
     }
 
     /**
@@ -79,7 +79,7 @@ public class NFRXBoxController extends CommandXboxController
     @Override
     public double getRightY()
     {
-        return processJoystick(super.getRightX());
+        return processJoystick(super.getRightY());
     }
 
     /**
@@ -92,6 +92,6 @@ public class NFRXBoxController extends CommandXboxController
     @Override
     public double getRightX()
     {
-        return processJoystick(super.getRightY());
+        return processJoystick(super.getRightX());
     }
 }
