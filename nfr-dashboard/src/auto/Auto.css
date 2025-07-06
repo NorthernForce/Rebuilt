@@ -1,0 +1,23 @@
+.auto-container {
+    display: grid;
+    grid-template-columns: 1fr 3fr;
+    grid-template-areas: "selector field";
+    padding: 1%;
+    justify-items: center;
+}
+.auto-selector-container {
+    grid-area: selector;
+}
+.auto-field-container {
+    grid-area: field;
+    justify-items: center;
+    width: 800px;
+}
+.auto-field {
+    width: 800px;
+}
+.auto-alerts
+{
+    width: 100%;
+    min-width: 500px;
+}
