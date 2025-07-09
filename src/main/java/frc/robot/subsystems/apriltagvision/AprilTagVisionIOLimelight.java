@@ -60,7 +60,7 @@ public class AprilTagVisionIOLimelight implements AprilTagVisionIO
      * Get the list of poses of the robot relative to the blue origin.
      */
     @Override
-    public List<Pose2dWithTimestamp> getPose()
+    public List<Pose2dWithTimestamp> getPoses()
     {
         var poseData = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(limelightName);
         if (LimelightHelpers.validPoseEstimate(poseData))

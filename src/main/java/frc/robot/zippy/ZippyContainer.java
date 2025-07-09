@@ -70,7 +70,7 @@ public class ZippyContainer implements NFRRobotContainer
         {
             AprilTagVisionIOPhotonVisionSim.getVisionSystemSim().update(drivetrain.getState().Pose);
         }
-        List<Pose2dWithTimestamp> poses = aprilTagVisionIO.getPose();
+        List<Pose2dWithTimestamp> poses = aprilTagVisionIO.getPoses();
         Rotation2d robotYaw = drivetrain.getState().Pose.getRotation();
         aprilTagVisionIO.setHeading(robotYaw, Rotation2d.fromDegrees(0));
         for (Pose2dWithTimestamp pose : poses)

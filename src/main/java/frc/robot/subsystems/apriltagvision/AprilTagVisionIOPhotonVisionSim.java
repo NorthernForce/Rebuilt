@@ -56,7 +56,7 @@ public class AprilTagVisionIOPhotonVisionSim implements AprilTagVisionIO
      */
 
     @Override
-    public List<Pose2dWithTimestamp> getPose()
+    public List<Pose2dWithTimestamp> getPoses()
     {
         List<PhotonPipelineResult> poseResults = cameraSim.getCamera().getAllUnreadResults();
         List<Pose2dWithTimestamp> poses = new ArrayList<>();

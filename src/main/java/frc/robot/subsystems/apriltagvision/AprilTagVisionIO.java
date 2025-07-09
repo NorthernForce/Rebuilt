@@ -21,5 +21,5 @@ public interface AprilTagVisionIO
     {
     }
 
-    public List<Pose2dWithTimestamp> getPose();
+    public List<Pose2dWithTimestamp> getPoses();
 }
