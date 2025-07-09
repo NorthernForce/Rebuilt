@@ -4,11 +4,12 @@ import java.util.List;
 
 import edu.wpi.first.math.geometry.Rotation2d;
 import frc.robot.LimelightHelpers;
+import frc.robot.zippy.ZippyConstants;
 
 /**
  * This class is used to interface with Limelight for AprilTag detection. It
  * uses the LimelightHelpers library to get the pose of the robot relative to
- * the AprilTag.
+ * the blue origin.
  */
 public class AprilTagVisionIOLimelight implements AprilTagVisionIO
 {
@@ -51,11 +52,11 @@ public class AprilTagVisionIOLimelight implements AprilTagVisionIO
     @Override
     public void setHeading(Rotation2d heading, Rotation2d yawRate)
     {
-        LimelightHelpers.SetRobotOrientation("limelight", heading.getDegrees(), yawRate.getDegrees(), 0, 0, 0, 0);
+        LimelightHelpers.SetRobotOrientation(ZippyConstants.VisionConstants.LimeLightConstants.kLimeLightName, heading.getDegrees(), yawRate.getDegrees(), 0, 0, 0, 0);
     }
 
     /**
-     * Get the list of poses of the robot relative to the AprilTag.
+     * Get the list of poses of the robot relative to the blue origin.
      */
     @Override
     public List<Pose2dWithTimestamp> getPose()
