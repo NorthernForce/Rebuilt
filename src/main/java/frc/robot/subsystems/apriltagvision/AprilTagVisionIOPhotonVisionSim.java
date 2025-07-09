@@ -44,9 +44,7 @@ public class AprilTagVisionIOPhotonVisionSim implements AprilTagVisionIO
                     PhotonPoseEstimator.PoseStrategy.LOWEST_AMBIGUITY, robotToCamera);
         } catch (IOException e)
         {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-            poseEstimator = null;
+            throw new RuntimeException("Unable to initialize PhotonPoseEstimator due to missing field layout.", e);
         }
         getVisionSystemSim().addCamera(cameraSim, robotToCamera);
     }
@@ -91,7 +89,6 @@ public class AprilTagVisionIOPhotonVisionSim implements AprilTagVisionIO
                 visionSystemSim.addAprilTags(fieldLayout);
             } catch (IOException e)
             {
-                System.err.println("Failed to load AprilTagFieldLayout: " + e.getMessage());
                 throw new RuntimeException("Unable to initialize VisionSystemSim due to missing field layout.", e);
             }
         }
