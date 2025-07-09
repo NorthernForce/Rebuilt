@@ -11,7 +11,7 @@ node {
 
     // Version of node to download and install (only used if download is true)
     // It will be unpacked in the workDir
-    version = "18.17.1"
+    version = "24.3.0"
 
     // Version of npm to use
     // If specified, installs it in the npmWorkDir
@@ -60,23 +60,17 @@ node {
     nodeProxySettings = ProxySettings.SMART
 }
 
-npm_run_build {
-    inputs.files fileTree("public")
-    inputs.files fileTree("src")
-
-    inputs.file 'package.json'
-    inputs.file 'package-lock.json'
-
-    outputs.dir 'build'
+task runBuild(type: NpmTask) {
+    args = ['run', 'build']
 }
 
-task copyCode(type: Copy) {
+task copyCodeToDeploy(type: Copy) {
     from 'dist'
     into '../src/main/deploy/npm-dash'
 }
-copyCode.dependsOn npm_run_build
+copyCodeToDeploy.dependsOn runBuild
 
-task runDev(type: NpmTask, dependsOn: 'npm_run_build') {
+task runDev(type: NpmTask, dependsOn: 'runBuild') {
     args = ['run', 'dev']
 }
 

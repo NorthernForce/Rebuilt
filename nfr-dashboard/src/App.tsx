@@ -4,10 +4,11 @@ import { useState } from 'react';
 import { useEntry } from '@frc-web-components/react';
 import Teleop from './teleop/Teleop';
 import Auto from './auto/Auto';
-import Settings from './settings/Settings';
 import ConnectionStatus from './components/ConnectionStatus';
 import DisconnectedNotice from './components/DisconnectedFromServerNotice';
-import PitMenu from './components/PitMenu';
+import NavigatableTreeDisplay from './components/NavigatableTreeDisplay';
+import MotorChip from './components/MotorChip';
+import ArmControl from './components/ArmControl';
 
 function TabPanel(props: { children?: React.ReactNode, selected: number, index: number }) {
     return <div hidden={props.selected !== props.index}>
@@ -26,7 +27,6 @@ function App() {
     let [tabsLocked] = useState(false);
     let [hasCoral] = useEntry('/FWC/HasCoral', false);
     let color = hasCoral ? "#026afa" : "";
-    const [selectedMenu, setSelectedMenu] = useState("");
     return (
         <>
             <div className="main-container" style={{ backgroundColor: color }}>
@@ -38,7 +38,7 @@ function App() {
                     </Tabs>
                     <ConnectionStatus sourceKey="/FWC/ConnectionStatus" changeConnectionStatus={setRobotConnected} />
                 </div>
-                <div>
+                <div style={{height: '100%'}}>
                     <TabPanel selected={tabsLocked ? tabEntry : selected} index={0}>
                         <Teleop />
                     </TabPanel>
@@ -46,32 +46,24 @@ function App() {
                         <Auto />
                     </TabPanel>
                     <TabPanel selected={tabsLocked ? tabEntry : selected} index={2}>
-                        <PitMenu menuToDisplay={[
-                            {
-                                key: "settings",
-                                label: "Settings",
-                                value: {
-                                    node: <Settings />,
-                                    children: [
-                                        {
-                                            key: "robot-settings",
-                                            label: "Robot Settings",
-                                            value: <div>Robot Settings Content</div>
-                                        },
-                                        {
-                                            key: "driver-settings",
-                                            label: "Driver Settings",
-                                            value: <div>Driver Settings Content</div>
-                                        }
-                                    ]
+                        <div style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
+                            <NavigatableTreeDisplay items={[
+                                {
+                                    id: 'subsystems',
+                                    label: 'Subsystems',
+                                    children: []
+                                },
+                                {
+                                    id: 'motors',
+                                    label: 'Motors',
+                                    children: Array.from({ length: 10 }, (_, i) => ({
+                                        id: `motor-${i + 1}`,
+                                        label: `Motor ${i + 1}`,
+                                        display: <MotorChip motorId={i + 1} />
+                                    }))
                                 }
-                            },
-                            {
-                                key: "help",
-                                label: "Help",
-                                value: <div>Help Content</div>
-                            }
-                        ]} selectedMenu={selectedMenu} setSelectedMenu={setSelectedMenu} />
+                            ]} />
+                        </div>
                     </TabPanel>
                 </div>
                 <DisconnectedNotice isDisconnected={!robotConnected} />
