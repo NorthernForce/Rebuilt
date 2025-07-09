@@ -25,7 +25,8 @@ import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.apriltagvision.*;
 import frc.robot.zippy.generated.ZippyTunerConstants;
 
-public class ZippyContainer implements NFRRobotContainer {
+public class ZippyContainer implements NFRRobotContainer
+{
     private double MaxSpeed = ZippyTunerConstants.kSpeedAt12Volts.in(MetersPerSecond); // kSpeedAt12Volts desired top
                                                                                        // speed
     private final Telemetry logger = new Telemetry(MaxSpeed);
@@ -37,12 +38,15 @@ public class ZippyContainer implements NFRRobotContainer {
     /* Path follower */
     private final SendableChooser<Command> autoChooser;
 
-    public ZippyContainer() {
-        if (RobotBase.isSimulation()) {
+    public ZippyContainer()
+    {
+        if (RobotBase.isSimulation())
+        {
             aprilTagVisionIO = new AprilTagVisionIOPhotonVisionSim(
                     ZippyConstants.VisionConstants.LimeLightConstants.kLimeLightName, new SimCameraProperties(),
                     ZippyConstants.VisionConstants.PhotonVisionConstants.kRobotToCamera);
-        } else {
+        } else
+        {
             aprilTagVisionIO = new AprilTagVisionIOLimelight(
                     ZippyConstants.VisionConstants.LimeLightConstants.kLimeLightName);
             LimelightHelpers.SetFiducialIDFiltersOverride(
@@ -60,27 +64,31 @@ public class ZippyContainer implements NFRRobotContainer {
     }
 
     @Override
-    public void periodic() {
-        if (RobotBase.isSimulation()) {
+    public void periodic()
+    {
+        if (RobotBase.isSimulation())
+        {
             AprilTagVisionIOPhotonVisionSim.getVisionSystemSim().update(drivetrain.getState().Pose);
         }
         List<Pose2dWithTimestamp> poses = aprilTagVisionIO.getPose();
         Rotation2d robotYaw = drivetrain.getState().Pose.getRotation();
         aprilTagVisionIO.setHeading(robotYaw, Rotation2d.fromDegrees(0));
-        for (Pose2dWithTimestamp pose : poses) {
-            drivetrain.addVisionMeasurement(pose.pose(),
-                    pose.timestamp(), ZippyConstants.VisionConstants.kStdDevs);
+        for (Pose2dWithTimestamp pose : poses)
+        {
+            drivetrain.addVisionMeasurement(pose.pose(), pose.timestamp(), ZippyConstants.VisionConstants.kStdDevs);
         }
 
     }
 
-    public Command getAutonomousCommand() {
+    public Command getAutonomousCommand()
+    {
         /* Run the path selected from the auto chooser */
         return autoChooser.getSelected();
     }
 
     @Override
-    public void bindOI() {
+    public void bindOI()
+    {
         new ZippyOI().bind(this);
     }
 }
