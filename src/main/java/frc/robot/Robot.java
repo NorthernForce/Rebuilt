@@ -12,7 +12,7 @@ import org.northernforce.util.NFRRobotContainer;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
-import frc.robot.zippy.ZippyContainer;
+import frc.robot.ralph.RalphContainer;
 
 public class Robot extends TimedRobot
 {
@@ -22,7 +22,7 @@ public class Robot extends TimedRobot
 
     public Robot()
     {
-        NFRRobotChooser chooser = new NFRRobotChooser(() -> new ZippyContainer(), Map.of());
+        NFRRobotChooser chooser = new NFRRobotChooser(() -> new RalphContainer(), Map.of());
         m_robotContainer = chooser.getNFRRobotContainer();
     }
 
