@@ -1,5 +1,6 @@
 package frc.robot.ralph;
 
-public class RalphConstants {
-    
+public class RalphConstants
+{
+
 }

@@ -5,16 +5,19 @@ import org.northernforce.util.NFRRobotContainer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 
-public class RalphContainer implements NFRRobotContainer {
+public class RalphContainer implements NFRRobotContainer
+{
 
     @Override
-    public void bindOI() {
+    public void bindOI()
+    {
 
     }
 
     @Override
-    public Command getAutonomousCommand() {
-       return Commands.none();
+    public Command getAutonomousCommand()
+    {
+        return Commands.none();
     }
-    
+
 }
