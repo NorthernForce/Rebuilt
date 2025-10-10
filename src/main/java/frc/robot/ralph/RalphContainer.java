@@ -1,18 +1,23 @@
 package frc.robot.ralph;
 
-import frc.robot.ralph.subsystems.shooter.ShooterIOTalonFX;
+import org.northernforce.util.NFRRobotContainer;
 
-public class RalphContainer
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
+
+public class RalphContainer implements NFRRobotContainer
 {
-    private final ShooterIOTalonFX motor;
 
-    public RalphContainer()
+    @Override
+    public void bindOI()
     {
-        motor = new ShooterIOTalonFX(1);
+        new RalphOI().bind(this);
     }
 
-    public ShooterIOTalonFX getMotor()
+    @Override
+    public Command getAutonomousCommand()
     {
-        return motor;
+        return Commands.none();
     }
+
 }

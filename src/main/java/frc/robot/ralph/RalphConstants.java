@@ -1,4 +1,4 @@
-package frc.robot.zippy;
+package frc.robot.ralph;
 
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.geometry.Rotation3d;
@@ -6,7 +6,7 @@ import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.numbers.N3;
 
-public class ZippyConstants
+public class RalphConstants
 {
     public class VisionConstants
     {
