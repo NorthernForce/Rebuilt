@@ -1,14 +1,18 @@
 package frc.robot.ralph;
 
-import frc.robot.subsystems.ralph.shooter.ShooterIOTalonFX;
+import frc.robot.ralph.subsystems.shooter.ShooterIOTalonFX;
 
-public class RalphContainer {
+public class RalphContainer
+{
     private final ShooterIOTalonFX motor;
-    public RalphContainer() {
+
+    public RalphContainer()
+    {
         motor = new ShooterIOTalonFX(1);
     }
 
-    public ShooterIOTalonFX getMotor() {
+    public ShooterIOTalonFX getMotor()
+    {
         return motor;
     }
 }

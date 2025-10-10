@@ -24,5 +24,11 @@ public class ZippyConstants
             public static final Transform3d kRobotToCamera = new Transform3d(new Translation3d(0.0, 0.0, 0.0),
                     new Rotation3d(0.0, 0.0, 0.0));
         }
+
+    }
+
+    public class ShooterConstants
+    {
+        public static final int kMotorId = 18;
     }
 }
