@@ -11,7 +11,7 @@ public class RalphContainer implements NFRRobotContainer
     @Override
     public void bindOI()
     {
-
+        new RalphOI().bind(this);
     }
 
     @Override
