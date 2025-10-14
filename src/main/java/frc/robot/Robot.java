@@ -24,6 +24,7 @@ public class Robot extends TimedRobot
     {
         NFRRobotChooser chooser = new NFRRobotChooser(() -> new RalphContainer(), Map.of());
         m_robotContainer = chooser.getNFRRobotContainer();
+        m_robotContainer.bindOI();
     }
 
     @Override
