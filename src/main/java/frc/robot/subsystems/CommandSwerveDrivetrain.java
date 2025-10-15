@@ -28,8 +28,6 @@ import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.LinearVelocity;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
-import edu.wpi.first.wpilibj.smartdashboard.Field2d;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.Notifier;
 import edu.wpi.first.wpilibj.Preferences;
 import edu.wpi.first.wpilibj.RobotController;
@@ -49,7 +47,8 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
     private static final double kSimLoopPeriod = 0.005; // 5 ms
     private Notifier m_simNotifier = null;
     private double m_lastSimTime;
-    private final Field2d field = new Field2d();
+    private final LinearVelocity maxSpeed;
+    private final AngularVelocity maxAngularSpeed;
 
     /* Blue alliance sees forward as 0 degrees (toward red alliance wall) */
     private static final Rotation2d kBlueAlliancePerspectiveRotation = Rotation2d.kZero;
@@ -116,14 +115,8 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
     private SysIdRoutine m_sysIdRoutineToApply = m_sysIdRoutineTranslation;
 
     /**
-     * Constructs a CTRE SwerveDrivetrain using the specified constants.
-     * <p>
-     * This constructs the underlying hardware devices, so users should not
-     * construct the devices themselves. If they need the devices, they can access
-     * them through getters in the classes.
-     *
-     * @param drivetrainConstants Drivetrain-wide constants for the swerve drive
-     * @param modules             Constants for each specific module
+     * just so the generated tuner code doesn't error (DONT USE NORMALLY UNLESS YOU
+     * DONT WANT THE ROBOT TO MOVE)
      */
     public CommandSwerveDrivetrain(SwerveDrivetrainConstants drivetrainConstants,
             SwerveModuleConstants<?, ?, ?>... modules)
@@ -137,12 +130,44 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
                         Rotations.of(Preferences.getDouble("kSwerveOffsetBackLeft", modules[2].EncoderOffset))),
                 modules[3].withEncoderOffset(
                         Rotations.of(Preferences.getDouble("kSwerveOffsetBackRight", modules[3].EncoderOffset))));
+        this.maxSpeed = LinearVelocity.ofBaseUnits(0, MetersPerSecond);
+        this.maxAngularSpeed = AngularVelocity.ofBaseUnits(0, DegreesPerSecond);
         if (Utils.isSimulation())
         {
             startSimThread();
         }
         configureAutoBuilder();
-        SmartDashboard.putData("Field", field);
+    }
+
+    /**
+     * Constructs a CTRE SwerveDrivetrain using the specified constants.
+     * <p>
+     * This constructs the underlying hardware devices, so users should not
+     * construct the devices themselves. If they need the devices, they can access
+     * them through getters in the classes.
+     *
+     * @param drivetrainConstants Drivetrain-wide constants for the swerve drive
+     * @param modules             Constants for each specific module
+     */
+    public CommandSwerveDrivetrain(SwerveDrivetrainConstants drivetrainConstants, LinearVelocity maxSpeed,
+            AngularVelocity maxAngularSpeed, SwerveModuleConstants<?, ?, ?>... modules)
+    {
+        super(drivetrainConstants,
+                modules[0].withEncoderOffset(
+                        Rotations.of(Preferences.getDouble("kSwerveOffsetFrontLeft", modules[0].EncoderOffset))),
+                modules[1].withEncoderOffset(
+                        Rotations.of(Preferences.getDouble("kSwerveOffsetFrontRight", modules[1].EncoderOffset))),
+                modules[2].withEncoderOffset(
+                        Rotations.of(Preferences.getDouble("kSwerveOffsetBackLeft", modules[2].EncoderOffset))),
+                modules[3].withEncoderOffset(
+                        Rotations.of(Preferences.getDouble("kSwerveOffsetBackRight", modules[3].EncoderOffset))));
+        this.maxSpeed = maxSpeed;
+        this.maxAngularSpeed = maxAngularSpeed;
+        if (Utils.isSimulation())
+        {
+            startSimThread();
+        }
+        configureAutoBuilder();
     }
 
     /**
@@ -159,9 +184,11 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
      * @param modules                 Constants for each specific module
      */
     public CommandSwerveDrivetrain(SwerveDrivetrainConstants drivetrainConstants, double odometryUpdateFrequency,
-            SwerveModuleConstants<?, ?, ?>... modules)
+            LinearVelocity maxSpeed, AngularVelocity maxAngularSpeed, SwerveModuleConstants<?, ?, ?>... modules)
     {
         super(drivetrainConstants, odometryUpdateFrequency, modules);
+        this.maxSpeed = maxSpeed;
+        this.maxAngularSpeed = maxAngularSpeed;
         if (Utils.isSimulation())
         {
             startSimThread();
@@ -190,11 +217,13 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
      * @param modules                   Constants for each specific module
      */
     public CommandSwerveDrivetrain(SwerveDrivetrainConstants drivetrainConstants, double odometryUpdateFrequency,
-            Matrix<N3, N1> odometryStandardDeviation, Matrix<N3, N1> visionStandardDeviation,
-            SwerveModuleConstants<?, ?, ?>... modules)
+            Matrix<N3, N1> odometryStandardDeviation, Matrix<N3, N1> visionStandardDeviation, LinearVelocity maxSpeed,
+            AngularVelocity maxAngularSpeed, SwerveModuleConstants<?, ?, ?>... modules)
     {
         super(drivetrainConstants, odometryUpdateFrequency, odometryStandardDeviation, visionStandardDeviation,
                 modules);
+        this.maxSpeed = maxSpeed;
+        this.maxAngularSpeed = maxAngularSpeed;
         if (Utils.isSimulation())
         {
             startSimThread();
@@ -288,7 +317,6 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
                 m_hasAppliedOperatorPerspective = true;
             });
         }
-        field.setRobotPose(getState().Pose);
     }
 
     /**
@@ -299,8 +327,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
      * @param omegaSupplier omega input (rotational rate)
      * @return a command that drives the robot by joystick input
      */
-    public Command driveByJoystick(DoubleSupplier xSupplier, DoubleSupplier ySupplier, DoubleSupplier omegaSupplier,
-            LinearVelocity maxSpeed, AngularVelocity maxAngularVelocity)
+    public Command driveByJoystick(DoubleSupplier xSupplier, DoubleSupplier ySupplier, DoubleSupplier omegaSupplier)
     {
         SwerveRequest.FieldCentric request = new SwerveRequest.FieldCentric()
                 .withDriveRequestType(DriveRequestType.OpenLoopVoltage);
@@ -308,7 +335,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         {
             return request.withVelocityX(maxSpeed.times(xSupplier.getAsDouble()))
                     .withVelocityY(maxSpeed.times(ySupplier.getAsDouble()))
-                    .withRotationalRate(maxAngularVelocity.times(omegaSupplier.getAsDouble()));
+                    .withRotationalRate(maxAngularSpeed.times(omegaSupplier.getAsDouble()));
         });
     }
 

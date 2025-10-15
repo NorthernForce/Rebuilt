@@ -15,8 +15,8 @@ public class RalphConstants
 {
     public class DrivetrainConstants
     {
-        public static final LinearVelocity kMaxSpeed = MetersPerSecond.of(3.0);
-        public static final AngularVelocity kMaxAngularSpeed = RotationsPerSecond.of(0.7);
+        public static final LinearVelocity kMaxSpeed = MetersPerSecond.of(3.5);
+        public static final AngularVelocity kMaxAngularSpeed = RotationsPerSecond.of(3.0);
     }
 
     public class VisionConstants
