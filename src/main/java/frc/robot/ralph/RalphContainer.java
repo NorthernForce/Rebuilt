@@ -20,7 +20,7 @@ public class RalphContainer implements NFRRobotContainer
     public RalphContainer()
     {
         shooter = new ShooterIOTalonFX(RalphConstants.ShooterConstants.kMotorId,
-        RalphConstants.ShooterConstants.kMotorSpeed);
+                RalphConstants.ShooterConstants.kMotorSpeed);
         drive = new CommandSwerveDrivetrain(RalphTunerConstants.DrivetrainConstants,
                 RalphConstants.DrivetrainConstants.kMaxSpeed, RalphConstants.DrivetrainConstants.kMaxAngularSpeed,
                 RalphTunerConstants.FrontLeft, RalphTunerConstants.FrontRight, RalphTunerConstants.BackLeft,

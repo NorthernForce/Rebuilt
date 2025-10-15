@@ -1,6 +1,5 @@
 package frc.robot.ralph;
 
-
 import java.util.function.DoubleSupplier;
 
 import edu.wpi.first.math.MathUtil;

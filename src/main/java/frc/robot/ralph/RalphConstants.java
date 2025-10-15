@@ -1,6 +1,5 @@
 package frc.robot.ralph;
 
-import static edu.wpi.first.units.Units.MetersPerSecond;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 
 import edu.wpi.first.math.VecBuilder;
