@@ -10,12 +10,13 @@ import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.LinearVelocity;
+import frc.robot.ralph.generated.RalphTunerConstants;
 
 public class RalphConstants
 {
     public class DrivetrainConstants
     {
-        public static final LinearVelocity kMaxSpeed = MetersPerSecond.of(3.5);
+        public static final LinearVelocity kMaxSpeed = RalphTunerConstants.kSpeedAt12Volts;
         public static final AngularVelocity kMaxAngularSpeed = RotationsPerSecond.of(3.0);
     }
 

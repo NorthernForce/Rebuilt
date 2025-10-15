@@ -2,8 +2,8 @@ package frc.robot.ralph;
 
 import org.northernforce.util.NFRRobotContainer;
 
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import frc.robot.ralph.generated.RalphTunerConstants;
@@ -21,7 +21,8 @@ public class RalphContainer implements NFRRobotContainer
                 RalphTunerConstants.FrontLeft, RalphTunerConstants.FrontRight, RalphTunerConstants.BackLeft,
                 RalphTunerConstants.BackRight);
         field = new Field2d();
-        SmartDashboard.putData(field);
+        Shuffleboard.getTab("Developer").add(field);
+        Shuffleboard.getTab("Developer").add("Reset Encoders", drive.resetEncoders());
     }
 
     /**
