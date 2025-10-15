@@ -24,12 +24,14 @@ public class Robot extends TimedRobot
     {
         NFRRobotChooser chooser = new NFRRobotChooser(() -> new RalphContainer(), Map.of());
         m_robotContainer = chooser.getNFRRobotContainer();
+        m_robotContainer.bindOI();
     }
 
     @Override
     public void robotPeriodic()
     {
         CommandScheduler.getInstance().run();
+        m_robotContainer.periodic();
     }
 
     @Override

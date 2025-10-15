@@ -11,9 +11,18 @@ import edu.wpi.first.math.util.Units;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.units.measure.Mass;
 import frc.robot.subsystems.superstructure.elevator.Elevator.ElevatorConfig;
+import edu.wpi.first.units.measure.AngularVelocity;
+import edu.wpi.first.units.measure.LinearVelocity;
+import frc.robot.ralph.generated.RalphTunerConstants;
 
 public class RalphConstants
 {
+    public class DrivetrainConstants
+    {
+        public static final LinearVelocity kMaxSpeed = RalphTunerConstants.kSpeedAt12Volts;
+        public static final AngularVelocity kMaxAngularSpeed = RotationsPerSecond.of(3.0);
+    }
+
     public class VisionConstants
     {
         public static final edu.wpi.first.math.Vector<N3> kStdDevs = VecBuilder.fill(0.9, 0.9, 999999);
