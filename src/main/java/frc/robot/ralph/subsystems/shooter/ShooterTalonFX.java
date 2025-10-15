@@ -12,7 +12,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
  * implemented
  */
 
-public class ShooterIOTalonFX extends SubsystemBase
+public class ShooterTalonFX extends SubsystemBase
 {
     private int id;
     private TalonFX talonFX;
@@ -25,7 +25,7 @@ public class ShooterIOTalonFX extends SubsystemBase
      * @param speed speed to set motor to
      */
 
-    public ShooterIOTalonFX(int id, double speed)
+    public ShooterTalonFX(int id, double speed)
     {
         this.speed = speed;
         this.id = id;
@@ -48,7 +48,7 @@ public class ShooterIOTalonFX extends SubsystemBase
 
     public void outtake()
     {
-        talonFX.set(-speed);
+        talonFX.set(speed);
     }
 
     /**

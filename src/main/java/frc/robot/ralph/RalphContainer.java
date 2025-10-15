@@ -8,18 +8,18 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 
 import frc.robot.ralph.generated.RalphTunerConstants;
-import frc.robot.ralph.subsystems.shooter.ShooterIOTalonFX;
+import frc.robot.ralph.subsystems.shooter.ShooterTalonFX;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 
 public class RalphContainer implements NFRRobotContainer
 {
     private final CommandSwerveDrivetrain drive;
     private final Field2d field;
-    private final ShooterIOTalonFX shooter;
+    private final ShooterTalonFX shooter;
 
     public RalphContainer()
     {
-        shooter = new ShooterIOTalonFX(RalphConstants.ShooterConstants.kMotorId,
+        shooter = new ShooterTalonFX(RalphConstants.ShooterConstants.kMotorId,
                 RalphConstants.ShooterConstants.kMotorSpeed);
         drive = new CommandSwerveDrivetrain(RalphTunerConstants.DrivetrainConstants,
                 RalphConstants.DrivetrainConstants.kMaxSpeed, RalphConstants.DrivetrainConstants.kMaxAngularSpeed,
@@ -54,7 +54,7 @@ public class RalphContainer implements NFRRobotContainer
         new RalphOI().bind(this);
     }
 
-    public ShooterIOTalonFX getShooter()
+    public ShooterTalonFX getShooter()
     {
         return shooter;
     }
