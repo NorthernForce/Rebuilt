@@ -1,21 +1,33 @@
 package frc.robot.ralph;
 
-import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 
-/**
- * Base class for IO
- */
+import java.util.function.DoubleSupplier;
+
+import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 
 public class RalphOI
 {
-    private CommandXboxController driverController = new CommandXboxController(0);
-    private CommandXboxController manipulatorController = new CommandXboxController(1);
+    private static DoubleSupplier inputProc(DoubleSupplier input)
+    {
+        return () ->
+        {
+            double x = MathUtil.applyDeadband(input.getAsDouble(), 0.1, 1);
+            return -x * Math.abs(x);
+        };
+    }
 
     public void bind(RalphContainer container)
     {
+        var driveController = new CommandXboxController(0);
+        var manipulatorController = new CommandXboxController(1);
+
+        var drive = container.getDrive();
+
+        drive.setDefaultCommand(drive.driveByJoystick(inputProc(driveController::getLeftX),
+                inputProc(driveController::getLeftY), inputProc(driveController::getRightX)));
+        driveController.back().onTrue(drive.resetOrientation());
         manipulatorController.leftTrigger().whileTrue(container.getShooter().getIntakeCommand());
         manipulatorController.rightTrigger().whileTrue(container.getShooter().getOuttakeCommand());
-        driverController.leftTrigger().whileTrue(container.getShooter().getIntakeCommand());
-        driverController.rightTrigger().whileTrue(container.getShooter().getOuttakeCommand());
     }
 }
