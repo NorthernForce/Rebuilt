@@ -3,7 +3,6 @@ package frc.robot.ralph;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.math.MathUtil;
-
 import frc.robot.subsystems.superstructure.Superstructure.SuperstructureState;
 import java.util.function.DoubleSupplier;
 
@@ -24,10 +23,14 @@ public class RalphOI
         var manipulatorController = new CommandXboxController(1);
 
         var drive = container.getDrive();
+        var superstructure = container.getSuperstructure();
 
         drive.setDefaultCommand(drive.driveByJoystick(inputProc(driveController::getLeftX),
                 inputProc(driveController::getLeftY), inputProc(driveController::getRightX)));
         driveController.back().onTrue(drive.resetOrientation());
+
+        superstructure.setDefaultCommand(superstructure.getManualControlCommand(
+                inputProc(() -> manipulatorController.getRightY()), inputProc(() -> manipulatorController.getLeftY())));
 
         manipulatorController.povLeft().onTrue(Commands.run(
                 () -> container.getSuperstructure().setState(SuperstructureState.L1), container.getSuperstructure()));

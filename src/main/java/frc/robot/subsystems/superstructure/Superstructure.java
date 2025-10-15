@@ -2,7 +2,7 @@ package frc.robot.subsystems.superstructure;
 
 import static edu.wpi.first.units.Units.*;
 
-import java.util.function.Supplier;
+import java.util.function.DoubleSupplier;
 
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -71,11 +71,20 @@ public class Superstructure extends SubsystemBase
 
     public class ManualControlCommand extends ParallelCommandGroup
     {
-        public ManualControlCommand(Supplier<Double> innerElevatorSpeed, Supplier<Double> outerElevatorSpeed)
+        public ManualControlCommand(Superstructure superstructure, DoubleSupplier innerElevatorSpeed,
+                DoubleSupplier outerElevatorSpeed)
         {
-            addCommands(Commands.run(() -> innerElevator.manualControl(innerElevatorSpeed.get()), innerElevator),
-                    Commands.run(() -> outerElevator.manualControl(outerElevatorSpeed.get()), outerElevator));
+            addRequirements(superstructure);
+            addCommands(
+                    Commands.run(() -> innerElevator.manualControl(innerElevatorSpeed.getAsDouble()), innerElevator),
+                    Commands.run(() -> outerElevator.manualControl(outerElevatorSpeed.getAsDouble()), outerElevator));
         }
+    }
+
+    public ManualControlCommand getManualControlCommand(DoubleSupplier innerElevatorSpeed,
+            DoubleSupplier outerElevatorSpeed)
+    {
+        return new ManualControlCommand(this, innerElevatorSpeed, outerElevatorSpeed);
     }
 
     public SuperstructurePosition getPosition()
