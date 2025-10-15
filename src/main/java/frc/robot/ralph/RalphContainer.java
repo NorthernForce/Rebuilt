@@ -12,7 +12,8 @@ public class RalphContainer implements NFRRobotContainer
 
     public RalphContainer()
     {
-        shooter = new ShooterIOTalonFX(RalphConstants.ShooterConstants.kMotorId);
+        shooter = new ShooterIOTalonFX(RalphConstants.ShooterConstants.kMotorId,
+                RalphConstants.ShooterConstants.kMotorSpeed);
         bindOI();
     }
 

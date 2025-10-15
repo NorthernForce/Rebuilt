@@ -30,5 +30,6 @@ public class RalphConstants
     public class ShooterConstants
     {
         public static final int kMotorId = 18;
+        public static final double kMotorSpeed = 0.5;
     }
 }
