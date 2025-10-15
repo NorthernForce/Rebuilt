@@ -21,8 +21,10 @@ public class RalphOI
         var driveController = new CommandXboxController(0);
         var manipulatorController = new CommandXboxController(1);
 
-        container.getDrive()
-                .setDefaultCommand(container.getDrive().driveByJoystick(inputProc(driveController::getLeftX),
-                        inputProc(driveController::getLeftY), inputProc(driveController::getRightX)));
+        var drive = container.getDrive();
+
+        drive.setDefaultCommand(drive.driveByJoystick(inputProc(driveController::getLeftX),
+                inputProc(driveController::getLeftY), inputProc(driveController::getRightX)));
+        driveController.back().onTrue(drive.resetOrientation());
     }
 }

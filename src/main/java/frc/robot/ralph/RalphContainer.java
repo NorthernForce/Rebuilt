@@ -23,6 +23,7 @@ public class RalphContainer implements NFRRobotContainer
         field = new Field2d();
         Shuffleboard.getTab("Developer").add(field);
         Shuffleboard.getTab("Developer").add("Reset Encoders", drive.resetEncoders());
+        Shuffleboard.getTab("Developer").add("Reset Orientation", drive.resetOrientation());
     }
 
     /**

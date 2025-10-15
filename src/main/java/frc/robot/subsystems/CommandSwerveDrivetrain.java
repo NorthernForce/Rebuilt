@@ -460,6 +460,16 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
      */
     public Command resetEncoders()
     {
-        return Commands.runOnce(this::resetDriveEncoders);
+        return Commands.runOnce(this::resetDriveEncoders, this);
+    }
+
+    /**
+     * Resets orientation based on operator forward direction.
+     *
+     * @return a command that resets orientation
+     */
+    public Command resetOrientation()
+    {
+        return Commands.runOnce(() -> resetRotation(getOperatorForwardDirection()), this);
     }
 }
