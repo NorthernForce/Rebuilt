@@ -330,7 +330,8 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
     public Command driveByJoystick(DoubleSupplier xSupplier, DoubleSupplier ySupplier, DoubleSupplier omegaSupplier)
     {
         SwerveRequest.FieldCentric request = new SwerveRequest.FieldCentric()
-                .withDriveRequestType(DriveRequestType.OpenLoopVoltage);
+                .withDriveRequestType(DriveRequestType.OpenLoopVoltage)
+                .withForwardPerspective(SwerveRequest.ForwardPerspectiveValue.OperatorPerspective);
         return applyRequest(() ->
         {
             return request.withVelocityX(maxSpeed.times(xSupplier.getAsDouble()))
