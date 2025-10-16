@@ -24,7 +24,7 @@ public class AutoUtil
         NamedCommands.registerCommand("test", Commands.runOnce(() -> System.out.println("test")));
 
         var autoFiles = new File(Filesystem.getDeployDirectory(), "choreo").listFiles();
-        Stream.of(autoFiles).filter(file -> file.isFile()).map(File::getName).filter(name -> name.endsWith(".traj"))
+        (autoFiles == null ? Stream.<File>empty() : Stream.of(autoFiles)).filter(file -> file.isFile()).map(File::getName).filter(name -> name.endsWith(".traj"))
                 .map(name -> name.replace(".traj", "")).forEach(name ->
                 {
                     try
