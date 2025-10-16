@@ -345,6 +345,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
 
     public Command navigateToPose(Pose2d pose)
     {
+        // yes infinity is okay for the acceleration values
         return AutoBuilder.pathfindToPose(pose, new PathConstraints(maxSpeed.in(MetersPerSecond),
                 Double.POSITIVE_INFINITY, maxAngularSpeed.in(RadiansPerSecond), Double.POSITIVE_INFINITY));
     }
