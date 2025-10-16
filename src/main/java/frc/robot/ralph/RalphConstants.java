@@ -1,6 +1,5 @@
 package frc.robot.ralph;
 
-import static edu.wpi.first.units.Units.MetersPerSecond;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 
 import edu.wpi.first.math.VecBuilder;
@@ -36,5 +35,12 @@ public class RalphConstants
             public static final Transform3d kRobotToCamera = new Transform3d(new Translation3d(0.0, 0.0, 0.0),
                     new Rotation3d(0.0, 0.0, 0.0));
         }
+
+    }
+
+    public class ShooterConstants
+    {
+        public static final int kMotorId = 18;
+        public static final double kMotorSpeed = 0.5;
     }
 }
