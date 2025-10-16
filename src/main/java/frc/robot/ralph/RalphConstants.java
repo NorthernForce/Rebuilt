@@ -1,4 +1,4 @@
-package frc.robot.zippy;
+package frc.robot.ralph;
 
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.geometry.Rotation3d;
@@ -7,10 +7,20 @@ import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.numbers.N3;
 import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.Rotations;
+import static edu.wpi.first.units.Units.RotationsPerSecond;
 import edu.wpi.first.units.measure.Angle;
+import edu.wpi.first.units.measure.AngularVelocity;
+import edu.wpi.first.units.measure.LinearVelocity;
+import frc.robot.ralph.generated.RalphTunerConstants;
 
-public class ZippyConstants
+public class RalphConstants
 {
+    public class DrivetrainConstants
+    {
+        public static final LinearVelocity kMaxSpeed = RalphTunerConstants.kSpeedAt12Volts;
+        public static final AngularVelocity kMaxAngularSpeed = RotationsPerSecond.of(3.0);
+    }
+
     public class VisionConstants
     {
         public static final edu.wpi.first.math.Vector<N3> kStdDevs = VecBuilder.fill(0.9, 0.9, 999999);

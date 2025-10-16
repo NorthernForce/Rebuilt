@@ -4,7 +4,6 @@ import java.util.List;
 
 import edu.wpi.first.math.geometry.Rotation2d;
 import frc.robot.LimelightHelpers;
-import frc.robot.zippy.ZippyConstants;
 
 /**
  * This class is used to interface with Limelight for AprilTag detection. It
@@ -52,8 +51,7 @@ public class AprilTagVisionIOLimelight implements AprilTagVisionIO
     @Override
     public void setHeading(Rotation2d heading, Rotation2d yawRate)
     {
-        LimelightHelpers.SetRobotOrientation(ZippyConstants.VisionConstants.LimeLightConstants.kLimeLightName,
-                heading.getDegrees(), yawRate.getDegrees(), 0, 0, 0, 0);
+        LimelightHelpers.SetRobotOrientation(limelightName, heading.getDegrees(), yawRate.getDegrees(), 0, 0, 0, 0);
     }
 
     /**
