@@ -29,8 +29,7 @@ public class AutoUtil
                 {
                     try
                     {
-                        var path = AutoBuilder.followPath(PathPlannerPath.fromChoreoTrajectory(name));
-                        chooser.addOption(name, path);
+                        chooser.addOption(name, AutoBuilder.followPath(PathPlannerPath.fromChoreoTrajectory(name)));
                     } catch (Exception e)
                     {
                         e.printStackTrace();
