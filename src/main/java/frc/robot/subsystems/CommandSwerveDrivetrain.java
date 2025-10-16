@@ -345,24 +345,18 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
 
     public Command navigateToPose(Pose2d pose)
     {
-        // return AutoBuilder.pathfindToPose(pose,
-        // PathConstraints.unlimitedConstraints(12));
         return AutoBuilder.pathfindToPose(pose, new PathConstraints(maxSpeed.in(MetersPerSecond),
                 Double.POSITIVE_INFINITY, maxAngularSpeed.in(RadiansPerSecond), Double.POSITIVE_INFINITY));
     }
 
     public Command navigateToPose(Pose2d pose, LinearVelocity limitedSpeed)
     {
-        // return AutoBuilder.pathfindToPose(pose,
-        // PathConstraints.unlimitedConstraints(12));
         return AutoBuilder.pathfindToPose(pose, new PathConstraints(limitedSpeed.in(MetersPerSecond),
                 Double.POSITIVE_INFINITY, maxAngularSpeed.in(RadiansPerSecond), Double.POSITIVE_INFINITY));
     }
 
     public Command navigateToPose(Pose2d pose, LinearVelocity limitedSpeed, AngularVelocity limitedAngularSpeed)
     {
-        // return AutoBuilder.pathfindToPose(pose,
-        // PathConstraints.unlimitedConstraints(12));
         return AutoBuilder.pathfindToPose(pose, new PathConstraints(limitedSpeed.in(MetersPerSecond),
                 Double.POSITIVE_INFINITY, limitedAngularSpeed.in(RadiansPerSecond), Double.POSITIVE_INFINITY));
     }
