@@ -1,21 +1,12 @@
 package frc.robot.ralph;
 
-import java.io.File;
-import java.util.stream.Stream;
-
 import org.northernforce.util.NFRRobotContainer;
 
-import com.pathplanner.lib.auto.NamedCommands;
-import com.pathplanner.lib.commands.PathPlannerAuto;
-import com.pathplanner.lib.path.PathPlannerPath;
-
-import edu.wpi.first.wpilibj.Filesystem;
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
-import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.Commands;
 import frc.robot.ralph.generated.RalphTunerConstants;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.util.AutoUtil;
@@ -35,6 +26,7 @@ public class RalphContainer implements NFRRobotContainer
         Shuffleboard.getTab("Developer").add(field);
         Shuffleboard.getTab("Developer").add("Reset Encoders", drive.resetEncoders());
         Shuffleboard.getTab("Developer").add("Reset Orientation", drive.resetOrientation());
+        Shuffleboard.getTab("Developer").add("Drive to Blue Reef", drive.navigateToPose(new Pose2d(3, 4, new Rotation2d())));
         AutoUtil.buildAutos();
     }
 
