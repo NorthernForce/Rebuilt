@@ -1,7 +1,8 @@
 package frc.robot.ralph;
 
-import static edu.wpi.first.units.Units.MetersPerSecond;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
+import static edu.wpi.first.units.Units.Inches;
+import static edu.wpi.first.units.Units.Degrees;
 
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.geometry.Rotation3d;
@@ -18,6 +19,21 @@ public class RalphConstants
     {
         public static final LinearVelocity kMaxSpeed = RalphTunerConstants.kSpeedAt12Volts;
         public static final AngularVelocity kMaxAngularSpeed = RotationsPerSecond.of(3.0);
+    }
+
+    public static class CameraConstants
+    {
+        public static final Transform3d kFrontRightCameraTransform = new Transform3d(
+                new Translation3d(Inches.of(15.0 - 3.0), Inches.of(-(15.0 - 7.5)), Inches.of(8.5)),
+                new Rotation3d(Degrees.zero(), Degrees.zero(), Degrees.zero()));
+
+        public static final Transform3d kFrontLeftCameraTransform = new Transform3d(
+                new Translation3d(Inches.of(15.0 - 3.0), Inches.of(15.0 - 7.75), Inches.of(8.5)),
+                new Rotation3d(Degrees.zero(), Degrees.of(-27.4), Degrees.of(53.4)));
+
+        public static final Transform3d kCenterCameraTransform = new Transform3d(
+                new Translation3d(Inches.of(15.0 - 2.5), Inches.zero(), Inches.of(9.5)),
+                new Rotation3d(Degrees.zero(), Degrees.of(-25), Degrees.zero()));
     }
 
     public class VisionConstants

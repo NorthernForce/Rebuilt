@@ -32,10 +32,10 @@ public class RalphContainer implements NFRRobotContainer
                 RalphTunerConstants.BackRight);
         if (Utils.isSimulation())
         {
-            // TODO: actually get camera properties + transform
+            // TODO: get camera json config for sim
             vision = new AprilTagVisionIOPhotonVisionSim(
                     RalphConstants.VisionConstants.LimeLightConstants.kLimeLightName, new SimCameraProperties(),
-                    new Transform3d());
+                    RalphConstants.CameraConstants.kCenterCameraTransform);
         } else
         {
             vision = new AprilTagVisionIOLimelight(RalphConstants.VisionConstants.LimeLightConstants.kLimeLightName,
