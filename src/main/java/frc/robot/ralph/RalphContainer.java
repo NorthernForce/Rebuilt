@@ -1,19 +1,27 @@
 package frc.robot.ralph;
 
 import org.northernforce.util.NFRRobotContainer;
+import org.photonvision.simulation.SimCameraProperties;
+
+import com.ctre.phoenix6.Utils;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.ralph.generated.RalphTunerConstants;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
+import frc.robot.subsystems.apriltagvision.AprilTagVisionIO;
+import frc.robot.subsystems.apriltagvision.AprilTagVisionIOLimelight;
+import frc.robot.subsystems.apriltagvision.AprilTagVisionIOPhotonVisionSim;
 import frc.robot.util.AutoUtil;
 
 public class RalphContainer implements NFRRobotContainer
 {
     private final CommandSwerveDrivetrain drive;
+    private final AprilTagVisionIO vision;
     private final Field2d field;
 
     public RalphContainer()
@@ -22,6 +30,17 @@ public class RalphContainer implements NFRRobotContainer
                 RalphConstants.DrivetrainConstants.kMaxSpeed, RalphConstants.DrivetrainConstants.kMaxAngularSpeed,
                 RalphTunerConstants.FrontLeft, RalphTunerConstants.FrontRight, RalphTunerConstants.BackLeft,
                 RalphTunerConstants.BackRight);
+        if (Utils.isSimulation())
+        {
+            // TODO: get camera json config for sim
+            vision = new AprilTagVisionIOPhotonVisionSim(
+                    RalphConstants.VisionConstants.LimeLightConstants.kLimeLightName, new SimCameraProperties(),
+                    RalphConstants.CameraConstants.kCenterCameraTransform);
+        } else
+        {
+            vision = new AprilTagVisionIOLimelight(RalphConstants.VisionConstants.LimeLightConstants.kLimeLightName,
+                    RalphConstants.VisionConstants.LimeLightConstants.kValidIds);
+        }
         field = new Field2d();
         Shuffleboard.getTab("Developer").add(field);
         Shuffleboard.getTab("Developer").add("Reset Encoders", drive.resetEncoders());
@@ -44,7 +63,8 @@ public class RalphContainer implements NFRRobotContainer
     @Override
     public void periodic()
     {
-        field.setRobotPose(getDrive().getState().Pose);
+        vision.getPoses().forEach(m -> drive.addVisionMeasurement(m.pose(), m.timestamp()));
+        field.setRobotPose(drive.getState().Pose);
     }
 
     @Override
