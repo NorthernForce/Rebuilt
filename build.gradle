@@ -43,19 +43,21 @@ deploy {
 }
 
 tasks.register("writeCommitHash") {
-   def stdout = new ByteArrayOutputStream()
+    doLast {
+        def stdout = new ByteArrayOutputStream()
 
-   exec {
-     commandLine "git", "show", "--summary", "HEAD"
-     standardOutput = stdout
+        exec {
+         commandLine "git", "show", "--summary", "HEAD"
+         standardOutput = stdout
+        }
+
+        def commitHash = stdout.toString().trim()
+
+        new File(
+          projectDir.toString() + "/src/main/deploy",
+          "commit.txt"
+        ).text = commitHash
    }
-
-   def commitHash = stdout.toString().trim()
-
-   new File(
-      projectDir.toString() + "/src/main/deploy",
-      "commit.txt"
-   ).text = commitHash
 }
 deploy.targets.roborio.artifacts.frcStaticFileDeploy.dependsOn(writeCommitHash)
 
