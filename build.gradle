@@ -42,6 +42,23 @@ deploy {
     }
 }
 
+tasks.register("writeCommitHash") {
+   def stdout = new ByteArrayOutputStream()
+
+   exec {
+     commandLine "git", "show", "--summary", "HEAD"
+     standardOutput = stdout
+   }
+
+   def commitHash = stdout.toString().trim()
+
+   new File(
+      projectDir.toString() + "/src/main/deploy",
+      "commit.txt"
+   ).text = commitHash
+}
+deploy.targets.roborio.artifacts.frcStaticFileDeploy.dependsOn(writeCommitHash)
+
 def deployArtifact = deploy.targets.roborio.artifacts.frcJava
 
 // Set to true to use debug for JNI.
