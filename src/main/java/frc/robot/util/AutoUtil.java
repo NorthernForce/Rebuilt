@@ -1,7 +1,5 @@
 package frc.robot.util;
 
-import com.pathplanner.lib.auto.NamedCommands;
-
 import choreo.auto.AutoFactory;
 import choreo.trajectory.SwerveSample;
 import edu.wpi.first.math.controller.PIDController;
@@ -33,8 +31,6 @@ public class AutoUtil
                 Commands.sequence(factory.resetOdometry("TestPath"), factory.trajectoryCmd("TestPath"),
                         Commands.runOnce(() -> System.out.println("RETURNING")),
                         factory.trajectoryCmd("TestPathReturn")));
-
-        NamedCommands.registerCommand("test", Commands.runOnce(() -> System.out.println("test")));
 
         Shuffleboard.getTab("Robot").add("Auto Selector", chooser);
     }
