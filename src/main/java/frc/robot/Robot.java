@@ -5,11 +5,13 @@
 package frc.robot;
 
 import java.util.Map;
+import java.util.stream.Stream;
 
 import org.northernforce.util.NFRRobotChooser;
 import org.northernforce.util.NFRRobotContainer;
 
 import edu.wpi.first.wpilibj.TimedRobot;
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.ralph.RalphContainer;
@@ -25,6 +27,16 @@ public class Robot extends TimedRobot
         NFRRobotChooser chooser = new NFRRobotChooser(() -> new RalphContainer(), Map.of());
         m_robotContainer = chooser.getNFRRobotContainer();
         m_robotContainer.bindOI();
+        Stream.of(BuildConstants.class.getFields()).forEach(field ->
+        {
+            try
+            {
+                Shuffleboard.getTab("Build Info").add(field.getName(), field.get(null));
+            } catch (Exception e)
+            {
+                e.printStackTrace();
+            }
+        });
     }
 
     @Override
