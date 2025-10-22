@@ -41,7 +41,7 @@ public class Climber extends SubsystemBase
         this.lowerLimit = lowerLimit;
         this.upperLimit = upperLimit;
         config.Feedback.RotorToSensorRatio = 1.0;
-        config.Feedback.SensorToMechanismRatio = 100.0;
+        config.Feedback.SensorToMechanismRatio = gearRatio;
         config.SoftwareLimitSwitch.ForwardSoftLimitEnable = true;
         config.SoftwareLimitSwitch.ReverseSoftLimitEnable = true;
         config.SoftwareLimitSwitch.ForwardSoftLimitThreshold = upperLimit.in(Units.Rotations);

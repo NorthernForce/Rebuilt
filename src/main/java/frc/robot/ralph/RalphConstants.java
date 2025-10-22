@@ -65,5 +65,6 @@ public class RalphConstants
         public static final Angle kUpperLimit = Rotations.of(0.22);
         public static final Angle kSweetAngle = Degrees.of(70.0);
         public static final double kClimbSpeed = 1;
+        public static final double gearRatio = 100.0;
     }
 }
