@@ -47,7 +47,8 @@ public class RalphContainer implements NFRRobotContainer
         Shuffleboard.getTab("Developer").add("Reset Orientation", drive.resetOrientation());
         Shuffleboard.getTab("Developer").add("Drive to Blue Reef",
                 drive.navigateToPose(new Pose2d(3, 4, new Rotation2d())));
-        AutoUtil.buildAutos();
+        AutoUtil.buildAutos(drive, RalphConstants.AutoConstants.xPid, RalphConstants.AutoConstants.yPid,
+                RalphConstants.AutoConstants.rPid);
     }
 
     /**

@@ -10,6 +10,7 @@ import com.ctre.phoenix6.Utils;
 import com.ctre.phoenix6.configs.CANcoderConfiguration;
 import com.ctre.phoenix6.swerve.SwerveDrivetrainConstants;
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
+import com.ctre.phoenix6.swerve.SwerveRequest.ForwardPerspectiveValue;
 import com.ctre.phoenix6.swerve.SwerveModuleConstants;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 import com.pathplanner.lib.auto.AutoBuilder;
@@ -22,6 +23,7 @@ import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.units.measure.Angle;
@@ -340,6 +342,13 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
                     .withVelocityY(maxSpeed.times(ySupplier.getAsDouble()))
                     .withRotationalRate(maxAngularSpeed.times(omegaSupplier.getAsDouble()));
         });
+    }
+
+    public void relativeDrive(ChassisSpeeds speeds)
+    {
+        this.setControl(new SwerveRequest.FieldCentric().withDriveRequestType(DriveRequestType.Velocity)
+                .withForwardPerspective(ForwardPerspectiveValue.BlueAlliance).withVelocityX(speeds.vxMetersPerSecond)
+                .withVelocityY(speeds.vyMetersPerSecond).withRotationalRate(speeds.omegaRadiansPerSecond));
     }
 
     public Command navigateToPose(Pose2d pose)

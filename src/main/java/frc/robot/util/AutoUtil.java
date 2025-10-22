@@ -1,41 +1,41 @@
 package frc.robot.util;
 
-import java.io.File;
-import java.util.stream.Stream;
-
-import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
-import com.pathplanner.lib.path.PathPlannerPath;
 
-import edu.wpi.first.wpilibj.Filesystem;
+import choreo.auto.AutoFactory;
+import choreo.trajectory.SwerveSample;
+import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import frc.robot.subsystems.CommandSwerveDrivetrain;
 
 public class AutoUtil
 {
     private final static SendableChooser<Command> chooser = new SendableChooser<>();
 
-    public static void buildAutos()
+    public static void buildAutos(CommandSwerveDrivetrain drive, PIDController xPid, PIDController yPid,
+            PIDController rPid)
     {
+        var factory = new AutoFactory(() -> drive.getState().Pose, drive::resetPose, (SwerveSample sample) ->
+        {
+            var pose = drive.getState().Pose;
+            ChassisSpeeds speed = new ChassisSpeeds(sample.vx + xPid.calculate(pose.getX(), sample.x),
+                    sample.vy + yPid.calculate(pose.getY(), sample.y),
+                    sample.omega + rPid.calculate(pose.getRotation().getRadians(), sample.heading));
+            drive.relativeDrive(speed);
+        }, true, drive);
+
         chooser.setDefaultOption("Nothing", Commands.none());
+        chooser.addOption("TestPath",
+                Commands.sequence(factory.resetOdometry("TestPath"), factory.trajectoryCmd("TestPath"),
+                        Commands.runOnce(() -> System.out.println("RETURNING")),
+                        factory.trajectoryCmd("TestPathReturn")));
 
         NamedCommands.registerCommand("test", Commands.runOnce(() -> System.out.println("test")));
 
-        var autoFiles = new File(Filesystem.getDeployDirectory(), "choreo").listFiles();
-        (autoFiles == null ? Stream.<File>empty() : Stream.of(autoFiles)).filter(file -> file.isFile())
-                .map(File::getName).filter(name -> name.endsWith(".traj")).map(name -> name.replace(".traj", ""))
-                .forEach(name ->
-                {
-                    try
-                    {
-                        chooser.addOption(name, AutoBuilder.followPath(PathPlannerPath.fromChoreoTrajectory(name)));
-                    } catch (Exception e)
-                    {
-                        e.printStackTrace();
-                    }
-                });
         Shuffleboard.getTab("Robot").add("Auto Selector", chooser);
     }
 
