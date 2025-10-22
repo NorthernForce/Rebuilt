@@ -40,6 +40,13 @@ public class Climber extends SubsystemBase
         this.gearRatio = gearRatio;
         this.lowerLimit = lowerLimit;
         this.upperLimit = upperLimit;
+        config.Feedback.RotorToSensorRatio = 1.0;
+        config.Feedback.SensorToMechanismRatio = 100.0;
+        config.SoftwareLimitSwitch.ForwardSoftLimitEnable = true;
+        config.SoftwareLimitSwitch.ReverseSoftLimitEnable = true;
+        config.SoftwareLimitSwitch.ForwardSoftLimitThreshold = upperLimit.in(Units.Rotations);
+        config.SoftwareLimitSwitch.ReverseSoftLimitThreshold = lowerLimit.in(Units.Rotations);
+
     }
 
     public void stop()
@@ -75,7 +82,7 @@ public class Climber extends SubsystemBase
 
     public Angle getAngle()
     {
-        return Units.Rotations.of(getRotations().in(Units.Rotations) / gearRatio);
+        return Units.Rotations.of(getRotations().in(Units.Rotations));
     }
 
     public Command extendClimber()
@@ -88,19 +95,19 @@ public class Climber extends SubsystemBase
         return new RetractClimber(this);
     }
 
+    public boolean isAtForwardLimit()
+    {
+        return m_motor.getFault_ForwardSoftLimit().getValue();
+    }
+
+    public boolean isAtReverseLimit()
+    {
+        return m_motor.getFault_ReverseSoftLimit().getValue();
+    }
+
     @Override
     public void periodic()
     {
-
-        if (getAngle().compareTo(lowerLimit) < 0)
-        {
-            climberState = ClimberState.STOP;
-        }
-
-        if (getAngle().compareTo(upperLimit) > 0)
-        {
-            climberState = ClimberState.STOP;
-        }
 
         switch (climberState)
         {

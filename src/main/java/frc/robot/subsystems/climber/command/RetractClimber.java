@@ -28,6 +28,6 @@ public class RetractClimber extends Command
     @Override
     public boolean isFinished()
     {
-        return true;
+        return climber.isAtReverseLimit();
     }
 }
