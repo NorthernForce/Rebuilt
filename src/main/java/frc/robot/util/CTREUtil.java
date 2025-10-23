@@ -12,7 +12,7 @@ public class CTREUtil
 {
     public static Status getTalonFXStatus(TalonFX talon)
     {
-        Status isConnnected = new Status("TalonFX " + talon.getDeviceID() + " Connection Status",
+        Status isConnected = new Status("TalonFX " + talon.getDeviceID() + " Connection Status",
                 () -> talon.isConnected(),
                 () -> ("TalonFX is " + (talon.isConnected() ? "connected" : "not connected")));
         Status isAlive = new Status("TalonFXAlive " + talon.getDeviceID() + " Status", () -> talon.isAlive(),
@@ -22,12 +22,12 @@ public class CTREUtil
                         .in(Celsius)),
                 () -> ("TalonFX is " + talon.getDeviceTemp().asSupplier().get().in(Celsius) + " °C, "
                         + "TalonFX max temperature is " + TalonFXConstants.kMaxTemperature.in(Celsius) + " °C"));
-        return new Status("TalonFX " + talon.getDeviceID() + " Status", isConnnected, isAlive, isTempOk);
+        return new Status("TalonFX " + talon.getDeviceID() + " Status", isConnected, isAlive, isTempOk);
     }
 
-    public static Status isTalonFXOk(TalonFXS talon)
+    public static Status isTalonFXSOk(TalonFXS talon)
     {
-        Status isConnnected = new Status("TalonFX " + talon.getDeviceID() + " Connection Status",
+        Status isConnected = new Status("TalonFX " + talon.getDeviceID() + " Connection Status",
                 () -> talon.isConnected(),
                 () -> ("TalonFX is " + (talon.isConnected() ? "connected" : "not connected")));
         Status isAlive = new Status("TalonFXAlive " + talon.getDeviceID() + " Status", () -> talon.isAlive(),
@@ -37,7 +37,7 @@ public class CTREUtil
                         .in(Celsius)),
                 () -> ("TalonFX is " + talon.getDeviceTemp().asSupplier().get().in(Celsius) + " °C, "
                         + "TalonFX max temperature is " + TalonFXConstants.kMaxTemperature.in(Celsius) + " °C"));
-        return new Status("TalonFX " + talon.getDeviceID() + " Status", isConnnected, isAlive, isTempOk);
+        return new Status("TalonFX " + talon.getDeviceID() + " Status", isConnected, isAlive, isTempOk);
     }
 
     /**
@@ -48,9 +48,9 @@ public class CTREUtil
      */
     public static Status getCANcoderStatus(CANcoder cancoder)
     {
-        Status isConnnected = new Status("CANCoder " + cancoder.getDeviceID() + " Connection Status",
+        Status isConnected = new Status("CANCoder " + cancoder.getDeviceID() + " Connection Status",
                 () -> cancoder.isConnected(),
                 () -> ("CANCoder is " + (cancoder.isConnected() ? "connected" : "not connected")));
-        return new Status("CANCoder " + cancoder.getDeviceID() + " Status", isConnnected);
+        return new Status("CANCoder " + cancoder.getDeviceID() + " Status", isConnected);
     }
 }
