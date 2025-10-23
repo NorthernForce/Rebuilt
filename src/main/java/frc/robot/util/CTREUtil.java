@@ -2,6 +2,7 @@ package frc.robot.util;
 
 import static edu.wpi.first.units.Units.Celsius;
 
+import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.hardware.TalonFXS;
 
@@ -37,5 +38,19 @@ public class CTREUtil
                 () -> ("TalonFX is " + talon.getDeviceTemp().asSupplier().get().in(Celsius) + " °C, "
                         + "TalonFX max temperature is " + TalonFXConstants.kMaxTemperature.in(Celsius) + " °C"));
         return new Status("TalonFX " + talon.getDeviceID() + " Status", isConnnected, isAlive, isTempOk);
+    }
+
+    /**
+     * Gets the status of a CANCoder
+     * 
+     * @param cancoder the CANCoder to get the status of
+     * @return the status of the CANCoder
+     */
+    public static Status getCANcoderStatus(CANcoder cancoder)
+    {
+        Status isConnnected = new Status("CANCoder " + cancoder.getDeviceID() + " Connection Status",
+                () -> cancoder.isConnected(),
+                () -> ("CANCoder is " + (cancoder.isConnected() ? "connected" : "not connected")));
+        return new Status("CANCoder " + cancoder.getDeviceID() + " Status", isConnnected);
     }
 }

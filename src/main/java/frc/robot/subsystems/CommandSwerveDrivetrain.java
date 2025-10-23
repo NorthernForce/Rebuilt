@@ -8,6 +8,7 @@ import java.util.function.Supplier;
 import com.ctre.phoenix6.SignalLogger;
 import com.ctre.phoenix6.Utils;
 import com.ctre.phoenix6.configs.CANcoderConfiguration;
+import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.swerve.SwerveDrivetrainConstants;
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 import com.ctre.phoenix6.swerve.SwerveModuleConstants;
@@ -38,6 +39,8 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.ralph.generated.RalphTunerConstants.TunerSwerveDrivetrain;
+import frc.robot.util.CTREUtil;
+import frc.robot.util.Status;
 
 /**
  * Class that extends the Phoenix 6 SwerveDrivetrain class and implements
@@ -506,5 +509,18 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
      * 
      * @return status of current drive subsystem
      */
+
+    public Status getStatus()
+    {
+        Status[] motorsStatus = new Status[getModules().length * 3];
+        for (int i = 0; i < getModules().length; i++)
+        {
+            motorsStatus[i * 2] = CTREUtil.getTalonFXStatus(getModules()[i].getDriveMotor());
+            motorsStatus[i * 2 + 1] = CTREUtil.getTalonFXStatus(getModules()[i].getSteerMotor());
+            motorsStatus[i * 2 + 2] = CTREUtil.getCANcoderStatus(getModules()[i].getEncoder());
+        }
+        Status overallStatus = new Status("Command Swerve Drivetrain Status", motorsStatus);
+        return overallStatus;
+    }
 
 }
