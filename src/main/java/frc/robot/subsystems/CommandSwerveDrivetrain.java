@@ -500,4 +500,11 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
     {
         return Commands.runOnce(() -> resetRotation(getOperatorForwardDirection()), this);
     }
+
+    /**
+     * Get status of current drive subsystem
+     * 
+     * @return status of current drive subsystem
+     */
+
 }
