@@ -23,7 +23,9 @@ public class AprilTagVisionIOLimelight implements AprilTagVisionIO
      * 
      * @param limelightName The name of the Limelight camera to use for AprilTag
      *                      detection.
-     * @param position      The position of the Limelight camera on the robot
+     * @param position      The position of the Limelight camera on the robot, where
+     *                      the aspect is looking down at the robot -
+     *                      forwards/backwards is y, right/left is x, up/down is z
      *                      relative to the center.
      * @param validIds      An array of valid AprilTag IDs to filter.
      */
@@ -40,7 +42,8 @@ public class AprilTagVisionIOLimelight implements AprilTagVisionIO
      * 
      * @param limelightName The name of the Limelight camera to use for AprilTag
      *                      detection.
-     * @param position      The position of the Limelight camera on the robot
+     * @param position      The position of the Limelight camera on the robot -
+     *                      forwards/backwards is y, right/left is x, up/down is z
      */
 
     public AprilTagVisionIOLimelight(String limelightName, Transform3d robotToCamera)
