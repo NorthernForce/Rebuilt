@@ -344,7 +344,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         });
     }
 
-    public void relativeDrive(ChassisSpeeds speeds)
+    public void fieldRelativeDrive(ChassisSpeeds speeds)
     {
         this.setControl(new SwerveRequest.FieldCentric().withDriveRequestType(DriveRequestType.Velocity)
                 .withForwardPerspective(ForwardPerspectiveValue.BlueAlliance).withVelocityX(speeds.vxMetersPerSecond)
