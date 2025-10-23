@@ -54,8 +54,7 @@ public class AutoUtil
             }
             throw new IllegalArgumentException(String.format("Invalid auto method detected. (%s)\n".concat(
                     "(All methods must roughly follow the format `public static AutoRoutine autoName(AutoFactory factory)`)."),
-                    method.toString(), method.getParameterTypes()[0].toString(), Stream.of(method.getParameterTypes())
-                            .map(m -> m.toString()).reduce((a, b) -> a.concat(b)).orElseThrow()));
+                    method.toString()));
 
         }
 
