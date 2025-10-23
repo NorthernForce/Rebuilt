@@ -64,6 +64,11 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
     /** Swerve request to apply during robot-centric path following */
     private final SwerveRequest.ApplyRobotSpeeds m_pathApplyRobotSpeeds = new SwerveRequest.ApplyRobotSpeeds();
 
+    /** Swerve request to apply during field-relative path following */
+    private final SwerveRequest.FieldCentric m_autoApplyFieldRelative = new SwerveRequest.FieldCentric()
+            .withDriveRequestType(DriveRequestType.Velocity)
+            .withForwardPerspective(ForwardPerspectiveValue.BlueAlliance);
+
     /* Swerve requests to apply during SysId characterization */
     private final SwerveRequest.SysIdSwerveTranslation m_translationCharacterization = new SwerveRequest.SysIdSwerveTranslation();
     private final SwerveRequest.SysIdSwerveSteerGains m_steerCharacterization = new SwerveRequest.SysIdSwerveSteerGains();
@@ -346,8 +351,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
 
     public void fieldRelativeDrive(ChassisSpeeds speeds)
     {
-        this.setControl(new SwerveRequest.FieldCentric().withDriveRequestType(DriveRequestType.Velocity)
-                .withForwardPerspective(ForwardPerspectiveValue.BlueAlliance).withVelocityX(speeds.vxMetersPerSecond)
+        this.setControl(m_autoApplyFieldRelative.withVelocityX(speeds.vxMetersPerSecond)
                 .withVelocityY(speeds.vyMetersPerSecond).withRotationalRate(speeds.omegaRadiansPerSecond));
     }
 
