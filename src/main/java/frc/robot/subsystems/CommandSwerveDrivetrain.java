@@ -8,8 +8,10 @@ import java.util.function.Supplier;
 import com.ctre.phoenix6.SignalLogger;
 import com.ctre.phoenix6.Utils;
 import com.ctre.phoenix6.configs.CANcoderConfiguration;
+import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.swerve.SwerveDrivetrainConstants;
+import com.ctre.phoenix6.swerve.SwerveModule;
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 import com.ctre.phoenix6.swerve.SwerveModuleConstants;
 import com.ctre.phoenix6.swerve.SwerveRequest;
@@ -505,6 +507,24 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
     }
 
     /**
+     * Get status of a specific swerve module
+     * 
+     * @param idx    index of module
+     * @param module the module
+     * @return status of the specific swerve module
+     */
+
+    public static Status getModuleStatus(int idx, SwerveModule<TalonFX, TalonFX, CANcoder> module)
+    {
+        Status driveMotorStatus = CTREUtil.getTalonFXStatus(module.getDriveMotor());
+        Status steerMotorStatus = CTREUtil.getTalonFXStatus(module.getSteerMotor());
+        Status encoderStatus = CTREUtil.getCANcoderStatus(module.getEncoder());
+        Status moduleStatus = new Status("Swerve Module " + idx + " Status", new Status[]
+        { driveMotorStatus, steerMotorStatus, encoderStatus });
+        return moduleStatus;
+    }
+
+    /**
      * Get status of current drive subsystem
      * 
      * @return status of current drive subsystem
@@ -512,12 +532,10 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
 
     public Status getStatus()
     {
-        Status[] motorsStatus = new Status[getModules().length * 3];
+        Status[] motorsStatus = new Status[getModules().length];
         for (int i = 0; i < getModules().length; i++)
         {
-            motorsStatus[i * 2] = CTREUtil.getTalonFXStatus(getModules()[i].getDriveMotor());
-            motorsStatus[i * 2 + 1] = CTREUtil.getTalonFXStatus(getModules()[i].getSteerMotor());
-            motorsStatus[i * 2 + 2] = CTREUtil.getCANcoderStatus(getModules()[i].getEncoder());
+            motorsStatus[i] = getModuleStatus(i, getModule(i));
         }
         Status overallStatus = new Status("Command Swerve Drivetrain Status", motorsStatus);
         return overallStatus;
