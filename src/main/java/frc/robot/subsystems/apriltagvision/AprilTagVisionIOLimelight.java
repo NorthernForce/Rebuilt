@@ -3,6 +3,7 @@ package frc.robot.subsystems.apriltagvision;
 import java.util.List;
 
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Transform3d;
 import frc.robot.LimelightHelpers;
 
 /**
@@ -22,13 +23,18 @@ public class AprilTagVisionIOLimelight implements AprilTagVisionIO
      * 
      * @param limelightName The name of the Limelight camera to use for AprilTag
      *                      detection.
+     * @param robotToCamera The position of the Limelight camera on the robot, when
+     *                      viewed from above (top-down perspective) -
+     *                      forwards/backwards is y, right/left is x, up/down is z
+     *                      relative to the center.
      * @param validIds      An array of valid AprilTag IDs to filter.
      */
-    public AprilTagVisionIOLimelight(String limelightName, int[] validIds)
+    public AprilTagVisionIOLimelight(String limelightName, Transform3d robotToCamera, int[] validIds)
     {
         this.limelightName = limelightName;
         LimelightHelpers.SetFiducialIDFiltersOverride(limelightName, validIds);
-
+        LimelightHelpers.setCameraPose_RobotSpace(limelightName, robotToCamera.getY(), robotToCamera.getX(),
+                robotToCamera.getZ(), 0, 0, 0);
     }
 
     /**
@@ -36,11 +42,18 @@ public class AprilTagVisionIOLimelight implements AprilTagVisionIO
      * 
      * @param limelightName The name of the Limelight camera to use for AprilTag
      *                      detection.
+     * @param robotToCamera The position of the Limelight camera on the robot -
+     *                      forwards/backwards is y, right/left is x, up/down is z
      */
 
-    public AprilTagVisionIOLimelight(String limelightName)
+    public AprilTagVisionIOLimelight(String limelightName, Transform3d robotToCamera)
     {
         this.limelightName = limelightName;
+
+        // getY is the forward/backward parameter, getX is the right/left parameter,
+        // getZ is the up/down parameter
+        LimelightHelpers.setCameraPose_RobotSpace(limelightName, robotToCamera.getY(), robotToCamera.getX(),
+                robotToCamera.getZ(), 0, 0, 0);
     }
 
     /**

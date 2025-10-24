@@ -9,22 +9,26 @@ import com.ctre.phoenix6.SignalLogger;
 import com.ctre.phoenix6.Utils;
 import com.ctre.phoenix6.configs.CANcoderConfiguration;
 import com.ctre.phoenix6.swerve.SwerveDrivetrainConstants;
+import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
+import com.ctre.phoenix6.swerve.SwerveRequest.ForwardPerspectiveValue;
 import com.ctre.phoenix6.swerve.SwerveModuleConstants;
 import com.ctre.phoenix6.swerve.SwerveRequest;
-import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.config.PIDConstants;
 import com.pathplanner.lib.config.RobotConfig;
 import com.pathplanner.lib.controllers.PPHolonomicDriveController;
+import com.pathplanner.lib.path.PathConstraints;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
+import edu.wpi.first.units.measure.LinearAcceleration;
 import edu.wpi.first.units.measure.LinearVelocity;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
@@ -59,6 +63,11 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
 
     /** Swerve request to apply during robot-centric path following */
     private final SwerveRequest.ApplyRobotSpeeds m_pathApplyRobotSpeeds = new SwerveRequest.ApplyRobotSpeeds();
+
+    /** Swerve request to apply during field-relative path following */
+    private final SwerveRequest.FieldCentric m_autoApplyFieldRelative = new SwerveRequest.FieldCentric()
+            .withDriveRequestType(DriveRequestType.Velocity)
+            .withForwardPerspective(ForwardPerspectiveValue.BlueAlliance);
 
     /* Swerve requests to apply during SysId characterization */
     private final SwerveRequest.SysIdSwerveTranslation m_translationCharacterization = new SwerveRequest.SysIdSwerveTranslation();
@@ -338,6 +347,38 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
                     .withVelocityY(maxSpeed.times(ySupplier.getAsDouble()))
                     .withRotationalRate(maxAngularSpeed.times(omegaSupplier.getAsDouble()));
         });
+    }
+
+    public void fieldRelativeDrive(ChassisSpeeds speeds)
+    {
+        this.setControl(m_autoApplyFieldRelative.withVelocityX(speeds.vxMetersPerSecond)
+                .withVelocityY(speeds.vyMetersPerSecond).withRotationalRate(speeds.omegaRadiansPerSecond));
+    }
+
+    public Command navigateToPose(Pose2d pose)
+    {
+        // yes infinity is okay for the acceleration values
+        return AutoBuilder.pathfindToPose(pose, new PathConstraints(maxSpeed.in(MetersPerSecond),
+                Double.POSITIVE_INFINITY, maxAngularSpeed.in(RadiansPerSecond), Double.POSITIVE_INFINITY));
+    }
+
+    public Command navigateToPose(Pose2d pose, LinearVelocity limitedSpeed)
+    {
+        return AutoBuilder.pathfindToPose(pose, new PathConstraints(limitedSpeed.in(MetersPerSecond),
+                Double.POSITIVE_INFINITY, maxAngularSpeed.in(RadiansPerSecond), Double.POSITIVE_INFINITY));
+    }
+
+    public Command navigateToPose(Pose2d pose, LinearVelocity limitedSpeed, AngularVelocity limitedAngularSpeed)
+    {
+        return AutoBuilder.pathfindToPose(pose, new PathConstraints(limitedSpeed.in(MetersPerSecond),
+                Double.POSITIVE_INFINITY, limitedAngularSpeed.in(RadiansPerSecond), Double.POSITIVE_INFINITY));
+    }
+
+    public Command navigateToPose(Pose2d pose, LinearVelocity limitedSpeed, LinearAcceleration limitedAcceleration)
+    {
+        return AutoBuilder.pathfindToPose(pose,
+                new PathConstraints(limitedSpeed.in(MetersPerSecond), limitedAcceleration.in(MetersPerSecondPerSecond),
+                        maxAngularSpeed.in(RadiansPerSecond), Double.POSITIVE_INFINITY));
     }
 
     private void startSimThread()
