@@ -22,26 +22,30 @@ import frc.robot.subsystems.apriltagvision.AprilTagVisionIOLimelight;
 import frc.robot.subsystems.apriltagvision.AprilTagVisionIOPhotonVisionSim;
 import frc.robot.util.AutoUtil;
 
-public class RalphContainer implements NFRRobotContainer {
+public class RalphContainer implements NFRRobotContainer
+{
     private final CommandSwerveDrivetrain drive;
     private final AprilTagVisionIO vision;
     private final AutoUtil autoUtil;
     private final Field2d field;
     private final ShooterTalonFX shooter;
 
-    public RalphContainer() {
+    public RalphContainer()
+    {
         shooter = new ShooterTalonFX(RalphConstants.ShooterConstants.kMotorId,
                 RalphConstants.ShooterConstants.kMotorSpeed);
         drive = new CommandSwerveDrivetrain(RalphTunerConstants.DrivetrainConstants,
                 RalphConstants.DrivetrainConstants.kMaxSpeed, RalphConstants.DrivetrainConstants.kMaxAngularSpeed,
                 RalphTunerConstants.FrontLeft, RalphTunerConstants.FrontRight, RalphTunerConstants.BackLeft,
                 RalphTunerConstants.BackRight);
-        if (Utils.isSimulation()) {
+        if (Utils.isSimulation())
+        {
             // TODO: get camera json config for sim
             vision = new AprilTagVisionIOPhotonVisionSim(
                     RalphConstants.VisionConstants.LimeLightConstants.kLimeLightName, new SimCameraProperties(),
                     RalphConstants.CameraConstants.kCenterCameraTransform);
-        } else {
+        } else
+        {
             vision = new AprilTagVisionIOLimelight(RalphConstants.VisionConstants.LimeLightConstants.kLimeLightName,
                     RalphConstants.CameraConstants.kFrontRightCameraTransform,
                     RalphConstants.VisionConstants.LimeLightConstants.kValidIds);
@@ -66,31 +70,37 @@ public class RalphContainer implements NFRRobotContainer {
      *
      * @return the drive subsystem
      */
-    public CommandSwerveDrivetrain getDrive() {
+    public CommandSwerveDrivetrain getDrive()
+    {
         return drive;
     }
 
     @Override
-    public void periodic() {
+    public void periodic()
+    {
         vision.getPoses().forEach(m -> drive.addVisionMeasurement(m.pose(), m.timestamp()));
         field.setRobotPose(drive.getState().Pose);
     }
 
     @Override
-    public void bindOI() {
+    public void bindOI()
+    {
         new RalphOI().bind(this);
     }
 
-    public ShooterTalonFX getShooter() {
+    public ShooterTalonFX getShooter()
+    {
         return shooter;
     }
 
     @Override
-    public Command getAutonomousCommand() {
+    public Command getAutonomousCommand()
+    {
         return autoUtil.getSelected();
     }
 
-    public AutoRoutine testAuto(AutoFactory factory) {
+    public AutoRoutine testAuto(AutoFactory factory)
+    {
         var routine = factory.newRoutine("TestAuto");
 
         var testPath = routine.trajectory("TestPath");
