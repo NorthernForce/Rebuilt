@@ -15,7 +15,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 
 import frc.robot.ralph.generated.RalphTunerConstants;
-import frc.robot.ralph.subsystems.shooter.ShooterTalonFX;
+import frc.robot.ralph.subsystems.shooter.ManipulatorTalonFX;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.apriltagvision.AprilTagVisionIO;
 import frc.robot.subsystems.apriltagvision.AprilTagVisionIOLimelight;
@@ -28,12 +28,16 @@ public class RalphContainer implements NFRRobotContainer
     private final AprilTagVisionIO vision;
     private final AutoUtil autoUtil;
     private final Field2d field;
-    private final ShooterTalonFX shooter;
+    private final ManipulatorTalonFX shooter;
 
     public RalphContainer()
     {
-        shooter = new ShooterTalonFX(RalphConstants.ShooterConstants.kMotorId,
-                RalphConstants.ShooterConstants.kMotorSpeed);
+        shooter = new ManipulatorTalonFX(RalphConstants.ShooterConstants.kMotorId,
+                RalphConstants.ShooterConstants.kIntakeSpeed, RalphConstants.ShooterConstants.kOuttakeSpeed,
+                RalphConstants.ShooterConstants.kSlowOuttakeSpeed, RalphConstants.ShooterConstants.kPurgeSpeed,
+                RalphConstants.ShooterConstants.kMotorInverted, RalphConstants.ShooterConstants.kBeamBreakId,
+                RalphConstants.ShooterConstants.kStatorCurrentLimit,
+                RalphConstants.ShooterConstants.kStatorCurrentLimitEnable);
         drive = new CommandSwerveDrivetrain(RalphTunerConstants.DrivetrainConstants,
                 RalphConstants.DrivetrainConstants.kMaxSpeed, RalphConstants.DrivetrainConstants.kMaxAngularSpeed,
                 RalphTunerConstants.FrontLeft, RalphTunerConstants.FrontRight, RalphTunerConstants.BackLeft,
@@ -88,7 +92,7 @@ public class RalphContainer implements NFRRobotContainer
         new RalphOI().bind(this);
     }
 
-    public ShooterTalonFX getShooter()
+    public ManipulatorTalonFX getShooter()
     {
         return shooter;
     }

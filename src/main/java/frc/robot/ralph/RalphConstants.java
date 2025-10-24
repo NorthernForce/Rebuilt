@@ -67,8 +67,15 @@ public class RalphConstants
 
     public class ShooterConstants
     {
-        public static final int kMotorId = 18;
-        public static final double kMotorSpeed = 0.5;
+        public static final int kMotorId = 19;
+        public static final double kIntakeSpeed = 0.6;
+        public static final double kOuttakeSpeed = 0.89;
+        public static final double kSlowOuttakeSpeed = 0.4;
+        public static final double kPurgeSpeed = 0.2;
+        public static final boolean kMotorInverted = true;
+        public static final int kBeamBreakId = 2;
+        public static final double kStatorCurrentLimit = 40.0;
+        public static final boolean kStatorCurrentLimitEnable = true;
     }
 
     public class MotorConstants
