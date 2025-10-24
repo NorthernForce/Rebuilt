@@ -10,6 +10,12 @@ import frc.robot.ralph.RalphConstants.MotorConstants.TalonFXConstants;
 
 public class CTREUtil
 {
+    /**
+     * Gets the status of a TalonFX
+     * 
+     * @param talon the TalonFX to get the status of
+     * @return the status of the TalonFX
+     */
     public static Status getTalonFXStatus(TalonFX talon)
     {
         Status isConnected = new Status("TalonFX " + talon.getDeviceID() + " Connection Status",
@@ -25,7 +31,15 @@ public class CTREUtil
         return new Status("TalonFX " + talon.getDeviceID() + " Status", isConnected, isAlive, isTempOk);
     }
 
-    public static Status isTalonFXSOk(TalonFXS talon)
+    /**
+     * Gets the status of a TalonFXS (currently the same as TalonFX, but kept
+     * separate for future changes)
+     * 
+     * @param talon the TalonFXS to get the status of
+     * @return the status of the TalonFXS
+     */
+
+    public static Status getTalonFXSStatus(TalonFXS talon)
     {
         Status isConnected = new Status("TalonFX " + talon.getDeviceID() + " Connection Status",
                 () -> talon.isConnected(),
