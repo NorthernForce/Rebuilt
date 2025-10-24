@@ -532,8 +532,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         Status driveMotorStatus = CTREUtil.getTalonFXStatus(module.getDriveMotor());
         Status steerMotorStatus = CTREUtil.getTalonFXStatus(module.getSteerMotor());
         Status encoderStatus = CTREUtil.getCANcoderStatus(module.getEncoder());
-        Status moduleStatus = new Status("Swerve Module " + idx + " Status", new Status[]
-        { driveMotorStatus, steerMotorStatus, encoderStatus });
+        Status moduleStatus = new Status("Swerve Module " + idx + " Status", driveMotorStatus, steerMotorStatus, encoderStatus);
         return moduleStatus;
     }
 
