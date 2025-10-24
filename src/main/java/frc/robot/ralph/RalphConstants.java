@@ -1,8 +1,9 @@
 package frc.robot.ralph;
 
-import static edu.wpi.first.units.Units.Degrees;
-import static edu.wpi.first.units.Units.Inches;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
+import static edu.wpi.first.units.Units.Inches;
+import static edu.wpi.first.units.Units.Celsius;
+import static edu.wpi.first.units.Units.Degrees;
 
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.controller.PIDController;
@@ -12,6 +13,7 @@ import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.LinearVelocity;
+import edu.wpi.first.units.measure.Temperature;
 import frc.robot.ralph.generated.RalphTunerConstants;
 
 public class RalphConstants
@@ -67,5 +69,13 @@ public class RalphConstants
     {
         public static final int kMotorId = 18;
         public static final double kMotorSpeed = 0.5;
+    }
+
+    public class MotorConstants
+    {
+        public class TalonFXConstants
+        {
+            public static final Temperature kMaxTemperature = Celsius.of(60.0);
+        }
     }
 }

@@ -8,7 +8,10 @@ import java.util.function.Supplier;
 import com.ctre.phoenix6.SignalLogger;
 import com.ctre.phoenix6.Utils;
 import com.ctre.phoenix6.configs.CANcoderConfiguration;
+import com.ctre.phoenix6.hardware.CANcoder;
+import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.swerve.SwerveDrivetrainConstants;
+import com.ctre.phoenix6.swerve.SwerveModule;
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 import com.ctre.phoenix6.swerve.SwerveRequest.ForwardPerspectiveValue;
 import com.ctre.phoenix6.swerve.SwerveModuleConstants;
@@ -40,6 +43,8 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.ralph.generated.RalphTunerConstants.TunerSwerveDrivetrain;
+import frc.robot.util.CTREUtil;
+import frc.robot.util.Status;
 
 /**
  * Class that extends the Phoenix 6 SwerveDrivetrain class and implements
@@ -513,4 +518,39 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
     {
         return Commands.runOnce(() -> resetRotation(getOperatorForwardDirection()), this);
     }
+
+    /**
+     * Get status of a specific swerve module
+     * 
+     * @param idx    index of module
+     * @param module the module
+     * @return status of the specific swerve module
+     */
+
+    public static Status getModuleStatus(int idx, SwerveModule<TalonFX, TalonFX, CANcoder> module)
+    {
+        Status driveMotorStatus = CTREUtil.getTalonFXStatus(module.getDriveMotor());
+        Status steerMotorStatus = CTREUtil.getTalonFXStatus(module.getSteerMotor());
+        Status encoderStatus = CTREUtil.getCANcoderStatus(module.getEncoder());
+        Status moduleStatus = new Status("Swerve Module " + idx + " Status", driveMotorStatus, steerMotorStatus,
+                encoderStatus);
+        return moduleStatus;
+    }
+
+    /**
+     * Get status of current drive subsystem
+     * 
+     * @return status of current drive subsystem
+     */
+
+    public Status getStatus()
+    {
+        Status[] motorsStatus = new Status[getModules().length];
+        for (int i = 0; i < getModules().length; i++)
+        {
+            motorsStatus[i] = getModuleStatus(i, getModule(i));
+        }
+        return new Status("Command Swerve Drivetrain Status", motorsStatus);
+    }
+
 }
