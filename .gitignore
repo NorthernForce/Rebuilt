@@ -188,3 +188,6 @@ compile_commands.json
 
 # Eclipse generated file for annotation processors
 .factorypath
+
+# Backup files (temporary files created by programs, should be ignored)
+*.bck
