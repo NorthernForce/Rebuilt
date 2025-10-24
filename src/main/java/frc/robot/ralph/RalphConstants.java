@@ -6,6 +6,7 @@ import static edu.wpi.first.units.Units.Celsius;
 import static edu.wpi.first.units.Units.Degrees;
 
 import edu.wpi.first.math.VecBuilder;
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation3d;
@@ -21,6 +22,13 @@ public class RalphConstants
     {
         public static final LinearVelocity kMaxSpeed = RalphTunerConstants.kSpeedAt12Volts;
         public static final AngularVelocity kMaxAngularSpeed = RotationsPerSecond.of(3.0);
+    }
+
+    public class AutoConstants
+    {
+        public static final PIDController xPid = new PIDController(10.0, 0.0, 0.0);
+        public static final PIDController yPid = new PIDController(10.0, 0.0, 0.0);
+        public static final PIDController rPid = new PIDController(7.0, 0.0, 0.0);
     }
 
     public static class CameraConstants
