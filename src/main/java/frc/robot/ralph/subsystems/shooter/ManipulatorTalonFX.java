@@ -1,5 +1,7 @@
 package frc.robot.ralph.subsystems.shooter;
 
+import static edu.wpi.first.units.Units.Seconds;
+
 import com.ctre.phoenix6.configs.TalonFXSConfiguration;
 import com.ctre.phoenix6.hardware.TalonFXS;
 import com.ctre.phoenix6.signals.AdvancedHallSupportValue;
@@ -7,6 +9,7 @@ import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.MotorArrangementValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
+import edu.wpi.first.units.measure.Time;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -30,6 +33,9 @@ public class ManipulatorTalonFX extends SubsystemBase
     private TalonFXS m_talonFXS;
     private double m_intakeSpeed;
     private double m_outtakeSpeed;
+    private double m_reintakeSpeed;
+    private Time m_reintakeTimeout;
+    private Time m_bruteOuttakeTimeout;
     private double m_slowOuttakeSpeed;
     private double m_purgeSpeed;
     private DigitalInput m_sensor;
@@ -45,13 +51,16 @@ public class ManipulatorTalonFX extends SubsystemBase
      */
 
     public ManipulatorTalonFX(int id, double intakeSpeed, double outtakeSpeed, double slowOuttakeSpeed,
-            double purgeSpeed, boolean inverted, int sensorId, double statorCurrentLimit,
-            boolean statorCurrentLimitEnable)
+            double purgeSpeed, double reintakeSpeed, Time reintakeTimeout, Time bruteOuttakeTimeout, boolean inverted,
+            int sensorId, double statorCurrentLimit, boolean statorCurrentLimitEnable)
     {
         m_intakeSpeed = intakeSpeed;
         m_outtakeSpeed = outtakeSpeed;
         m_purgeSpeed = purgeSpeed;
         m_slowOuttakeSpeed = slowOuttakeSpeed;
+        m_reintakeSpeed = reintakeSpeed;
+        m_reintakeTimeout = reintakeTimeout;
+        m_bruteOuttakeTimeout = bruteOuttakeTimeout;
         m_id = id;
         m_sensorId = sensorId;
         m_inverted = inverted;
@@ -184,8 +193,8 @@ public class ManipulatorTalonFX extends SubsystemBase
             }
             break;
         case REINGRESO:
-            set(0.2);
-            if (m_timer.hasElapsed(0.5))
+            set(m_reintakeSpeed);
+            if (m_timer.hasElapsed(m_reintakeTimeout.in(Seconds)))
             {
                 m_state = ManipulatorState.HAMBRIENTO;
             }
@@ -213,7 +222,7 @@ public class ManipulatorTalonFX extends SubsystemBase
             break;
         case EXPULSANDO_BRUTO:
             set(m_outtakeSpeed);
-            if (m_timer.hasElapsed(1.0))
+            if (m_timer.hasElapsed(m_bruteOuttakeTimeout.in(Seconds)))
             {
                 m_state = ManipulatorState.HAMBRIENTO;
             }

@@ -16,6 +16,7 @@ import edu.wpi.first.wpilibj2.command.Commands;
 
 import frc.robot.ralph.generated.RalphTunerConstants;
 import frc.robot.ralph.subsystems.shooter.ManipulatorTalonFX;
+import frc.robot.ralph.subsystems.shooter.ManipulatorTalonFX.ManipulatorState;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.apriltagvision.AprilTagVisionIO;
 import frc.robot.subsystems.apriltagvision.AprilTagVisionIOLimelight;
@@ -28,15 +29,16 @@ public class RalphContainer implements NFRRobotContainer
     private final AprilTagVisionIO vision;
     private final AutoUtil autoUtil;
     private final Field2d field;
-    private final ManipulatorTalonFX shooter;
+    private final ManipulatorTalonFX manipulator;
 
     public RalphContainer()
     {
-        shooter = new ManipulatorTalonFX(RalphConstants.ShooterConstants.kMotorId,
+        manipulator = new ManipulatorTalonFX(RalphConstants.ShooterConstants.kMotorId,
                 RalphConstants.ShooterConstants.kIntakeSpeed, RalphConstants.ShooterConstants.kOuttakeSpeed,
                 RalphConstants.ShooterConstants.kSlowOuttakeSpeed, RalphConstants.ShooterConstants.kPurgeSpeed,
-                RalphConstants.ShooterConstants.kMotorInverted, RalphConstants.ShooterConstants.kBeamBreakId,
-                RalphConstants.ShooterConstants.kStatorCurrentLimit,
+                RalphConstants.ShooterConstants.kReentrySpeed, RalphConstants.ShooterConstants.kReentryTimeout,
+                RalphConstants.ShooterConstants.kBruteOuttakeTimeout, RalphConstants.ShooterConstants.kMotorInverted,
+                RalphConstants.ShooterConstants.kBeamBreakId, RalphConstants.ShooterConstants.kStatorCurrentLimit,
                 RalphConstants.ShooterConstants.kStatorCurrentLimitEnable);
         drive = new CommandSwerveDrivetrain(RalphTunerConstants.DrivetrainConstants,
                 RalphConstants.DrivetrainConstants.kMaxSpeed, RalphConstants.DrivetrainConstants.kMaxAngularSpeed,
@@ -69,6 +71,12 @@ public class RalphContainer implements NFRRobotContainer
 
     }
 
+    public Command bruteOuttake()
+    {
+        return Commands.runOnce(() -> manipulator.setState(ManipulatorState.EXPULSANDO_BRUTO))
+                .until(() -> !manipulator.hasCoralInSensor());
+    }
+
     /**
      * gets the drive subsystem
      *
@@ -94,13 +102,24 @@ public class RalphContainer implements NFRRobotContainer
 
     public ManipulatorTalonFX getShooter()
     {
-        return shooter;
+        return manipulator;
     }
 
     @Override
     public Command getAutonomousCommand()
     {
         return autoUtil.getSelected();
+    }
+
+    public void autonomousInit()
+    {
+        if (manipulator.hasCoralInSensor())
+        {
+            manipulator.setState(ManipulatorState.FELIZ);
+        } else
+        {
+            manipulator.setState(ManipulatorState.FELIZ);
+        }
     }
 
     public AutoRoutine testAuto(AutoFactory factory)
