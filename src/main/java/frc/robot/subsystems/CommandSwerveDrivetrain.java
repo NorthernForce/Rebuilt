@@ -39,6 +39,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
+import dev.doglog.DogLog;
 import frc.robot.ralph.generated.RalphTunerConstants.TunerSwerveDrivetrain;
 
 /**
@@ -326,6 +327,13 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
                 m_hasAppliedOperatorPerspective = true;
             });
         }
+
+        var state = getState();
+        DogLog.log("State/Pose", state.Pose);
+        DogLog.log("State/Speeds", state.Speeds);
+        DogLog.log("State/ModulePositions", state.ModulePositions);
+        DogLog.log("State/ModuleStates", state.ModuleStates);
+        DogLog.log("State/ModuleTargets", state.ModuleTargets);
     }
 
     /**
