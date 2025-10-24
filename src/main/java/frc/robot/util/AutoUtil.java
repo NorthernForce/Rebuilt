@@ -35,8 +35,12 @@ public class AutoUtil
         }, true, drive);
 
         chooser = new SendableChooser<>();
-        chooser.setDefaultOption("Nothing", Commands.none());
         Shuffleboard.getTab("Robot").add("Auto Selector", chooser);
+    }
+
+    public void bindAutoDefault(String name, Function<AutoFactory, AutoRoutine> autoBuilder)
+    {
+        chooser.setDefaultOption(name, autoBuilder.apply(factory).cmd());
     }
 
     public void bindAuto(String name, Function<AutoFactory, AutoRoutine> autoBuilder)

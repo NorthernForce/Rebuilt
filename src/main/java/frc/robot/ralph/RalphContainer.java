@@ -49,7 +49,7 @@ public class RalphContainer implements NFRRobotContainer
 
         autoUtil = new AutoUtil(drive, RalphConstants.AutoConstants.xPid, RalphConstants.AutoConstants.yPid,
                 RalphConstants.AutoConstants.rPid);
-        autoUtil.bindAuto("TestAuto", this::testAuto);
+        autoUtil.bindAutoDefault("TestAuto", this::testAuto);
 
         Shuffleboard.getTab("Developer").add(field);
         Shuffleboard.getTab("Developer").add("Reset Encoders", drive.resetEncoders());
