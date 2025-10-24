@@ -173,6 +173,9 @@ out/
 networktables.json
 simgui*.json
 
+# commit hash uploaded to robot
+src/main/java/frc/robot/BuildConstants.java
+
 # Simulation data log directory
 logs/
 
