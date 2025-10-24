@@ -5,12 +5,15 @@ import org.photonvision.simulation.SimCameraProperties;
 
 import com.ctre.phoenix6.Utils;
 
+import choreo.auto.AutoFactory;
+import choreo.auto.AutoRoutine;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import frc.robot.ralph.generated.RalphTunerConstants;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.apriltagvision.AprilTagVisionIO;
@@ -22,6 +25,7 @@ public class RalphContainer implements NFRRobotContainer
 {
     private final CommandSwerveDrivetrain drive;
     private final AprilTagVisionIO vision;
+    private final AutoUtil autoUtil;
     private final Field2d field;
 
     public RalphContainer()
@@ -43,12 +47,16 @@ public class RalphContainer implements NFRRobotContainer
                     RalphConstants.VisionConstants.LimeLightConstants.kValidIds);
         }
         field = new Field2d();
+
+        autoUtil = new AutoUtil(drive, RalphConstants.AutoConstants.xPid, RalphConstants.AutoConstants.yPid,
+                RalphConstants.AutoConstants.rPid);
+        autoUtil.bindAutoDefault("TestAuto", this::testAuto);
+
         Shuffleboard.getTab("Developer").add(field);
         Shuffleboard.getTab("Developer").add("Reset Encoders", drive.resetEncoders());
         Shuffleboard.getTab("Developer").add("Reset Orientation", drive.resetOrientation());
         Shuffleboard.getTab("Developer").add("Drive to Blue Reef",
                 drive.navigateToPose(new Pose2d(3, 4, new Rotation2d())));
-        AutoUtil.buildAutos();
     }
 
     /**
@@ -77,7 +85,20 @@ public class RalphContainer implements NFRRobotContainer
     @Override
     public Command getAutonomousCommand()
     {
-        return AutoUtil.getSelected();
+        return autoUtil.getSelected();
+    }
+
+    public AutoRoutine testAuto(AutoFactory factory)
+    {
+        var routine = factory.newRoutine("TestAuto");
+
+        var testPath = routine.trajectory("TestPath");
+        var testPathReturn = routine.trajectory("TestPathReturn");
+
+        routine.active().onTrue(Commands.sequence(testPath.resetOdometry(), testPath.cmd(),
+                Commands.runOnce(() -> System.out.println("RETURNING")), testPathReturn.cmd()));
+
+        return routine;
     }
 
 }
