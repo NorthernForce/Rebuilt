@@ -26,5 +26,7 @@ public class RalphOI
         drive.setDefaultCommand(drive.driveByJoystick(inputProc(driveController::getLeftX),
                 inputProc(driveController::getLeftY), inputProc(driveController::getRightX)));
         driveController.back().onTrue(drive.resetOrientation());
+        manipulatorController.leftTrigger().whileTrue(container.getShooter().intake());
+        manipulatorController.rightTrigger().whileTrue(container.getShooter().outtake());
     }
 }
