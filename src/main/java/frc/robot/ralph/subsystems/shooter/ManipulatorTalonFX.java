@@ -190,6 +190,7 @@ public class ManipulatorTalonFX extends SubsystemBase
             if (!hasCoralInSensor())
             {
                 m_state = ManipulatorState.REINGRESO;
+                m_timer.restart();
             }
             break;
         case REINGRESO:

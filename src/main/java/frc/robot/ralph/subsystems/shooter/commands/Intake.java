@@ -5,12 +5,12 @@ import frc.robot.ralph.subsystems.shooter.ManipulatorTalonFX;
 
 public class Intake extends Command
 {
-    private final ManipulatorTalonFX m_shooter;
+    private final ManipulatorTalonFX m_manipulator;
 
-    public Intake(ManipulatorTalonFX shooter)
+    public Intake(ManipulatorTalonFX manipulator)
     {
-        addRequirements(shooter);
-        m_shooter = shooter;
+        addRequirements(manipulator);
+        m_manipulator = manipulator;
     }
 
     @Override
@@ -26,6 +26,6 @@ public class Intake extends Command
     @Override
     public boolean isFinished()
     {
-        return m_shooter.hasCoral();
+        return m_manipulator.hasCoral();
     }
 }
