@@ -18,7 +18,6 @@ public class Intake extends Command
     public void initialize()
     {
         this.m_manipulator.setState(ManipulatorState.HAMBRIENTO);
-
     }
 
     @Override
