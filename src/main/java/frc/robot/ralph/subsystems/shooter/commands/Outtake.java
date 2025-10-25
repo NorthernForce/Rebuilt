@@ -25,10 +25,4 @@ public class Outtake extends Command
     {
         return !this.m_manipulator.hasCoralInSensor();
     }
-
-    @Override
-    public void execute()
-    {
-
-    }
 }

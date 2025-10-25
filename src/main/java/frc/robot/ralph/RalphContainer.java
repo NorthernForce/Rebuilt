@@ -67,14 +67,11 @@ public class RalphContainer implements NFRRobotContainer
         Shuffleboard.getTab("Developer").add("Reset Orientation", drive.resetOrientation());
         Shuffleboard.getTab("Developer").add("Drive to Blue Reef",
                 drive.navigateToPose(new Pose2d(3, 4, new Rotation2d())));
-        bindOI();
-
     }
 
     public Command bruteOuttake()
     {
-        return Commands.runOnce(() -> manipulator.setState(ManipulatorState.EXPULSANDO_BRUTO))
-                .until(() -> !manipulator.hasCoralInSensor());
+        return Commands.runOnce(() -> manipulator.setState(ManipulatorState.EXPULSANDO_BRUTO));
     }
 
     /**
@@ -118,7 +115,7 @@ public class RalphContainer implements NFRRobotContainer
             manipulator.setState(ManipulatorState.FELIZ);
         } else
         {
-            manipulator.setState(ManipulatorState.FELIZ);
+            manipulator.setState(ManipulatorState.HAMBRIENTO);
         }
     }
 

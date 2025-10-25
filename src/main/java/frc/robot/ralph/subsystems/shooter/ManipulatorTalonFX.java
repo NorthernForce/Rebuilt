@@ -208,7 +208,7 @@ public class ManipulatorTalonFX extends SubsystemBase
             stop();
             break;
         case EXPULSANDO:
-            set(m_slowOuttakeSpeed);
+            set(m_outtakeSpeed);
             if (!hasCoralInSensor())
             {
                 m_state = ManipulatorState.HAMBRIENTO;
