@@ -1,11 +1,6 @@
 package frc.robot.util;
 
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
-import java.util.Arrays;
-import java.util.List;
 import java.util.function.Function;
-import java.util.stream.Stream;
 
 import choreo.auto.AutoFactory;
 import choreo.auto.AutoRoutine;
@@ -35,6 +30,7 @@ public class AutoUtil
         }, true, drive);
 
         chooser = new SendableChooser<>();
+        chooser.setDefaultOption("Nothing", Commands.none());
         Shuffleboard.getTab("Robot").add("Auto Selector", chooser);
     }
 
