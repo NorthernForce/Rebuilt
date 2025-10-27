@@ -40,6 +40,7 @@ public class NFRLog extends DogLog
     {
         log(key + "/Pose", state.Pose);
         log(key + "/Speeds", state.Speeds);
+        log(key + "/Magnitude", Math.hypot(state.Speeds.vxMetersPerSecond, state.Speeds.vyMetersPerSecond));
         log(key + "/ModulePositions", state.ModulePositions);
         log(key + "/ModuleStates", state.ModuleStates);
         log(key + "/ModuleTargets", state.ModuleTargets);
