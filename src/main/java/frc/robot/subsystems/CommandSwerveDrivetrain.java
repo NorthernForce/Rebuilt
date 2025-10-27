@@ -22,6 +22,7 @@ import com.pathplanner.lib.config.RobotConfig;
 import com.pathplanner.lib.controllers.PPHolonomicDriveController;
 import com.pathplanner.lib.path.PathConstraints;
 
+import choreo.auto.AutoTrajectory;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -525,6 +526,12 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
     public Command resetOrientation()
     {
         return Commands.runOnce(() -> resetRotation(getOperatorForwardDirection()), this);
+    }
+
+    public Command autoPoseReset(AutoTrajectory traj)
+    {
+        return Commands
+                .runOnce(() -> resetTranslation(traj.getInitialPose().orElseGet(() -> new Pose2d()).getTranslation()));
     }
 
     /**
