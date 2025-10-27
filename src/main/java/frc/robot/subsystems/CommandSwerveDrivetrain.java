@@ -528,12 +528,6 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         return Commands.runOnce(() -> resetRotation(getOperatorForwardDirection()), this);
     }
 
-    public Command autoPoseReset(AutoTrajectory traj)
-    {
-        return Commands
-                .runOnce(() -> resetTranslation(traj.getInitialPose().orElseGet(() -> new Pose2d()).getTranslation()));
-    }
-
     /**
      * Get status of a specific swerve module
      * 

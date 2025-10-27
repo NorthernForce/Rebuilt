@@ -7,7 +7,6 @@ import com.ctre.phoenix6.Utils;
 
 import choreo.auto.AutoFactory;
 import choreo.auto.AutoRoutine;
-import choreo.auto.AutoTrajectory;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
@@ -127,7 +126,7 @@ public class RalphContainer implements NFRRobotContainer
         var testPath = routine.trajectory("TestPath");
         var testPathReturn = routine.trajectory("TestPathReturn");
 
-        routine.active().onTrue(Commands.sequence(drive.autoPoseReset(testPath), testPath.cmd(),
+        routine.active().onTrue(Commands.sequence(testPath.resetOdometry(), testPath.cmd(),
                 Commands.runOnce(() -> System.out.println("RETURNING")), testPathReturn.cmd()));
 
         return routine;
