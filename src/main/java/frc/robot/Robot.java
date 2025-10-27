@@ -27,20 +27,10 @@ public class Robot extends TimedRobot
     public Robot()
     {
         NFRLog.setOptions(new DogLogOptions().withNtPublish(true).withCaptureNt(true));
+        NFRLog.publishMetadata();
         NFRRobotChooser chooser = new NFRRobotChooser(() -> new RalphContainer(), Map.of());
         m_robotContainer = chooser.getNFRRobotContainer();
         m_robotContainer.bindOI();
-        for (Field field : BuildConstants.class.getFields())
-        {
-            try
-            {
-                NetworkTableInstance.getDefault().getStringTopic("/Metadata/" + field.getName()).publish()
-                        .set(field.get(null).toString());
-            } catch (Exception e)
-            {
-                e.printStackTrace();
-            }
-        }
     }
 
     @Override

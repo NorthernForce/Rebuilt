@@ -177,7 +177,9 @@ public class ManipulatorTalonFX extends SubsystemBase
     @Override
     public void periodic()
     {
+        NFRLog.log("Manipulator/Status", getStatus());
         NFRLog.log("Manipulator/State", m_state);
+
         switch (m_state)
         {
         case HAMBRIENTO:
