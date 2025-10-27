@@ -1,21 +1,16 @@
 package frc.robot.util;
 
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
-import java.util.Arrays;
-import java.util.List;
 import java.util.function.Function;
-import java.util.stream.Stream;
 
 import choreo.auto.AutoFactory;
 import choreo.auto.AutoRoutine;
 import choreo.trajectory.SwerveSample;
+import dev.doglog.DogLog;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.Commands;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 
 public class AutoUtil
@@ -31,6 +26,8 @@ public class AutoUtil
             ChassisSpeeds speed = new ChassisSpeeds(sample.vx + xPid.calculate(pose.getX(), sample.x),
                     sample.vy + yPid.calculate(pose.getY(), sample.y),
                     sample.omega + rPid.calculate(pose.getRotation().getRadians(), sample.heading));
+            DogLog.log("Auto/DesiredPose", sample.getPose());
+            DogLog.log("Auto/DesiredSpeed", speed);
             drive.fieldRelativeDrive(speed);
         }, true, drive);
 

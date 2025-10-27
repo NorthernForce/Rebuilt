@@ -18,6 +18,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.ralph.subsystems.shooter.commands.Intake;
 import frc.robot.ralph.subsystems.shooter.commands.Outtake;
 import frc.robot.util.CTREUtil;
+import frc.robot.util.NFRLog;
 import frc.robot.util.Status;
 
 /**
@@ -176,6 +177,7 @@ public class ManipulatorTalonFX extends SubsystemBase
     @Override
     public void periodic()
     {
+        NFRLog.log("Manipulator/State", m_state);
         switch (m_state)
         {
         case HAMBRIENTO:
