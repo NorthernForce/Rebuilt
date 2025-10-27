@@ -74,12 +74,14 @@ public class NFRLog extends DogLog
         log(key + "/Encoder", module.getEncoder());
     }
 
-    public static void publishMetadata() {
+    public static void publishMetadata()
+    {
         for (Field field : BuildConstants.class.getFields())
         {
             try
             {
-                // we must publish to NT because DogLog doesn't support logging to root topic yet
+                // we must publish to NT because DogLog doesn't support logging to root topic
+                // yet
                 NetworkTableInstance.getDefault().getStringTopic("/Metadata/" + field.getName()).publish()
                         .set(field.get(null).toString());
             } catch (Exception e)
