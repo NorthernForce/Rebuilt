@@ -44,6 +44,7 @@ import edu.wpi.first.wpilibj2.command.Subsystem;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.ralph.generated.RalphTunerConstants.TunerSwerveDrivetrain;
 import frc.robot.util.CTREUtil;
+import frc.robot.util.NFRLog;
 import frc.robot.util.Status;
 
 /**
@@ -331,6 +332,13 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
                 m_hasAppliedOperatorPerspective = true;
             });
         }
+
+        NFRLog.log("Drive/State", getState());
+        NFRLog.log("Drive/Status", getStatus());
+        NFRLog.log("Drive/ModuleFrontLeft", getModules()[0]);
+        NFRLog.log("Drive/ModuleFrontRight", getModules()[1]);
+        NFRLog.log("Drive/ModuleBackLeft", getModules()[2]);
+        NFRLog.log("Drive/ModuleBackRight", getModules()[3]);
     }
 
     /**
