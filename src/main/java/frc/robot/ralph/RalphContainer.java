@@ -7,15 +7,19 @@ import com.ctre.phoenix6.Utils;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Transform3d;
+import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.RunCommand;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
+import frc.robot.ralph.RalphConstants.ClimberConstants;
 import frc.robot.ralph.generated.RalphTunerConstants;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.apriltagvision.AprilTagVisionIO;
 import frc.robot.subsystems.apriltagvision.AprilTagVisionIOLimelight;
 import frc.robot.subsystems.apriltagvision.AprilTagVisionIOPhotonVisionSim;
+import frc.robot.subsystems.climber.Climber;
 import frc.robot.util.AutoUtil;
 
 public class RalphContainer implements NFRRobotContainer
@@ -23,6 +27,9 @@ public class RalphContainer implements NFRRobotContainer
     private final CommandSwerveDrivetrain drive;
     private final AprilTagVisionIO vision;
     private final Field2d field;
+    private final Climber climber = new Climber(ClimberConstants.kId, ClimberConstants.kClimbSpeed,
+            ClimberConstants.kInverted, ClimberConstants.kGearRatio, ClimberConstants.kLowerLimit,
+            ClimberConstants.kUpperLimit);
 
     public RalphContainer()
     {
@@ -48,6 +55,16 @@ public class RalphContainer implements NFRRobotContainer
         Shuffleboard.getTab("Developer").add("Drive to Blue Reef",
                 drive.navigateToPose(new Pose2d(3, 4, new Rotation2d())));
         AutoUtil.buildAutos();
+
+    }
+
+    private void binds()
+    {
+        XboxController test = new XboxController(0);
+        new Trigger(test::getXButtonPressed)
+                .onTrue(new RunCommand(() -> climber.extend(), climber).until(climber::isAtForwardLimit));
+
+        new Trigger(test::getXButtonPressed).onFalse(new RunCommand(() -> climber.stop(), climber));
     }
 
     /**
