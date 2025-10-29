@@ -25,7 +25,7 @@ public class LEDS extends SubsystemBase
     private double brightness = 0.5;
     private final RGBWColor offColor = new RGBWColor(0, 0, 0, 0);
 
-    private enum AnimationType
+    public static enum AnimationType
     {
         None, ColorFlow, Fire, Rainbow, RgbFade, SingleFade, Strobe, Twinkle, TwinkleOff,
     }
@@ -64,6 +64,11 @@ public class LEDS extends SubsystemBase
             config.LED.BrightnessScalar = brightness;
             candle.getConfigurator().apply(config);
         }
+    }
+
+    public void setAnimation(AnimationType animation)
+    {
+        currentAnimation = animation;
     }
 
     public void setAnimationColor(int red, int green, int blue)
