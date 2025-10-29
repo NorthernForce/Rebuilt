@@ -9,8 +9,12 @@ import com.ctre.phoenix6.SignalLogger;
 import com.ctre.phoenix6.Utils;
 import com.ctre.phoenix6.configs.CANcoderConfiguration;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
+import com.ctre.phoenix6.hardware.CANcoder;
+import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.swerve.SwerveDrivetrainConstants;
+import com.ctre.phoenix6.swerve.SwerveModule;
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
+import com.ctre.phoenix6.swerve.SwerveRequest.ForwardPerspectiveValue;
 import com.ctre.phoenix6.swerve.SwerveModuleConstants;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 import com.pathplanner.lib.auto.AutoBuilder;
@@ -24,6 +28,7 @@ import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.system.plant.DCMotor;
@@ -43,6 +48,9 @@ import edu.wpi.first.wpilibj2.command.Subsystem;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.ralph.generated.RalphTunerConstants;
 import frc.robot.ralph.generated.RalphTunerConstants.TunerSwerveDrivetrain;
+import frc.robot.util.CTREUtil;
+import frc.robot.util.NFRLog;
+import frc.robot.util.Status;
 
 /**
  * Class that extends the Phoenix 6 SwerveDrivetrain class and implements
@@ -67,6 +75,11 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
 
     /** Swerve request to apply during robot-centric path following */
     private final SwerveRequest.ApplyRobotSpeeds m_pathApplyRobotSpeeds = new SwerveRequest.ApplyRobotSpeeds();
+
+    /** Swerve request to apply during field-relative path following */
+    private final SwerveRequest.FieldCentric m_autoApplyFieldRelative = new SwerveRequest.FieldCentric()
+            .withDriveRequestType(DriveRequestType.Velocity)
+            .withForwardPerspective(ForwardPerspectiveValue.BlueAlliance);
 
     /* Swerve requests to apply during SysId characterization */
     private final SwerveRequest.SysIdSwerveTranslation m_translationCharacterization = new SwerveRequest.SysIdSwerveTranslation();
@@ -343,6 +356,12 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
             mapleSimSwerveDrivetrain.mapleSimDrive.setSimulationWorldPose(pose);
         Timer.delay(0.1);
         super.resetPose(pose);
+        NFRLog.log("Drive/State", getState());
+        NFRLog.log("Drive/Status", getStatus());
+        NFRLog.log("Drive/ModuleFrontLeft", getModules()[0]);
+        NFRLog.log("Drive/ModuleFrontRight", getModules()[1]);
+        NFRLog.log("Drive/ModuleBackLeft", getModules()[2]);
+        NFRLog.log("Drive/ModuleBackRight", getModules()[3]);
     }
 
     /**
@@ -364,6 +383,12 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
                     .withVelocityY(maxSpeed.times(ySupplier.getAsDouble()))
                     .withRotationalRate(maxAngularSpeed.times(omegaSupplier.getAsDouble()));
         });
+    }
+
+    public void fieldRelativeDrive(ChassisSpeeds speeds)
+    {
+        this.setControl(m_autoApplyFieldRelative.withVelocityX(speeds.vxMetersPerSecond)
+                .withVelocityY(speeds.vyMetersPerSecond).withRotationalRate(speeds.omegaRadiansPerSecond));
     }
 
     public Command navigateToPose(Pose2d pose)
@@ -507,4 +532,39 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
     {
         return Commands.runOnce(() -> resetRotation(getOperatorForwardDirection()), this);
     }
+
+    /**
+     * Get status of a specific swerve module
+     * 
+     * @param idx    index of module
+     * @param module the module
+     * @return status of the specific swerve module
+     */
+
+    public static Status getModuleStatus(int idx, SwerveModule<TalonFX, TalonFX, CANcoder> module)
+    {
+        Status driveMotorStatus = CTREUtil.getTalonFXStatus(module.getDriveMotor());
+        Status steerMotorStatus = CTREUtil.getTalonFXStatus(module.getSteerMotor());
+        Status encoderStatus = CTREUtil.getCANcoderStatus(module.getEncoder());
+        Status moduleStatus = new Status("Swerve Module " + idx + " Status", driveMotorStatus, steerMotorStatus,
+                encoderStatus);
+        return moduleStatus;
+    }
+
+    /**
+     * Get status of current drive subsystem
+     * 
+     * @return status of current drive subsystem
+     */
+
+    public Status getStatus()
+    {
+        Status[] motorsStatus = new Status[getModules().length];
+        for (int i = 0; i < getModules().length; i++)
+        {
+            motorsStatus[i] = getModuleStatus(i, getModule(i));
+        }
+        return new Status("Command Swerve Drivetrain Status", motorsStatus);
+    }
+
 }
