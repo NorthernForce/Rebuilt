@@ -53,5 +53,7 @@ public class RalphOI
                         container.getSuperstructure()));
         manipulatorController.a()
                 .onFalse(Commands.run(() -> container.getSuperstructure().setState(SuperstructureState.MANUAL)));
+        manipulatorController.leftTrigger().whileTrue(container.getShooter().intake());
+        manipulatorController.rightTrigger().whileTrue(container.getShooter().outtake());
     }
 }
