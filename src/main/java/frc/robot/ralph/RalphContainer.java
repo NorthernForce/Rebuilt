@@ -44,6 +44,7 @@ public class RalphContainer implements NFRRobotContainer
                 RalphConstants.DrivetrainConstants.kMaxSpeed, RalphConstants.DrivetrainConstants.kMaxAngularSpeed,
                 RalphTunerConstants.FrontLeft, RalphTunerConstants.FrontRight, RalphTunerConstants.BackLeft,
                 RalphTunerConstants.BackRight);
+        drive.resetPose(new Pose2d(3, 3, new Rotation2d()));
         if (Utils.isSimulation())
         {
             // TODO: get camera json config for sim
@@ -131,5 +132,4 @@ public class RalphContainer implements NFRRobotContainer
 
         return routine;
     }
-
 }
