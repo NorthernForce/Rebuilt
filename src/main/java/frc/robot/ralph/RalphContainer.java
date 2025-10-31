@@ -3,17 +3,21 @@ package frc.robot.ralph;
 import org.northernforce.util.NFRRobotContainer;
 import org.photonvision.simulation.SimCameraProperties;
 
+import edu.wpi.first.wpilibj.RobotBase;
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
+import frc.robot.ralph.RalphConstants.InnerElevatorConstants;
+import frc.robot.ralph.RalphConstants.OuterElevatorConstants;
+import frc.robot.subsystems.superstructure.Superstructure;
+import frc.robot.subsystems.superstructure.elevator.SimElevator;
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
+import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import com.ctre.phoenix6.Utils;
 
 import choreo.auto.AutoFactory;
 import choreo.auto.AutoRoutine;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
-import edu.wpi.first.wpilibj.smartdashboard.Field2d;
-import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.Commands;
-
 import frc.robot.ralph.generated.RalphTunerConstants;
 import frc.robot.ralph.subsystems.shooter.ManipulatorTalonFX;
 import frc.robot.ralph.subsystems.shooter.ManipulatorTalonFX.ManipulatorState;
@@ -26,6 +30,7 @@ import frc.robot.util.AutoUtil;
 public class RalphContainer implements NFRRobotContainer
 {
     private final CommandSwerveDrivetrain drive;
+    private final Superstructure superstructure;
     private final AprilTagVisionIO vision;
     private final AutoUtil autoUtil;
     private final Field2d field;
@@ -65,6 +70,17 @@ public class RalphContainer implements NFRRobotContainer
         Shuffleboard.getTab("Developer").add(field);
         Shuffleboard.getTab("Developer").add("Reset Encoders", drive.resetEncoders());
         Shuffleboard.getTab("Developer").add("Reset Orientation", drive.resetOrientation());
+        if (RobotBase.isReal())
+        {
+            superstructure = new Superstructure();
+        } else
+        {
+            superstructure = new Superstructure(
+                    new SimElevator(InnerElevatorConstants.kCanID, InnerElevatorConstants.kSensorID,
+                            InnerElevatorConstants.kConfig),
+                    new SimElevator(OuterElevatorConstants.kCanID, OuterElevatorConstants.kSensorID,
+                            OuterElevatorConstants.kConfig));
+        }
         Shuffleboard.getTab("Developer").add("Drive to Blue Reef",
                 drive.navigateToPose(new Pose2d(3, 4, new Rotation2d())));
     }
@@ -74,11 +90,11 @@ public class RalphContainer implements NFRRobotContainer
         return Commands.runOnce(() -> manipulator.setState(ManipulatorState.EXPULSANDO_BRUTO));
     }
 
-    /**
-     * gets the drive subsystem
+    /* gets the drive subsystem
      *
      * @return the drive subsystem
      */
+
     public CommandSwerveDrivetrain getDrive()
     {
         return drive;
@@ -132,4 +148,8 @@ public class RalphContainer implements NFRRobotContainer
         return routine;
     }
 
+    public Superstructure getSuperstructure()
+    {
+        return superstructure;
+    }
 }
