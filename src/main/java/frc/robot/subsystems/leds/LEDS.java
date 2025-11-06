@@ -72,10 +72,12 @@ public class LEDS extends SubsystemBase
         currentAnimation = animation;
     }
 
-    public Command getSetAnimationCommand(AnimationType animation, int r, int g, int b, int speed, AnimationDirectionValue direction,
-            double hz, int segmentStart, int segmentEnd, double fireCooling, double fireSparking)
+    public Command getSetAnimationCommand(AnimationType animation, int r, int g, int b, int speed,
+            AnimationDirectionValue direction, double hz, int segmentStart, int segmentEnd, double fireCooling,
+            double fireSparking)
     {
-        return this.runOnce(() -> {
+        return this.run(() ->
+        {
             setAnimation(animation);
             setAnimationColor(r, g, b);
             setAnimationSpeed(speed);
@@ -83,55 +85,58 @@ public class LEDS extends SubsystemBase
             setAnimationHz(hz);
             setAnimationSegment(segmentStart, segmentEnd);
             setFireAnimationParameters(fireCooling, fireSparking);
-        });
+        }).until(() -> false);
     }
 
-    public Command getSetAnimationCommand(AnimationType animation, int r, int g, int b, int speed, AnimationDirectionValue direction,
-            double hz, int segmentStart, int segmentEnd)
+    public Command getSetAnimationCommand(AnimationType animation, int r, int g, int b, int speed,
+            AnimationDirectionValue direction, double hz, int segmentStart, int segmentEnd)
     {
-        return this.runOnce(() -> {
+        return this.run(() ->
+        {
             setAnimation(animation);
             setAnimationColor(r, g, b);
             setAnimationSpeed(speed);
             setAnimationDirection(direction);
             setAnimationHz(hz);
             setAnimationSegment(segmentStart, segmentEnd);
-        });
+        }).until(() -> false);
     }
 
-    public Command getSetAnimationCommand(AnimationType animation, int r, int g, int b, int speed, AnimationDirectionValue direction,
-            double hz)
+    public Command getSetAnimationCommand(AnimationType animation, int r, int g, int b, int speed,
+            AnimationDirectionValue direction, double hz)
     {
-        return this.runOnce(() -> {
+        return this.run(() ->
+        {
             setAnimation(animation);
             setAnimationColor(r, g, b);
             setAnimationSpeed(speed);
             setAnimationDirection(direction);
             setAnimationHz(hz);
-        });
+        }).until(() -> false);
     }
 
-    public Command getSetAnimationCommand(AnimationType animation, int r, int g, int b, int speed, AnimationDirectionValue direction,
-            double hz, double fireCooling, double fireSparking)
+    public Command getSetAnimationCommand(AnimationType animation, int r, int g, int b, int speed,
+            AnimationDirectionValue direction, double hz, double fireCooling, double fireSparking)
     {
-        return this.runOnce(() -> {
+        return this.run(() ->
+        {
             setAnimation(animation);
             setAnimationColor(r, g, b);
             setAnimationSpeed(speed);
             setAnimationDirection(direction);
             setAnimationHz(hz);
             setFireAnimationParameters(fireCooling, fireSparking);
-        });
+        }).until(() -> false);
     }
-
 
     public Command getSetLEDColorCommand(int red, int green, int blue, double brightness)
     {
-        return this.runOnce(() -> {
+        return this.run(() ->
+        {
             setAnimation(AnimationType.None);
             setColor(red, green, blue);
             setBrightness(brightness);
-        });
+        }).until(() -> false);
     }
 
     public void setAnimationColor(int red, int green, int blue)
