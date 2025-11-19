@@ -76,7 +76,7 @@ public class LEDS extends SubsystemBase
             AnimationDirectionValue direction, double hz, int segmentStart, int segmentEnd, double fireCooling,
             double fireSparking)
     {
-        return this.run(() ->
+        return this.runOnce(() ->
         {
             setAnimation(animation);
             setAnimationColor(r, g, b);
@@ -91,7 +91,7 @@ public class LEDS extends SubsystemBase
     public Command getSetAnimationCommand(AnimationType animation, int r, int g, int b, int speed,
             AnimationDirectionValue direction, double hz, int segmentStart, int segmentEnd)
     {
-        return this.run(() ->
+        return this.runOnce(() ->
         {
             setAnimation(animation);
             setAnimationColor(r, g, b);
@@ -105,7 +105,7 @@ public class LEDS extends SubsystemBase
     public Command getSetAnimationCommand(AnimationType animation, int r, int g, int b, int speed,
             AnimationDirectionValue direction, double hz)
     {
-        return this.run(() ->
+        return this.runOnce(() ->
         {
             setAnimation(animation);
             setAnimationColor(r, g, b);
@@ -118,7 +118,7 @@ public class LEDS extends SubsystemBase
     public Command getSetAnimationCommand(AnimationType animation, int r, int g, int b, int speed,
             AnimationDirectionValue direction, double hz, double fireCooling, double fireSparking)
     {
-        return this.run(() ->
+        return this.runOnce(() ->
         {
             setAnimation(animation);
             setAnimationColor(r, g, b);
@@ -131,7 +131,7 @@ public class LEDS extends SubsystemBase
 
     public Command getSetLEDColorCommand(int red, int green, int blue, double brightness)
     {
-        return this.run(() ->
+        return this.runOnce(() ->
         {
             setAnimation(AnimationType.None);
             setColor(red, green, blue);
