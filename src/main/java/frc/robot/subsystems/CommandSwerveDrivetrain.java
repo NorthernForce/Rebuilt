@@ -1,7 +1,5 @@
 package frc.robot.subsystems;
 
-import static edu.wpi.first.units.Units.*;
-
 import java.util.function.DoubleSupplier;
 import java.util.function.Supplier;
 
@@ -13,16 +11,15 @@ import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.swerve.SwerveDrivetrainConstants;
 import com.ctre.phoenix6.swerve.SwerveModule;
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
-import com.ctre.phoenix6.swerve.SwerveRequest.ForwardPerspectiveValue;
 import com.ctre.phoenix6.swerve.SwerveModuleConstants;
 import com.ctre.phoenix6.swerve.SwerveRequest;
+import com.ctre.phoenix6.swerve.SwerveRequest.ForwardPerspectiveValue;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.config.PIDConstants;
 import com.pathplanner.lib.config.RobotConfig;
 import com.pathplanner.lib.controllers.PPHolonomicDriveController;
 import com.pathplanner.lib.path.PathConstraints;
 
-import choreo.auto.AutoTrajectory;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -30,6 +27,15 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
+import static edu.wpi.first.units.Units.Degrees;
+import static edu.wpi.first.units.Units.DegreesPerSecond;
+import static edu.wpi.first.units.Units.MetersPerSecond;
+import static edu.wpi.first.units.Units.MetersPerSecondPerSecond;
+import static edu.wpi.first.units.Units.Radians;
+import static edu.wpi.first.units.Units.RadiansPerSecond;
+import static edu.wpi.first.units.Units.Rotations;
+import static edu.wpi.first.units.Units.Second;
+import static edu.wpi.first.units.Units.Volts;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.LinearAcceleration;
@@ -44,6 +50,7 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.ralph.generated.RalphTunerConstants.TunerSwerveDrivetrain;
+import frc.robot.ralph.subsystems.shooter.commands.DriveToPose;
 import frc.robot.util.CTREUtil;
 import frc.robot.util.NFRLog;
 import frc.robot.util.Status;
@@ -560,6 +567,25 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
             motorsStatus[i] = getModuleStatus(i, getModule(i));
         }
         return new Status("Command Swerve Drivetrain Status", motorsStatus);
+    }
+
+    /**
+     * Creates a command to drive to a specific pose.
+     * 
+     * @param target The target pose on the field
+     * @return The DriveToPose command
+     */
+    public Command driveToPose(Pose2d target)
+    {
+        return new DriveToPose(this, target,
+                // Drive Constraints (Speed, Accel)
+                MetersPerSecond.of(2.0), MetersPerSecondPerSecond.of(2.0),
+                // Rotation Constraints (Speed, Accel)
+                RadiansPerSecond.of(Math.PI), RadiansPerSecond.per(Second).of(Math.PI),
+                // Translation PID (P, I, D)
+                1.0, 0.0, 0.0,
+                // Rotation PID (P, I, D)
+                1.0, 0.0, 0.0);
     }
 
 }
