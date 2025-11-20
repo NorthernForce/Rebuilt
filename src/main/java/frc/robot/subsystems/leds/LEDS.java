@@ -85,6 +85,7 @@ public class LEDS extends SubsystemBase
             setAnimationHz(hz);
             setAnimationSegment(segmentStart, segmentEnd);
             setFireAnimationParameters(fireCooling, fireSparking);
+            pushAnimationState();
         }).until(() -> false);
     }
 
@@ -99,6 +100,7 @@ public class LEDS extends SubsystemBase
             setAnimationDirection(direction);
             setAnimationHz(hz);
             setAnimationSegment(segmentStart, segmentEnd);
+            pushAnimationState();
         }).until(() -> false);
     }
 
@@ -112,6 +114,7 @@ public class LEDS extends SubsystemBase
             setAnimationSpeed(speed);
             setAnimationDirection(direction);
             setAnimationHz(hz);
+            pushAnimationState();
         }).until(() -> false);
     }
 
@@ -126,6 +129,7 @@ public class LEDS extends SubsystemBase
             setAnimationDirection(direction);
             setAnimationHz(hz);
             setFireAnimationParameters(fireCooling, fireSparking);
+            pushAnimationState();
         }).until(() -> false);
     }
 
@@ -134,6 +138,7 @@ public class LEDS extends SubsystemBase
         return this.runOnce(() ->
         {
             setAnimation(AnimationType.None);
+            pushAnimationState();
             setColor(red, green, blue);
             setBrightness(brightness);
         }).until(() -> false);
@@ -191,8 +196,7 @@ public class LEDS extends SubsystemBase
         }
     }
 
-    @Override
-    public void periodic()
+    public void pushAnimationState()
     {
         switch (currentAnimation)
         {
@@ -242,6 +246,15 @@ public class LEDS extends SubsystemBase
                     .withSlot(0).withColor(animationColor).withFrameRate(animationHz);
             candle.setControl(animTwinkleOff);
             break;
+        default:
+            candle.setControl(new SolidColor(animationSegment[0], animationSegment[1]).withColor(offColor));
+            break;
         }
+
+    }
+
+    @Override
+    public void periodic()
+    {
     }
 }
