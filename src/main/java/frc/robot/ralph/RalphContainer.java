@@ -13,7 +13,6 @@ import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
-
 import frc.robot.ralph.generated.RalphTunerConstants;
 import frc.robot.ralph.subsystems.shooter.ManipulatorTalonFX;
 import frc.robot.ralph.subsystems.shooter.ManipulatorTalonFX.ManipulatorState;
@@ -67,6 +66,8 @@ public class RalphContainer implements NFRRobotContainer
         Shuffleboard.getTab("Developer").add("Reset Orientation", drive.resetOrientation());
         Shuffleboard.getTab("Developer").add("Drive to Blue Reef",
                 drive.navigateToPose(new Pose2d(3, 4, new Rotation2d())));
+        Shuffleboard.getTab("Developer").add("Test My DriveToPose",
+                drive.driveToPose(new Pose2d(2.0, 2.0, new Rotation2d())));
     }
 
     public Command bruteOuttake()
