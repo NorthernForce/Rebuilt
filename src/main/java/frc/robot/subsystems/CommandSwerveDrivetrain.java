@@ -49,6 +49,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
+import frc.robot.ralph.RalphConstants;
 import frc.robot.ralph.generated.RalphTunerConstants.TunerSwerveDrivetrain;
 import frc.robot.ralph.subsystems.shooter.commands.DriveToPose;
 import frc.robot.util.CTREUtil;
@@ -570,22 +571,27 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
     }
 
     /**
-     * Creates a command to drive to a specific pose.
+     * Creates a command to drive to a specific pose using constants from RalphConstants.
      * 
      * @param target The target pose on the field
      * @return The DriveToPose command
      */
-    public Command driveToPose(Pose2d target)
-    {
-        return new DriveToPose(this, target,
-                // Drive Constraints (Speed, Accel)
-                MetersPerSecond.of(2.0), MetersPerSecondPerSecond.of(2.0),
-                // Rotation Constraints (Speed, Accel)
-                RadiansPerSecond.of(Math.PI), RadiansPerSecond.per(Second).of(Math.PI),
-                // Translation PID (P, I, D)
-                1.0, 0.0, 0.0,
-                // Rotation PID (P, I, D)
-                1.0, 0.0, 0.0);
+    public Command driveToPose(Pose2d target) {
+        return new DriveToPose(
+            this,
+            target,
+            // Use Constants instead of Magic Numbers!
+            RalphConstants.DriveToPoseConstants.kDriveMaxSpeed, 
+            RalphConstants.DriveToPoseConstants.kDriveMaxAccel,
+            RalphConstants.DriveToPoseConstants.kRotationMaxSpeed,
+            RalphConstants.DriveToPoseConstants.kRotationMaxAccel,
+            RalphConstants.DriveToPoseConstants.kTranslationKp,
+            RalphConstants.DriveToPoseConstants.kTranslationKi,
+            RalphConstants.DriveToPoseConstants.kTranslationKd,
+            RalphConstants.DriveToPoseConstants.kRotationKp,
+            RalphConstants.DriveToPoseConstants.kRotationKi,
+            RalphConstants.DriveToPoseConstants.kRotationKd
+        );
     }
 
 }

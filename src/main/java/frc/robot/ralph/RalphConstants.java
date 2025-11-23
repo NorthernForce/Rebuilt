@@ -1,18 +1,22 @@
 package frc.robot.ralph;
 
-import static edu.wpi.first.units.Units.RotationsPerSecond;
-import static edu.wpi.first.units.Units.Seconds;
-import static edu.wpi.first.units.Units.Inches;
-import static edu.wpi.first.units.Units.Celsius;
-import static edu.wpi.first.units.Units.Degrees;
-
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.numbers.N3;
+import static edu.wpi.first.units.Units.Celsius;
+import static edu.wpi.first.units.Units.Degrees;
+import static edu.wpi.first.units.Units.Inches;
+import static edu.wpi.first.units.Units.MetersPerSecond;
+import static edu.wpi.first.units.Units.MetersPerSecondPerSecond;
+import static edu.wpi.first.units.Units.RadiansPerSecond;
+import static edu.wpi.first.units.Units.RotationsPerSecond;
+import static edu.wpi.first.units.Units.Seconds;
+import edu.wpi.first.units.measure.AngularAcceleration;
 import edu.wpi.first.units.measure.AngularVelocity;
+import edu.wpi.first.units.measure.LinearAcceleration;
 import edu.wpi.first.units.measure.LinearVelocity;
 import edu.wpi.first.units.measure.Temperature;
 import edu.wpi.first.units.measure.Time;
@@ -93,5 +97,26 @@ public class RalphConstants
         {
             public static final Temperature kMaxTemperature = Celsius.of(60.0);
         }
+    }
+
+    public class DriveToPoseConstants
+    {
+        // Drive Constraints
+        public static final LinearVelocity kDriveMaxSpeed = MetersPerSecond.of(2.0);
+        public static final LinearAcceleration kDriveMaxAccel = MetersPerSecondPerSecond.of(2.0);
+        
+        // Rotation Constraints
+        public static final AngularVelocity kRotationMaxSpeed = RadiansPerSecond.of(Math.PI);
+        public static final AngularAcceleration kRotationMaxAccel = RadiansPerSecond.per(Seconds).of(Math.PI);
+
+        // PID Constants (Translation)
+        public static final double kTranslationKp = 1.0;
+        public static final double kTranslationKi = 0.0;
+        public static final double kTranslationKd = 0.0;
+
+        // PID Constants (Rotation)
+        public static final double kRotationKp = 1.0;
+        public static final double kRotationKi = 0.0;
+        public static final double kRotationKd = 0.0;
     }
 }
