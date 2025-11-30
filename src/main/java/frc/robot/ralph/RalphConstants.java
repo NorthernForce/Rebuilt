@@ -104,7 +104,7 @@ public class RalphConstants
         // Drive Constraints
         public static final LinearVelocity kDriveMaxSpeed = MetersPerSecond.of(2.0);
         public static final LinearAcceleration kDriveMaxAccel = MetersPerSecondPerSecond.of(2.0);
-        
+
         // Rotation Constraints
         public static final AngularVelocity kRotationMaxSpeed = RadiansPerSecond.of(Math.PI);
         public static final AngularAcceleration kRotationMaxAccel = RadiansPerSecond.per(Seconds).of(Math.PI);

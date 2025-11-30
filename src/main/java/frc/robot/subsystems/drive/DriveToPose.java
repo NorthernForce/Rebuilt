@@ -28,13 +28,10 @@ public class DriveToPose extends Command
 
     private final SwerveRequest.ApplyRobotSpeeds driveRequest = new SwerveRequest.ApplyRobotSpeeds();
 
-    public DriveToPose(CommandSwerveDrivetrain swerve, Pose2d targetPose, 
-            LinearVelocity driveMaxSpeed, 
-            LinearAcceleration driveMaxAccel, 
-            AngularVelocity rotationMaxSpeed,
-            edu.wpi.first.units.measure.AngularAcceleration rotationMaxAccel, 
-            double translationKp, double translationKi, double translationKd, 
-            double rotationKp, double rotationKi, double rotationKd,
+    public DriveToPose(CommandSwerveDrivetrain swerve, Pose2d targetPose, LinearVelocity driveMaxSpeed,
+            LinearAcceleration driveMaxAccel, AngularVelocity rotationMaxSpeed,
+            edu.wpi.first.units.measure.AngularAcceleration rotationMaxAccel, double translationKp,
+            double translationKi, double translationKd, double rotationKp, double rotationKi, double rotationKd,
             double translationTolerance, double rotationTolerance)
     {
         this.swerve = swerve;
@@ -43,12 +40,10 @@ public class DriveToPose extends Command
         addRequirements(swerve);
 
         TrapezoidProfile.Constraints translationConstraints = new TrapezoidProfile.Constraints(
-                driveMaxSpeed.in(MetersPerSecond), 
-                driveMaxAccel.in(MetersPerSecondPerSecond));
-        
+                driveMaxSpeed.in(MetersPerSecond), driveMaxAccel.in(MetersPerSecondPerSecond));
+
         TrapezoidProfile.Constraints rotationConstraints = new TrapezoidProfile.Constraints(
-                rotationMaxSpeed.in(RadiansPerSecond),
-                rotationMaxAccel.in(RadiansPerSecond.per(Second)));
+                rotationMaxSpeed.in(RadiansPerSecond), rotationMaxAccel.in(RadiansPerSecond.per(Second)));
 
         xController = new ProfiledPIDController(translationKp, translationKi, translationKd, translationConstraints);
         yController = new ProfiledPIDController(translationKp, translationKi, translationKd, translationConstraints);
