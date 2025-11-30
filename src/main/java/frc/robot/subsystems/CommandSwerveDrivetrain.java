@@ -51,7 +51,6 @@ import edu.wpi.first.wpilibj2.command.Subsystem;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.ralph.RalphConstants;
 import frc.robot.ralph.generated.RalphTunerConstants.TunerSwerveDrivetrain;
-import frc.robot.ralph.subsystems.shooter.commands.DriveToPose;
 import frc.robot.util.CTREUtil;
 import frc.robot.util.NFRLog;
 import frc.robot.util.Status;
@@ -568,30 +567,6 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
             motorsStatus[i] = getModuleStatus(i, getModule(i));
         }
         return new Status("Command Swerve Drivetrain Status", motorsStatus);
-    }
-
-    /**
-     * Creates a command to drive to a specific pose using constants from RalphConstants.
-     * 
-     * @param target The target pose on the field
-     * @return The DriveToPose command
-     */
-    public Command driveToPose(Pose2d target) {
-        return new DriveToPose(
-            this,
-            target,
-            // Use Constants instead of Magic Numbers!
-            RalphConstants.DriveToPoseConstants.kDriveMaxSpeed, 
-            RalphConstants.DriveToPoseConstants.kDriveMaxAccel,
-            RalphConstants.DriveToPoseConstants.kRotationMaxSpeed,
-            RalphConstants.DriveToPoseConstants.kRotationMaxAccel,
-            RalphConstants.DriveToPoseConstants.kTranslationKp,
-            RalphConstants.DriveToPoseConstants.kTranslationKi,
-            RalphConstants.DriveToPoseConstants.kTranslationKd,
-            RalphConstants.DriveToPoseConstants.kRotationKp,
-            RalphConstants.DriveToPoseConstants.kRotationKi,
-            RalphConstants.DriveToPoseConstants.kRotationKd
-        );
     }
 
 }

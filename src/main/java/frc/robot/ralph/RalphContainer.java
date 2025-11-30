@@ -21,6 +21,8 @@ import frc.robot.subsystems.apriltagvision.AprilTagVisionIO;
 import frc.robot.subsystems.apriltagvision.AprilTagVisionIOLimelight;
 import frc.robot.subsystems.apriltagvision.AprilTagVisionIOPhotonVisionSim;
 import frc.robot.util.AutoUtil;
+import frc.robot.subsystems.drive.DriveToPose;
+
 
 public class RalphContainer implements NFRRobotContainer
 {
@@ -67,7 +69,23 @@ public class RalphContainer implements NFRRobotContainer
         Shuffleboard.getTab("Developer").add("Drive to Blue Reef",
                 drive.navigateToPose(new Pose2d(3, 4, new Rotation2d())));
         Shuffleboard.getTab("Developer").add("Test My DriveToPose",
-                drive.driveToPose(new Pose2d(2.0, 2.0, new Rotation2d())));
+                new DriveToPose(
+                    drive,
+                    new Pose2d(2.0, 2.0, new Rotation2d()),
+                    RalphConstants.DriveToPoseConstants.kDriveMaxSpeed,
+                    RalphConstants.DriveToPoseConstants.kDriveMaxAccel,
+                    RalphConstants.DriveToPoseConstants.kRotationMaxSpeed,
+                    RalphConstants.DriveToPoseConstants.kRotationMaxAccel,
+                    RalphConstants.DriveToPoseConstants.kTranslationKp,
+                    RalphConstants.DriveToPoseConstants.kTranslationKi,
+                    RalphConstants.DriveToPoseConstants.kTranslationKd,
+                    RalphConstants.DriveToPoseConstants.kRotationKp,
+                    RalphConstants.DriveToPoseConstants.kRotationKi,
+                    RalphConstants.DriveToPoseConstants.kRotationKd,
+                    RalphConstants.DriveToPoseConstants.kTranslationTolerance,
+                    RalphConstants.DriveToPoseConstants.kRotationTolerance
+                )
+        );
     }
 
     public Command bruteOuttake()

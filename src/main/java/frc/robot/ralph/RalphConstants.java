@@ -99,7 +99,7 @@ public class RalphConstants
         }
     }
 
-    public class DriveToPoseConstants
+    public static class DriveToPoseConstants
     {
         // Drive Constraints
         public static final LinearVelocity kDriveMaxSpeed = MetersPerSecond.of(2.0);
@@ -109,14 +109,16 @@ public class RalphConstants
         public static final AngularVelocity kRotationMaxSpeed = RadiansPerSecond.of(Math.PI);
         public static final AngularAcceleration kRotationMaxAccel = RadiansPerSecond.per(Seconds).of(Math.PI);
 
-        // PID Constants (Translation)
+        // PID Constants
         public static final double kTranslationKp = 1.0;
         public static final double kTranslationKi = 0.0;
         public static final double kTranslationKd = 0.0;
 
-        // PID Constants (Rotation)
         public static final double kRotationKp = 1.0;
         public static final double kRotationKi = 0.0;
         public static final double kRotationKd = 0.0;
+
+        public static final double kTranslationTolerance = 0.05; // Meters
+        public static final double kRotationTolerance = 0.05; // Radians
     }
 }
