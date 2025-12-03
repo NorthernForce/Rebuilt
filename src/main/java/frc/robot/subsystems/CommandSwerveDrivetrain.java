@@ -40,8 +40,6 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.Notifier;
 import edu.wpi.first.wpilibj.Preferences;
-import edu.wpi.first.wpilibj.RobotController;
-import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.Subsystem;
@@ -61,8 +59,6 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
 {
     private static final double kSimLoopPeriod = 0.005; // 5 ms
     private Notifier m_simNotifier = null;
-    @SuppressWarnings("unused")
-    private double m_lastSimTime;
     private final LinearVelocity maxSpeed;
     private final AngularVelocity maxAngularSpeed;
 
@@ -137,6 +133,21 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
     /* The SysId routine to test */
     private SysIdRoutine m_sysIdRoutineToApply = m_sysIdRoutineTranslation;
 
+    public static SwerveModuleConstants<?, ?, ?>[] offsetEncoders(SwerveModuleConstants<?, ?, ?>[] modules)
+    {
+      return new SwerveModuleConstants[]
+      {
+        modules[0].withEncoderOffset(
+                        Rotations.of(Preferences.getDouble("kSwerveOffsetFrontLeft", modules[0].EncoderOffset))),
+                modules[1].withEncoderOffset(
+                        Rotations.of(Preferences.getDouble("kSwerveOffsetFrontRight", modules[1].EncoderOffset))),
+                modules[2].withEncoderOffset(
+                        Rotations.of(Preferences.getDouble("kSwerveOffsetBackLeft", modules[2].EncoderOffset))),
+                modules[3].withEncoderOffset(
+                        Rotations.of(Preferences.getDouble("kSwerveOffsetBackRight", modules[3].EncoderOffset)))
+      };
+    }
+
     /**
      * just so the generated tuner code doesn't error (DONT USE NORMALLY UNLESS YOU
      * DONT WANT THE ROBOT TO MOVE)
@@ -144,7 +155,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
     public CommandSwerveDrivetrain(SwerveDrivetrainConstants drivetrainConstants,
             SwerveModuleConstants<?, ?, ?>... modules)
     {
-        super(drivetrainConstants, MapleSimSwerveDrivetrain.regulateModuleConstantsForSimulation(modules));
+        super(drivetrainConstants, MapleSimSwerveDrivetrain.regulateModuleConstantsForSimulation(offsetEncoders(modules)));
         this.maxSpeed = LinearVelocity.ofBaseUnits(0, MetersPerSecond);
         this.maxAngularSpeed = AngularVelocity.ofBaseUnits(0, DegreesPerSecond);
         if (Utils.isSimulation())
@@ -327,7 +338,6 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
             });
         }
 
-        DogLog.log("BatteryVoltage", RobotController.getBatteryVoltage());
         DogLog.log("Drive/OdometryPose", getState().Pose);
         DogLog.log("Drive/TargetStates", getState().ModuleTargets);
         DogLog.log("Drive/MeasuredStates", getState().ModuleStates);
@@ -354,7 +364,6 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
     {
         if (this.mapleSimSwerveDrivetrain != null)
             mapleSimSwerveDrivetrain.mapleSimDrive.setSimulationWorldPose(pose);
-        Timer.delay(0.1);
         super.resetPose(pose);
         NFRLog.log("Drive/State", getState());
         NFRLog.log("Drive/Status", getStatus());
