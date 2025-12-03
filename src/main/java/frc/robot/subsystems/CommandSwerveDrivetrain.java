@@ -135,17 +135,15 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
 
     public static SwerveModuleConstants<?, ?, ?>[] offsetEncoders(SwerveModuleConstants<?, ?, ?>[] modules)
     {
-      return new SwerveModuleConstants[]
-      {
-        modules[0].withEncoderOffset(
-                        Rotations.of(Preferences.getDouble("kSwerveOffsetFrontLeft", modules[0].EncoderOffset))),
+        return new SwerveModuleConstants[]
+        { modules[0].withEncoderOffset(
+                Rotations.of(Preferences.getDouble("kSwerveOffsetFrontLeft", modules[0].EncoderOffset))),
                 modules[1].withEncoderOffset(
                         Rotations.of(Preferences.getDouble("kSwerveOffsetFrontRight", modules[1].EncoderOffset))),
                 modules[2].withEncoderOffset(
                         Rotations.of(Preferences.getDouble("kSwerveOffsetBackLeft", modules[2].EncoderOffset))),
                 modules[3].withEncoderOffset(
-                        Rotations.of(Preferences.getDouble("kSwerveOffsetBackRight", modules[3].EncoderOffset)))
-      };
+                        Rotations.of(Preferences.getDouble("kSwerveOffsetBackRight", modules[3].EncoderOffset))) };
     }
 
     /**
@@ -155,7 +153,8 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
     public CommandSwerveDrivetrain(SwerveDrivetrainConstants drivetrainConstants,
             SwerveModuleConstants<?, ?, ?>... modules)
     {
-        super(drivetrainConstants, MapleSimSwerveDrivetrain.regulateModuleConstantsForSimulation(offsetEncoders(modules)));
+        super(drivetrainConstants,
+                MapleSimSwerveDrivetrain.regulateModuleConstantsForSimulation(offsetEncoders(modules)));
         this.maxSpeed = LinearVelocity.ofBaseUnits(0, MetersPerSecond);
         this.maxAngularSpeed = AngularVelocity.ofBaseUnits(0, DegreesPerSecond);
         if (Utils.isSimulation())
