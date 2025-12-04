@@ -23,8 +23,8 @@ public class DrewOI
 
         var drive = container.getDrive();
 
-        drive.setDefaultCommand(drive.driveByJoystick(inputProc(driveController::getLeftX),
-                inputProc(driveController::getLeftY), inputProc(driveController::getRightX)));
+        drive.setDefaultCommand(drive.driveByJoystick(inputProc(driveController::getLeftY),
+                inputProc(driveController::getLeftX), inputProc(driveController::getRightX)));
         driveController.back().onTrue(drive.resetOrientation());
     }
 }

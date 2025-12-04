@@ -8,6 +8,7 @@ import java.util.function.Supplier;
 import com.ctre.phoenix6.SignalLogger;
 import com.ctre.phoenix6.Utils;
 import com.ctre.phoenix6.configs.CANcoderConfiguration;
+import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.swerve.SwerveDrivetrainConstants;
@@ -22,7 +23,7 @@ import com.pathplanner.lib.config.RobotConfig;
 import com.pathplanner.lib.controllers.PPHolonomicDriveController;
 import com.pathplanner.lib.path.PathConstraints;
 
-import choreo.auto.AutoTrajectory;
+import dev.doglog.DogLog;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -30,6 +31,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
+import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.LinearAcceleration;
@@ -38,11 +40,11 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.Notifier;
 import edu.wpi.first.wpilibj.Preferences;
-import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
+import frc.robot.drew.generated.DrewTunerConstants;
 import frc.robot.drew.generated.DrewTunerConstants.TunerSwerveDrivetrain;
 import frc.robot.util.CTREUtil;
 import frc.robot.util.NFRLog;
@@ -57,7 +59,6 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
 {
     private static final double kSimLoopPeriod = 0.005; // 5 ms
     private Notifier m_simNotifier = null;
-    private double m_lastSimTime;
     private final LinearVelocity maxSpeed;
     private final AngularVelocity maxAngularSpeed;
 
@@ -99,6 +100,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
      * SysId routine for characterizing steer. This is used to find PID gains for
      * the steer motors.
      */
+    @SuppressWarnings("unused")
     private final SysIdRoutine m_sysIdRoutineSteer = new SysIdRoutine(new SysIdRoutine.Config(null, // Use default ramp
                                                                                                     // rate (1 V/s)
             Volts.of(7), // Use dynamic voltage of 7 V
@@ -112,6 +114,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
      * the FieldCentricFacingAngle HeadingController. See the documentation of
      * SwerveRequest.SysIdSwerveRotation for info on importing the log to SysId.
      */
+    @SuppressWarnings("unused")
     private final SysIdRoutine m_sysIdRoutineRotation = new SysIdRoutine(new SysIdRoutine.Config(
             /* This is in radians per second², but SysId only supports "volts per second" */
             Volts.of(Math.PI / 6).per(Second),
@@ -130,6 +133,19 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
     /* The SysId routine to test */
     private SysIdRoutine m_sysIdRoutineToApply = m_sysIdRoutineTranslation;
 
+    public static SwerveModuleConstants<?, ?, ?>[] offsetEncoders(SwerveModuleConstants<?, ?, ?>[] modules)
+    {
+        return new SwerveModuleConstants[]
+        { modules[0].withEncoderOffset(
+                Rotations.of(Preferences.getDouble("kSwerveOffsetFrontLeft", modules[0].EncoderOffset))),
+                modules[1].withEncoderOffset(
+                        Rotations.of(Preferences.getDouble("kSwerveOffsetFrontRight", modules[1].EncoderOffset))),
+                modules[2].withEncoderOffset(
+                        Rotations.of(Preferences.getDouble("kSwerveOffsetBackLeft", modules[2].EncoderOffset))),
+                modules[3].withEncoderOffset(
+                        Rotations.of(Preferences.getDouble("kSwerveOffsetBackRight", modules[3].EncoderOffset))) };
+    }
+
     /**
      * just so the generated tuner code doesn't error (DONT USE NORMALLY UNLESS YOU
      * DONT WANT THE ROBOT TO MOVE)
@@ -138,14 +154,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
             SwerveModuleConstants<?, ?, ?>... modules)
     {
         super(drivetrainConstants,
-                modules[0].withEncoderOffset(
-                        Rotations.of(Preferences.getDouble("kSwerveOffsetFrontLeft", modules[0].EncoderOffset))),
-                modules[1].withEncoderOffset(
-                        Rotations.of(Preferences.getDouble("kSwerveOffsetFrontRight", modules[1].EncoderOffset))),
-                modules[2].withEncoderOffset(
-                        Rotations.of(Preferences.getDouble("kSwerveOffsetBackLeft", modules[2].EncoderOffset))),
-                modules[3].withEncoderOffset(
-                        Rotations.of(Preferences.getDouble("kSwerveOffsetBackRight", modules[3].EncoderOffset))));
+                MapleSimSwerveDrivetrain.regulateModuleConstantsForSimulation(offsetEncoders(modules)));
         this.maxSpeed = LinearVelocity.ofBaseUnits(0, MetersPerSecond);
         this.maxAngularSpeed = AngularVelocity.ofBaseUnits(0, DegreesPerSecond);
         if (Utils.isSimulation())
@@ -168,15 +177,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
     public CommandSwerveDrivetrain(SwerveDrivetrainConstants drivetrainConstants, LinearVelocity maxSpeed,
             AngularVelocity maxAngularSpeed, SwerveModuleConstants<?, ?, ?>... modules)
     {
-        super(drivetrainConstants,
-                modules[0].withEncoderOffset(
-                        Rotations.of(Preferences.getDouble("kSwerveOffsetFrontLeft", modules[0].EncoderOffset))),
-                modules[1].withEncoderOffset(
-                        Rotations.of(Preferences.getDouble("kSwerveOffsetFrontRight", modules[1].EncoderOffset))),
-                modules[2].withEncoderOffset(
-                        Rotations.of(Preferences.getDouble("kSwerveOffsetBackLeft", modules[2].EncoderOffset))),
-                modules[3].withEncoderOffset(
-                        Rotations.of(Preferences.getDouble("kSwerveOffsetBackRight", modules[3].EncoderOffset))));
+        super(drivetrainConstants, MapleSimSwerveDrivetrain.regulateModuleConstantsForSimulation(modules));
         this.maxSpeed = maxSpeed;
         this.maxAngularSpeed = maxAngularSpeed;
         if (Utils.isSimulation())
@@ -202,7 +203,8 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
     public CommandSwerveDrivetrain(SwerveDrivetrainConstants drivetrainConstants, double odometryUpdateFrequency,
             LinearVelocity maxSpeed, AngularVelocity maxAngularSpeed, SwerveModuleConstants<?, ?, ?>... modules)
     {
-        super(drivetrainConstants, odometryUpdateFrequency, modules);
+        super(drivetrainConstants, odometryUpdateFrequency,
+                MapleSimSwerveDrivetrain.regulateModuleConstantsForSimulation(modules));
         this.maxSpeed = maxSpeed;
         this.maxAngularSpeed = maxAngularSpeed;
         if (Utils.isSimulation())
@@ -234,10 +236,11 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
      */
     public CommandSwerveDrivetrain(SwerveDrivetrainConstants drivetrainConstants, double odometryUpdateFrequency,
             Matrix<N3, N1> odometryStandardDeviation, Matrix<N3, N1> visionStandardDeviation, LinearVelocity maxSpeed,
-            AngularVelocity maxAngularSpeed, SwerveModuleConstants<?, ?, ?>... modules)
+            AngularVelocity maxAngularSpeed,
+            @SuppressWarnings("unchecked") SwerveModuleConstants<TalonFXConfiguration, TalonFXConfiguration, CANcoderConfiguration>... modules)
     {
         super(drivetrainConstants, odometryUpdateFrequency, odometryStandardDeviation, visionStandardDeviation,
-                modules);
+                MapleSimSwerveDrivetrain.regulateModuleConstantsForSimulation(modules));
         this.maxSpeed = maxSpeed;
         this.maxAngularSpeed = maxAngularSpeed;
         if (Utils.isSimulation())
@@ -334,6 +337,33 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
             });
         }
 
+        DogLog.log("Drive/OdometryPose", getState().Pose);
+        DogLog.log("Drive/TargetStates", getState().ModuleTargets);
+        DogLog.log("Drive/MeasuredStates", getState().ModuleStates);
+        DogLog.log("Drive/MeasuredSpeeds", getState().Speeds);
+        if (mapleSimSwerveDrivetrain != null)
+            DogLog.log("Drive/SimulationPose", mapleSimSwerveDrivetrain.mapleSimDrive.getSimulatedDriveTrainPose());
+    }
+
+    private MapleSimSwerveDrivetrain mapleSimSwerveDrivetrain = null;
+
+    private void startSimThread()
+    {
+        mapleSimSwerveDrivetrain = new MapleSimSwerveDrivetrain(Seconds.of(kSimLoopPeriod), Pounds.of(115),
+                Inches.of(30), Inches.of(30), DCMotor.getKrakenX60(1), DCMotor.getFalcon500(1), 1.2,
+                getModuleLocations(), getPigeon2(), getModules(), DrewTunerConstants.FrontLeft,
+                DrewTunerConstants.FrontRight, DrewTunerConstants.BackLeft, DrewTunerConstants.BackRight);
+        /* Run simulation at a faster rate so PID gains behave more reasonably */
+        m_simNotifier = new Notifier(mapleSimSwerveDrivetrain::update);
+        m_simNotifier.startPeriodic(kSimLoopPeriod);
+    }
+
+    @Override
+    public void resetPose(Pose2d pose)
+    {
+        if (this.mapleSimSwerveDrivetrain != null)
+            mapleSimSwerveDrivetrain.mapleSimDrive.setSimulationWorldPose(pose);
+        super.resetPose(pose);
         NFRLog.log("Drive/State", getState());
         NFRLog.log("Drive/Status", getStatus());
         NFRLog.log("Drive/ModuleFrontLeft", getModules()[0]);
@@ -393,23 +423,6 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         return AutoBuilder.pathfindToPose(pose,
                 new PathConstraints(limitedSpeed.in(MetersPerSecond), limitedAcceleration.in(MetersPerSecondPerSecond),
                         maxAngularSpeed.in(RadiansPerSecond), Double.POSITIVE_INFINITY));
-    }
-
-    private void startSimThread()
-    {
-        m_lastSimTime = Utils.getCurrentTimeSeconds();
-
-        /* Run simulation at a faster rate so PID gains behave more reasonably */
-        m_simNotifier = new Notifier(() ->
-        {
-            final double currentTime = Utils.getCurrentTimeSeconds();
-            double deltaTime = currentTime - m_lastSimTime;
-            m_lastSimTime = currentTime;
-
-            /* use the measured time delta, get battery voltage from WPILib */
-            updateSimState(deltaTime, RobotController.getBatteryVoltage());
-        });
-        m_simNotifier.startPeriodic(kSimLoopPeriod);
     }
 
     /**
