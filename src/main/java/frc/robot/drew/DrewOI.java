@@ -1,11 +1,11 @@
-package frc.robot.ralph;
+package frc.robot.drew;
 
 import java.util.function.DoubleSupplier;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 
-public class RalphOI
+public class DrewOI
 {
     private static DoubleSupplier inputProc(DoubleSupplier input)
     {
@@ -16,7 +16,7 @@ public class RalphOI
         };
     }
 
-    public void bind(RalphContainer container)
+    public void bind(DrewContainer container)
     {
         var driveController = new CommandXboxController(0);
         var manipulatorController = new CommandXboxController(1);
@@ -26,7 +26,5 @@ public class RalphOI
         drive.setDefaultCommand(drive.driveByJoystick(inputProc(driveController::getLeftY),
                 inputProc(driveController::getLeftX), inputProc(driveController::getRightX)));
         driveController.back().onTrue(drive.resetOrientation());
-        manipulatorController.leftTrigger().whileTrue(container.getShooter().intake());
-        manipulatorController.rightTrigger().whileTrue(container.getShooter().outtake());
     }
 }
