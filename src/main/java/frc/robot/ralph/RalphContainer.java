@@ -7,8 +7,10 @@ import com.ctre.phoenix6.Utils;
 
 import choreo.auto.AutoFactory;
 import choreo.auto.AutoRoutine;
+import dev.doglog.DogLog;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -44,6 +46,7 @@ public class RalphContainer implements NFRRobotContainer
                 RalphConstants.DrivetrainConstants.kMaxSpeed, RalphConstants.DrivetrainConstants.kMaxAngularSpeed,
                 RalphTunerConstants.FrontLeft, RalphTunerConstants.FrontRight, RalphTunerConstants.BackLeft,
                 RalphTunerConstants.BackRight);
+        drive.resetPose(new Pose2d(3, 3, new Rotation2d()));
         if (Utils.isSimulation())
         {
             // TODO: get camera json config for sim
@@ -89,6 +92,7 @@ public class RalphContainer implements NFRRobotContainer
     {
         vision.getPoses().forEach(m -> drive.addVisionMeasurement(m.pose(), m.timestamp()));
         field.setRobotPose(drive.getState().Pose);
+        DogLog.log("BatteryVoltage", RobotController.getBatteryVoltage());
     }
 
     @Override
@@ -131,5 +135,4 @@ public class RalphContainer implements NFRRobotContainer
 
         return routine;
     }
-
 }
