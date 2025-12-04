@@ -1,4 +1,4 @@
-package frc.robot.ralph;
+package frc.robot.drew;
 
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 import static edu.wpi.first.units.Units.Seconds;
@@ -16,13 +16,13 @@ import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.LinearVelocity;
 import edu.wpi.first.units.measure.Temperature;
 import edu.wpi.first.units.measure.Time;
-import frc.robot.ralph.generated.RalphTunerConstants;
+import frc.robot.drew.generated.DrewTunerConstants;
 
-public class RalphConstants
+public class DrewConstants
 {
     public class DrivetrainConstants
     {
-        public static final LinearVelocity kMaxSpeed = RalphTunerConstants.kSpeedAt12Volts;
+        public static final LinearVelocity kMaxSpeed = DrewTunerConstants.kSpeedAt12Volts;
         public static final AngularVelocity kMaxAngularSpeed = RotationsPerSecond.of(3.0);
     }
 
