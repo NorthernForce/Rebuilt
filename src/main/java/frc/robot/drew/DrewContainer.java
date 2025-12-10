@@ -3,6 +3,10 @@ package frc.robot.drew;
 import org.northernforce.util.NFRRobotContainer;
 import org.photonvision.simulation.SimCameraProperties;
 
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
+import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import com.ctre.phoenix6.Utils;
 
 import choreo.auto.AutoFactory;
@@ -11,10 +15,6 @@ import dev.doglog.DogLog;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.RobotController;
-import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
-import edu.wpi.first.wpilibj.smartdashboard.Field2d;
-import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.Commands;
 import frc.robot.drew.generated.DrewTunerConstants;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.apriltagvision.AprilTagVisionIO;
@@ -60,11 +60,11 @@ public class DrewContainer implements NFRRobotContainer
                 drive.navigateToPose(new Pose2d(3, 4, new Rotation2d())));
     }
 
-    /**
-     * gets the drive subsystem
+    /* gets the drive subsystem
      *
      * @return the drive subsystem
      */
+
     public CommandSwerveDrivetrain getDrive()
     {
         return drive;
