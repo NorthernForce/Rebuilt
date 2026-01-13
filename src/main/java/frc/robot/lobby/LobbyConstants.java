@@ -1,4 +1,4 @@
-package frc.robot.drew;
+package frc.robot.lobby;
 
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.controller.PIDController;
@@ -15,13 +15,13 @@ import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.LinearVelocity;
 import edu.wpi.first.units.measure.Temperature;
 import edu.wpi.first.units.measure.Time;
-import frc.robot.drew.generated.DrewTunerConstants;
+import frc.robot.lobby.generated.LobbyTunerConstants;
 
-public class DrewConstants
+public class LobbyConstants
 {
     public class DrivetrainConstants
     {
-        public static final LinearVelocity kMaxSpeed = DrewTunerConstants.kSpeedAt12Volts;
+        public static final LinearVelocity kMaxSpeed = LobbyTunerConstants.kSpeedAt12Volts;
         public static final AngularVelocity kMaxAngularSpeed = RotationsPerSecond.of(3.0);
     }
 

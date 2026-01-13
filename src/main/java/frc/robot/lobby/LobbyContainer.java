@@ -1,4 +1,4 @@
-package frc.robot.drew;
+package frc.robot.lobby;
 
 import org.northernforce.util.NFRRobotContainer;
 import org.photonvision.simulation.SimCameraProperties;
@@ -15,42 +15,42 @@ import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
-import frc.robot.drew.generated.DrewTunerConstants;
+import frc.robot.lobby.generated.LobbyTunerConstants;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.apriltagvision.AprilTagVisionIO;
 import frc.robot.subsystems.apriltagvision.AprilTagVisionIOLimelight;
 import frc.robot.subsystems.apriltagvision.AprilTagVisionIOPhotonVisionSim;
 import frc.robot.util.AutoUtil;
 
-public class DrewContainer implements NFRRobotContainer
+public class LobbyContainer implements NFRRobotContainer
 {
     private final CommandSwerveDrivetrain drive;
     private final AprilTagVisionIO vision;
     private final AutoUtil autoUtil;
     private final Field2d field;
 
-    public DrewContainer()
+    public LobbyContainer()
     {
-        drive = new CommandSwerveDrivetrain(DrewTunerConstants.DrivetrainConstants,
-                DrewConstants.DrivetrainConstants.kMaxSpeed, DrewConstants.DrivetrainConstants.kMaxAngularSpeed,
-                DrewTunerConstants.FrontLeft, DrewTunerConstants.FrontRight, DrewTunerConstants.BackLeft,
-                DrewTunerConstants.BackRight);
+        drive = new CommandSwerveDrivetrain(LobbyTunerConstants.DrivetrainConstants,
+                LobbyConstants.DrivetrainConstants.kMaxSpeed, LobbyConstants.DrivetrainConstants.kMaxAngularSpeed,
+                LobbyTunerConstants.FrontLeft, LobbyTunerConstants.FrontRight, LobbyTunerConstants.BackLeft,
+                LobbyTunerConstants.BackRight);
         if (Utils.isSimulation())
         {
             // TODO: get camera json config for sim
             vision = new AprilTagVisionIOPhotonVisionSim(
-                    DrewConstants.VisionConstants.LimeLightConstants.kLimeLightName, new SimCameraProperties(),
-                    DrewConstants.CameraConstants.kCenterCameraTransform);
+                    LobbyConstants.VisionConstants.LimeLightConstants.kLimeLightName, new SimCameraProperties(),
+                    LobbyConstants.CameraConstants.kCenterCameraTransform);
         } else
         {
-            vision = new AprilTagVisionIOLimelight(DrewConstants.VisionConstants.LimeLightConstants.kLimeLightName,
-                    DrewConstants.CameraConstants.kFrontRightCameraTransform,
-                    DrewConstants.VisionConstants.LimeLightConstants.kValidIds);
+            vision = new AprilTagVisionIOLimelight(LobbyConstants.VisionConstants.LimeLightConstants.kLimeLightName,
+                    LobbyConstants.CameraConstants.kFrontRightCameraTransform,
+                    LobbyConstants.VisionConstants.LimeLightConstants.kValidIds);
         }
         field = new Field2d();
 
-        autoUtil = new AutoUtil(drive, DrewConstants.AutoConstants.xPid, DrewConstants.AutoConstants.yPid,
-                DrewConstants.AutoConstants.rPid);
+        autoUtil = new AutoUtil(drive, LobbyConstants.AutoConstants.xPid, LobbyConstants.AutoConstants.yPid,
+                LobbyConstants.AutoConstants.rPid);
         autoUtil.bindAutoDefault("TestAuto", this::testAuto);
 
         Shuffleboard.getTab("Developer").add(field);
@@ -81,7 +81,7 @@ public class DrewContainer implements NFRRobotContainer
     @Override
     public void bindOI()
     {
-        new DrewOI().bind(this);
+        new LobbyOI().bind(this);
     }
 
     @Override
