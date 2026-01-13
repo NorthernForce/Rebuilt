@@ -14,4 +14,4 @@ jobs:
       - name: Grant execute permission
         run: chmod +x gradlew
       - name: Build robot code
-        run: ./gradlew build
+        run: ./gradlew build --info
