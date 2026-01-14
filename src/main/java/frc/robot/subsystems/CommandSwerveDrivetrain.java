@@ -44,8 +44,8 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
-import frc.robot.drew.generated.DrewTunerConstants;
-import frc.robot.drew.generated.DrewTunerConstants.TunerSwerveDrivetrain;
+import frc.robot.lobby.generated.LobbyTunerConstants;
+import frc.robot.lobby.generated.LobbyTunerConstants.TunerSwerveDrivetrain;
 import frc.robot.util.CTREUtil;
 import frc.robot.util.NFRLog;
 import frc.robot.util.Status;
@@ -351,8 +351,8 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
     {
         mapleSimSwerveDrivetrain = new MapleSimSwerveDrivetrain(Seconds.of(kSimLoopPeriod), Pounds.of(115),
                 Inches.of(30), Inches.of(30), DCMotor.getKrakenX60(1), DCMotor.getFalcon500(1), 1.2,
-                getModuleLocations(), getPigeon2(), getModules(), DrewTunerConstants.FrontLeft,
-                DrewTunerConstants.FrontRight, DrewTunerConstants.BackLeft, DrewTunerConstants.BackRight);
+                getModuleLocations(), getPigeon2(), getModules(), LobbyTunerConstants.FrontLeft,
+                LobbyTunerConstants.FrontRight, LobbyTunerConstants.BackLeft, LobbyTunerConstants.BackRight);
         /* Run simulation at a faster rate so PID gains behave more reasonably */
         m_simNotifier = new Notifier(mapleSimSwerveDrivetrain::update);
         m_simNotifier.startPeriodic(kSimLoopPeriod);
