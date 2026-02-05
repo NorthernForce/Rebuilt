@@ -22,9 +22,14 @@ public class LobbyOI
         var manipulatorController = new CommandXboxController(1);
 
         var drive = container.getDrive();
+        var intake = container.getIntake();
 
         drive.setDefaultCommand(drive.driveByJoystick(inputProc(driveController::getLeftY),
                 inputProc(driveController::getLeftX), inputProc(driveController::getRightX)));
         driveController.back().onTrue(drive.resetOrientation());
+
+        intake.setDefaultCommand(intake.stopIntake());
+        manipulatorController.rightBumper().whileTrue(intake.intake(1.0));
+        manipulatorController.leftBumper().whileTrue(intake.purgeIntake(1.0));
     }
 }

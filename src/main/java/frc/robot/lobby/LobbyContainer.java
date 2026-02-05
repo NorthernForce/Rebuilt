@@ -16,6 +16,7 @@ import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import frc.robot.lobby.generated.LobbyTunerConstants;
+import frc.robot.subsystems.intake.Intake;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.apriltagvision.AprilTagVisionIO;
 import frc.robot.subsystems.apriltagvision.AprilTagVisionIOLimelight;
@@ -26,6 +27,7 @@ public class LobbyContainer implements NFRRobotContainer
 {
     private final CommandSwerveDrivetrain drive;
     private final AprilTagVisionIO vision;
+    private final Intake intake;
     private final AutoUtil autoUtil;
     private final Field2d field;
 
@@ -49,6 +51,8 @@ public class LobbyContainer implements NFRRobotContainer
         }
         field = new Field2d();
 
+        intake = new Intake(17); // TODO:
+
         autoUtil = new AutoUtil(drive, LobbyConstants.AutoConstants.xPid, LobbyConstants.AutoConstants.yPid,
                 LobbyConstants.AutoConstants.rPid);
         autoUtil.bindAutoDefault("TestAuto", this::testAuto);
@@ -68,6 +72,11 @@ public class LobbyContainer implements NFRRobotContainer
     public CommandSwerveDrivetrain getDrive()
     {
         return drive;
+    }
+
+    public Intake getIntake()
+    {
+        return intake;
     }
 
     @Override
