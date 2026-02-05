@@ -70,20 +70,27 @@ public class LobbyConstants
 
     }
 
-    public class ShooterConstants
-    {
-        public static final int kMotorId = 19;
-        public static final double kIntakeSpeed = 0.6;
-        public static final double kOuttakeSpeed = 0.89;
-        public static final double kReentrySpeed = 0.2;
-        public static final Time kReentryTimeout = Seconds.of(0.5);
-        public static final double kSlowOuttakeSpeed = 0.4;
-        public static final double kPurgeSpeed = 0.2;
-        public static final boolean kMotorInverted = true;
-        public static final int kBeamBreakId = 2;
-        public static final double kStatorCurrentLimit = 40.0;
-        public static final boolean kStatorCurrentLimitEnable = true;
-        public static final Time kBruteOuttakeTimeout = Seconds.of(1.0);
+    public class Turret {
+        public Pose2d offset = new Pose2d();
+
+        public class Suzie {
+            public int motorID = 10; // TODO
+            public double lowerSoftLimit = 0; // TODO
+            public double upperSoftLimit = 360; // TODO
+            public double gearRatio = 1; //TODO
+        }
+
+        public class Hood {
+            public int motorID = 11; // TODO
+            public double lowerSoftLimit = 0; // TODO
+            public double upperSoftLimit = 20; // TODO
+            public double gearRatio = 1; // TODO
+        }
+
+        public class Shooter {
+            public int motorID = 12; // TODO
+            public double gearRatio = 1; // TODO
+        }
     }
 
     public class MotorConstants
