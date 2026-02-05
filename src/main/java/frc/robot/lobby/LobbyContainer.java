@@ -4,6 +4,7 @@ import org.northernforce.util.NFRRobotContainer;
 import org.photonvision.simulation.SimCameraProperties;
 
 import com.ctre.phoenix6.Utils;
+import com.pathplanner.lib.commands.PathPlannerAuto;
 
 import choreo.auto.AutoFactory;
 import choreo.auto.AutoRoutine;
@@ -52,6 +53,7 @@ public class LobbyContainer implements NFRRobotContainer
         autoUtil = new AutoUtil(drive, LobbyConstants.AutoConstants.xPid, LobbyConstants.AutoConstants.yPid,
                 LobbyConstants.AutoConstants.rPid);
         autoUtil.bindAutoDefault("TestAuto", this::testAuto);
+        autoUtil.bindAuto("leave", new PathPlannerAuto("leave"));
 
         Shuffleboard.getTab("Developer").add(field);
         Shuffleboard.getTab("Developer").add("Reset Encoders", drive.resetEncoders());
