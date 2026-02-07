@@ -74,7 +74,7 @@ public class AprilTagVisionIOLimelight implements AprilTagVisionIO
     public List<Pose2dWithTimestamp> getPoses()
     {
         var poseData = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(limelightName);
-        if (LimelightHelpers.validPoseEstimate(poseData))
+        if (!LimelightHelpers.validPoseEstimate(poseData))
             return List.of();
         return List.of(new Pose2dWithTimestamp(poseData.pose, poseData.timestampSeconds));
     }
