@@ -528,7 +528,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
      */
     public Command resetEncoders()
     {
-        return Commands.runOnce(this::resetDriveEncoders, this);
+        return Commands.runOnce(this::resetDriveEncoders, this).ignoringDisable(true);
     }
 
     /**
