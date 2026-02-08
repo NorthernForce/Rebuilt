@@ -2,6 +2,7 @@ package frc.robot.lobby;
 
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation3d;
@@ -70,26 +71,32 @@ public class LobbyConstants
 
     }
 
-    public class Turret {
-        public Pose2d offset = new Pose2d();
+    public class Turret
+    {
+        public static Pose2d offset = new Pose2d();
 
-        public class Suzie {
-            public int motorID = 10; // TODO
-            public double lowerSoftLimit = 0; // TODO
-            public double upperSoftLimit = 360; // TODO
-            public double gearRatio = 1; //TODO
+        public class Suzie
+        {
+            public static int motorID = 10; // TODO
+            public static double lowerSoftLimit = 0; // TODO
+            public static double upperSoftLimit = 360; // TODO
+            public static double gearRatio = 1; // TODO
         }
 
-        public class Hood {
-            public int motorID = 11; // TODO
-            public double lowerSoftLimit = 0; // TODO
-            public double upperSoftLimit = 20; // TODO
-            public double gearRatio = 1; // TODO
+        public class Hood
+        {
+            public static int motorID = 11; // TODO
+            public static double lowerSoftLimit = 0; // TODO
+            public static double upperSoftLimit = 20; // TODO
+            public static double gearRatio = 1; // TODO
+            public static String targetingDataFilepath = "";
         }
 
-        public class Shooter {
-            public int motorID = 12; // TODO
-            public double gearRatio = 1; // TODO
+        public class Shooter
+        {
+            public static int motorID = 12; // TODO
+            public static double gearRatio = 1; // TODO
+            public static String targetingDataFilepath = "";
         }
     }
 
