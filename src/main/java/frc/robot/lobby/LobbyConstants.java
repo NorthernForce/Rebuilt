@@ -1,6 +1,7 @@
 package frc.robot.lobby;
 
 import edu.wpi.first.math.VecBuilder;
+import edu.wpi.first.math.Vector;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
@@ -53,13 +54,14 @@ public class LobbyConstants
 
     public class VisionConstants
     {
-        public static final edu.wpi.first.math.Vector<N3> kStdDevs = VecBuilder.fill(0.9, 0.9, 999999);
+        public static final Vector<N3> kStdDevs = VecBuilder.fill(0.9, 0.9, 999999);
 
         public class LimeLightConstants
         {
             public static final String kLimeLightName = "limelight";
             public static final int[] kValidIds =
-            { 6, 7, 8, 9, 10, 11, 15, 17, 18, 19, 20, 21, 22 };
+            { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29,
+                    30, 31, 32 };
         }
 
         public class PhotonVisionConstants
