@@ -20,6 +20,7 @@ import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.apriltagvision.AprilTagVisionIO;
 import frc.robot.subsystems.apriltagvision.AprilTagVisionIOLimelight;
 import frc.robot.subsystems.apriltagvision.AprilTagVisionIOPhotonVisionSim;
+import frc.robot.subsystems.apriltagvision.commands.DriveToPoseWithVision;
 import frc.robot.util.AutoUtil;
 
 public class LobbyContainer implements NFRRobotContainer
@@ -28,6 +29,7 @@ public class LobbyContainer implements NFRRobotContainer
     private final AprilTagVisionIO vision;
     private final AutoUtil autoUtil;
     private final Field2d field;
+    private final DriveToPoseWithVision driveToPoseCommand;
 
     public LobbyContainer()
     {
@@ -48,7 +50,7 @@ public class LobbyContainer implements NFRRobotContainer
                     LobbyConstants.VisionConstants.LimeLightConstants.kValidIds);
         }
         field = new Field2d();
-
+        driveToPoseCommand = new DriveToPoseWithVision(drive, vision);
         autoUtil = new AutoUtil(drive, LobbyConstants.AutoConstants.xPid, LobbyConstants.AutoConstants.yPid,
                 LobbyConstants.AutoConstants.rPid);
         autoUtil.bindAutoDefault("TestAuto", this::testAuto);
@@ -101,5 +103,15 @@ public class LobbyContainer implements NFRRobotContainer
                 Commands.runOnce(() -> System.out.println("RETURNING")), testPathReturn.cmd()));
 
         return routine;
+    }
+
+    public Command driveToPose(Pose2d pose)
+    {
+        return driveToPoseCommand.driveToPose(pose);
+    }
+
+    public void resetOdometry(Pose2d pose)
+    {
+        drive.resetPose(pose);
     }
 }

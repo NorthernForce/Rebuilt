@@ -39,9 +39,7 @@ public class DriveToPoseWithVision
      */
     public Command driveToPose(Pose2d targetPose)
     {
-        return Commands.parallel(
-                Commands.run(() -> updateOdometryWithVision()),
-                drive.navigateToPose(targetPose));
+        return Commands.parallel(Commands.run(() -> updateOdometryWithVision()), drive.navigateToPose(targetPose));
     }
 
     /**
@@ -61,10 +59,9 @@ public class DriveToPoseWithVision
 
     /**
      * Updates the drivetrain odometry with vision measurements from the Limelight.
-     * This method:
-     * 1. Sets the current robot heading to the Limelight for MegaTag2
-     * 2. Gets valid pose estimates from the Limelight
-     * 3. Adds each valid measurement to the drivetrain's pose estimator
+     * This method: 1. Sets the current robot heading to the Limelight for MegaTag2
+     * 2. Gets valid pose estimates from the Limelight 3. Adds each valid
+     * measurement to the drivetrain's pose estimator
      */
     private void updateOdometryWithVision()
     {
