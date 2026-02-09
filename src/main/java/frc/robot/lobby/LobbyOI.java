@@ -4,20 +4,17 @@ import java.util.function.DoubleSupplier;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import frc.robot.subsystems.turret.commands.PrepTurretCommand;
 
-public class LobbyOI
-{
-    private static DoubleSupplier inputProc(DoubleSupplier input)
-    {
-        return () ->
-        {
+public class LobbyOI {
+    private static DoubleSupplier inputProc(DoubleSupplier input) {
+        return () -> {
             double x = MathUtil.applyDeadband(input.getAsDouble(), 0.1, 1);
             return -x * Math.abs(x);
         };
     }
 
-    public void bind(LobbyContainer container)
-    {
+    public void bind(LobbyContainer container) {
         var driveController = new CommandXboxController(0);
         var manipulatorController = new CommandXboxController(1);
 
@@ -26,5 +23,8 @@ public class LobbyOI
         drive.setDefaultCommand(drive.driveByJoystick(inputProc(driveController::getLeftY),
                 inputProc(driveController::getLeftX), inputProc(driveController::getRightX)));
         driveController.back().onTrue(drive.resetOrientation());
+
+        manipulatorController.rightBumper()
+                .whileTrue(new PrepTurretCommand(() -> container.getDrive().getState().Pose, container.getTurret()));
     }
 }
