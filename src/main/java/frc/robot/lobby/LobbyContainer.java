@@ -30,24 +30,28 @@ import frc.robot.subsystems.turret.suzie.SuzieIO.SuzieConstants;
 import frc.robot.subsystems.turret.suzie.SuzieIOTalonFXS;
 import frc.robot.util.AutoUtil;
 
-public class LobbyContainer implements NFRRobotContainer {
+public class LobbyContainer implements NFRRobotContainer
+{
     private final CommandSwerveDrivetrain drive;
     private final AprilTagVisionIO vision;
     private final AutoUtil autoUtil;
     private final Field2d field;
     private final Turret turret;
 
-    public LobbyContainer() {
+    public LobbyContainer()
+    {
         drive = new CommandSwerveDrivetrain(LobbyTunerConstants.DrivetrainConstants,
                 LobbyConstants.DrivetrainConstants.kMaxSpeed, LobbyConstants.DrivetrainConstants.kMaxAngularSpeed,
                 LobbyTunerConstants.FrontLeft, LobbyTunerConstants.FrontRight, LobbyTunerConstants.BackLeft,
                 LobbyTunerConstants.BackRight);
-        if (Utils.isSimulation()) {
+        if (Utils.isSimulation())
+        {
             // TODO: get camera json config for sim
             vision = new AprilTagVisionIOPhotonVisionSim(
                     LobbyConstants.VisionConstants.LimeLightConstants.kLimeLightName, new SimCameraProperties(),
                     LobbyConstants.CameraConstants.kCenterCameraTransform);
-        } else {
+        } else
+        {
             vision = new AprilTagVisionIOLimelight(LobbyConstants.VisionConstants.LimeLightConstants.kLimeLightName,
                     LobbyConstants.CameraConstants.kFrontRightCameraTransform,
                     LobbyConstants.VisionConstants.LimeLightConstants.kValidIds);
@@ -64,8 +68,7 @@ public class LobbyContainer implements NFRRobotContainer {
         Shuffleboard.getTab("Developer").add("Drive to Blue Reef",
                 drive.navigateToPose(new Pose2d(3, 4, new Rotation2d())));
 
-        turret = new Turret(
-                new TurretConstants(LobbyConstants.Turret.offset),
+        turret = new Turret(new TurretConstants(LobbyConstants.Turret.offset),
                 new SuzieIOTalonFXS(new SuzieConstants(LobbyConstants.Turret.Suzie.kMotorID,
                         LobbyConstants.Turret.Suzie.kEncoderID, LobbyConstants.Turret.Suzie.kS,
                         LobbyConstants.Turret.Suzie.kV, LobbyConstants.Turret.Suzie.kA, LobbyConstants.Turret.Suzie.kP,
@@ -99,32 +102,38 @@ public class LobbyContainer implements NFRRobotContainer {
      *
      * @return the drive subsystem
      */
-    public CommandSwerveDrivetrain getDrive() {
+    public CommandSwerveDrivetrain getDrive()
+    {
         return drive;
     }
 
-    public Turret getTurret() {
+    public Turret getTurret()
+    {
         return turret;
     }
 
     @Override
-    public void periodic() {
+    public void periodic()
+    {
         vision.getPoses().forEach(m -> drive.addVisionMeasurement(m.pose(), m.timestamp()));
         field.setRobotPose(drive.getState().Pose);
         DogLog.log("BatteryVoltage", RobotController.getBatteryVoltage());
     }
 
     @Override
-    public void bindOI() {
+    public void bindOI()
+    {
         new LobbyOI().bind(this);
     }
 
     @Override
-    public Command getAutonomousCommand() {
+    public Command getAutonomousCommand()
+    {
         return autoUtil.getSelected();
     }
 
-    public AutoRoutine testAuto(AutoFactory factory) {
+    public AutoRoutine testAuto(AutoFactory factory)
+    {
         var routine = factory.newRoutine("TestAuto");
 
         var testPath = routine.trajectory("TestPath");

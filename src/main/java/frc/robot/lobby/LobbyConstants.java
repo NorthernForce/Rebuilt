@@ -24,22 +24,27 @@ import edu.wpi.first.units.measure.Temperature;
 import edu.wpi.first.units.measure.Time;
 import frc.robot.lobby.generated.LobbyTunerConstants;
 
-public class LobbyConstants {
-    public class DrivetrainConstants {
+public class LobbyConstants
+{
+    public class DrivetrainConstants
+    {
         public static final LinearVelocity kMaxSpeed = LobbyTunerConstants.kSpeedAt12Volts;
         public static final AngularVelocity kMaxAngularSpeed = RotationsPerSecond.of(3.0);
     }
 
-    public class AutoConstants {
+    public class AutoConstants
+    {
         public static final PIDController xPid = new PIDController(10.0, 0.0, 0.0);
         public static final PIDController yPid = new PIDController(10.0, 0.0, 0.0);
         public static final PIDController rPid = new PIDController(7.0, 0.0, 0.0);
-        static {
+        static
+        {
             rPid.enableContinuousInput(0, 2 * Math.PI);
         }
     }
 
-    public static class CameraConstants {
+    public static class CameraConstants
+    {
         public static final Transform3d kFrontRightCameraTransform = new Transform3d(
                 new Translation3d(Inches.of(15.0 - 3.0), Inches.of(-(15.0 - 7.5)), Inches.of(8.5)),
                 new Rotation3d(Degrees.zero(), Degrees.zero(), Degrees.zero()));
@@ -53,26 +58,32 @@ public class LobbyConstants {
                 new Rotation3d(Degrees.zero(), Degrees.of(-25), Degrees.zero()));
     }
 
-    public class VisionConstants {
+    public class VisionConstants
+    {
         public static final edu.wpi.first.math.Vector<N3> kStdDevs = VecBuilder.fill(0.9, 0.9, 999999);
 
-        public class LimeLightConstants {
+        public class LimeLightConstants
+        {
             public static final String kLimeLightName = "limelight";
-            public static final int[] kValidIds = { 6, 7, 8, 9, 10, 11, 17, 18, 19, 20, 21, 22 };
+            public static final int[] kValidIds =
+            { 6, 7, 8, 9, 10, 11, 17, 18, 19, 20, 21, 22 };
         }
 
-        public class PhotonVisionConstants {
+        public class PhotonVisionConstants
+        {
             public static final Transform3d kRobotToCamera = new Transform3d(new Translation3d(0.0, 0.0, 0.0),
                     new Rotation3d(0.0, 0.0, 0.0));
         }
 
     }
 
-    public class Turret {
+    public class Turret
+    {
         public static Pose2d offset = new Pose2d(new Translation2d(Inches.of(6.264), Inches.of(6.300)),
                 new Rotation2d(Degrees.of(2.5)));
 
-        public class Suzie {
+        public class Suzie
+        {
             public static int kMotorID = 10;
             public static int kEncoderID = 1;
             public static double kS = 0;
@@ -93,7 +104,8 @@ public class LobbyConstants {
             public static MotorArrangementValue kMotorArrangement = MotorArrangementValue.Minion_JST;
         }
 
-        public class Hood {
+        public class Hood
+        {
             public static int kMotorID = 11;
             public static int kEncoderID = 2;
             public static double kS = 0;
@@ -112,9 +124,11 @@ public class LobbyConstants {
             public static Angle kUpperSoftLimit = Degrees.of(20);
             public static Angle kErrorTolerance = Degrees.of(1);
             public static MotorArrangementValue kMotorArrangement = MotorArrangementValue.Minion_JST;
+            public static String kTargetingDataFilepath = "";
         }
 
-        public class Shooter {
+        public class Shooter
+        {
             public static int kMotor1ID = 12;
             public static int kMotor2ID = 13;
             public static double kS = 0;
@@ -130,11 +144,14 @@ public class LobbyConstants {
             public static boolean kMotor1Inverted = false;
             public static boolean kMotor2Inverted = true;
             public static AngularVelocity kErrorTolerance = RotationsPerSecond.of(10);
+            public static String kTargetingDataFilepath = "";
         }
     }
 
-    public class MotorConstants {
-        public class TalonFXConstants {
+    public class MotorConstants
+    {
+        public class TalonFXConstants
+        {
             public static final Temperature kMaxTemperature = Celsius.of(60.0);
         }
     }

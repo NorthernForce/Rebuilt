@@ -18,7 +18,8 @@ import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Temperature;
 import edu.wpi.first.units.measure.Voltage;
 
-public class HoodIOTalonFXS implements HoodIO {
+public class HoodIOTalonFXS implements HoodIO
+{
     protected final TalonFXS m_motor;
     protected final StatusSignal<Angle> m_position;
     protected final StatusSignal<Temperature> m_temperature;
@@ -32,7 +33,8 @@ public class HoodIOTalonFXS implements HoodIO {
 
     private Angle m_targetAngle = Degrees.of(0);
 
-    public HoodIOTalonFXS(HoodConstants constants) {
+    public HoodIOTalonFXS(HoodConstants constants)
+    {
         this(constants.kMotorID(), constants.kEncoderID(), constants.kS(), constants.kV(), constants.kA(),
                 constants.kP(), constants.kI(), constants.kD(), constants.kG(), constants.kCruiseVelocity(),
                 constants.kAcceleration(), constants.kJerk(), constants.kGearRatio(), constants.kInverted(),
@@ -43,7 +45,8 @@ public class HoodIOTalonFXS implements HoodIO {
     private HoodIOTalonFXS(int kMotorID, int kEncoderID, double kS, double kV, double kA, double kP, double kI,
             double kD, double kG, double kCruiseVelocity, double kAcceleration, double kJerk, double kGearRatio,
             boolean kInverted, Angle kLowerSoftLimit, Angle kUpperSoftLimit, Angle kErrorTolerance,
-            MotorArrangementValue kMotorArrangement) {
+            MotorArrangementValue kMotorArrangement)
+    {
         m_motor = new TalonFXS(kMotorID);
         TalonFXSConfiguration config = new TalonFXSConfiguration();
 
@@ -90,28 +93,33 @@ public class HoodIOTalonFXS implements HoodIO {
     }
 
     @Override
-    public void updateStatusSignals() {
+    public void updateStatusSignals()
+    {
         StatusSignal.refreshAll(m_position, m_temperature, m_voltage, m_current, m_velocity, m_rotorVelocity);
     }
 
     @Override
-    public void setTargetAngle(Angle angle) {
+    public void setTargetAngle(Angle angle)
+    {
         m_targetAngle = angle;
         m_motor.setControl(m_motionMagicVoltage.withPosition(angle.in(Degrees)));
     }
 
     @Override
-    public Angle getTargetAngle() {
+    public Angle getTargetAngle()
+    {
         return m_targetAngle;
     }
 
     @Override
-    public Angle getAngle() {
+    public Angle getAngle()
+    {
         return m_position.getValue();
     }
 
     @Override
-    public boolean isAtTargetAngle() {
+    public boolean isAtTargetAngle()
+    {
         return Math.abs(getTargetAngle().in(Degrees) - getAngle().in(Degrees)) < m_errorTolerance.in(Degrees);
     }
 }

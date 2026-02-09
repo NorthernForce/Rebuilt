@@ -33,8 +33,8 @@ public class Turret extends SubsystemBase
         this.hood = hood;
         this.shooter = shooter;
         shooterOffsetDistance = Meters.of(constants.offset().getTranslation().getDistance(Translation2d.kZero));
-        hoodCalculator = new InterpolatedTargetingCalculator(LobbyConstants.Turret.Hood.targetingDataFilepath);
-        shooterCalculator = new InterpolatedTargetingCalculator(LobbyConstants.Turret.Shooter.targetingDataFilepath);
+        hoodCalculator = new InterpolatedTargetingCalculator(LobbyConstants.Turret.Hood.kTargetingDataFilepath);
+        shooterCalculator = new InterpolatedTargetingCalculator(LobbyConstants.Turret.Shooter.kTargetingDataFilepath);
     }
 
     public static record TurretConstants(Pose2d offset) {
