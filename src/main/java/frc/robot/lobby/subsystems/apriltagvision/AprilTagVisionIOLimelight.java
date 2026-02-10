@@ -1,4 +1,4 @@
-package frc.robot.subsystems.apriltagvision;
+package frc.robot.lobby.subsystems.apriltagvision;
 
 import java.util.List;
 

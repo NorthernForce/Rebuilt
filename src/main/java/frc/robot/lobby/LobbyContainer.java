@@ -16,10 +16,13 @@ import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import frc.robot.lobby.generated.LobbyTunerConstants;
-import frc.robot.subsystems.CommandSwerveDrivetrain;
-import frc.robot.subsystems.apriltagvision.AprilTagVisionIO;
-import frc.robot.subsystems.apriltagvision.AprilTagVisionIOLimelight;
-import frc.robot.subsystems.apriltagvision.AprilTagVisionIOPhotonVisionSim;
+import frc.robot.lobby.subsystems.CommandSwerveDrivetrain;
+import frc.robot.lobby.subsystems.apriltagvision.AprilTagVisionIO;
+import frc.robot.lobby.subsystems.apriltagvision.AprilTagVisionIOLimelight;
+import frc.robot.lobby.subsystems.apriltagvision.AprilTagVisionIOPhotonVisionSim;
+import frc.robot.lobby.subsystems.flicker.Flicker;
+import frc.robot.lobby.subsystems.flicker.FlickerIOTalonFXS;
+import frc.robot.lobby.subsystems.flicker.FlickerParameters;
 import frc.robot.util.AutoUtil;
 
 public class LobbyContainer implements NFRRobotContainer
@@ -28,9 +31,11 @@ public class LobbyContainer implements NFRRobotContainer
     private final AprilTagVisionIO vision;
     private final AutoUtil autoUtil;
     private final Field2d field;
+    private final Flicker flicker;
 
     public LobbyContainer()
     {
+        flicker = new Flicker(new FlickerIOTalonFXS(new FlickerParameters(LobbyConstants.FlickerConstants.kMotorId, LobbyConstants.FlickerConstants.kRampSpeed)));
         drive = new CommandSwerveDrivetrain(LobbyTunerConstants.DrivetrainConstants,
                 LobbyConstants.DrivetrainConstants.kMaxSpeed, LobbyConstants.DrivetrainConstants.kMaxAngularSpeed,
                 LobbyTunerConstants.FrontLeft, LobbyTunerConstants.FrontRight, LobbyTunerConstants.BackLeft,
@@ -88,6 +93,11 @@ public class LobbyContainer implements NFRRobotContainer
     public Command getAutonomousCommand()
     {
         return autoUtil.getSelected();
+    }
+
+    public Flicker getFlicker()
+    {
+        return flicker;
     }
 
     public AutoRoutine testAuto(AutoFactory factory)
