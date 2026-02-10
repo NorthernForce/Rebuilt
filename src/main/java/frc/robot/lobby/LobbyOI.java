@@ -4,7 +4,6 @@ import java.util.function.DoubleSupplier;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
-import frc.robot.subsystems.turret.commands.PrepTurretCommand;
 
 public class LobbyOI
 {
@@ -27,8 +26,5 @@ public class LobbyOI
         drive.setDefaultCommand(drive.driveByJoystick(inputProc(driveController::getLeftY),
                 inputProc(driveController::getLeftX), inputProc(driveController::getRightX)));
         driveController.back().onTrue(drive.resetOrientation());
-
-        manipulatorController.rightBumper()
-                .whileTrue(new PrepTurretCommand(() -> container.getDrive().getState().Pose, container.getTurret()));
     }
 }
