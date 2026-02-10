@@ -2,8 +2,11 @@ package frc.robot.lobby;
 
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.numbers.N3;
 import static edu.wpi.first.units.Units.Celsius;
@@ -11,6 +14,10 @@ import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.Inches;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 import static edu.wpi.first.units.Units.Seconds;
+
+import com.ctre.phoenix6.signals.MotorArrangementValue;
+
+import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.LinearVelocity;
 import edu.wpi.first.units.measure.Temperature;
@@ -70,20 +77,75 @@ public class LobbyConstants
 
     }
 
-    public class ShooterConstants
+    public class Turret
     {
-        public static final int kMotorId = 19;
-        public static final double kIntakeSpeed = 0.6;
-        public static final double kOuttakeSpeed = 0.89;
-        public static final double kReentrySpeed = 0.2;
-        public static final Time kReentryTimeout = Seconds.of(0.5);
-        public static final double kSlowOuttakeSpeed = 0.4;
-        public static final double kPurgeSpeed = 0.2;
-        public static final boolean kMotorInverted = true;
-        public static final int kBeamBreakId = 2;
-        public static final double kStatorCurrentLimit = 40.0;
-        public static final boolean kStatorCurrentLimitEnable = true;
-        public static final Time kBruteOuttakeTimeout = Seconds.of(1.0);
+        public static Pose2d offset = new Pose2d(new Translation2d(Inches.of(6.264), Inches.of(6.300)),
+                new Rotation2d(Degrees.of(2.5)));
+
+        public class Suzie
+        {
+            public static int kMotorID = 10;
+            public static int kEncoderID = 1;
+            public static double kS = 0;
+            public static double kV = 0;
+            public static double kA = 0;
+            public static double kP = 0;
+            public static double kI = 0;
+            public static double kD = 0;
+            public static double kG = 0;
+            public static double kCruiseVelocity = 0;
+            public static double kAcceleration = 0;
+            public static double kJerk = 0;
+            public static double kGearRatio = 1;
+            public static boolean kInverted = false;
+            public static Angle kLowerSoftLimit = Degrees.of(0);
+            public static Angle kUpperSoftLimit = Degrees.of(360);
+            public static Angle kErrorTolerance = Degrees.of(2);
+            public static MotorArrangementValue kMotorArrangement = MotorArrangementValue.Minion_JST;
+        }
+
+        public class Hood
+        {
+            public static int kMotorID = 11;
+            public static int kEncoderID = 2;
+            public static double kS = 0;
+            public static double kV = 0;
+            public static double kA = 0;
+            public static double kP = 0;
+            public static double kI = 0;
+            public static double kD = 0;
+            public static double kG = 0;
+            public static double kCruiseVelocity = 0;
+            public static double kAcceleration = 0;
+            public static double kJerk = 0;
+            public static double kGearRatio = 1;
+            public static boolean kInverted = false;
+            public static Angle kLowerSoftLimit = Degrees.of(0);
+            public static Angle kUpperSoftLimit = Degrees.of(20);
+            public static Angle kErrorTolerance = Degrees.of(1);
+            public static MotorArrangementValue kMotorArrangement = MotorArrangementValue.Minion_JST;
+            public static String kTargetingDataFilepath = "";
+        }
+
+        public class Shooter
+        {
+            public static int kMotor1ID = 12;
+            public static int kMotor2ID = 13;
+            public static double kS = 0;
+            public static double kV = 0;
+            public static double kA = 0;
+            public static double kP = 0;
+            public static double kI = 0;
+            public static double kD = 0;
+            public static double kG = 0;
+            public static double kCruiseVelocity = 0;
+            public static double kAcceleration = 0;
+            public static double kJerk = 0;
+            public static boolean kMotor1Inverted = false;
+            public static boolean kMotor2Inverted = true;
+            public static AngularVelocity kErrorTolerance = RotationsPerSecond.of(10);
+            public static String kTargetingDataFilepath = "";
+        }
     }
 
     public class MotorConstants
