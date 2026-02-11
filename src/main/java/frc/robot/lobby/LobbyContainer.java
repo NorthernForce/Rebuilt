@@ -23,7 +23,9 @@ import frc.robot.lobby.subsystems.apriltagvision.AprilTagVisionIOLimelight;
 import frc.robot.lobby.subsystems.apriltagvision.AprilTagVisionIOPhotonVisionSim;
 import frc.robot.lobby.subsystems.flicker.Flicker;
 import frc.robot.lobby.subsystems.flicker.FlickerIOTalonFXS;
+import frc.robot.lobby.subsystems.flicker.FlickerIOTalonFXSSim;
 import frc.robot.lobby.subsystems.flicker.FlickerParameters;
+import frc.robot.lobby.subsystems.flicker.FlickerSimParameters;
 import frc.robot.util.AutoUtil;
 
 public class LobbyContainer implements NFRRobotContainer
@@ -36,8 +38,7 @@ public class LobbyContainer implements NFRRobotContainer
 
     public LobbyContainer()
     {
-        flicker = new Flicker(new FlickerIOTalonFXS(new FlickerParameters(LobbyConstants.FlickerConstants.kMotorId,
-                LobbyConstants.FlickerConstants.kRampSpeed)));
+
         drive = new CommandSwerveDrivetrain(LobbyTunerConstants.DrivetrainConstants,
                 LobbyConstants.DrivetrainConstants.kMaxSpeed, LobbyConstants.DrivetrainConstants.kMaxAngularSpeed,
                 LobbyTunerConstants.FrontLeft, LobbyTunerConstants.FrontRight, LobbyTunerConstants.BackLeft,
@@ -45,12 +46,17 @@ public class LobbyContainer implements NFRRobotContainer
         drive.setVisionMeasurementStdDevs(LobbyConstants.VisionConstants.kStdDevs);
         if (Utils.isSimulation())
         {
+            flicker = new Flicker(
+                    new FlickerIOTalonFXSSim(new FlickerSimParameters(LobbyConstants.FlickerConstants.kMotorId,
+                            LobbyConstants.FlickerConstants.kRampSpeed, LobbyConstants.FlickerConstants.kSimRpm)));
             // TODO: get camera json config for sim
             vision = new AprilTagVisionIOPhotonVisionSim(
                     LobbyConstants.VisionConstants.LimeLightConstants.kLimeLightName, new SimCameraProperties(),
                     LobbyConstants.CameraConstants.kCenterCameraTransform);
         } else
         {
+            flicker = new Flicker(new FlickerIOTalonFXS(new FlickerParameters(LobbyConstants.FlickerConstants.kMotorId,
+                    LobbyConstants.FlickerConstants.kRampSpeed)));
             vision = new AprilTagVisionIOLimelight(LobbyConstants.VisionConstants.LimeLightConstants.kLimeLightName,
                     LobbyConstants.CameraConstants.kFrontRightCameraTransform,
                     LobbyConstants.VisionConstants.LimeLightConstants.kValidIds);

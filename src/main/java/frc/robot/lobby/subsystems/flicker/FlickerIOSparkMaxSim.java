@@ -4,7 +4,6 @@ import com.revrobotics.sim.SparkMaxSim;
 import com.revrobotics.spark.SparkMax;
 
 import edu.wpi.first.math.system.plant.DCMotor;
-import edu.wpi.first.wpilibj.motorcontrol.Spark;
 
 public class FlickerIOSparkMaxSim implements FlickerIO
 {
@@ -35,4 +34,9 @@ public class FlickerIOSparkMaxSim implements FlickerIO
         m_motor.setVelocity(0.0);
     }
 
+    @Override
+    public double getSpeed()
+    {
+        return m_motor.getVelocity() / (m_simMaxRpm / 60.0);
+    }
 }

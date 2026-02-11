@@ -1,5 +1,6 @@
 package frc.robot.lobby.subsystems.flicker;
 
+import dev.doglog.DogLog;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -36,5 +37,16 @@ public class Flicker extends SubsystemBase
     public Command getStopCommand()
     {
         return Commands.runOnce(() -> m_io.stopFlicker(), this);
+    }
+
+    public double getSpeed()
+    {
+        return m_io.getSpeed();
+    }
+
+    @Override
+    public void periodic()
+    {
+        DogLog.log("FlickerSpeed", m_io.getSpeed());
     }
 }

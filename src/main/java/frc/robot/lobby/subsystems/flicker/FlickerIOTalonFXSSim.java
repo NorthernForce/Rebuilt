@@ -31,4 +31,10 @@ public class FlickerIOTalonFXSSim implements FlickerIO
     {
         m_motor.setRotorVelocity(0.0);
     }
+
+    @Override
+    public double getSpeed()
+    {
+        return m_motorController.getVelocity().getValueAsDouble() / (m_simMaxRpm / 60.0);
+    }
 }
