@@ -36,7 +36,8 @@ public class LobbyContainer implements NFRRobotContainer
 
     public LobbyContainer()
     {
-        flicker = new Flicker(new FlickerIOTalonFXS(new FlickerParameters(LobbyConstants.FlickerConstants.kMotorId, LobbyConstants.FlickerConstants.kRampSpeed)));
+        flicker = new Flicker(new FlickerIOTalonFXS(new FlickerParameters(LobbyConstants.FlickerConstants.kMotorId,
+                LobbyConstants.FlickerConstants.kRampSpeed)));
         drive = new CommandSwerveDrivetrain(LobbyTunerConstants.DrivetrainConstants,
                 LobbyConstants.DrivetrainConstants.kMaxSpeed, LobbyConstants.DrivetrainConstants.kMaxAngularSpeed,
                 LobbyTunerConstants.FrontLeft, LobbyTunerConstants.FrontRight, LobbyTunerConstants.BackLeft,

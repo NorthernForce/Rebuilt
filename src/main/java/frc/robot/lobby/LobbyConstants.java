@@ -78,6 +78,8 @@ public class LobbyConstants
         public static final int kMotorId = 18;
         public static final double kRampSpeed = 1;
         public static final boolean kMotorInverted = false;
+
+        public static final double kSimRpm = 500.0;
     }
 
     public class MotorConstants
