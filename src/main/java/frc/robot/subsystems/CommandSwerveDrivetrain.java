@@ -179,7 +179,8 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
     public CommandSwerveDrivetrain(SwerveDrivetrainConstants drivetrainConstants, LinearVelocity maxSpeed,
             AngularVelocity maxAngularSpeed, SwerveModuleConstants<?, ?, ?>... modules)
     {
-        super(drivetrainConstants, MapleSimSwerveDrivetrain.regulateModuleConstantsForSimulation(modules));
+        super(drivetrainConstants,
+                MapleSimSwerveDrivetrain.regulateModuleConstantsForSimulation(offsetEncoders(modules)));
         this.maxSpeed = maxSpeed;
         this.maxAngularSpeed = maxAngularSpeed;
         if (Utils.isSimulation())

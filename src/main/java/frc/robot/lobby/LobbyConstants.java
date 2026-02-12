@@ -10,6 +10,7 @@ import edu.wpi.first.math.numbers.N3;
 import static edu.wpi.first.units.Units.Celsius;
 import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.Inches;
+import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 import static edu.wpi.first.units.Units.Seconds;
 import edu.wpi.first.units.measure.AngularVelocity;
@@ -39,17 +40,10 @@ public class LobbyConstants
 
     public static class CameraConstants
     {
-        public static final Transform3d kFrontRightCameraTransform = new Transform3d(
-                new Translation3d(Inches.of(15.0 - 3.0), Inches.of(-(15.0 - 7.5)), Inches.of(8.5)),
-                new Rotation3d(Degrees.zero(), Degrees.zero(), Degrees.zero()));
 
-        public static final Transform3d kFrontLeftCameraTransform = new Transform3d(
-                new Translation3d(Inches.of(15.0 - 3.0), Inches.of(15.0 - 7.75), Inches.of(8.5)),
-                new Rotation3d(Degrees.zero(), Degrees.of(-27.4), Degrees.of(53.4)));
-
-        public static final Transform3d kCenterCameraTransform = new Transform3d(
-                new Translation3d(Inches.of(15.0 - 2.5), Inches.zero(), Inches.of(9.5)),
-                new Rotation3d(Degrees.zero(), Degrees.of(-25), Degrees.zero()));
+        public static final Transform3d kBackLeftCameraTransform = new Transform3d(
+                new Translation3d(Meters.of(-0.14605), Meters.of(-0.1397), Meters.of(0.1778)),
+                new Rotation3d(Degrees.zero(), Degrees.of(2.0), Degrees.of(78.5)));
     }
 
     public class VisionConstants
@@ -60,8 +54,7 @@ public class LobbyConstants
         {
             public static final String kLimeLightName = "limelight-left";
             public static final int[] kValidIds =
-            { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29,
-                    30, 31, 32 };
+            { 15, 16, 31 };
         }
 
         public class PhotonVisionConstants

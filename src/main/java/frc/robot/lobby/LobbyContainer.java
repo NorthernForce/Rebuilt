@@ -44,11 +44,11 @@ public class LobbyContainer implements NFRRobotContainer
             // TODO: get camera json config for sim
             vision = new AprilTagVisionIOPhotonVisionSim(
                     LobbyConstants.VisionConstants.LimeLightConstants.kLimeLightName, new SimCameraProperties(),
-                    LobbyConstants.CameraConstants.kCenterCameraTransform);
+                    LobbyConstants.CameraConstants.kBackLeftCameraTransform);
         } else
         {
             vision = new AprilTagVisionIOLimelight(LobbyConstants.VisionConstants.LimeLightConstants.kLimeLightName,
-                    LobbyConstants.CameraConstants.kFrontRightCameraTransform,
+                    LobbyConstants.CameraConstants.kBackLeftCameraTransform,
                     LobbyConstants.VisionConstants.LimeLightConstants.kValidIds);
         }
         field = new Field2d();
@@ -77,7 +77,19 @@ public class LobbyContainer implements NFRRobotContainer
     @Override
     public void periodic()
     {
-        vision.getPoses().forEach(m -> drive.addVisionMeasurement(m.pose(), m.timestamp()));
+        var state = drive.getState();
+        Rotation2d currentHeading = state.Pose.getRotation();
+        Rotation2d yawRate = Rotation2d.fromRadians(state.Speeds.omegaRadiansPerSecond);
+        vision.setHeading(currentHeading, yawRate);
+
+        var visionPoses = vision.getPoses();
+        DogLog.log("Vision/PoseCount", visionPoses.size());
+        visionPoses.forEach(m ->
+        {
+            DogLog.log("Vision/VisionPose", m.pose());
+            DogLog.log("Vision/Timestamp", m.timestamp());
+            drive.addVisionMeasurement(m.pose(), m.timestamp());
+        });
         field.setRobotPose(drive.getState().Pose);
         DogLog.log("BatteryVoltage", RobotController.getBatteryVoltage());
     }

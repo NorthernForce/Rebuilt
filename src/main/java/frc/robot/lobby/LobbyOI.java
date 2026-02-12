@@ -35,7 +35,7 @@ public class LobbyOI
         driveController.back().onTrue(drive.resetOrientation());
         driveController.a().onTrue(Commands.runOnce(() -> container
                 .resetOdometry(new Pose2d(Meters.of(0), Meters.of(0), new Rotation2d(Degrees.of(180))))));
-        driveController.leftTrigger().whileTrue(
-                container.driveToPose(new Pose2d(Meters.of(2), Meters.of(2), new Rotation2d(Degrees.of(0)))));
+        driveController.leftTrigger().whileTrue(container
+                .driveToPose(new Pose2d(Meters.of(14.728), Meters.of(7.433), new Rotation2d(Degrees.of(138.5)))));
     }
 }
