@@ -18,7 +18,7 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import frc.robot.LimelightHelpers;
 import frc.robot.lobby.generated.LobbyTunerConstants;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
-import frc.robot.subsystems.apriltagvision.AprilTagVisionIO;
+import frc.robot.subsystems.apriltagvision.*;
 import frc.robot.subsystems.apriltagvision.AprilTagVisionIOLimelight;
 import frc.robot.subsystems.apriltagvision.AprilTagVisionIOPhotonVisionSim;
 import frc.robot.subsystems.apriltagvision.commands.DriveToPoseWithVision;
@@ -27,7 +27,7 @@ import frc.robot.util.AutoUtil;
 public class LobbyContainer implements NFRRobotContainer
 {
     private final CommandSwerveDrivetrain drive;
-    private final AprilTagVisionIO vision;
+    private final AprilTagVision vision;
     private final AutoUtil autoUtil;
     private final Field2d field;
     private final DriveToPoseWithVision driveToPoseCommand;
@@ -42,17 +42,19 @@ public class LobbyContainer implements NFRRobotContainer
         if (Utils.isSimulation())
         {
             // TODO: get camera json config for sim
-            vision = new AprilTagVisionIOPhotonVisionSim(
-                    LobbyConstants.VisionConstants.LimeLightConstants.kLimeLightName, new SimCameraProperties(),
-                    LobbyConstants.CameraConstants.kBackLeftCameraTransform);
+            vision = new AprilTagVision(drive,
+                    new AprilTagVisionIOPhotonVisionSim(
+                            LobbyConstants.VisionConstants.LimeLightConstants.kLimeLightName, new SimCameraProperties(),
+                            LobbyConstants.CameraConstants.kBackLeftCameraTransform));
         } else
         {
-            vision = new AprilTagVisionIOLimelight(LobbyConstants.VisionConstants.LimeLightConstants.kLimeLightName,
-                    LobbyConstants.CameraConstants.kBackLeftCameraTransform,
-                    LobbyConstants.VisionConstants.LimeLightConstants.kValidIds);
+            vision = new AprilTagVision(drive,
+                    new AprilTagVisionIOLimelight(LobbyConstants.VisionConstants.LimeLightConstants.kLimeLightName,
+                            LobbyConstants.CameraConstants.kBackLeftCameraTransform,
+                            LobbyConstants.VisionConstants.LimeLightConstants.kValidIds));
         }
         field = new Field2d();
-        driveToPoseCommand = new DriveToPoseWithVision(drive, vision);
+        driveToPoseCommand = new DriveToPoseWithVision(drive);
         autoUtil = new AutoUtil(drive, LobbyConstants.AutoConstants.xPid, LobbyConstants.AutoConstants.yPid,
                 LobbyConstants.AutoConstants.rPid);
         autoUtil.bindAutoDefault("TestAuto", this::testAuto);
