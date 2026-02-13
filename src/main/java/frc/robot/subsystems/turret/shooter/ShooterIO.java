@@ -11,7 +11,7 @@ public interface ShooterIO
             boolean kMotor1Inverted, boolean kMotor2Inverted, AngularVelocity kErrorTolerance) {
     }
 
-    public default void updateStatusSignals()
+    public default void update()
     {
     }
 

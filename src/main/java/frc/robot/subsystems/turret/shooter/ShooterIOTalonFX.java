@@ -79,7 +79,7 @@ public class ShooterIOTalonFX implements ShooterIO
     }
 
     @Override
-    public void updateStatusSignals()
+    public void update()
     {
         StatusSignal.refreshAll(m_temperature, m_voltage, m_current, m_velocity);
     }

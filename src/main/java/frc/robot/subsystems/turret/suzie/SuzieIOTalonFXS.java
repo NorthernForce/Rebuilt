@@ -1,12 +1,14 @@
 package frc.robot.subsystems.turret.suzie;
 
 import static edu.wpi.first.units.Units.Degrees;
+import static edu.wpi.first.units.Units.Rotations;
 
 import java.util.function.Supplier;
 
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.TalonFXSConfiguration;
 import com.ctre.phoenix6.controls.MotionMagicExpoVoltage;
+import com.ctre.phoenix6.controls.PositionVoltage;
 import com.ctre.phoenix6.hardware.TalonFXS;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.MotorArrangementValue;
@@ -28,7 +30,7 @@ public class SuzieIOTalonFXS implements SuzieIO
     protected final StatusSignal<AngularVelocity> m_velocity;
     protected final StatusSignal<AngularVelocity> m_rotorVelocity;
     protected final Supplier<Boolean> m_isPresent;
-    protected final MotionMagicExpoVoltage m_motionMagicVoltage;
+    protected final PositionVoltage m_positionVoltage;
     protected final Angle m_errorTolerance;
 
     private Angle m_targetAngle = Degrees.of(0);
@@ -59,10 +61,12 @@ public class SuzieIOTalonFXS implements SuzieIO
         slot0Configs.kD = kD;
         slot0Configs.kG = kG;
 
-        var motionMagicConfigs = config.MotionMagic;
-        motionMagicConfigs.MotionMagicCruiseVelocity = kCruiseVelocity;
-        motionMagicConfigs.MotionMagicAcceleration = kAcceleration;
-        motionMagicConfigs.MotionMagicJerk = kJerk;
+        // var motionMagicConfigs = config.MotionMagic;
+        // motionMagicConfigs.MotionMagicCruiseVelocity = kCruiseVelocity;
+        // motionMagicConfigs.MotionMagicAcceleration = kAcceleration;
+        // motionMagicConfigs.MotionMagicJerk = kJerk;
+        // motionMagicConfigs.MotionMagicExpo_kV = kV;
+        // motionMagicConfigs.MotionMagicExpo_kA = kA;
 
         config.MotorOutput.Inverted = kInverted ? InvertedValue.CounterClockwise_Positive
                 : InvertedValue.Clockwise_Positive;
@@ -88,12 +92,12 @@ public class SuzieIOTalonFXS implements SuzieIO
         m_rotorVelocity = m_motor.getRotorVelocity();
         m_isPresent = () -> m_motor.isConnected() && !m_motor.getFault_HallSensorMissing().getValue();
 
-        m_motionMagicVoltage = new MotionMagicExpoVoltage(0).withEnableFOC(true);
+        m_positionVoltage = new PositionVoltage(0).withEnableFOC(true);
         m_errorTolerance = kErrorTolerance;
     }
 
     @Override
-    public void updateStatusSignals()
+    public void update()
     {
         StatusSignal.refreshAll(m_position, m_temperature, m_voltage, m_current, m_velocity, m_rotorVelocity);
     }
@@ -102,7 +106,7 @@ public class SuzieIOTalonFXS implements SuzieIO
     public void setTargetAngle(Angle angle)
     {
         m_targetAngle = angle;
-        m_motor.setControl(m_motionMagicVoltage.withPosition(angle.in(Degrees)));
+        m_motor.setControl(m_positionVoltage.withPosition(angle.in(Rotations)));
     }
 
     @Override

@@ -14,7 +14,7 @@ public interface HoodIO
             MotorArrangementValue kMotorArrangement) {
     };
 
-    public default void updateStatusSignals()
+    public default void update()
     {
     }
 

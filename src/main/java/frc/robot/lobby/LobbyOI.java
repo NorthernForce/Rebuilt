@@ -28,7 +28,7 @@ public class LobbyOI
                 inputProc(driveController::getLeftX), inputProc(driveController::getRightX)));
         driveController.back().onTrue(drive.resetOrientation());
 
-        manipulatorController.rightBumper()
+        manipulatorController.a()
                 .whileTrue(new PrepTurretCommand(() -> container.getDrive().getState().Pose, container.getTurret()));
     }
 }

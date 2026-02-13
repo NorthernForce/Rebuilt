@@ -1,5 +1,7 @@
 package frc.robot.lobby;
 
+import static edu.wpi.first.units.Units.Radians;
+
 import org.northernforce.util.NFRRobotContainer;
 import org.photonvision.simulation.SimCameraProperties;
 
@@ -10,6 +12,7 @@ import choreo.auto.AutoRoutine;
 import dev.doglog.DogLog;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
@@ -23,11 +26,14 @@ import frc.robot.subsystems.apriltagvision.AprilTagVisionIOPhotonVisionSim;
 import frc.robot.subsystems.turret.Turret.TurretConstants;
 import frc.robot.subsystems.turret.hood.HoodIO.HoodConstants;
 import frc.robot.subsystems.turret.hood.HoodIOTalonFXS;
+import frc.robot.subsystems.turret.hood.HoodIOTalonFXSSim;
 import frc.robot.subsystems.turret.shooter.ShooterIO.ShooterConstants;
 import frc.robot.subsystems.turret.shooter.ShooterIOTalonFX;
+import frc.robot.subsystems.turret.shooter.ShooterIOTalonFXSim;
 import frc.robot.subsystems.turret.Turret;
 import frc.robot.subsystems.turret.suzie.SuzieIO.SuzieConstants;
 import frc.robot.subsystems.turret.suzie.SuzieIOTalonFXS;
+import frc.robot.subsystems.turret.suzie.SuzieIOTalonFXSSim;
 import frc.robot.util.AutoUtil;
 
 public class LobbyContainer implements NFRRobotContainer
@@ -44,17 +50,76 @@ public class LobbyContainer implements NFRRobotContainer
                 LobbyConstants.DrivetrainConstants.kMaxSpeed, LobbyConstants.DrivetrainConstants.kMaxAngularSpeed,
                 LobbyTunerConstants.FrontLeft, LobbyTunerConstants.FrontRight, LobbyTunerConstants.BackLeft,
                 LobbyTunerConstants.BackRight);
+        drive.resetPose(new Pose2d(3, 3, new Rotation2d()));
         if (Utils.isSimulation())
         {
             // TODO: get camera json config for sim
             vision = new AprilTagVisionIOPhotonVisionSim(
                     LobbyConstants.VisionConstants.LimeLightConstants.kLimeLightName, new SimCameraProperties(),
                     LobbyConstants.CameraConstants.kCenterCameraTransform);
+            turret = new Turret(new TurretConstants(LobbyConstants.Turret.offset),
+                    new SuzieIOTalonFXSSim(new SuzieConstants(LobbyConstants.Turret.Suzie.kMotorID,
+                            LobbyConstants.Turret.Suzie.kEncoderID, LobbyConstants.Turret.Suzie.kS,
+                            LobbyConstants.Turret.Suzie.kV, LobbyConstants.Turret.Suzie.kA,
+                            LobbyConstants.Turret.Suzie.kP, LobbyConstants.Turret.Suzie.kI,
+                            LobbyConstants.Turret.Suzie.kD, LobbyConstants.Turret.Suzie.kG,
+                            LobbyConstants.Turret.Suzie.kCruiseVelocity, LobbyConstants.Turret.Suzie.kAcceleration,
+                            LobbyConstants.Turret.Suzie.kJerk, LobbyConstants.Turret.Suzie.kGearRatio,
+                            LobbyConstants.Turret.Suzie.kInverted, LobbyConstants.Turret.Suzie.kLowerSoftLimit,
+                            LobbyConstants.Turret.Suzie.kUpperSoftLimit, LobbyConstants.Turret.Suzie.kErrorTolerance,
+                            LobbyConstants.Turret.Suzie.kMotorArrangement)),
+                    new HoodIOTalonFXSSim(new HoodConstants(LobbyConstants.Turret.Hood.kMotorID,
+                            LobbyConstants.Turret.Hood.kEncoderID, LobbyConstants.Turret.Hood.kS,
+                            LobbyConstants.Turret.Hood.kV, LobbyConstants.Turret.Hood.kA, LobbyConstants.Turret.Hood.kP,
+                            LobbyConstants.Turret.Hood.kI, LobbyConstants.Turret.Hood.kD, LobbyConstants.Turret.Hood.kG,
+                            LobbyConstants.Turret.Hood.kCruiseVelocity, LobbyConstants.Turret.Hood.kAcceleration,
+                            LobbyConstants.Turret.Hood.kJerk, LobbyConstants.Turret.Hood.kGearRatio,
+                            LobbyConstants.Turret.Hood.kInverted, LobbyConstants.Turret.Hood.kLowerSoftLimit,
+                            LobbyConstants.Turret.Hood.kUpperSoftLimit, LobbyConstants.Turret.Hood.kErrorTolerance,
+                            LobbyConstants.Turret.Hood.kMotorArrangement)),
+                    new ShooterIOTalonFXSim(new ShooterConstants(LobbyConstants.Turret.Shooter.kMotor1ID,
+                            LobbyConstants.Turret.Shooter.kMotor2ID, LobbyConstants.Turret.Shooter.kS,
+                            LobbyConstants.Turret.Shooter.kV, LobbyConstants.Turret.Shooter.kA,
+                            LobbyConstants.Turret.Shooter.kP, LobbyConstants.Turret.Shooter.kI,
+                            LobbyConstants.Turret.Shooter.kD, LobbyConstants.Turret.Shooter.kG,
+                            LobbyConstants.Turret.Shooter.kCruiseVelocity, LobbyConstants.Turret.Shooter.kAcceleration,
+                            LobbyConstants.Turret.Shooter.kJerk, LobbyConstants.Turret.Shooter.kMotor1Inverted,
+                            LobbyConstants.Turret.Shooter.kMotor2Inverted,
+                            LobbyConstants.Turret.Shooter.kErrorTolerance)));
         } else
         {
             vision = new AprilTagVisionIOLimelight(LobbyConstants.VisionConstants.LimeLightConstants.kLimeLightName,
                     LobbyConstants.CameraConstants.kFrontRightCameraTransform,
                     LobbyConstants.VisionConstants.LimeLightConstants.kValidIds);
+            turret = new Turret(new TurretConstants(LobbyConstants.Turret.offset),
+                    new SuzieIOTalonFXS(new SuzieConstants(LobbyConstants.Turret.Suzie.kMotorID,
+                            LobbyConstants.Turret.Suzie.kEncoderID, LobbyConstants.Turret.Suzie.kS,
+                            LobbyConstants.Turret.Suzie.kV, LobbyConstants.Turret.Suzie.kA,
+                            LobbyConstants.Turret.Suzie.kP, LobbyConstants.Turret.Suzie.kI,
+                            LobbyConstants.Turret.Suzie.kD, LobbyConstants.Turret.Suzie.kG,
+                            LobbyConstants.Turret.Suzie.kCruiseVelocity, LobbyConstants.Turret.Suzie.kAcceleration,
+                            LobbyConstants.Turret.Suzie.kJerk, LobbyConstants.Turret.Suzie.kGearRatio,
+                            LobbyConstants.Turret.Suzie.kInverted, LobbyConstants.Turret.Suzie.kLowerSoftLimit,
+                            LobbyConstants.Turret.Suzie.kUpperSoftLimit, LobbyConstants.Turret.Suzie.kErrorTolerance,
+                            LobbyConstants.Turret.Suzie.kMotorArrangement)),
+                    new HoodIOTalonFXS(new HoodConstants(LobbyConstants.Turret.Hood.kMotorID,
+                            LobbyConstants.Turret.Hood.kEncoderID, LobbyConstants.Turret.Hood.kS,
+                            LobbyConstants.Turret.Hood.kV, LobbyConstants.Turret.Hood.kA, LobbyConstants.Turret.Hood.kP,
+                            LobbyConstants.Turret.Hood.kI, LobbyConstants.Turret.Hood.kD, LobbyConstants.Turret.Hood.kG,
+                            LobbyConstants.Turret.Hood.kCruiseVelocity, LobbyConstants.Turret.Hood.kAcceleration,
+                            LobbyConstants.Turret.Hood.kJerk, LobbyConstants.Turret.Hood.kGearRatio,
+                            LobbyConstants.Turret.Hood.kInverted, LobbyConstants.Turret.Hood.kLowerSoftLimit,
+                            LobbyConstants.Turret.Hood.kUpperSoftLimit, LobbyConstants.Turret.Hood.kErrorTolerance,
+                            LobbyConstants.Turret.Hood.kMotorArrangement)),
+                    new ShooterIOTalonFX(new ShooterConstants(LobbyConstants.Turret.Shooter.kMotor1ID,
+                            LobbyConstants.Turret.Shooter.kMotor2ID, LobbyConstants.Turret.Shooter.kS,
+                            LobbyConstants.Turret.Shooter.kV, LobbyConstants.Turret.Shooter.kA,
+                            LobbyConstants.Turret.Shooter.kP, LobbyConstants.Turret.Shooter.kI,
+                            LobbyConstants.Turret.Shooter.kD, LobbyConstants.Turret.Shooter.kG,
+                            LobbyConstants.Turret.Shooter.kCruiseVelocity, LobbyConstants.Turret.Shooter.kAcceleration,
+                            LobbyConstants.Turret.Shooter.kJerk, LobbyConstants.Turret.Shooter.kMotor1Inverted,
+                            LobbyConstants.Turret.Shooter.kMotor2Inverted,
+                            LobbyConstants.Turret.Shooter.kErrorTolerance)));
         }
         field = new Field2d();
 
@@ -67,34 +132,6 @@ public class LobbyContainer implements NFRRobotContainer
         Shuffleboard.getTab("Developer").add("Reset Orientation", drive.resetOrientation());
         Shuffleboard.getTab("Developer").add("Drive to Blue Reef",
                 drive.navigateToPose(new Pose2d(3, 4, new Rotation2d())));
-
-        turret = new Turret(new TurretConstants(LobbyConstants.Turret.offset),
-                new SuzieIOTalonFXS(new SuzieConstants(LobbyConstants.Turret.Suzie.kMotorID,
-                        LobbyConstants.Turret.Suzie.kEncoderID, LobbyConstants.Turret.Suzie.kS,
-                        LobbyConstants.Turret.Suzie.kV, LobbyConstants.Turret.Suzie.kA, LobbyConstants.Turret.Suzie.kP,
-                        LobbyConstants.Turret.Suzie.kI, LobbyConstants.Turret.Suzie.kD, LobbyConstants.Turret.Suzie.kG,
-                        LobbyConstants.Turret.Suzie.kCruiseVelocity, LobbyConstants.Turret.Suzie.kAcceleration,
-                        LobbyConstants.Turret.Suzie.kJerk, LobbyConstants.Turret.Suzie.kGearRatio,
-                        LobbyConstants.Turret.Suzie.kInverted, LobbyConstants.Turret.Suzie.kLowerSoftLimit,
-                        LobbyConstants.Turret.Suzie.kUpperSoftLimit, LobbyConstants.Turret.Suzie.kErrorTolerance,
-                        LobbyConstants.Turret.Suzie.kMotorArrangement)),
-                new HoodIOTalonFXS(new HoodConstants(LobbyConstants.Turret.Hood.kMotorID,
-                        LobbyConstants.Turret.Hood.kEncoderID, LobbyConstants.Turret.Hood.kS,
-                        LobbyConstants.Turret.Hood.kV, LobbyConstants.Turret.Hood.kA, LobbyConstants.Turret.Hood.kP,
-                        LobbyConstants.Turret.Hood.kI, LobbyConstants.Turret.Hood.kD, LobbyConstants.Turret.Hood.kG,
-                        LobbyConstants.Turret.Hood.kCruiseVelocity, LobbyConstants.Turret.Hood.kAcceleration,
-                        LobbyConstants.Turret.Hood.kJerk, LobbyConstants.Turret.Hood.kGearRatio,
-                        LobbyConstants.Turret.Hood.kInverted, LobbyConstants.Turret.Hood.kLowerSoftLimit,
-                        LobbyConstants.Turret.Hood.kUpperSoftLimit, LobbyConstants.Turret.Hood.kErrorTolerance,
-                        LobbyConstants.Turret.Hood.kMotorArrangement)),
-                new ShooterIOTalonFX(new ShooterConstants(LobbyConstants.Turret.Shooter.kMotor1ID,
-                        LobbyConstants.Turret.Shooter.kMotor2ID, LobbyConstants.Turret.Shooter.kS,
-                        LobbyConstants.Turret.Shooter.kV, LobbyConstants.Turret.Shooter.kA,
-                        LobbyConstants.Turret.Shooter.kP, LobbyConstants.Turret.Shooter.kI,
-                        LobbyConstants.Turret.Shooter.kD, LobbyConstants.Turret.Shooter.kG,
-                        LobbyConstants.Turret.Shooter.kCruiseVelocity, LobbyConstants.Turret.Shooter.kAcceleration,
-                        LobbyConstants.Turret.Shooter.kJerk, LobbyConstants.Turret.Shooter.kMotor1Inverted,
-                        LobbyConstants.Turret.Shooter.kMotor2Inverted, LobbyConstants.Turret.Shooter.kErrorTolerance)));
     }
 
     /**
@@ -118,6 +155,11 @@ public class LobbyContainer implements NFRRobotContainer
         vision.getPoses().forEach(m -> drive.addVisionMeasurement(m.pose(), m.timestamp()));
         field.setRobotPose(drive.getState().Pose);
         DogLog.log("BatteryVoltage", RobotController.getBatteryVoltage());
+        DogLog.log("Turret/Position",
+                new Pose2d(turret.calculateFieldRelativeShooterPosition(getDrive().getState().Pose), new Rotation2d()));
+        DogLog.log("Turret/Direction",
+                getDrive().getState().Pose.plus(new Transform2d(Math.cos(getTurret().getSuzie().getAngle().in(Radians)),
+                        Math.sin(getTurret().getSuzie().getAngle().in(Radians)), new Rotation2d())));
     }
 
     @Override

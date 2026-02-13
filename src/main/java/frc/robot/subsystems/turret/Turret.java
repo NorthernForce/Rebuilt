@@ -2,6 +2,7 @@ package frc.robot.subsystems.turret;
 
 import static edu.wpi.first.units.Units.*;
 
+import dev.doglog.DogLog;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.units.measure.Angle;
@@ -70,7 +71,7 @@ public class Turret extends SubsystemBase
         return Radians.of(targetAngle % (2 * Math.PI));
     }
 
-    private Translation2d calculateFieldRelativeShooterPosition(Pose2d robotPose)
+    public Translation2d calculateFieldRelativeShooterPosition(Pose2d robotPose)
     {
         return new Translation2d(
                 robotPose.getX() + shooterOffsetDistance.in(Meters)
@@ -84,11 +85,32 @@ public class Turret extends SubsystemBase
         return Meters.of(robotPose.getTranslation().getDistance(calculateFieldRelativeShooterPosition(robotPose)));
     }
 
+    public SuzieIO getSuzie()
+    {
+        return suzie;
+    }
+
+    public HoodIO getHood()
+    {
+        return hood;
+    }
+
+    public ShooterIO getShooter()
+    {
+        return shooter;
+    }
+
     @Override
     public void periodic()
     {
-        suzie.updateStatusSignals();
-        hood.updateStatusSignals();
-        shooter.updateStatusSignals();
+        suzie.update();
+        hood.update();
+        shooter.update();
+        DogLog.log("Turret/Suzie/Angle", suzie.getAngle().in(Radians));
+        DogLog.log("Turret/Suzie/TargetAngle", suzie.getTargetAngle().in(Radians));
+        DogLog.log("Turret/Suzie/IsAtTarget", suzie.isAtTargetAngle());
+        DogLog.log("Turret/Hood/Angle", hood.getAngle().in(Radians));
+        DogLog.log("Turret/Hood/TargetAngle", hood.getTargetAngle().in(Radians));
+        DogLog.log("Turret/Hood/IsAtTarget", hood.isAtTargetAngle());
     }
 }

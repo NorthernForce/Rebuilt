@@ -1,6 +1,7 @@
 package frc.robot.subsystems.turret.hood;
 
 import static edu.wpi.first.units.Units.Degrees;
+import static edu.wpi.first.units.Units.Rotations;
 
 import java.util.function.Supplier;
 
@@ -93,7 +94,7 @@ public class HoodIOTalonFXS implements HoodIO
     }
 
     @Override
-    public void updateStatusSignals()
+    public void update()
     {
         StatusSignal.refreshAll(m_position, m_temperature, m_voltage, m_current, m_velocity, m_rotorVelocity);
     }
@@ -102,7 +103,7 @@ public class HoodIOTalonFXS implements HoodIO
     public void setTargetAngle(Angle angle)
     {
         m_targetAngle = angle;
-        m_motor.setControl(m_motionMagicVoltage.withPosition(angle.in(Degrees)));
+        m_motor.setControl(m_motionMagicVoltage.withPosition(angle.in(Rotations)));
     }
 
     @Override
