@@ -48,7 +48,10 @@ public class LobbyContainer implements NFRRobotContainer
         {
             flicker = new Flicker(
                     new FlickerIOTalonFXSSim(new FlickerSimParameters(LobbyConstants.FlickerConstants.kMotorId,
-                            LobbyConstants.FlickerConstants.kRampSpeed, LobbyConstants.FlickerConstants.kSimRpm)));
+                            LobbyConstants.FlickerConstants.kRampSpeed, LobbyConstants.FlickerConstants.kGearRatio,
+                            LobbyConstants.FlickerConstants.kV, LobbyConstants.FlickerConstants.kP,
+                            LobbyConstants.FlickerConstants.kI, LobbyConstants.FlickerConstants.kD,
+                            LobbyConstants.FlickerConstants.kSimRpm, LobbyConstants.FlickerConstants.kSimMoi)));
             // TODO: get camera json config for sim
             vision = new AprilTagVisionIOPhotonVisionSim(
                     LobbyConstants.VisionConstants.LimeLightConstants.kLimeLightName, new SimCameraProperties(),
@@ -56,7 +59,9 @@ public class LobbyContainer implements NFRRobotContainer
         } else
         {
             flicker = new Flicker(new FlickerIOTalonFXS(new FlickerParameters(LobbyConstants.FlickerConstants.kMotorId,
-                    LobbyConstants.FlickerConstants.kRampSpeed)));
+                    LobbyConstants.FlickerConstants.kRampSpeed, LobbyConstants.FlickerConstants.kGearRatio,
+                    LobbyConstants.FlickerConstants.kV, LobbyConstants.FlickerConstants.kP,
+                    LobbyConstants.FlickerConstants.kI, LobbyConstants.FlickerConstants.kD)));
             vision = new AprilTagVisionIOLimelight(LobbyConstants.VisionConstants.LimeLightConstants.kLimeLightName,
                     LobbyConstants.CameraConstants.kFrontRightCameraTransform,
                     LobbyConstants.VisionConstants.LimeLightConstants.kValidIds);

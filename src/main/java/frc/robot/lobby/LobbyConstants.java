@@ -76,10 +76,19 @@ public class LobbyConstants
     {
         // TODO: check ALL values
         public static final int kMotorId = 18;
-        public static final double kRampSpeed = 1;
+        public static final double kRampSpeed = 20;
         public static final boolean kMotorInverted = false;
+        public static final double kGearRatio = 5.0;
 
+        // PID gains for velocity control
+        public static final double kV = 0.0925;
+        public static final double kP = 0.5;
+        public static final double kI = 0.0;
+        public static final double kD = 0.0;
+
+        // Simulation constants
         public static final double kSimRpm = 500.0;
+        public static final double kSimMoi = 0.02; // Moment of inertia in kg*m^2
     }
 
     public class MotorConstants

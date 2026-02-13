@@ -7,4 +7,9 @@ public interface FlickerIO
     public void stopFlicker();
 
     public double getSpeed();
+
+    /** Called every loop to update simulation physics. No-op on real robot. */
+    public default void updateSimulation(double dtSeconds)
+    {
+    }
 }

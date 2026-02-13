@@ -7,7 +7,9 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class Flicker extends SubsystemBase
 {
-    public static FlickerIO m_io;
+    private static final double kSimDtSeconds = 0.02; // 20ms loop period
+
+    private FlickerIO m_io;
 
     public Flicker(FlickerIO io)
     {
@@ -47,6 +49,9 @@ public class Flicker extends SubsystemBase
     @Override
     public void periodic()
     {
+        // Update simulation physics (no-op on real robot)
+        m_io.updateSimulation(kSimDtSeconds);
+
         DogLog.log("FlickerSpeed", m_io.getSpeed());
     }
 }
