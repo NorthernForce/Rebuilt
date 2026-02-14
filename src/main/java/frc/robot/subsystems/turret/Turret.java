@@ -100,6 +100,16 @@ public class Turret extends SubsystemBase
         return shooter;
     }
 
+    public TargetingCalculator getHoodTargetingCalculator()
+    {
+        return hoodCalculator;
+    }
+
+    public TargetingCalculator getShooterTargetingCalculator()
+    {
+        return shooterCalculator;
+    }
+
     @Override
     public void periodic()
     {

@@ -124,7 +124,7 @@ public class LobbyConstants
             public static Angle kUpperSoftLimit = Degrees.of(20);
             public static Angle kErrorTolerance = Degrees.of(1);
             public static MotorArrangementValue kMotorArrangement = MotorArrangementValue.Minion_JST;
-            public static String kTargetingDataFilepath = "";
+            public static String kTargetingDataFilepath = "src/main/java/frc/robot/subsystems/turret/targeting_data/HoodTargetingData.csv";
         }
 
         public class Shooter
@@ -144,7 +144,7 @@ public class LobbyConstants
             public static boolean kMotor1Inverted = false;
             public static boolean kMotor2Inverted = true;
             public static AngularVelocity kErrorTolerance = RotationsPerSecond.of(10);
-            public static String kTargetingDataFilepath = "";
+            public static String kTargetingDataFilepath = "src/main/java/frc/robot/subsystems/turret/targeting_data/ShooterTargetingData.csv";
         }
     }
 

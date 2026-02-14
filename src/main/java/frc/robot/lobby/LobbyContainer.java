@@ -12,7 +12,7 @@ import choreo.auto.AutoRoutine;
 import dev.doglog.DogLog;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Transform2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
@@ -158,8 +158,12 @@ public class LobbyContainer implements NFRRobotContainer
         DogLog.log("Turret/Position",
                 new Pose2d(turret.calculateFieldRelativeShooterPosition(getDrive().getState().Pose), new Rotation2d()));
         DogLog.log("Turret/Direction",
-                getDrive().getState().Pose.plus(new Transform2d(Math.cos(getTurret().getSuzie().getAngle().in(Radians)),
-                        Math.sin(getTurret().getSuzie().getAngle().in(Radians)), new Rotation2d())));
+                getTurret().calculateFieldRelativeShooterPosition(drive.getState().Pose)
+                        .plus(new Translation2d(
+                                Math.cos(getTurret().getSuzie().getAngle().in(Radians)
+                                        + getDrive().getState().Pose.getRotation().getRadians()),
+                                Math.sin(getTurret().getSuzie().getAngle().in(Radians)
+                                        + getDrive().getState().Pose.getRotation().getRadians()))));
     }
 
     @Override
