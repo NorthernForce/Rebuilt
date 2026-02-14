@@ -1,15 +1,18 @@
 package frc.robot.lobby;
 
+import java.util.Optional;
 import org.northernforce.util.NFRRobotContainer;
 import org.photonvision.simulation.SimCameraProperties;
 
 import com.ctre.phoenix6.Utils;
+import com.pathplanner.lib.commands.PathPlannerAuto;
 
 import choreo.auto.AutoFactory;
 import choreo.auto.AutoRoutine;
 import dev.doglog.DogLog;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
@@ -31,9 +34,11 @@ public class LobbyContainer implements NFRRobotContainer
     private final AutoUtil autoUtil;
     private final Field2d field;
     private final DriveToPoseWithVision driveToPoseCommand;
+    private Optional<String> teamActivity = Optional.empty();
 
     public LobbyContainer()
     {
+
         drive = new CommandSwerveDrivetrain(LobbyTunerConstants.DrivetrainConstants,
                 LobbyConstants.DrivetrainConstants.kMaxSpeed, LobbyConstants.DrivetrainConstants.kMaxAngularSpeed,
                 LobbyTunerConstants.FrontLeft, LobbyTunerConstants.FrontRight, LobbyTunerConstants.BackLeft,
@@ -53,12 +58,13 @@ public class LobbyContainer implements NFRRobotContainer
                             LobbyConstants.CameraConstants.kBackLeftCameraTransform,
                             LobbyConstants.VisionConstants.LimeLightConstants.kValidIds));
         }
+
         field = new Field2d();
         driveToPoseCommand = new DriveToPoseWithVision(drive);
         autoUtil = new AutoUtil(drive, LobbyConstants.AutoConstants.xPid, LobbyConstants.AutoConstants.yPid,
                 LobbyConstants.AutoConstants.rPid);
         autoUtil.bindAutoDefault("TestAuto", this::testAuto);
-
+        autoUtil.bindAuto("ShmallAuto", new PathPlannerAuto("ShmallAuto"));
         Shuffleboard.getTab("Developer").add(field);
         Shuffleboard.getTab("Developer").add("Reset Encoders", drive.resetEncoders());
         Shuffleboard.getTab("Developer").add("Reset Orientation", drive.resetOrientation());
@@ -94,6 +100,41 @@ public class LobbyContainer implements NFRRobotContainer
         });
         field.setRobotPose(drive.getState().Pose);
         DogLog.log("BatteryVoltage", RobotController.getBatteryVoltage());
+
+        if (DriverStation.getGameSpecificMessage().equals("R"))
+        {
+            teamActivity = Optional
+                    .of((DriverStation.getAlliance().get() == DriverStation.Alliance.Red) ? "active" : "inactive");
+        } else if (DriverStation.getGameSpecificMessage().equals("B"))
+        {
+            teamActivity = Optional
+                    .of((DriverStation.getAlliance().get() == DriverStation.Alliance.Blue) ? "active" : "inactive");
+        }
+
+        DogLog.log("GameData/StartingActivity", teamActivity.orElse("unknown"));
+        if (!teamActivity.orElse("unknown").equals("unknown"))
+
+            if (DriverStation.getMatchTime() > 130)
+            {
+                DogLog.log("GameData/GameShift", "active");
+
+            } else if (DriverStation.getMatchTime() > 105)
+            {
+                DogLog.log("GameData/GameShift", teamActivity.get().equals("inactive") ? "inactive" : "active");
+            } else if (DriverStation.getMatchTime() > 80)
+            {
+                DogLog.log("GameData/GameShift", teamActivity.get());
+            } else if (DriverStation.getMatchTime() > 55)
+            {
+                DogLog.log("GameData/GameShift", teamActivity.get().equals("inactive") ? "inactive" : "active");
+            } else if (DriverStation.getMatchTime() > 30)
+            {
+                DogLog.log("GameData/GameShift", teamActivity.get());
+            } else
+            {
+                DogLog.log("GameData/GameShift", teamActivity.get().equals("inactive") ? "inactive" : "active");
+            }
+
     }
 
     @Override
