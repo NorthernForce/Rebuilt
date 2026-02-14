@@ -26,7 +26,5 @@ public class LobbyOI
         drive.setDefaultCommand(drive.driveByJoystick(inputProc(driveController::getLeftY),
                 inputProc(driveController::getLeftX), inputProc(driveController::getRightX)));
         driveController.back().onTrue(drive.resetOrientation());
-        driveController.rightTrigger().onTrue(container.getFlicker().getRampCommand())
-                .onFalse(container.getFlicker().getStopCommand());
     }
 }

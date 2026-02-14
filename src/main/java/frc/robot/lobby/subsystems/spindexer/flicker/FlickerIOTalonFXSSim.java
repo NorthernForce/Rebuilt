@@ -1,4 +1,4 @@
-package frc.robot.lobby.subsystems.flicker;
+package frc.robot.lobby.subsystems.spindexer.flicker;
 
 import com.ctre.phoenix6.configs.TalonFXSConfiguration;
 import com.ctre.phoenix6.controls.VelocityVoltage;
@@ -16,6 +16,7 @@ public class FlickerIOTalonFXSSim implements FlickerIO
 {
     private double m_gearRatio;
     private double m_rampSpeed;
+    private double m_errorTolerance;
     private double m_simMaxRpm;
     private TalonFXS m_motorController;
 
@@ -28,6 +29,7 @@ public class FlickerIOTalonFXSSim implements FlickerIO
     public FlickerIOTalonFXSSim(FlickerSimParameters parameters)
     {
         m_rampSpeed = parameters.rampSpeed();
+        m_errorTolerance = parameters.errorTolerance();
         m_gearRatio = parameters.gearRatio();
         m_motorController = new TalonFXS(parameters.motorId());
 
@@ -92,8 +94,9 @@ public class FlickerIOTalonFXSSim implements FlickerIO
     }
 
     @Override
-    public double getSpeed()
+    public boolean isAtTargetSpeed()
     {
-        return m_motorController.getVelocity().getValueAsDouble() / (m_simMaxRpm / 60.0);
+        return Math.abs(m_motorController.getVelocity().getValueAsDouble()
+                - m_rampSpeed * (m_simMaxRpm / 60.0)) < m_errorTolerance;
     }
 }

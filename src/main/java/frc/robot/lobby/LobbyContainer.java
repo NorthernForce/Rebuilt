@@ -15,17 +15,11 @@ import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
-import frc.robot.LimelightHelpers;
 import frc.robot.lobby.generated.LobbyTunerConstants;
 import frc.robot.lobby.subsystems.CommandSwerveDrivetrain;
 import frc.robot.lobby.subsystems.apriltagvision.AprilTagVisionIO;
 import frc.robot.lobby.subsystems.apriltagvision.AprilTagVisionIOLimelight;
 import frc.robot.lobby.subsystems.apriltagvision.AprilTagVisionIOPhotonVisionSim;
-import frc.robot.lobby.subsystems.flicker.Flicker;
-import frc.robot.lobby.subsystems.flicker.FlickerIOTalonFXS;
-import frc.robot.lobby.subsystems.flicker.FlickerIOTalonFXSSim;
-import frc.robot.lobby.subsystems.flicker.FlickerParameters;
-import frc.robot.lobby.subsystems.flicker.FlickerSimParameters;
 import frc.robot.util.AutoUtil;
 
 public class LobbyContainer implements NFRRobotContainer
@@ -34,7 +28,6 @@ public class LobbyContainer implements NFRRobotContainer
     private final AprilTagVisionIO vision;
     private final AutoUtil autoUtil;
     private final Field2d field;
-    private final Flicker flicker;
 
     public LobbyContainer()
     {
@@ -46,22 +39,12 @@ public class LobbyContainer implements NFRRobotContainer
         drive.setVisionMeasurementStdDevs(LobbyConstants.VisionConstants.kStdDevs);
         if (Utils.isSimulation())
         {
-            flicker = new Flicker(
-                    new FlickerIOTalonFXSSim(new FlickerSimParameters(LobbyConstants.FlickerConstants.kMotorId,
-                            LobbyConstants.FlickerConstants.kRampSpeed, LobbyConstants.FlickerConstants.kGearRatio,
-                            LobbyConstants.FlickerConstants.kV, LobbyConstants.FlickerConstants.kP,
-                            LobbyConstants.FlickerConstants.kI, LobbyConstants.FlickerConstants.kD,
-                            LobbyConstants.FlickerConstants.kSimRpm, LobbyConstants.FlickerConstants.kSimMoi)));
             // TODO: get camera json config for sim
             vision = new AprilTagVisionIOPhotonVisionSim(
                     LobbyConstants.VisionConstants.LimeLightConstants.kLimeLightName, new SimCameraProperties(),
                     LobbyConstants.CameraConstants.kCenterCameraTransform);
         } else
         {
-            flicker = new Flicker(new FlickerIOTalonFXS(new FlickerParameters(LobbyConstants.FlickerConstants.kMotorId,
-                    LobbyConstants.FlickerConstants.kRampSpeed, LobbyConstants.FlickerConstants.kGearRatio,
-                    LobbyConstants.FlickerConstants.kV, LobbyConstants.FlickerConstants.kP,
-                    LobbyConstants.FlickerConstants.kI, LobbyConstants.FlickerConstants.kD)));
             vision = new AprilTagVisionIOLimelight(LobbyConstants.VisionConstants.LimeLightConstants.kLimeLightName,
                     LobbyConstants.CameraConstants.kFrontRightCameraTransform,
                     LobbyConstants.VisionConstants.LimeLightConstants.kValidIds);
@@ -107,11 +90,6 @@ public class LobbyContainer implements NFRRobotContainer
     public Command getAutonomousCommand()
     {
         return autoUtil.getSelected();
-    }
-
-    public Flicker getFlicker()
-    {
-        return flicker;
     }
 
     public AutoRoutine testAuto(AutoFactory factory)
