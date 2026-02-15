@@ -15,18 +15,21 @@ import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
-import frc.robot.LimelightHelpers;
 import frc.robot.lobby.generated.LobbyTunerConstants;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.apriltagvision.AprilTagVisionIO;
 import frc.robot.subsystems.apriltagvision.AprilTagVisionIOLimelight;
 import frc.robot.subsystems.apriltagvision.AprilTagVisionIOPhotonVisionSim;
+import frc.robot.subsystems.climber.ClimberIO;
+import frc.robot.subsystems.climber.ClimberIOTalonFXS;
+import frc.robot.subsystems.climber.ClimberSubsystem;
 import frc.robot.util.AutoUtil;
 
 public class LobbyContainer implements NFRRobotContainer
 {
     private final CommandSwerveDrivetrain drive;
     private final AprilTagVisionIO vision;
+    private final ClimberSubsystem climber;
     private final AutoUtil autoUtil;
     private final Field2d field;
 
@@ -43,11 +46,17 @@ public class LobbyContainer implements NFRRobotContainer
             vision = new AprilTagVisionIOPhotonVisionSim(
                     LobbyConstants.VisionConstants.LimeLightConstants.kLimeLightName, new SimCameraProperties(),
                     LobbyConstants.CameraConstants.kCenterCameraTransform);
+
+            climber = new ClimberSubsystem(new ClimberIO()
+            {
+            });
         } else
         {
             vision = new AprilTagVisionIOLimelight(LobbyConstants.VisionConstants.LimeLightConstants.kLimeLightName,
                     LobbyConstants.CameraConstants.kFrontRightCameraTransform,
                     LobbyConstants.VisionConstants.LimeLightConstants.kValidIds);
+
+            climber = new ClimberSubsystem(new ClimberIOTalonFXS(20));
         }
         field = new Field2d();
 
@@ -60,6 +69,11 @@ public class LobbyContainer implements NFRRobotContainer
         Shuffleboard.getTab("Developer").add("Reset Orientation", drive.resetOrientation());
         Shuffleboard.getTab("Developer").add("Drive to Blue Reef",
                 drive.navigateToPose(new Pose2d(3, 4, new Rotation2d())));
+
+        Shuffleboard.getTab("Developer").add("Climber UP (4V)", climber.runVoltage(4.0));
+        Shuffleboard.getTab("Developer").add("Climber DOWN (-4V)", climber.runVoltage(-4.0));
+        Shuffleboard.getTab("Developer").add("Climber STOP", climber.stop());
+
     }
 
     /**
