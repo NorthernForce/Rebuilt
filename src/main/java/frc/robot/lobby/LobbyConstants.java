@@ -95,4 +95,25 @@ public class LobbyConstants
             public static final Temperature kMaxTemperature = Celsius.of(60.0);
         }
     }
+
+    public static class ClimberConstants
+    {
+        // IDs
+        public static final int kMotorId = 20; // what is this value
+        public static final int kServoId = 0; // PWM port
+
+        // Mechanical Math
+        public static final double kMetersPerRotation = 0.01; // what is this value
+
+        // Climb Sequence
+        public static final double kRaiseVolts = 4.0; // Voltage to lift the elevator up
+        public static final double kRaiseTimeoutSeconds = 2.0; // Safety timeout for raising
+        public static final double kPullDownVolts = -8.0; // Voltage to pull the robot up
+        public static final double kHomingVolts = -2.0; // Slow speed for finding limit switch
+
+        // Servo Angles
+        public static final double kHookExtendAngle = 0.0;
+        public static final double kHookRetractAngle = 180.0;
+    }
+
 }
