@@ -21,6 +21,9 @@ import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.apriltagvision.AprilTagVisionIO;
 import frc.robot.subsystems.apriltagvision.AprilTagVisionIOLimelight;
 import frc.robot.subsystems.apriltagvision.AprilTagVisionIOPhotonVisionSim;
+import frc.robot.subsystems.climber.Climber;
+import frc.robot.subsystems.climber.ClimberIOTalonFX;
+import frc.robot.subsystems.climber.ClimberParameters;
 import frc.robot.util.AutoUtil;
 
 public class LobbyContainer implements NFRRobotContainer
@@ -29,9 +32,11 @@ public class LobbyContainer implements NFRRobotContainer
     private final AprilTagVisionIO vision;
     private final AutoUtil autoUtil;
     private final Field2d field;
+    private final Climber climber;
 
     public LobbyContainer()
     {
+        climber = new Climber(new ClimberIOTalonFX(new ClimberParameters(LobbyConstants.ClimberConstants.kMotorID, LobbyConstants.ClimberConstants.kSensorID, LobbyConstants.ClimberConstants.ClimbLevels.BOTTOM, LobbyConstants.ClimberConstants.ClimbLevels.L1, LobbyConstants.ClimberConstants.ClimbLevels.L2, LobbyConstants.ClimberConstants.ClimbLevels.L3, LobbyConstants.ClimberConstants.gearRatio, LobbyConstants.ClimberConstants.slowSpeed)));
         drive = new CommandSwerveDrivetrain(LobbyTunerConstants.DrivetrainConstants,
                 LobbyConstants.DrivetrainConstants.kMaxSpeed, LobbyConstants.DrivetrainConstants.kMaxAngularSpeed,
                 LobbyTunerConstants.FrontLeft, LobbyTunerConstants.FrontRight, LobbyTunerConstants.BackLeft,
