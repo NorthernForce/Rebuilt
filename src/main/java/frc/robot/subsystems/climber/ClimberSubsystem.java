@@ -5,13 +5,13 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.lobby.LobbyConstants;
-import org.littletonrobotics.junction.Logger;
 
 public class ClimberSubsystem extends SubsystemBase
 {
 
     private final ClimberIO io;
-    private final ClimberIOInputsAutoLogged inputs = new ClimberIOInputsAutoLogged();
+
+    private final ClimberIO.ClimberIOInputs inputs = new ClimberIO.ClimberIOInputs();
 
     private final Servo hookServo;
 
@@ -25,7 +25,6 @@ public class ClimberSubsystem extends SubsystemBase
     public void periodic()
     {
         io.updateInputs(inputs);
-        Logger.processInputs("Climber", inputs);
 
         if (inputs.atBottomLimit && inputs.velocityMetersPerSec < 0)
         {
