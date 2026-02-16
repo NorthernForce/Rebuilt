@@ -89,6 +89,16 @@ public class LobbyContainer implements NFRRobotContainer
         return drive;
     }
 
+    /**
+     * Gets the climber subsystem
+     * 
+     * @return the climber subsystem
+     */
+    public ClimberSubsystem getClimber()
+    {
+        return climber;
+    }
+
     @Override
     public void periodic()
     {
