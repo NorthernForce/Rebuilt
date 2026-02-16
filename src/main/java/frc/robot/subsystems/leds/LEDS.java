@@ -1,5 +1,7 @@
 package frc.robot.subsystems.leds;
 
+import java.util.Optional;
+
 import com.ctre.phoenix6.configs.CANdleConfiguration;
 import com.ctre.phoenix6.controls.ColorFlowAnimation;
 import com.ctre.phoenix6.controls.FireAnimation;
@@ -15,6 +17,8 @@ import com.ctre.phoenix6.signals.AnimationDirectionValue;
 import com.ctre.phoenix6.signals.RGBWColor;
 import com.ctre.phoenix6.signals.StripTypeValue;
 
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
@@ -30,6 +34,16 @@ public class LEDS extends SubsystemBase
     {
         None, ColorFlow, Fire, Rainbow, RgbFade, SingleFade, Strobe, Twinkle, TwinkleOff,
     }
+
+    public static enum GameStage
+    {
+        Disabled, Autonomous, Transition, AllianceShift1, AllianceShift2, AllianceShift3, AllianceShift4, EndGame, Test
+    }
+
+    private GameStage currentGameStage = GameStage.Disabled;
+    private Optional<Alliance> currentAlliance;
+    private double matchTime = 0.0;
+    private boolean hubActive = false;
 
     private AnimationType currentAnimation = AnimationType.None;
     private RGBWColor animationColor = new RGBWColor(255, 0, 0, 0);
@@ -48,6 +62,8 @@ public class LEDS extends SubsystemBase
         this.length = length;
         config.LED.StripType = StripTypeValue.RGB;
         candle.getConfigurator().apply(config);
+
+        currentAlliance = DriverStation.getAlliance();
     }
 
     public void setColor(int red, int green, int blue)
@@ -253,8 +269,88 @@ public class LEDS extends SubsystemBase
 
     }
 
+    public void setGameStage()
+    {
+        matchTime = DriverStation.getMatchTime();
+        if (DriverStation.isDisabled())
+        {
+            currentGameStage = GameStage.Disabled;
+        } else if (DriverStation.isAutonomous())
+        {
+            currentGameStage = GameStage.Autonomous;
+        } else if (DriverStation.isTest())
+        {
+            currentGameStage = GameStage.Test;
+        } else
+        {
+            if (matchTime > 130)
+            {
+                currentGameStage = GameStage.Transition;
+            } else if (matchTime > 105)
+            {
+                currentGameStage = GameStage.AllianceShift1;
+            } else if (matchTime > 80)
+            {
+                currentGameStage = GameStage.AllianceShift2;
+            } else if (matchTime > 55)
+            {
+                currentGameStage = GameStage.AllianceShift3;
+            } else if (matchTime > 30)
+            {
+                currentGameStage = GameStage.AllianceShift4;
+            } else
+            {
+                currentGameStage = GameStage.EndGame;
+            }
+        }
+
+        boolean redInactiveFirst = false;
+        switch (DriverStation.getGameSpecificMessage().charAt(0))
+        {
+        case 'R':
+            redInactiveFirst = true;
+            break;
+        case 'B':
+            redInactiveFirst = false;
+            break;
+        default:
+            redInactiveFirst = true;
+            break;
+        }
+
+        boolean firstShiftActive = false;
+        firstShiftActive = switch (currentAlliance.get())
+        {
+        case Red -> !redInactiveFirst;
+        case Blue -> redInactiveFirst;
+        default -> redInactiveFirst;
+        };
+
+        hubActive = switch (currentGameStage)
+        {
+        case Disabled -> false;
+        case Autonomous -> true;
+        case Transition -> true;
+        case AllianceShift1 -> firstShiftActive;
+        case AllianceShift2 -> !firstShiftActive;
+        case AllianceShift3 -> firstShiftActive;
+        case AllianceShift4 -> !firstShiftActive;
+        default -> hubActive;
+        };
+
+    }
+
     @Override
     public void periodic()
     {
+        setGameStage();
+
+        if (hubActive)
+        {
+            getSetLEDColorCommand(0, 225, 0, 1.0);
+        } else
+        {
+            getSetLEDColorCommand(0, 225, 225, 1.0);
+        }
     }
 }
