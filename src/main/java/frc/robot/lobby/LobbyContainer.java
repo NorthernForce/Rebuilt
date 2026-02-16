@@ -23,6 +23,7 @@ import frc.robot.subsystems.apriltagvision.AprilTagVisionIOLimelight;
 import frc.robot.subsystems.apriltagvision.AprilTagVisionIOPhotonVisionSim;
 import frc.robot.subsystems.climber.Climber;
 import frc.robot.subsystems.climber.ClimberIOTalonFX;
+import frc.robot.subsystems.climber.ClimberIOTalonFXSim;
 import frc.robot.subsystems.climber.ClimberParameters;
 import frc.robot.util.AutoUtil;
 
@@ -36,7 +37,6 @@ public class LobbyContainer implements NFRRobotContainer
 
     public LobbyContainer()
     {
-        climber = new Climber(new ClimberIOTalonFX(new ClimberParameters(LobbyConstants.ClimberConstants.kMotorID, LobbyConstants.ClimberConstants.kSensorID, LobbyConstants.ClimberConstants.ClimbLevels.BOTTOM, LobbyConstants.ClimberConstants.ClimbLevels.L1, LobbyConstants.ClimberConstants.ClimbLevels.L2, LobbyConstants.ClimberConstants.ClimbLevels.L3, LobbyConstants.ClimberConstants.gearRatio, LobbyConstants.ClimberConstants.slowSpeed)));
         drive = new CommandSwerveDrivetrain(LobbyTunerConstants.DrivetrainConstants,
                 LobbyConstants.DrivetrainConstants.kMaxSpeed, LobbyConstants.DrivetrainConstants.kMaxAngularSpeed,
                 LobbyTunerConstants.FrontLeft, LobbyTunerConstants.FrontRight, LobbyTunerConstants.BackLeft,
@@ -44,12 +44,31 @@ public class LobbyContainer implements NFRRobotContainer
         drive.setVisionMeasurementStdDevs(LobbyConstants.VisionConstants.kStdDevs);
         if (Utils.isSimulation())
         {
+            climber = new Climber(new ClimberIOTalonFXSim(new ClimberParameters(
+                    LobbyConstants.ClimberConstants.kMotorID, LobbyConstants.ClimberConstants.kSensorID,
+                    LobbyConstants.ClimberConstants.ClimbLevels.BOTTOM, LobbyConstants.ClimberConstants.ClimbLevels.L1,
+                    LobbyConstants.ClimberConstants.ClimbLevels.L2, LobbyConstants.ClimberConstants.ClimbLevels.L3,
+                    LobbyConstants.ClimberConstants.gearRatio, LobbyConstants.ClimberConstants.slowSpeed,
+                    LobbyConstants.ClimberConstants.maxHeight, LobbyConstants.ClimberConstants.kP,
+                    LobbyConstants.ClimberConstants.kI, LobbyConstants.ClimberConstants.kD,
+                    LobbyConstants.ClimberConstants.kV, LobbyConstants.ClimberConstants.kG,
+                    LobbyConstants.ClimberConstants.topRotations)));
+
             // TODO: get camera json config for sim
             vision = new AprilTagVisionIOPhotonVisionSim(
                     LobbyConstants.VisionConstants.LimeLightConstants.kLimeLightName, new SimCameraProperties(),
                     LobbyConstants.CameraConstants.kCenterCameraTransform);
         } else
         {
+            climber = new Climber(new ClimberIOTalonFX(new ClimberParameters(LobbyConstants.ClimberConstants.kMotorID,
+                    LobbyConstants.ClimberConstants.kSensorID, LobbyConstants.ClimberConstants.ClimbLevels.BOTTOM,
+                    LobbyConstants.ClimberConstants.ClimbLevels.L1, LobbyConstants.ClimberConstants.ClimbLevels.L2,
+                    LobbyConstants.ClimberConstants.ClimbLevels.L3, LobbyConstants.ClimberConstants.gearRatio,
+                    LobbyConstants.ClimberConstants.slowSpeed, LobbyConstants.ClimberConstants.maxHeight,
+                    LobbyConstants.ClimberConstants.kP, LobbyConstants.ClimberConstants.kI,
+                    LobbyConstants.ClimberConstants.kD, LobbyConstants.ClimberConstants.kV,
+                    LobbyConstants.ClimberConstants.kG, LobbyConstants.ClimberConstants.topRotations)));
+
             vision = new AprilTagVisionIOLimelight(LobbyConstants.VisionConstants.LimeLightConstants.kLimeLightName,
                     LobbyConstants.CameraConstants.kFrontRightCameraTransform,
                     LobbyConstants.VisionConstants.LimeLightConstants.kValidIds);
@@ -95,6 +114,11 @@ public class LobbyContainer implements NFRRobotContainer
     public Command getAutonomousCommand()
     {
         return autoUtil.getSelected();
+    }
+
+    public Climber getClimber()
+    {
+        return climber;
     }
 
     public AutoRoutine testAuto(AutoFactory factory)

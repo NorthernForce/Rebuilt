@@ -26,5 +26,11 @@ public class LobbyOI
         drive.setDefaultCommand(drive.driveByJoystick(inputProc(driveController::getLeftY),
                 inputProc(driveController::getLeftX), inputProc(driveController::getRightX)));
         driveController.back().onTrue(drive.resetOrientation());
+        container.getClimber().setDefaultCommand(container.getClimber().getHomingCommand());
+        manipulatorController.povDown().whileTrue(container.getClimber().runToPosition(1));
+        manipulatorController.povLeft().whileTrue(container.getClimber().runToPosition(2));
+        manipulatorController.povRight().whileTrue(container.getClimber().runToPosition(2));
+        manipulatorController.povUp().whileTrue(container.getClimber().runToPosition(3));
+
     }
 }

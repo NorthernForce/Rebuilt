@@ -19,22 +19,27 @@ import edu.wpi.first.units.measure.Temperature;
 import edu.wpi.first.units.measure.Time;
 import frc.robot.lobby.generated.LobbyTunerConstants;
 
-public class LobbyConstants {
-    public class DrivetrainConstants {
+public class LobbyConstants
+{
+    public class DrivetrainConstants
+    {
         public static final LinearVelocity kMaxSpeed = LobbyTunerConstants.kSpeedAt12Volts;
         public static final AngularVelocity kMaxAngularSpeed = RotationsPerSecond.of(3.0);
     }
 
-    public class AutoConstants {
+    public class AutoConstants
+    {
         public static final PIDController xPid = new PIDController(10.0, 0.0, 0.0);
         public static final PIDController yPid = new PIDController(10.0, 0.0, 0.0);
         public static final PIDController rPid = new PIDController(7.0, 0.0, 0.0);
-        static {
+        static
+        {
             rPid.enableContinuousInput(0, 2 * Math.PI);
         }
     }
 
-    public static class CameraConstants {
+    public static class CameraConstants
+    {
         public static final Transform3d kFrontRightCameraTransform = new Transform3d(
                 new Translation3d(Inches.of(15.0 - 3.0), Inches.of(-(15.0 - 7.5)), Inches.of(8.5)),
                 new Rotation3d(Degrees.zero(), Degrees.zero(), Degrees.zero()));
@@ -48,24 +53,28 @@ public class LobbyConstants {
                 new Rotation3d(Degrees.zero(), Degrees.of(-25), Degrees.zero()));
     }
 
-    public class VisionConstants {
+    public class VisionConstants
+    {
         public static final Vector<N3> kStdDevs = VecBuilder.fill(0.9, 0.9, 999999);
 
-        public class LimeLightConstants {
+        public class LimeLightConstants
+        {
             public static final String kLimeLightName = "limelight";
-            public static final int[] kValidIds = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19,
-                    20, 21, 22, 23, 24, 25, 26, 27, 28, 29,
+            public static final int[] kValidIds =
+            { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29,
                     30, 31, 32 };
         }
 
-        public class PhotonVisionConstants {
+        public class PhotonVisionConstants
+        {
             public static final Transform3d kRobotToCamera = new Transform3d(new Translation3d(0.0, 0.0, 0.0),
                     new Rotation3d(0.0, 0.0, 0.0));
         }
 
     }
 
-    public class ShooterConstants {
+    public class ShooterConstants
+    {
         public static final int kMotorId = 19;
         public static final double kIntakeSpeed = 0.6;
         public static final double kOuttakeSpeed = 0.89;
@@ -80,33 +89,51 @@ public class LobbyConstants {
         public static final Time kBruteOuttakeTimeout = Seconds.of(1.0);
     }
 
-    public class MotorConstants {
-        public class TalonFXConstants {
+    public class MotorConstants
+    {
+        public class TalonFXConstants
+        {
             public static final Temperature kMaxTemperature = Celsius.of(60.0);
         }
     }
 
-    public class ClimberConstants {
+    public class ClimberConstants
+    {
         public static final double kGearBoxRatio = 4.0 * 4.0 * 5.0;
         public static final double kPulleyRatio = 2.0;
         public static final double gearRatio = kGearBoxRatio * kPulleyRatio;
-        public static final int kMotorID = 1;
+        public static final int kMotorID = 20;
         public static final int kSensorID = 2;
-        public static final double slowSpeed = 0.05;
-        public static enum ClimbLevels {
-            BOTTOM(Inches.zero()),
-            L1(Inches.of(22)),
-            L2(Inches.of(40)),
-            L3(Inches.of(75));
+        public static final double slowSpeed = 1;
+        public static final Distance maxHeight = Inches.of(20.5);
+        public static final double kP = 20;
+        public static final double kI = 0;
+        public static final double kD = 0;
+        public static final double kV = 0.12;
+        public static final double kG = 0.01;
+        public static final double topRotations = 1000.0;
+
+        public static enum ClimbLevels
+        {
+            BOTTOM(0, Inches.zero()), L1(1, Inches.of(22)), L2(2, Inches.of(40)), L3(3, Inches.of(75));
 
             private Distance height;
+            private int level;
 
-            ClimbLevels(Distance height) {
+            ClimbLevels(int level, Distance height)
+            {
+                this.level = level;
                 this.height = height;
             }
 
-            public Distance getHeight() {
+            public Distance getHeight()
+            {
                 return height;
+            }
+
+            public int getLevel()
+            {
+                return level;
             }
         }
     }

@@ -2,10 +2,9 @@ package frc.robot.subsystems.climber;
 
 import frc.robot.lobby.LobbyConstants.ClimberConstants.ClimbLevels;
 
-public interface ClimberIO {
-    public void runToPosition(ClimbLevels level);
-
-    public void runToPosition(int level);
+public interface ClimberIO
+{
+    public void runUp();
 
     public void homeDown();
 
@@ -13,5 +12,13 @@ public interface ClimberIO {
 
     public boolean atBottom();
 
+    public boolean atTop();
+
     public void stopMotor();
+
+    public double getRotations();
+
+    public default void updateSimulation()
+    {
+    }
 }

@@ -1,22 +1,23 @@
 package frc.robot.subsystems.climber;
 
-import static edu.wpi.first.units.Units.Degrees;
-import static edu.wpi.first.units.Units.Inches;
-import static edu.wpi.first.units.Units.Rotations;
+import static edu.wpi.first.units.Units.Meters;
 
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.PositionVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
+import com.ctre.phoenix6.sim.TalonFXSimState;
 
-import edu.wpi.first.wpilibj.DigitalInput;
+import edu.wpi.first.math.system.plant.DCMotor;
+import edu.wpi.first.math.system.plant.LinearSystemId;
+import edu.wpi.first.wpilibj.RobotController;
+import edu.wpi.first.wpilibj.simulation.ElevatorSim;
 import frc.robot.lobby.LobbyConstants.ClimberConstants.ClimbLevels;
 
-public class ClimberIOTalonFX implements ClimberIO
+public class ClimberIOTalonFXSim implements ClimberIO
 {
-    private final int motorID;
-    private final int sensorID;
     private final TalonFX motor;
-    private final DigitalInput limitSwitch;
+    private final TalonFXSimState simMotor;
+    private final ElevatorSim elevatorSim;
     private final double gearRatio;
     private final PositionVoltage positionRequest = new PositionVoltage(0);
     private ClimbLevels currentLevel;
@@ -25,15 +26,14 @@ public class ClimberIOTalonFX implements ClimberIO
     private final ClimbLevels l2;
     private final ClimbLevels l3;
     private final double slowSpeed;
+    private final double drumRadiusMeters = 0.0127; // 0.5 inch radius drum
     private double setRotations = 0;
     private final double topRotations;
     private static final double TOP_POSITION_TOLERANCE = 5.0; // rotations tolerance
 
-    public ClimberIOTalonFX(ClimberParameters params)
+    public ClimberIOTalonFXSim(ClimberParameters params)
     {
-        motorID = params.motorID();
-        sensorID = params.bottomLimitSwitchId();
-        motor = new TalonFX(motorID);
+        motor = new TalonFX(params.motorID());
         TalonFXConfiguration config = new TalonFXConfiguration();
         config.Slot0.kP = params.kP();
         config.Slot0.kI = params.kI();
@@ -41,14 +41,42 @@ public class ClimberIOTalonFX implements ClimberIO
         config.Slot0.kV = params.kV();
         config.Slot0.kG = params.kG();
         motor.getConfigurator().apply(config);
-        limitSwitch = new DigitalInput(sensorID);
+        simMotor = motor.getSimState();
         gearRatio = params.gearRatio();
+
+        double massKg = 1.89655188991;
+        double maxHeightMeters = params.maxHeight().in(Meters);
+
+        elevatorSim = new ElevatorSim(
+                LinearSystemId.createElevatorSystem(DCMotor.getKrakenX60(1), massKg, drumRadiusMeters, gearRatio),
+                DCMotor.getKrakenX60(1), 0, maxHeightMeters, true, 0);
+
         slowSpeed = params.slowSpeed();
         bottomLevel = params.bottomLevel();
+        currentLevel = bottomLevel;
         l1 = params.l1Height();
         l2 = params.l2Height();
         l3 = params.l3Height();
         topRotations = params.topRotations();
+    }
+
+    @Override
+    public void updateSimulation()
+    {
+        simMotor.setSupplyVoltage(RobotController.getBatteryVoltage());
+
+        double motorVoltage = simMotor.getMotorVoltage();
+        elevatorSim.setInputVoltage(motorVoltage);
+
+        elevatorSim.update(0.02);
+
+        double positionMeters = elevatorSim.getPositionMeters();
+        double motorRotations = positionMeters / (2 * Math.PI * drumRadiusMeters) * gearRatio;
+        double velocityMps = elevatorSim.getVelocityMetersPerSecond();
+        double motorRps = velocityMps / (2 * Math.PI * drumRadiusMeters) * gearRatio;
+
+        simMotor.setRawRotorPosition(motorRotations);
+        simMotor.setRotorVelocity(motorRps);
     }
 
     @Override
@@ -73,7 +101,8 @@ public class ClimberIOTalonFX implements ClimberIO
     @Override
     public boolean atBottom()
     {
-        return limitSwitch.get();
+        // In simulation, check if the elevator is at or very close to the bottom
+        return elevatorSim.getPositionMeters() < 0.001;
     }
 
     @Override
@@ -94,4 +123,5 @@ public class ClimberIOTalonFX implements ClimberIO
     {
         return motor.getPosition().getValueAsDouble();
     }
+
 }
