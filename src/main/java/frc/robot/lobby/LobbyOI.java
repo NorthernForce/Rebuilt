@@ -30,11 +30,19 @@ public class LobbyOI
                 inputProc(driveController::getLeftX), inputProc(driveController::getRightX)));
         driveController.back().onTrue(drive.resetOrientation());
 
-        manipulatorController.a()
-                .whileTrue(new PrepTurretCommand(() -> container.getDrive().getState().Pose, container.getTurret()));
+        // Pass turret's hood constants for danger zone calculation
+        var hood = container.getTurret().getHood();
+        container.getTurret().setDefaultCommand(container.getTurret().runBasedOnLocation(() -> drive.getState().Pose,
+                hood.getDangerZone(), hood.getTrenchPositions()));
+
+        // Log when trigger is pressed to verify controller works
+        manipulatorController.leftTrigger()
+                .onTrue(Commands.runOnce(() -> DogLog.log("Turret/PrepCommand/TriggerPressed", true)))
+                .whileTrue(new PrepTurretCommand(() -> container.getDrive().getState().Pose, container.getTurret()))
+                .onFalse(Commands.runOnce(() -> DogLog.log("Turret/PrepCommand/TriggerPressed", false)));
+
         manipulatorController.b().onTrue(Commands.runOnce(() ->
         {
-            // container.getTurret().getHoodTargetingCalculator().addData(5.0, 1.0);
             DogLog.log("Turret/csvValue", container.getTurret().getHoodTargetingCalculator().getValueForDistance(5.0));
         }));
     }

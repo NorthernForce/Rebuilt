@@ -2,6 +2,8 @@ package frc.robot.lobby;
 
 import static edu.wpi.first.units.Units.Radians;
 
+import java.util.List;
+
 import org.northernforce.util.NFRRobotContainer;
 import org.photonvision.simulation.SimCameraProperties;
 
@@ -18,6 +20,8 @@ import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import frc.robot.FieldConstants;
+import frc.robot.lobby.LobbyConstants.Turret.Hood;
 import frc.robot.lobby.generated.LobbyTunerConstants;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.apriltagvision.AprilTagVisionIO;
@@ -25,6 +29,8 @@ import frc.robot.subsystems.apriltagvision.AprilTagVisionIOLimelight;
 import frc.robot.subsystems.apriltagvision.AprilTagVisionIOPhotonVisionSim;
 import frc.robot.subsystems.turret.Turret.TurretConstants;
 import frc.robot.subsystems.turret.hood.HoodIO.HoodConstants;
+import frc.robot.subsystems.turret.hood.HoodIOServo;
+import frc.robot.subsystems.turret.hood.HoodIOServoSim;
 import frc.robot.subsystems.turret.hood.HoodIOTalonFXS;
 import frc.robot.subsystems.turret.hood.HoodIOTalonFXSSim;
 import frc.robot.subsystems.turret.shooter.ShooterIO.ShooterConstants;
@@ -35,6 +41,8 @@ import frc.robot.subsystems.turret.suzie.SuzieIO.SuzieConstants;
 import frc.robot.subsystems.turret.suzie.SuzieIOTalonFXS;
 import frc.robot.subsystems.turret.suzie.SuzieIOTalonFXSSim;
 import frc.robot.util.AutoUtil;
+import frc.robot.util.InterpolatedTargetingCalculator;
+import frc.robot.util.TrigHoodTargetingCalculator;
 
 public class LobbyContainer implements NFRRobotContainer
 {
@@ -51,6 +59,11 @@ public class LobbyContainer implements NFRRobotContainer
                 LobbyTunerConstants.FrontLeft, LobbyTunerConstants.FrontRight, LobbyTunerConstants.BackLeft,
                 LobbyTunerConstants.BackRight);
         drive.resetPose(new Pose2d(3, 3, new Rotation2d()));
+
+        // Create list of all 4 trench positions
+        List<Translation2d> allTrenchPositions = List.of(FieldConstants.kBlueTrench1, FieldConstants.kBlueTrench2,
+                FieldConstants.kRedTrench1, FieldConstants.kRedTrench2);
+
         if (Utils.isSimulation())
         {
             // TODO: get camera json config for sim
@@ -68,7 +81,7 @@ public class LobbyContainer implements NFRRobotContainer
                             LobbyConstants.Turret.Suzie.kInverted, LobbyConstants.Turret.Suzie.kLowerSoftLimit,
                             LobbyConstants.Turret.Suzie.kUpperSoftLimit, LobbyConstants.Turret.Suzie.kErrorTolerance,
                             LobbyConstants.Turret.Suzie.kMotorArrangement)),
-                    new HoodIOTalonFXSSim(new HoodConstants(LobbyConstants.Turret.Hood.kMotorID,
+                    new HoodIOServoSim(new HoodConstants(LobbyConstants.Turret.Hood.kMotorID,
                             LobbyConstants.Turret.Hood.kEncoderID, LobbyConstants.Turret.Hood.kS,
                             LobbyConstants.Turret.Hood.kV, LobbyConstants.Turret.Hood.kA, LobbyConstants.Turret.Hood.kP,
                             LobbyConstants.Turret.Hood.kI, LobbyConstants.Turret.Hood.kD, LobbyConstants.Turret.Hood.kG,
@@ -76,7 +89,8 @@ public class LobbyContainer implements NFRRobotContainer
                             LobbyConstants.Turret.Hood.kJerk, LobbyConstants.Turret.Hood.kGearRatio,
                             LobbyConstants.Turret.Hood.kInverted, LobbyConstants.Turret.Hood.kLowerSoftLimit,
                             LobbyConstants.Turret.Hood.kUpperSoftLimit, LobbyConstants.Turret.Hood.kErrorTolerance,
-                            LobbyConstants.Turret.Hood.kMotorArrangement)),
+                            LobbyConstants.Turret.Hood.kMotorArrangement, LobbyConstants.Turret.Hood.kDangerZone,
+                            allTrenchPositions)),
                     new ShooterIOTalonFXSim(new ShooterConstants(LobbyConstants.Turret.Shooter.kMotor1ID,
                             LobbyConstants.Turret.Shooter.kMotor2ID, LobbyConstants.Turret.Shooter.kS,
                             LobbyConstants.Turret.Shooter.kV, LobbyConstants.Turret.Shooter.kA,
@@ -85,7 +99,8 @@ public class LobbyContainer implements NFRRobotContainer
                             LobbyConstants.Turret.Shooter.kCruiseVelocity, LobbyConstants.Turret.Shooter.kAcceleration,
                             LobbyConstants.Turret.Shooter.kJerk, LobbyConstants.Turret.Shooter.kMotor1Inverted,
                             LobbyConstants.Turret.Shooter.kMotor2Inverted,
-                            LobbyConstants.Turret.Shooter.kErrorTolerance)));
+                            LobbyConstants.Turret.Shooter.kErrorTolerance)),
+                    new TrigHoodTargetingCalculator(), new TrigHoodTargetingCalculator());
         } else
         {
             vision = new AprilTagVisionIOLimelight(LobbyConstants.VisionConstants.LimeLightConstants.kLimeLightName,
@@ -110,7 +125,8 @@ public class LobbyContainer implements NFRRobotContainer
                             LobbyConstants.Turret.Hood.kJerk, LobbyConstants.Turret.Hood.kGearRatio,
                             LobbyConstants.Turret.Hood.kInverted, LobbyConstants.Turret.Hood.kLowerSoftLimit,
                             LobbyConstants.Turret.Hood.kUpperSoftLimit, LobbyConstants.Turret.Hood.kErrorTolerance,
-                            LobbyConstants.Turret.Hood.kMotorArrangement)),
+                            LobbyConstants.Turret.Hood.kMotorArrangement, LobbyConstants.Turret.Hood.kDangerZone,
+                            allTrenchPositions)),
                     new ShooterIOTalonFX(new ShooterConstants(LobbyConstants.Turret.Shooter.kMotor1ID,
                             LobbyConstants.Turret.Shooter.kMotor2ID, LobbyConstants.Turret.Shooter.kS,
                             LobbyConstants.Turret.Shooter.kV, LobbyConstants.Turret.Shooter.kA,
@@ -119,7 +135,9 @@ public class LobbyContainer implements NFRRobotContainer
                             LobbyConstants.Turret.Shooter.kCruiseVelocity, LobbyConstants.Turret.Shooter.kAcceleration,
                             LobbyConstants.Turret.Shooter.kJerk, LobbyConstants.Turret.Shooter.kMotor1Inverted,
                             LobbyConstants.Turret.Shooter.kMotor2Inverted,
-                            LobbyConstants.Turret.Shooter.kErrorTolerance)));
+                            LobbyConstants.Turret.Shooter.kErrorTolerance)),
+                    new InterpolatedTargetingCalculator(LobbyConstants.Turret.Hood.kTargetingDataFilepath),
+                    new InterpolatedTargetingCalculator(LobbyConstants.Turret.Hood.kTargetingDataFilepath));
         }
         field = new Field2d();
 
@@ -155,6 +173,7 @@ public class LobbyContainer implements NFRRobotContainer
         vision.getPoses().forEach(m -> drive.addVisionMeasurement(m.pose(), m.timestamp()));
         field.setRobotPose(drive.getState().Pose);
         DogLog.log("BatteryVoltage", RobotController.getBatteryVoltage());
+        DogLog.log("Drive/Pose", drive.getState().Pose);
         DogLog.log("Turret/Position",
                 new Pose2d(turret.calculateFieldRelativeShooterPosition(getDrive().getState().Pose), new Rotation2d()));
         DogLog.log("Turret/Direction",
