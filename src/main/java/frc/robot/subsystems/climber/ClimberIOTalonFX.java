@@ -1,6 +1,6 @@
 package frc.robot.subsystems.climber;
 
-import com.ctre.phoenix6.configs.TalonFXConfiguration;
+import com.ctre.phoenix6.configs.TalonFXConfiguration; // TalonFX (Kraken)
 import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
@@ -29,6 +29,8 @@ public class ClimberIOTalonFX implements ClimberIO
         config.MotorOutput.NeutralMode = NeutralModeValue.Brake;
         config.CurrentLimits.StatorCurrentLimit = 40.0;
         config.CurrentLimits.StatorCurrentLimitEnable = true;
+
+        // Enable Hardware Limit Switch
         config.HardwareLimitSwitch.ReverseLimitEnable = true;
 
         motor.getConfigurator().apply(config);
@@ -44,6 +46,8 @@ public class ClimberIOTalonFX implements ClimberIO
         inputs.appliedVolts = motor.getMotorVoltage().getValue().in(Volts);
         inputs.currentAmps = motor.getStatorCurrent().getValue().in(Amps);
         inputs.tempCelsius = motor.getDeviceTemp().getValue().in(Celsius);
+
+        // Read if Limit Switch is closed
         inputs.atBottomLimit = motor.getReverseLimit().getValue() == ReverseLimitValue.ClosedToGround;
     }
 
@@ -62,6 +66,7 @@ public class ClimberIOTalonFX implements ClimberIO
     @Override
     public void setPosition(double positionMeters)
     {
+        // Resets the internal encoder of the TalonFX
         double rotations = positionMeters / LobbyConstants.ClimberConstants.kMetersPerRotation;
         motor.setPosition(rotations);
     }

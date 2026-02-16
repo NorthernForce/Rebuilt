@@ -21,7 +21,7 @@ import frc.robot.subsystems.apriltagvision.AprilTagVisionIO;
 import frc.robot.subsystems.apriltagvision.AprilTagVisionIOLimelight;
 import frc.robot.subsystems.apriltagvision.AprilTagVisionIOPhotonVisionSim;
 import frc.robot.subsystems.climber.ClimberIO;
-import frc.robot.subsystems.climber.ClimberIOTalonFXS;
+import frc.robot.subsystems.climber.ClimberIOTalonFX;
 import frc.robot.subsystems.climber.ClimberSubsystem;
 import frc.robot.util.AutoUtil;
 
@@ -56,7 +56,7 @@ public class LobbyContainer implements NFRRobotContainer
                     LobbyConstants.CameraConstants.kFrontRightCameraTransform,
                     LobbyConstants.VisionConstants.LimeLightConstants.kValidIds);
 
-            climber = new ClimberSubsystem(new ClimberIOTalonFXS(20));
+            climber = new ClimberSubsystem(new ClimberIOTalonFX(LobbyConstants.ClimberConstants.kMotorId));
         }
         field = new Field2d();
 
