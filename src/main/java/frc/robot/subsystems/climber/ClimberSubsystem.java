@@ -65,4 +65,27 @@ public class ClimberSubsystem extends SubsystemBase
         return runVoltage(LobbyConstants.ClimberConstants.kHomingVolts).until(() -> inputs.atBottomLimit)
                 .andThen(stop()).andThen(() -> io.setPosition(0.0));
     }
+
+    /**
+     * Retracts hooks and pulls the elevator down to the limit switch Once at the
+     * bottom, it stops the motor
+     */
+    public Command stow()
+    {
+        return this.run(() ->
+        {
+            // Always keep hooks retracted
+            hookServo.setAngle(LobbyConstants.ClimberConstants.kHookRetractAngle);
+
+            if (!inputs.atBottomLimit)
+            {
+                io.setVoltage(LobbyConstants.ClimberConstants.kHomingVolts);
+            } else
+            {
+                // stop and reset encoder
+                io.stop();
+                io.setPosition(0.0);
+            }
+        });
+    }
 }
