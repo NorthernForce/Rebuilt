@@ -1,5 +1,7 @@
 package frc.robot.lobby;
 
+import com.ctre.phoenix6.signals.AnimationDirectionValue;
+
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.Vector;
 import edu.wpi.first.math.controller.PIDController;
@@ -94,5 +96,13 @@ public class LobbyConstants
         {
             public static final Temperature kMaxTemperature = Celsius.of(60.0);
         }
+    }
+
+    public class LEDConstants
+    {
+        public static final int kLength = 60;
+        public static final double kBrightness = 0.5;
+        public static final int kCANdleId = 20;
+        public static final AnimationDirectionValue kAnimationDirection = AnimationDirectionValue.Forward;
     }
 }
