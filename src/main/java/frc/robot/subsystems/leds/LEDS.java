@@ -348,9 +348,9 @@ public class LEDS extends SubsystemBase
         if (hubActive)
         {
             getSetLEDColorCommand(0, 225, 0, 1.0);
-        } else if (hubActive == false)
+        } else if (!hubActive)
         {
-            getSetLEDColorCommand(0, 225, 225, 1.0);
+            getSetLEDColorCommand(225, 225, 128, 1.0);
         } else if (currentGameStage == GameStage.Disabled)
         {
             currentAnimation = AnimationType.Rainbow;
