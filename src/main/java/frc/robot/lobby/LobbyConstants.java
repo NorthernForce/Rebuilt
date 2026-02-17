@@ -89,6 +89,24 @@ public class LobbyConstants
         // Simulation constants
         public static final double kSimRpm = 500.0;
         public static final double kSimMoi = 0.02; // Moment of inertia in kg*m^2
+
+        public static final double kErrorTolerance = 0.25;
+    }
+
+    public class CarouselConstants
+    {
+        public static final int kMotorID = 19;
+        public static final AngularVelocity kSpeed = RotationsPerSecond.of(2);
+        public static final boolean kInverted = false;
+        public static final double kGearRatio = 10.0;
+
+        public static final double kV = 0.1;
+        public static final double kA = 0.05;
+        public static final double kP = 0.5;
+        public static final double kI = 0.0;
+        public static final double kD = 0.0;
+
+        public static final AngularVelocity kErrorTolerance = RotationsPerSecond.of(0.25);
     }
 
     public class MotorConstants

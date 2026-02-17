@@ -20,6 +20,14 @@ import frc.robot.lobby.subsystems.CommandSwerveDrivetrain;
 import frc.robot.lobby.subsystems.apriltagvision.AprilTagVisionIO;
 import frc.robot.lobby.subsystems.apriltagvision.AprilTagVisionIOLimelight;
 import frc.robot.lobby.subsystems.apriltagvision.AprilTagVisionIOPhotonVisionSim;
+import frc.robot.lobby.subsystems.spindexer.Spindexer;
+import frc.robot.lobby.subsystems.spindexer.carousel.CarouselIO.CarouselConstants;
+import frc.robot.lobby.subsystems.spindexer.carousel.CarouselIOTalonFX;
+import frc.robot.lobby.subsystems.spindexer.carousel.CarouselIOTalonFXSim;
+import frc.robot.lobby.subsystems.spindexer.flicker.FlickerIOTalonFXS;
+import frc.robot.lobby.subsystems.spindexer.flicker.FlickerIOTalonFXSSim;
+import frc.robot.lobby.subsystems.spindexer.flicker.FlickerParameters;
+import frc.robot.lobby.subsystems.spindexer.flicker.FlickerSimParameters;
 import frc.robot.util.AutoUtil;
 
 public class LobbyContainer implements NFRRobotContainer
@@ -28,6 +36,7 @@ public class LobbyContainer implements NFRRobotContainer
     private final AprilTagVisionIO vision;
     private final AutoUtil autoUtil;
     private final Field2d field;
+    private final Spindexer spindexer;
 
     public LobbyContainer()
     {
@@ -43,11 +52,36 @@ public class LobbyContainer implements NFRRobotContainer
             vision = new AprilTagVisionIOPhotonVisionSim(
                     LobbyConstants.VisionConstants.LimeLightConstants.kLimeLightName, new SimCameraProperties(),
                     LobbyConstants.CameraConstants.kCenterCameraTransform);
+            spindexer = new Spindexer(
+                    new CarouselIOTalonFXSim(new CarouselConstants(LobbyConstants.CarouselConstants.kMotorID,
+                            LobbyConstants.CarouselConstants.kSpeed, LobbyConstants.CarouselConstants.kGearRatio,
+                            LobbyConstants.CarouselConstants.kV, LobbyConstants.CarouselConstants.kA,
+                            LobbyConstants.CarouselConstants.kP, LobbyConstants.CarouselConstants.kI,
+                            LobbyConstants.CarouselConstants.kD, LobbyConstants.CarouselConstants.kErrorTolerance,
+                            LobbyConstants.CarouselConstants.kInverted)),
+                    new FlickerIOTalonFXSSim(new FlickerSimParameters(LobbyConstants.FlickerConstants.kMotorId,
+                            LobbyConstants.FlickerConstants.kRampSpeed, LobbyConstants.FlickerConstants.kGearRatio,
+                            LobbyConstants.FlickerConstants.kV, LobbyConstants.FlickerConstants.kP,
+                            LobbyConstants.FlickerConstants.kI, LobbyConstants.FlickerConstants.kD,
+                            LobbyConstants.FlickerConstants.kErrorTolerance, LobbyConstants.FlickerConstants.kSimRpm,
+                            LobbyConstants.FlickerConstants.kSimMoi)));
         } else
         {
             vision = new AprilTagVisionIOLimelight(LobbyConstants.VisionConstants.LimeLightConstants.kLimeLightName,
                     LobbyConstants.CameraConstants.kFrontRightCameraTransform,
                     LobbyConstants.VisionConstants.LimeLightConstants.kValidIds);
+            spindexer = new Spindexer(
+                    new CarouselIOTalonFX(new CarouselConstants(LobbyConstants.CarouselConstants.kMotorID,
+                            LobbyConstants.CarouselConstants.kSpeed, LobbyConstants.CarouselConstants.kGearRatio,
+                            LobbyConstants.CarouselConstants.kV, LobbyConstants.CarouselConstants.kA,
+                            LobbyConstants.CarouselConstants.kP, LobbyConstants.CarouselConstants.kI,
+                            LobbyConstants.CarouselConstants.kD, LobbyConstants.CarouselConstants.kErrorTolerance,
+                            LobbyConstants.CarouselConstants.kInverted)),
+                    new FlickerIOTalonFXS(new FlickerParameters(LobbyConstants.FlickerConstants.kMotorId,
+                            LobbyConstants.FlickerConstants.kRampSpeed, LobbyConstants.FlickerConstants.kGearRatio,
+                            LobbyConstants.FlickerConstants.kV, LobbyConstants.FlickerConstants.kP,
+                            LobbyConstants.FlickerConstants.kI, LobbyConstants.FlickerConstants.kD,
+                            LobbyConstants.FlickerConstants.kErrorTolerance)));
         }
         field = new Field2d();
 
@@ -70,6 +104,11 @@ public class LobbyContainer implements NFRRobotContainer
     public CommandSwerveDrivetrain getDrive()
     {
         return drive;
+    }
+
+    public Spindexer getSpindexer()
+    {
+        return spindexer;
     }
 
     @Override

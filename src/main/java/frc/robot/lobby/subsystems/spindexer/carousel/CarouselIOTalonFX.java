@@ -29,18 +29,19 @@ public class CarouselIOTalonFX implements CarouselIO
 
     public CarouselIOTalonFX(CarouselConstants constants)
     {
-        this(constants.kMotorId(), constants.kSpeed(), constants.kGearRatio(), constants.kV(), constants.kP(),
-                constants.kI(), constants.kD(), constants.kErrorTolerance(), constants.kInverted());
+        this(constants.kMotorId(), constants.kSpeed(), constants.kGearRatio(), constants.kV(), constants.kA(),
+                constants.kP(), constants.kI(), constants.kD(), constants.kErrorTolerance(), constants.kInverted());
     }
 
-    public CarouselIOTalonFX(int kMotorID, AngularVelocity kSpeed, double kGearRatio, double kV, double kP, double kI,
-            double kD, AngularVelocity kErrorTolerance, boolean kInverted)
+    public CarouselIOTalonFX(int kMotorID, AngularVelocity kSpeed, double kGearRatio, double kV, double kA, double kP,
+            double kI, double kD, AngularVelocity kErrorTolerance, boolean kInverted)
     {
         m_motor = new TalonFX(kMotorID);
         TalonFXConfiguration config = new TalonFXConfiguration();
 
         var slot0Configs = config.Slot0;
         slot0Configs.kV = kV;
+        slot0Configs.kA = kA;
         slot0Configs.kP = kP;
         slot0Configs.kI = kI;
         slot0Configs.kD = kD;
