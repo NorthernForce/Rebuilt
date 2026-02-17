@@ -6,6 +6,7 @@ import com.revrobotics.spark.SparkBase.ResetMode;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.config.SparkMaxConfig;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
+import com.revrobotics.spark.ClosedLoopSlot;
 
 import edu.wpi.first.wpilibj.DigitalInput;
 import frc.robot.lobby.LobbyConstants;
@@ -73,6 +74,7 @@ public class ClimberIOSparkMax implements ClimberIO
     public void setPositionControl(double positionMeters)
     {
         double rotations = positionMeters / LobbyConstants.ClimberConstants.kMetersPerRotation;
-        motor.getClosedLoopController().setReference(rotations, SparkMax.ControlType.kPosition);
+        motor.getClosedLoopController().setReference(rotations, SparkMax.ControlType.kPosition, ClosedLoopSlot.kSlot0,
+                LobbyConstants.ClimberConstants.kG);
     }
 }

@@ -113,6 +113,7 @@ public class LobbyConstants
 
         // Climb Sequence
         public static final double kRaiseHeightMeters = Units.inchesToMeters(20.5);
+        public static final double kSafeRetractHeight = Units.inchesToMeters(5.0);
         public static final double kPullDownVolts = -8.0;
         public static final double kHomingVolts = -2.0;
 
@@ -120,6 +121,10 @@ public class LobbyConstants
         public static final double kP = 1.0;
         public static final double kI = 0.0;
         public static final double kD = 0.0;
+        public static final double kG = 0.5;
+
+        public static final double kPositionTolerance = 0.01;
+        public static final double kCurrentLimit = 40.0;
 
         // Servo Angles
         public static final Rotation2d kHookExtendAngle = Rotation2d.fromDegrees(0.0);

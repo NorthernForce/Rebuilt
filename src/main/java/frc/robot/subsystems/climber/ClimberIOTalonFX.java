@@ -31,12 +31,13 @@ public class ClimberIOTalonFX implements ClimberIO
         var config = new TalonFXConfiguration();
         config.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
         config.MotorOutput.NeutralMode = NeutralModeValue.Brake;
-        config.CurrentLimits.StatorCurrentLimit = 40.0;
+        config.CurrentLimits.StatorCurrentLimit = LobbyConstants.ClimberConstants.kCurrentLimit;
         config.CurrentLimits.StatorCurrentLimitEnable = true;
 
         config.Slot0.kP = LobbyConstants.ClimberConstants.kP;
         config.Slot0.kI = LobbyConstants.ClimberConstants.kI;
         config.Slot0.kD = LobbyConstants.ClimberConstants.kD;
+        config.Slot0.kG = LobbyConstants.ClimberConstants.kG;
 
         motor.getConfigurator().apply(config);
     }

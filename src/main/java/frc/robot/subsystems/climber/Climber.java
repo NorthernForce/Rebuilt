@@ -6,7 +6,7 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.lobby.LobbyConstants;
 
-public class ClimberSubsystem extends SubsystemBase
+public class Climber extends SubsystemBase
 {
 
     private final ClimberIO io;
@@ -15,7 +15,7 @@ public class ClimberSubsystem extends SubsystemBase
 
     private final Servo hookServo;
 
-    public ClimberSubsystem(ClimberIO io)
+    public Climber(ClimberIO io)
     {
         this.io = io;
         this.hookServo = new Servo(LobbyConstants.ClimberConstants.kServoId);
@@ -54,8 +54,8 @@ public class ClimberSubsystem extends SubsystemBase
 
     public Command runToPosition(double meters)
     {
-        return this.run(() -> io.setPositionControl(meters))
-                .until(() -> Math.abs(inputs.positionMeters - meters) < 0.01);
+        return this.run(() -> io.setPositionControl(meters)).until(
+                () -> Math.abs(inputs.positionMeters - meters) < LobbyConstants.ClimberConstants.kPositionTolerance);
     }
 
     private Command climbCycle()
@@ -82,7 +82,13 @@ public class ClimberSubsystem extends SubsystemBase
     {
         return this.run(() ->
         {
-            hookServo.setAngle(LobbyConstants.ClimberConstants.kHookRetractAngle.getDegrees());
+            if (inputs.positionMeters < LobbyConstants.ClimberConstants.kSafeRetractHeight)
+            {
+                hookServo.setAngle(LobbyConstants.ClimberConstants.kHookRetractAngle.getDegrees());
+            } else
+            {
+                hookServo.setAngle(LobbyConstants.ClimberConstants.kHookExtendAngle.getDegrees());
+            }
 
             if (!inputs.atBottomLimit)
             {

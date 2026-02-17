@@ -22,14 +22,14 @@ import frc.robot.subsystems.apriltagvision.AprilTagVisionIOLimelight;
 import frc.robot.subsystems.apriltagvision.AprilTagVisionIOPhotonVisionSim;
 import frc.robot.subsystems.climber.ClimberIO;
 import frc.robot.subsystems.climber.ClimberIOTalonFX;
-import frc.robot.subsystems.climber.ClimberSubsystem;
+import frc.robot.subsystems.climber.Climber;
 import frc.robot.util.AutoUtil;
 
 public class LobbyContainer implements NFRRobotContainer
 {
     private final CommandSwerveDrivetrain drive;
     private final AprilTagVisionIO vision;
-    private final ClimberSubsystem climber;
+    private final Climber climber;
     private final AutoUtil autoUtil;
     private final Field2d field;
 
@@ -47,7 +47,7 @@ public class LobbyContainer implements NFRRobotContainer
                     LobbyConstants.VisionConstants.LimeLightConstants.kLimeLightName, new SimCameraProperties(),
                     LobbyConstants.CameraConstants.kCenterCameraTransform);
 
-            climber = new ClimberSubsystem(new ClimberIO()
+            climber = new Climber(new ClimberIO()
             {
             });
         } else
@@ -56,7 +56,7 @@ public class LobbyContainer implements NFRRobotContainer
                     LobbyConstants.CameraConstants.kFrontRightCameraTransform,
                     LobbyConstants.VisionConstants.LimeLightConstants.kValidIds);
 
-            climber = new ClimberSubsystem(new ClimberIOTalonFX(LobbyConstants.ClimberConstants.kMotorId));
+            climber = new Climber(new ClimberIOTalonFX(LobbyConstants.ClimberConstants.kMotorId));
         }
         field = new Field2d();
 
@@ -96,7 +96,7 @@ public class LobbyContainer implements NFRRobotContainer
      * 
      * @return the climber subsystem
      */
-    public ClimberSubsystem getClimber()
+    public Climber getClimber()
     {
         return climber;
     }

@@ -31,7 +31,7 @@ public class LobbyOI
         // climber bindings
         climber.setDefaultCommand(climber.stow());
 
-        // 2. Climb Sequence
+        // Climb Sequence
         manipulatorController.povUp().whileTrue(climber.climbSequence());
     }
 }

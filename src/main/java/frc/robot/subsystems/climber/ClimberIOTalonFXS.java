@@ -27,11 +27,10 @@ public class ClimberIOTalonFXS implements ClimberIO
         var config = new TalonFXSConfiguration();
         config.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
         config.MotorOutput.NeutralMode = NeutralModeValue.Brake;
-        config.CurrentLimits.StatorCurrentLimit = 40.0;
+        config.CurrentLimits.StatorCurrentLimit = LobbyConstants.ClimberConstants.kCurrentLimit;
         config.CurrentLimits.StatorCurrentLimitEnable = true;
 
-        // Configure Limit Switch (Assuming Normally Open)
-        // This tells the motor to STOP automatically if the switch is hit
+        config.Slot0.kG = LobbyConstants.ClimberConstants.kG;
         config.HardwareLimitSwitch.ReverseLimitEnable = true;
 
         motor.getConfigurator().apply(config);
