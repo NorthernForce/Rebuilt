@@ -88,10 +88,9 @@ public class LobbyConstants
 
     public class IntakeConstants
     {
-        // TODO: these are placeholder values
         public static final int kRollerMotorId = 17;
-        public static final int kAngleMotorId = 18;
-        public static final int kAngleEncoderId = 19;
+        public static final int kAngleMotorId = 16;
+        public static final int kAngleEncoderId = 19; // TODO: this is placeholder
         public static final double kDriverIntakeSpeed = 1.0;
         public static final double kDriverPurgeSpeed = 1.0;
     }
