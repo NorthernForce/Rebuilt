@@ -29,6 +29,10 @@ public interface ClimberIO
     {
     }
 
+    public default void setPositionControl(double positionMeters)
+    {
+    }
+
     public default void setServoAngle(double angleDeg)
     {
     }

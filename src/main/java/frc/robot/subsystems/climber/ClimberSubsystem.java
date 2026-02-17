@@ -52,12 +52,24 @@ public class ClimberSubsystem extends SubsystemBase
         return this.runOnce(() -> hookServo.setAngle(LobbyConstants.ClimberConstants.kHookRetractAngle));
     }
 
-    public Command climbSequence()
+    public Command runToPosition(double meters)
+    {
+        return this.run(() -> io.setPositionControl(meters))
+                .until(() -> Math.abs(inputs.positionMeters - meters) < 0.01);
+    }
+
+    private Command climbCycle()
     {
         return Commands.sequence(extendHooks(),
-                runVoltage(LobbyConstants.ClimberConstants.kRaiseVolts)
-                        .withTimeout(LobbyConstants.ClimberConstants.kRaiseTimeoutSeconds),
-                runVoltage(LobbyConstants.ClimberConstants.kPullDownVolts).until(() -> inputs.atBottomLimit), stop());
+
+                runToPosition(LobbyConstants.ClimberConstants.kRaiseHeightMeters),
+
+                runVoltage(LobbyConstants.ClimberConstants.kPullDownVolts).until(() -> inputs.atBottomLimit));
+    }
+
+    public Command climbSequence()
+    {
+        return Commands.sequence(climbCycle(), climbCycle(), climbCycle(), stop());
     }
 
     public Command homeClimber()
@@ -66,23 +78,16 @@ public class ClimberSubsystem extends SubsystemBase
                 .andThen(stop()).andThen(() -> io.setPosition(0.0));
     }
 
-    /**
-     * Retracts hooks and pulls the elevator down to the limit switch Once at the
-     * bottom, it stops the motor
-     */
     public Command stow()
     {
         return this.run(() ->
         {
-            // Always keep hooks retracted
             hookServo.setAngle(LobbyConstants.ClimberConstants.kHookRetractAngle);
-
             if (!inputs.atBottomLimit)
             {
                 io.setVoltage(LobbyConstants.ClimberConstants.kHomingVolts);
             } else
             {
-                // stop and reset encoder
                 io.stop();
                 io.setPosition(0.0);
             }

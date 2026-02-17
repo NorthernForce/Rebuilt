@@ -13,18 +13,23 @@ import static edu.wpi.first.units.Units.Rotations;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 import static edu.wpi.first.units.Units.Volts;
 import frc.robot.lobby.LobbyConstants;
+import com.ctre.phoenix6.controls.PositionVoltage;
 
 public class ClimberIOTalonFX implements ClimberIO
 {
 
     private final TalonFX motor;
     private final VoltageOut voltageRequest = new VoltageOut(0);
+    private final PositionVoltage positionRequest = new PositionVoltage(0);
 
     public ClimberIOTalonFX(int canId)
     {
         motor = new TalonFX(canId);
 
         var config = new TalonFXConfiguration();
+        config.Slot0.kP = LobbyConstants.ClimberConstants.kP;
+        config.Slot0.kI = LobbyConstants.ClimberConstants.kI;
+        config.Slot0.kD = LobbyConstants.ClimberConstants.kD;
         config.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
         config.MotorOutput.NeutralMode = NeutralModeValue.Brake;
         config.CurrentLimits.StatorCurrentLimit = 40.0;
@@ -69,5 +74,12 @@ public class ClimberIOTalonFX implements ClimberIO
         // Resets the internal encoder of the TalonFX
         double rotations = positionMeters / LobbyConstants.ClimberConstants.kMetersPerRotation;
         motor.setPosition(rotations);
+    }
+
+    @Override
+    public void setPositionControl(double positionMeters)
+    {
+        double rotations = positionMeters / LobbyConstants.ClimberConstants.kMetersPerRotation;
+        motor.setControl(positionRequest.withPosition(rotations));
     }
 }

@@ -71,12 +71,14 @@ public class LobbyContainer implements NFRRobotContainer
                 drive.navigateToPose(new Pose2d(3, 4, new Rotation2d())));
 
         Shuffleboard.getTab("Developer").add("Climber UP",
-                climber.runVoltage(LobbyConstants.ClimberConstants.kRaiseVolts));
+                climber.runToPosition(LobbyConstants.ClimberConstants.kRaiseHeightMeters));
+
         Shuffleboard.getTab("Developer").add("Climber DOWN",
                 climber.runVoltage(LobbyConstants.ClimberConstants.kPullDownVolts));
-        Shuffleboard.getTab("Developer").add("Climber STOP", climber.stop());
-        Shuffleboard.getTab("Developer").add("Run Climb Sequence", climber.climbSequence());
 
+        Shuffleboard.getTab("Developer").add("Climber STOP", climber.stop());
+
+        Shuffleboard.getTab("Developer").add("Run Climb Sequence", climber.climbSequence());
     }
 
     /**

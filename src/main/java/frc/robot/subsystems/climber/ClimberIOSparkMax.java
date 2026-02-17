@@ -5,8 +5,9 @@ import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.SparkBase.ResetMode;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.config.SparkMaxConfig;
-import com.revrobotics.spark.config.LimitSwitchConfig; // Import for Limits
+import com.revrobotics.spark.config.LimitSwitchConfig;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
+import com.revrobotics.spark.config.ClosedLoopConfig;
 
 import frc.robot.lobby.LobbyConstants;
 import com.revrobotics.RelativeEncoder;
@@ -29,9 +30,13 @@ public class ClimberIOSparkMax implements ClimberIO
         config.idleMode(IdleMode.kBrake);
         config.smartCurrentLimit(40);
 
-        // Configure Limit Switch to be enabled
         config.limitSwitch.reverseLimitSwitchEnabled(true);
         config.limitSwitch.reverseLimitSwitchType(LimitSwitchConfig.Type.kNormallyOpen);
+
+        config.closedLoop.pid(LobbyConstants.ClimberConstants.kP, LobbyConstants.ClimberConstants.kI,
+                LobbyConstants.ClimberConstants.kD);
+
+        config.closedLoop.positionWrappingEnabled(false);
 
         motor.configure(config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
     }
@@ -41,13 +46,10 @@ public class ClimberIOSparkMax implements ClimberIO
     {
         inputs.positionMeters = encoder.getPosition() * LobbyConstants.ClimberConstants.kMetersPerRotation;
         inputs.velocityMetersPerSec = (encoder.getVelocity() / 60.0)
-                * LobbyConstants.ClimberConstants.kMetersPerRotation; // RPM -> RPS -> MPS
-
+                * LobbyConstants.ClimberConstants.kMetersPerRotation;
         inputs.appliedVolts = motor.getAppliedOutput() * motor.getBusVoltage();
         inputs.currentAmps = motor.getOutputCurrent();
         inputs.tempCelsius = motor.getMotorTemperature();
-
-        // Read Limit Switch
         inputs.atBottomLimit = reverseLimit.isPressed();
     }
 
@@ -68,5 +70,12 @@ public class ClimberIOSparkMax implements ClimberIO
     {
         double rotations = positionMeters / LobbyConstants.ClimberConstants.kMetersPerRotation;
         encoder.setPosition(rotations);
+    }
+
+    @Override
+    public void setPositionControl(double positionMeters)
+    {
+        double rotations = positionMeters / LobbyConstants.ClimberConstants.kMetersPerRotation;
+        motor.getClosedLoopController().setReference(rotations, SparkMax.ControlType.kPosition);
     }
 }

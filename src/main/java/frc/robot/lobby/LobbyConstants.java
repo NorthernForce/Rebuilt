@@ -98,18 +98,25 @@ public class LobbyConstants
 
     public static class ClimberConstants
     {
+
         // IDs
-        public static final int kMotorId = 20; // what is this value
-        public static final int kServoId = 0; // PWM port
+        public static final int kMotorId = 20;
+        public static final int kServoId = 0;
 
         // Mechanical Math
-        public static final double kMetersPerRotation = 0.01; // what is this value
+        public static final double kMetersPerRotation = 0.01;
 
-        // Climb Sequence
-        public static final double kRaiseVolts = 4.0; // Voltage to lift the elevator up
-        public static final double kRaiseTimeoutSeconds = 2.0; // Safety timeout for raising
-        public static final double kPullDownVolts = -8.0; // Voltage to pull the robot up
-        public static final double kHomingVolts = -2.0; // Slow speed for finding limit switch
+        // Climb
+        // We add 18 inch rung space + 3 inch clearance is ~0.53 m
+        public static final double kRaiseHeightMeters = 0.53;
+
+        public static final double kPullDownVolts = -8.0;
+        public static final double kHomingVolts = -2.0;
+
+        // PID Constants - what are these vlaues?
+        public static final double kP = 1.0;
+        public static final double kI = 0.0;
+        public static final double kD = 0.0;
 
         // Servo Angles
         public static final double kHookExtendAngle = 0.0;
