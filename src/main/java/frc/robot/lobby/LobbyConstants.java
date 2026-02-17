@@ -86,6 +86,16 @@ public class LobbyConstants
         public static final Time kBruteOuttakeTimeout = Seconds.of(1.0);
     }
 
+    public class IntakeConstants
+    {
+        // TODO: these are placeholder values
+        public static final int kRollerMotorId = 17;
+        public static final int kAngleMotorId = 18;
+        public static final int kAngleEncoderId = 19;
+        public static final double kDriverIntakeSpeed = 1.0;
+        public static final double kDriverPurgeSpeed = 1.0;
+    }
+
     public class MotorConstants
     {
         public class TalonFXConstants

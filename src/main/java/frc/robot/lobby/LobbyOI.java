@@ -29,7 +29,8 @@ public class LobbyOI
         driveController.back().onTrue(drive.resetOrientation());
 
         intake.setDefaultCommand(intake.stopIntake());
-        manipulatorController.rightBumper().whileTrue(intake.intake(1.0));
-        manipulatorController.leftBumper().whileTrue(intake.purgeIntake(1.0));
+        manipulatorController.rightBumper().whileTrue(intake.intake(LobbyConstants.IntakeConstants.kDriverIntakeSpeed));
+        manipulatorController.leftBumper()
+                .whileTrue(intake.purgeIntake(LobbyConstants.IntakeConstants.kDriverPurgeSpeed));
     }
 }
