@@ -1,14 +1,13 @@
 package frc.robot.subsystems.intake;
 
-import com.ctre.phoenix6.configs.ExternalFeedbackConfigs;
 import com.ctre.phoenix6.configs.TalonFXSConfiguration;
 import com.ctre.phoenix6.controls.MotionMagicVoltage;
 import com.ctre.phoenix6.hardware.TalonFXS;
 import com.ctre.phoenix6.signals.ExternalFeedbackSensorSourceValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.units.measure.Angle;
-import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
@@ -34,13 +33,13 @@ public class IntakeIOTalonFX extends SubsystemBase implements IntakeIO
     @Override
     public Command intake(double speed)
     {
-        return runOnce(() -> rollerMotor.set(Math.clamp(speed, 0.0, 1.0)));
+        return runOnce(() -> rollerMotor.set(MathUtil.clamp(speed, 0.0, 1.0)));
     }
 
     @Override
     public Command purgeIntake(double speed)
     {
-        return runOnce(() -> rollerMotor.set(-Math.clamp(speed, 0.0, 1.0)));
+        return runOnce(() -> rollerMotor.set(-MathUtil.clamp(speed, 0.0, 1.0)));
     }
 
     @Override
