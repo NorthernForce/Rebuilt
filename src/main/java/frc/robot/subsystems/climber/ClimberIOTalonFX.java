@@ -1,42 +1,42 @@
 package frc.robot.subsystems.climber;
 
-import com.ctre.phoenix6.configs.TalonFXConfiguration; // TalonFX (Kraken)
+import com.ctre.phoenix6.configs.TalonFXConfiguration;
+import com.ctre.phoenix6.controls.PositionVoltage;
 import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
-import com.ctre.phoenix6.signals.ReverseLimitValue;
 
 import static edu.wpi.first.units.Units.Amps;
 import static edu.wpi.first.units.Units.Celsius;
 import static edu.wpi.first.units.Units.Rotations;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 import static edu.wpi.first.units.Units.Volts;
+import edu.wpi.first.wpilibj.DigitalInput;
 import frc.robot.lobby.LobbyConstants;
-import com.ctre.phoenix6.controls.PositionVoltage;
 
 public class ClimberIOTalonFX implements ClimberIO
 {
 
     private final TalonFX motor;
+    private final DigitalInput limitSwitch;
     private final VoltageOut voltageRequest = new VoltageOut(0);
     private final PositionVoltage positionRequest = new PositionVoltage(0);
 
     public ClimberIOTalonFX(int canId)
     {
         motor = new TalonFX(canId);
+        limitSwitch = new DigitalInput(LobbyConstants.ClimberConstants.kLimitSwitchId);
 
         var config = new TalonFXConfiguration();
-        config.Slot0.kP = LobbyConstants.ClimberConstants.kP;
-        config.Slot0.kI = LobbyConstants.ClimberConstants.kI;
-        config.Slot0.kD = LobbyConstants.ClimberConstants.kD;
         config.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
         config.MotorOutput.NeutralMode = NeutralModeValue.Brake;
         config.CurrentLimits.StatorCurrentLimit = 40.0;
         config.CurrentLimits.StatorCurrentLimitEnable = true;
 
-        // Enable Hardware Limit Switch
-        config.HardwareLimitSwitch.ReverseLimitEnable = true;
+        config.Slot0.kP = LobbyConstants.ClimberConstants.kP;
+        config.Slot0.kI = LobbyConstants.ClimberConstants.kI;
+        config.Slot0.kD = LobbyConstants.ClimberConstants.kD;
 
         motor.getConfigurator().apply(config);
     }
@@ -52,8 +52,7 @@ public class ClimberIOTalonFX implements ClimberIO
         inputs.currentAmps = motor.getStatorCurrent().getValue().in(Amps);
         inputs.tempCelsius = motor.getDeviceTemp().getValue().in(Celsius);
 
-        // Read if Limit Switch is closed
-        inputs.atBottomLimit = motor.getReverseLimit().getValue() == ReverseLimitValue.ClosedToGround;
+        inputs.atBottomLimit = !limitSwitch.get();
     }
 
     @Override
@@ -71,7 +70,6 @@ public class ClimberIOTalonFX implements ClimberIO
     @Override
     public void setPosition(double positionMeters)
     {
-        // Resets the internal encoder of the TalonFX
         double rotations = positionMeters / LobbyConstants.ClimberConstants.kMetersPerRotation;
         motor.setPosition(rotations);
     }

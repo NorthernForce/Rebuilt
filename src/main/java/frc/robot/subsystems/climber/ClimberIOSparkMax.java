@@ -5,33 +5,29 @@ import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.SparkBase.ResetMode;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.config.SparkMaxConfig;
-import com.revrobotics.spark.config.LimitSwitchConfig;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
-import com.revrobotics.spark.config.ClosedLoopConfig;
 
+import edu.wpi.first.wpilibj.DigitalInput;
 import frc.robot.lobby.LobbyConstants;
 import com.revrobotics.RelativeEncoder;
-import com.revrobotics.spark.SparkLimitSwitch;
 
 public class ClimberIOSparkMax implements ClimberIO
 {
 
     private final SparkMax motor;
     private final RelativeEncoder encoder;
-    private final SparkLimitSwitch reverseLimit;
+    private final DigitalInput limitSwitch;
 
     public ClimberIOSparkMax(int canId)
     {
         motor = new SparkMax(canId, MotorType.kBrushless);
         encoder = motor.getEncoder();
-        reverseLimit = motor.getReverseLimitSwitch();
+
+        limitSwitch = new DigitalInput(LobbyConstants.ClimberConstants.kLimitSwitchId);
 
         SparkMaxConfig config = new SparkMaxConfig();
         config.idleMode(IdleMode.kBrake);
         config.smartCurrentLimit(40);
-
-        config.limitSwitch.reverseLimitSwitchEnabled(true);
-        config.limitSwitch.reverseLimitSwitchType(LimitSwitchConfig.Type.kNormallyOpen);
 
         config.closedLoop.pid(LobbyConstants.ClimberConstants.kP, LobbyConstants.ClimberConstants.kI,
                 LobbyConstants.ClimberConstants.kD);
@@ -50,7 +46,8 @@ public class ClimberIOSparkMax implements ClimberIO
         inputs.appliedVolts = motor.getAppliedOutput() * motor.getBusVoltage();
         inputs.currentAmps = motor.getOutputCurrent();
         inputs.tempCelsius = motor.getMotorTemperature();
-        inputs.atBottomLimit = reverseLimit.isPressed();
+
+        inputs.atBottomLimit = !limitSwitch.get();
     }
 
     @Override

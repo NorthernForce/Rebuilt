@@ -44,12 +44,12 @@ public class ClimberSubsystem extends SubsystemBase
 
     public Command extendHooks()
     {
-        return this.runOnce(() -> hookServo.setAngle(LobbyConstants.ClimberConstants.kHookExtendAngle));
+        return this.runOnce(() -> hookServo.setAngle(LobbyConstants.ClimberConstants.kHookExtendAngle.getDegrees()));
     }
 
     public Command retractHooks()
     {
-        return this.runOnce(() -> hookServo.setAngle(LobbyConstants.ClimberConstants.kHookRetractAngle));
+        return this.runOnce(() -> hookServo.setAngle(LobbyConstants.ClimberConstants.kHookRetractAngle.getDegrees()));
     }
 
     public Command runToPosition(double meters)
@@ -82,7 +82,8 @@ public class ClimberSubsystem extends SubsystemBase
     {
         return this.run(() ->
         {
-            hookServo.setAngle(LobbyConstants.ClimberConstants.kHookRetractAngle);
+            hookServo.setAngle(LobbyConstants.ClimberConstants.kHookRetractAngle.getDegrees());
+
             if (!inputs.atBottomLimit)
             {
                 io.setVoltage(LobbyConstants.ClimberConstants.kHomingVolts);
