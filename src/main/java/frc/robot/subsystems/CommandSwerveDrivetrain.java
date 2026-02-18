@@ -477,35 +477,45 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
 
     public Command autoTrenchRun()
     {
-        return Commands.run(() ->
-        {
-            double triggerRadius = 1.6;
-            Angle angleTrigger = Angle.ofBaseUnits(25.0, Degrees);
+        final double triggerRadius = 1.6;
 
-            Pose2d pose = getState().Pose;
+        return Commands.sequence(
 
-            Translation2d roberto = pose.getTranslation();
+                Commands.waitUntil(() ->
+                {
+                    var pose = getState().Pose;
+                    var p = pose.getTranslation();
+                    return p.getDistance(FieldConstants.kRedTrench1) <= triggerRadius
+                            || p.getDistance(FieldConstants.kRedTrench2) <= triggerRadius
+                            || p.getDistance(FieldConstants.kBlueTrench1) <= triggerRadius
+                            || p.getDistance(FieldConstants.kBlueTrench2) <= triggerRadius;
+                }),
 
-            Translation2d RT1 = FieldConstants.kRedTrench1;
-            Translation2d RT2 = FieldConstants.kRedTrench2;
-            Translation2d BT1 = FieldConstants.kBlueTrench1;
-            Translation2d BT2 = FieldConstants.kBlueTrench2;
+                Commands.runOnce(() ->
+                {
+                    var pose = getState().Pose;
+                    var roberto = pose.getTranslation();
+                    Translation2d target = null;
+                    if (roberto.getDistance(FieldConstants.kRedTrench1) <= triggerRadius)
+                    {
+                        target = FieldConstants.kRedTrench1;
+                    } else if (roberto.getDistance(FieldConstants.kRedTrench2) <= triggerRadius)
+                    {
+                        target = FieldConstants.kRedTrench2;
+                    } else if (roberto.getDistance(FieldConstants.kBlueTrench1) <= triggerRadius)
+                    {
+                        target = FieldConstants.kBlueTrench1;
+                    } else if (roberto.getDistance(FieldConstants.kBlueTrench2) <= triggerRadius)
+                    {
+                        target = FieldConstants.kBlueTrench2;
+                    }
 
-            if (roberto.getDistance(RT1) <= triggerRadius)
-            {
-                navigateToPose(newPose2d(pose, RT1, triggerRadius+0.1));
-            } else if (roberto.getDistance(RT2) <= triggerRadius)
-            {
-                navigateToPose(newPose2d(pose, RT2, triggerRadius+0.1));
-            } else if (roberto.getDistance(BT1) <= triggerRadius)
-            {
-                navigateToPose(newPose2d(pose, BT1, triggerRadius+0.1));
-            } else if (roberto.getDistance(BT2) <= triggerRadius)
-            {
-                navigateToPose(newPose2d(pose, BT2, triggerRadius+0.1));
-            }
-
-        });
+                    if (target != null)
+                    {
+                        var nav = navigateToPose(newPose2d(pose, target, triggerRadius + 0.1));
+                        edu.wpi.first.wpilibj2.command.CommandScheduler.getInstance().schedule(nav);
+                    }
+                }));
     }
 
     /**
