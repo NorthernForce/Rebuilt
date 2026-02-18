@@ -28,9 +28,10 @@ public class LobbyOI
                 inputProc(driveController::getLeftX), inputProc(driveController::getRightX)));
         driveController.back().onTrue(drive.resetOrientation());
 
-        intake.setDefaultCommand(intake.stopIntake());
-        manipulatorController.rightBumper().whileTrue(intake.intake(LobbyConstants.IntakeConstants.kDriverIntakeSpeed));
+        manipulatorController.rightBumper().whileTrue(intake.intake(LobbyConstants.IntakeConstants.kDriverIntakeSpeed))
+                .onFalse(intake.stopIntake());
         manipulatorController.leftBumper()
-                .whileTrue(intake.purgeIntake(LobbyConstants.IntakeConstants.kDriverPurgeSpeed));
+                .whileTrue(intake.purgeIntake(LobbyConstants.IntakeConstants.kDriverPurgeSpeed))
+                .onFalse(intake.stopIntake());
     }
 }
