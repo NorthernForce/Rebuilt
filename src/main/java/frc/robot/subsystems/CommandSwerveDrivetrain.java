@@ -60,6 +60,7 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.FieldConstants;
 import frc.robot.lobby.generated.LobbyTunerConstants;
 import frc.robot.lobby.generated.LobbyTunerConstants.TunerSwerveDrivetrain;
+import frc.robot.subsystems.apriltagvision.commands.DriveToPoseWithVision;
 import frc.robot.util.CTREUtil;
 import frc.robot.util.NFRLog;
 import frc.robot.util.Status;
@@ -479,43 +480,29 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
     {
         final double triggerRadius = 1.6;
 
-        return Commands.sequence(
+        var pose = getState().Pose;
+        var roberto = pose.getTranslation();
+        Translation2d target = null;
+        if (roberto.getDistance(FieldConstants.kRedTrench1) <= triggerRadius)
+        {
+            target = FieldConstants.kRedTrench1;
+        } else if (roberto.getDistance(FieldConstants.kRedTrench2) <= triggerRadius)
+        {
+            target = FieldConstants.kRedTrench2;
+        } else if (roberto.getDistance(FieldConstants.kBlueTrench1) <= triggerRadius)
+        {
+            target = FieldConstants.kBlueTrench1;
+        } else if (roberto.getDistance(FieldConstants.kBlueTrench2) <= triggerRadius)
+        {
+            target = FieldConstants.kBlueTrench2;
+        }
 
-                Commands.waitUntil(() ->
-                {
-                    var pose = getState().Pose;
-                    var p = pose.getTranslation();
-                    return p.getDistance(FieldConstants.kRedTrench1) <= triggerRadius
-                            || p.getDistance(FieldConstants.kRedTrench2) <= triggerRadius
-                            || p.getDistance(FieldConstants.kBlueTrench1) <= triggerRadius
-                            || p.getDistance(FieldConstants.kBlueTrench2) <= triggerRadius;
-                }),
+        if (target != null)
+        {
+            return new DriveToPoseWithVision(this).driveToPose(new Pose2d(target, new Rotation2d()));
+        }
+        return Commands.none();
 
-                Commands.runOnce(() ->
-                {
-                    var pose = getState().Pose;
-                    var roberto = pose.getTranslation();
-                    Translation2d target = null;
-                    if (roberto.getDistance(FieldConstants.kRedTrench1) <= triggerRadius)
-                    {
-                        target = FieldConstants.kRedTrench1;
-                    } else if (roberto.getDistance(FieldConstants.kRedTrench2) <= triggerRadius)
-                    {
-                        target = FieldConstants.kRedTrench2;
-                    } else if (roberto.getDistance(FieldConstants.kBlueTrench1) <= triggerRadius)
-                    {
-                        target = FieldConstants.kBlueTrench1;
-                    } else if (roberto.getDistance(FieldConstants.kBlueTrench2) <= triggerRadius)
-                    {
-                        target = FieldConstants.kBlueTrench2;
-                    }
-
-                    if (target != null)
-                    {
-                        var nav = navigateToPose(newPose2d(pose, target, triggerRadius + 0.1));
-                        edu.wpi.first.wpilibj2.command.CommandScheduler.getInstance().schedule(nav);
-                    }
-                }));
     }
 
     /**

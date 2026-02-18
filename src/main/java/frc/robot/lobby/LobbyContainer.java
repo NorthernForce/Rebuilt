@@ -1,6 +1,7 @@
 package frc.robot.lobby;
 
 import java.util.Optional;
+import java.util.function.BooleanSupplier;
 
 import org.northernforce.util.NFRRobotContainer;
 import org.photonvision.simulation.SimCameraProperties;
@@ -18,6 +19,7 @@ import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import frc.robot.FieldConstants;
 import frc.robot.lobby.generated.LobbyTunerConstants;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.apriltagvision.AprilTagVision;
@@ -34,6 +36,9 @@ public class LobbyContainer implements NFRRobotContainer
     private final Field2d field;
     private final DriveToPoseWithVision driveToPoseCommand;
     private Optional<String> teamActivity = Optional.empty();
+
+    private boolean inTrenchRunZone = false;
+    private final double triggerRadius = 1.6;
 
     public LobbyContainer()
     {
@@ -108,6 +113,22 @@ public class LobbyContainer implements NFRRobotContainer
             teamActivity = Optional
                     .of((DriverStation.getAlliance().get() == DriverStation.Alliance.Blue) ? "active" : "inactive");
         }
+        var pose = drive.getState().Pose;
+        var p = pose.getTranslation();
+        inTrenchRunZone = (p.getDistance(FieldConstants.kRedTrench1) <= triggerRadius
+                || p.getDistance(FieldConstants.kRedTrench2) <= triggerRadius
+                || p.getDistance(FieldConstants.kBlueTrench1) <= triggerRadius
+                || p.getDistance(FieldConstants.kBlueTrench2) <= triggerRadius);
+
+        DogLog.log("Drive/TrenchRunDistanceRed1", p.getDistance(FieldConstants.kRedTrench1));
+        DogLog.log("Drive/TrenchRunDistanceRed2", p.getDistance(FieldConstants.kRedTrench2));
+        DogLog.log("Drive/TrenchRunDistanceBlue1", p.getDistance(FieldConstants.kBlueTrench1));
+        DogLog.log("Drive/TrenchRunDistanceBlue2", p.getDistance(FieldConstants.kBlueTrench2));
+        DogLog.log("Drive/TrenchRunInZone",
+                (p.getDistance(FieldConstants.kRedTrench1) <= triggerRadius
+                        || p.getDistance(FieldConstants.kRedTrench2) <= triggerRadius
+                        || p.getDistance(FieldConstants.kBlueTrench1) <= triggerRadius
+                        || p.getDistance(FieldConstants.kBlueTrench2) <= triggerRadius));
 
         DogLog.log("GameData/StartingActivity", teamActivity.orElse("unknown"));
         if (!teamActivity.orElse("unknown").equals("unknown"))
@@ -135,15 +156,12 @@ public class LobbyContainer implements NFRRobotContainer
 
     }
 
-    @Override
-    public void teleopInit()
-    {
-        var cmd = drive.autoTrenchRun();
-        if (cmd != null)
-        {
-            edu.wpi.first.wpilibj2.command.CommandScheduler.getInstance().schedule(cmd);
-        }
-    }
+    /*
+     * @Override public void teleopInit() { var cmd = drive.autoTrenchRun(); if (cmd
+     * != null) {
+     * edu.wpi.first.wpilibj2.command.CommandScheduler.getInstance().schedule(cmd);
+     * } }
+     */
 
     @Override
     public void bindOI()
@@ -173,6 +191,11 @@ public class LobbyContainer implements NFRRobotContainer
     public Command driveToPose(Pose2d pose)
     {
         return driveToPoseCommand.driveToPose(pose);
+    }
+
+    public BooleanSupplier inTrenchZone()
+    {
+        return () -> inTrenchRunZone;
     }
 
     public void resetOdometry(Pose2d pose)
