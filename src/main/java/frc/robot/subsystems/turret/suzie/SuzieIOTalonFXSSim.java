@@ -44,7 +44,7 @@ public class SuzieIOTalonFXSSim extends SuzieIOTalonFXS
         m_dcMotorSim
                 .setInputVoltage(constants.kInverted() ? -m_simState.getMotorVoltage() : m_simState.getMotorVoltage());
         m_dcMotorSim.update(0.02);
-        double rotationsPerSecond = m_dcMotorSim.getAngularVelocity().in(RotationsPerSecond) * constants.kGearRatio();
+        double rotationsPerSecond = m_dcMotorSim.getAngularVelocity().in(RotationsPerSecond) * ((double)constants.kDrivingGearTeeth()/constants.kTurntableGearTeeth());
         double dRot = rotationsPerSecond * 0.02;
         m_simState.addRotorPosition(constants.kInverted() ? -dRot : dRot);
         m_simState.setRotorVelocity(constants.kInverted() ? -rotationsPerSecond : rotationsPerSecond);
