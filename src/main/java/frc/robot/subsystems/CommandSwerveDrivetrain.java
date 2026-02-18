@@ -1,7 +1,5 @@
 package frc.robot.subsystems;
 
-import static edu.wpi.first.units.Units.*;
-
 import java.util.function.DoubleSupplier;
 import java.util.function.Supplier;
 
@@ -14,26 +12,39 @@ import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.swerve.SwerveDrivetrainConstants;
 import com.ctre.phoenix6.swerve.SwerveModule;
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
-import com.ctre.phoenix6.swerve.SwerveRequest.ForwardPerspectiveValue;
 import com.ctre.phoenix6.swerve.SwerveModuleConstants;
 import com.ctre.phoenix6.swerve.SwerveRequest;
+import com.ctre.phoenix6.swerve.SwerveRequest.ForwardPerspectiveValue;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.config.PIDConstants;
 import com.pathplanner.lib.config.RobotConfig;
 import com.pathplanner.lib.controllers.PPHolonomicDriveController;
 import com.pathplanner.lib.path.PathConstraints;
-import com.pathplanner.lib.pathfinding.Pathfinding;
 import com.pathplanner.lib.pathfinding.LocalADStar;
+import com.pathplanner.lib.pathfinding.Pathfinding;
 
 import dev.doglog.DogLog;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.system.plant.DCMotor;
+import static edu.wpi.first.units.Units.Degrees;
+import static edu.wpi.first.units.Units.DegreesPerSecond;
+import static edu.wpi.first.units.Units.Inches;
+import static edu.wpi.first.units.Units.MetersPerSecond;
+import static edu.wpi.first.units.Units.MetersPerSecondPerSecond;
+import static edu.wpi.first.units.Units.Pounds;
+import static edu.wpi.first.units.Units.Radians;
+import static edu.wpi.first.units.Units.RadiansPerSecond;
+import static edu.wpi.first.units.Units.Rotations;
+import static edu.wpi.first.units.Units.Second;
+import static edu.wpi.first.units.Units.Seconds;
+import static edu.wpi.first.units.Units.Volts;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.LinearAcceleration;
@@ -46,6 +57,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
+import frc.robot.FieldConstants;
 import frc.robot.lobby.generated.LobbyTunerConstants;
 import frc.robot.lobby.generated.LobbyTunerConstants.TunerSwerveDrivetrain;
 import frc.robot.util.CTREUtil;
@@ -434,6 +446,66 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         return AutoBuilder.pathfindToPose(pose,
                 new PathConstraints(limitedSpeed.in(MetersPerSecond), limitedAcceleration.in(MetersPerSecondPerSecond),
                         maxAngularSpeed.in(RadiansPerSecond), Double.POSITIVE_INFINITY));
+    }
+
+    public Angle angleDifferance(Pose2d obj, Translation2d target)
+    {
+
+        double yDiff = Math.abs(target.getY() - obj.getY());
+
+        double xDiff = Math.abs(target.getX() - obj.getX());
+
+        double differance = Math.toDegrees(Math.atan2(yDiff, xDiff));
+
+        return Angle.ofBaseUnits(Math.abs(obj.getRotation().getDegrees() - differance), Degrees);
+    }
+
+    public Pose2d newPose2d(Pose2d current, Translation2d waypoint, double offset)
+    {
+        Pose2d newPose;
+
+        if (current.getY() < waypoint.getY())
+        {
+            newPose = new Pose2d(waypoint.getX(), waypoint.getY() + offset, current.getRotation());
+        } else
+        {
+            newPose = new Pose2d(waypoint.getX(), waypoint.getY() - offset, current.getRotation());
+        }
+
+        return newPose;
+    }
+
+    public Command autoTrenchRun()
+    {
+        return Commands.run(() ->
+        {
+            double triggerRadius = 1.6;
+            Angle angleTrigger = Angle.ofBaseUnits(25.0, Degrees);
+
+            Pose2d pose = getState().Pose;
+
+            Translation2d roberto = pose.getTranslation();
+
+            Translation2d RT1 = FieldConstants.kRedTrench1;
+            Translation2d RT2 = FieldConstants.kRedTrench2;
+            Translation2d BT1 = FieldConstants.kBlueTrench1;
+            Translation2d BT2 = FieldConstants.kBlueTrench2;
+
+            if (roberto.getDistance(RT1) <= triggerRadius)
+            {
+                navigateToPose(newPose2d(pose, RT1, triggerRadius+0.1));
+            } else if (roberto.getDistance(RT2) <= triggerRadius)
+            {
+                navigateToPose(newPose2d(pose, RT2, triggerRadius+0.1));
+            } else if (roberto.getDistance(BT1) <= triggerRadius)
+            {
+                navigateToPose(newPose2d(pose, BT1, triggerRadius+0.1));
+            } else if (roberto.getDistance(BT2) <= triggerRadius)
+            {
+                navigateToPose(newPose2d(pose, BT2, triggerRadius+0.1));
+            }
+
+        });
     }
 
     /**

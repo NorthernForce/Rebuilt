@@ -1,6 +1,7 @@
 package frc.robot.lobby;
 
 import java.util.Optional;
+
 import org.northernforce.util.NFRRobotContainer;
 import org.photonvision.simulation.SimCameraProperties;
 
@@ -17,10 +18,9 @@ import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
-import frc.robot.LimelightHelpers;
 import frc.robot.lobby.generated.LobbyTunerConstants;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
-import frc.robot.subsystems.apriltagvision.*;
+import frc.robot.subsystems.apriltagvision.AprilTagVision;
 import frc.robot.subsystems.apriltagvision.AprilTagVisionIOLimelight;
 import frc.robot.subsystems.apriltagvision.AprilTagVisionIOPhotonVisionSim;
 import frc.robot.subsystems.apriltagvision.commands.DriveToPoseWithVision;
@@ -133,6 +133,16 @@ public class LobbyContainer implements NFRRobotContainer
                 DogLog.log("GameData/GameShift", teamActivity.get().equals("inactive") ? "inactive" : "active");
             }
 
+    }
+
+    @Override
+    public void teleopInit()
+    {
+        var cmd = drive.autoTrenchRun();
+        if (cmd != null)
+        {
+            edu.wpi.first.wpilibj2.command.CommandScheduler.getInstance().schedule(cmd);
+        }
     }
 
     @Override
