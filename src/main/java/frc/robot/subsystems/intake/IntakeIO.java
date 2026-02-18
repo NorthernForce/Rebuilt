@@ -2,17 +2,16 @@ package frc.robot.subsystems.intake;
 
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.Subsystem;
 
-public interface IntakeIO extends Subsystem
+public interface IntakeIO
 {
-    public Command intake(double speed);
+    public void intake(double speed);
 
-    public Command purgeIntake(double speed);
+    public void purgeIntake(double speed);
 
-    public Command stopIntake();
+    public void stopIntake();
 
-    public Command setAngle(Angle angle);
+    public void setAngle(Angle angle);
 
-    public Command resetAngle();
+    public void resetAngle();
 }

@@ -9,9 +9,10 @@ import com.ctre.phoenix6.signals.NeutralModeValue;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
-public class IntakeIOTalonFX extends SubsystemBase implements IntakeIO
+public class IntakeIOTalonFX implements IntakeIO
 {
     private final TalonFXS rollerMotor;
     private final TalonFXS angleMotor;
@@ -31,32 +32,32 @@ public class IntakeIOTalonFX extends SubsystemBase implements IntakeIO
     }
 
     @Override
-    public Command intake(double speed)
+    public void intake(double speed)
     {
-        return runOnce(() -> rollerMotor.set(MathUtil.clamp(speed, 0.0, 1.0)));
+        rollerMotor.set(MathUtil.clamp(speed, 0.0, 1.0));
     }
 
     @Override
-    public Command purgeIntake(double speed)
+    public void purgeIntake(double speed)
     {
-        return runOnce(() -> rollerMotor.set(-MathUtil.clamp(speed, 0.0, 1.0)));
+        rollerMotor.set(-MathUtil.clamp(speed, 0.0, 1.0));
     }
 
     @Override
-    public Command stopIntake()
+    public void stopIntake()
     {
-        return runOnce(() -> rollerMotor.set(0));
+        rollerMotor.set(0);
     }
 
     @Override
-    public Command setAngle(Angle angle)
+    public void setAngle(Angle angle)
     {
-        return runOnce(() -> angleMotor.setControl(req.withPosition(angle)));
+        angleMotor.setControl(req.withPosition(angle));
     }
 
     @Override
-    public Command resetAngle()
+    public void resetAngle()
     {
-        return runOnce(() -> angleMotor.setPosition(0));
+        angleMotor.setPosition(0);
     }
 }
