@@ -207,7 +207,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
             LinearVelocity maxSpeed, AngularVelocity maxAngularSpeed, SwerveModuleConstants<?, ?, ?>... modules)
     {
         super(drivetrainConstants, odometryUpdateFrequency,
-                MapleSimSwerveDrivetrain.regulateModuleConstantsForSimulation(modules));
+                MapleSimSwerveDrivetrain.regulateModuleConstantsForSimulation(offsetEncoders(modules)));
         this.maxSpeed = maxSpeed;
         this.maxAngularSpeed = maxAngularSpeed;
         if (Utils.isSimulation())
@@ -243,7 +243,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
             @SuppressWarnings("unchecked") SwerveModuleConstants<TalonFXConfiguration, TalonFXConfiguration, CANcoderConfiguration>... modules)
     {
         super(drivetrainConstants, odometryUpdateFrequency, odometryStandardDeviation, visionStandardDeviation,
-                MapleSimSwerveDrivetrain.regulateModuleConstantsForSimulation(modules));
+                MapleSimSwerveDrivetrain.regulateModuleConstantsForSimulation(offsetEncoders(modules)));
         this.maxSpeed = maxSpeed;
         this.maxAngularSpeed = maxAngularSpeed;
         if (Utils.isSimulation())
