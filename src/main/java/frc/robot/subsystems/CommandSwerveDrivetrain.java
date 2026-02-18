@@ -177,7 +177,8 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
     public CommandSwerveDrivetrain(SwerveDrivetrainConstants drivetrainConstants, LinearVelocity maxSpeed,
             AngularVelocity maxAngularSpeed, SwerveModuleConstants<?, ?, ?>... modules)
     {
-        super(drivetrainConstants, MapleSimSwerveDrivetrain.regulateModuleConstantsForSimulation(modules));
+        super(drivetrainConstants,
+                MapleSimSwerveDrivetrain.regulateModuleConstantsForSimulation(offsetEncoders(modules)));
         this.maxSpeed = maxSpeed;
         this.maxAngularSpeed = maxAngularSpeed;
         if (Utils.isSimulation())
@@ -204,7 +205,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
             LinearVelocity maxSpeed, AngularVelocity maxAngularSpeed, SwerveModuleConstants<?, ?, ?>... modules)
     {
         super(drivetrainConstants, odometryUpdateFrequency,
-                MapleSimSwerveDrivetrain.regulateModuleConstantsForSimulation(modules));
+                MapleSimSwerveDrivetrain.regulateModuleConstantsForSimulation(offsetEncoders(modules)));
         this.maxSpeed = maxSpeed;
         this.maxAngularSpeed = maxAngularSpeed;
         if (Utils.isSimulation())
@@ -240,7 +241,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
             @SuppressWarnings("unchecked") SwerveModuleConstants<TalonFXConfiguration, TalonFXConfiguration, CANcoderConfiguration>... modules)
     {
         super(drivetrainConstants, odometryUpdateFrequency, odometryStandardDeviation, visionStandardDeviation,
-                MapleSimSwerveDrivetrain.regulateModuleConstantsForSimulation(modules));
+                MapleSimSwerveDrivetrain.regulateModuleConstantsForSimulation(offsetEncoders(modules)));
         this.maxSpeed = maxSpeed;
         this.maxAngularSpeed = maxAngularSpeed;
         if (Utils.isSimulation())
@@ -528,7 +529,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
      */
     public Command resetEncoders()
     {
-        return Commands.runOnce(this::resetDriveEncoders, this);
+        return Commands.runOnce(this::resetDriveEncoders, this).ignoringDisable(true);
     }
 
     /**
