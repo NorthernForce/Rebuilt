@@ -55,9 +55,6 @@ public class LobbyContainer implements NFRRobotContainer
             spindexer = new Spindexer(
                     new CarouselIOTalonFXSim(new CarouselConstants(LobbyConstants.CarouselConstants.kMotorID,
                             LobbyConstants.CarouselConstants.kSpeed, LobbyConstants.CarouselConstants.kGearRatio,
-                            LobbyConstants.CarouselConstants.kV, LobbyConstants.CarouselConstants.kA,
-                            LobbyConstants.CarouselConstants.kP, LobbyConstants.CarouselConstants.kI,
-                            LobbyConstants.CarouselConstants.kD, LobbyConstants.CarouselConstants.kErrorTolerance,
                             LobbyConstants.CarouselConstants.kInverted)),
                     new FlickerIOTalonFXSSim(new FlickerSimParameters(LobbyConstants.FlickerConstants.kMotorId,
                             LobbyConstants.FlickerConstants.kRampSpeed, LobbyConstants.FlickerConstants.kGearRatio,
@@ -73,9 +70,6 @@ public class LobbyContainer implements NFRRobotContainer
             spindexer = new Spindexer(
                     new CarouselIOTalonFX(new CarouselConstants(LobbyConstants.CarouselConstants.kMotorID,
                             LobbyConstants.CarouselConstants.kSpeed, LobbyConstants.CarouselConstants.kGearRatio,
-                            LobbyConstants.CarouselConstants.kV, LobbyConstants.CarouselConstants.kA,
-                            LobbyConstants.CarouselConstants.kP, LobbyConstants.CarouselConstants.kI,
-                            LobbyConstants.CarouselConstants.kD, LobbyConstants.CarouselConstants.kErrorTolerance,
                             LobbyConstants.CarouselConstants.kInverted)),
                     new FlickerIOTalonFXS(new FlickerParameters(LobbyConstants.FlickerConstants.kMotorId,
                             LobbyConstants.FlickerConstants.kRampSpeed, LobbyConstants.FlickerConstants.kGearRatio,

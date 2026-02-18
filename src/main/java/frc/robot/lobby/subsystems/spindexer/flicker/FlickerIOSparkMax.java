@@ -28,10 +28,4 @@ public class FlickerIOSparkMax implements FlickerIO
     {
         m_motor.set(0.0);
     }
-
-    @Override
-    public boolean isAtTargetSpeed()
-    {
-        return Math.abs(m_motor.get() - m_rampSpeed) < m_errorTolerance;
-    }
 }

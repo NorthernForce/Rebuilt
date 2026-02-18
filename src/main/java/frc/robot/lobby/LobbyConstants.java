@@ -76,7 +76,7 @@ public class LobbyConstants
     {
         // TODO: check ALL values
         public static final int kMotorId = 18;
-        public static final double kRampSpeed = 20;
+        public static final double kRampSpeed = 1.0;
         public static final boolean kMotorInverted = false;
         public static final double kGearRatio = 5.0;
 
@@ -95,8 +95,8 @@ public class LobbyConstants
 
     public class CarouselConstants
     {
-        public static final int kMotorID = 19;
-        public static final AngularVelocity kSpeed = RotationsPerSecond.of(2);
+        public static final int kMotorID = 15;
+        public static final double kSpeed = 0.5;
         public static final boolean kInverted = false;
         public static final double kGearRatio = 10.0;
 
@@ -109,11 +109,8 @@ public class LobbyConstants
         public static final AngularVelocity kErrorTolerance = RotationsPerSecond.of(0.25);
     }
 
-    public class MotorConstants
+    public class TalonFXConstants
     {
-        public class TalonFXConstants
-        {
-            public static final Temperature kMaxTemperature = Celsius.of(60.0);
-        }
+        public static final Temperature kMaxTemperature = Celsius.of(60.0);
     }
 }

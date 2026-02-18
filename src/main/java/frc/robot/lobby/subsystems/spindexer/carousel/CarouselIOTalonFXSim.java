@@ -20,8 +20,7 @@ public class CarouselIOTalonFXSim extends CarouselIOTalonFX
         super(constants);
         this.constants = constants;
         m_simState = m_motor.getSimState();
-        m_dcMotorSim = new DCMotorSim(LinearSystemId.createDCMotorSystem(constants.kV(), constants.kA()),
-                DCMotor.getKrakenX60Foc(1));
+        m_dcMotorSim = new DCMotorSim(LinearSystemId.createDCMotorSystem(0.0, 0.0), DCMotor.getKrakenX60Foc(1));
     }
 
     @Override

@@ -4,6 +4,7 @@ import java.util.function.DoubleSupplier;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import frc.robot.lobby.subsystems.spindexer.commands.RunSpindexer;
 
 public class LobbyOI
 {
@@ -26,5 +27,7 @@ public class LobbyOI
         drive.setDefaultCommand(drive.driveByJoystick(inputProc(driveController::getLeftY),
                 inputProc(driveController::getLeftX), inputProc(driveController::getRightX)));
         driveController.back().onTrue(drive.resetOrientation());
+
+        manipulatorController.rightTrigger().whileTrue(new RunSpindexer(container.getSpindexer()));
     }
 }

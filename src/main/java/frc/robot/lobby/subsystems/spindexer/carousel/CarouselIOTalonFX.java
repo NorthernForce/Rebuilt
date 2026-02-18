@@ -17,8 +17,7 @@ import edu.wpi.first.units.measure.Voltage;
 public class CarouselIOTalonFX implements CarouselIO
 {
     protected final TalonFX m_motor;
-    protected final AngularVelocity m_speed;
-    protected final AngularVelocity m_errorTolerance;
+    protected final double m_speed;
     protected final StatusSignal<Temperature> m_temperature;
     protected final StatusSignal<Voltage> m_voltage;
     protected final StatusSignal<Current> m_current;
@@ -29,22 +28,13 @@ public class CarouselIOTalonFX implements CarouselIO
 
     public CarouselIOTalonFX(CarouselConstants constants)
     {
-        this(constants.kMotorId(), constants.kSpeed(), constants.kGearRatio(), constants.kV(), constants.kA(),
-                constants.kP(), constants.kI(), constants.kD(), constants.kErrorTolerance(), constants.kInverted());
+        this(constants.kMotorId(), constants.kSpeed(), constants.kGearRatio(), constants.kInverted());
     }
 
-    public CarouselIOTalonFX(int kMotorID, AngularVelocity kSpeed, double kGearRatio, double kV, double kA, double kP,
-            double kI, double kD, AngularVelocity kErrorTolerance, boolean kInverted)
+    public CarouselIOTalonFX(int kMotorID, double kSpeed, double kGearRatio, boolean kInverted)
     {
         m_motor = new TalonFX(kMotorID);
         TalonFXConfiguration config = new TalonFXConfiguration();
-
-        var slot0Configs = config.Slot0;
-        slot0Configs.kV = kV;
-        slot0Configs.kA = kA;
-        slot0Configs.kP = kP;
-        slot0Configs.kI = kI;
-        slot0Configs.kD = kD;
 
         config.MotorOutput.Inverted = kInverted ? InvertedValue.CounterClockwise_Positive
                 : InvertedValue.Clockwise_Positive;
@@ -55,7 +45,6 @@ public class CarouselIOTalonFX implements CarouselIO
         m_motor.getConfigurator().apply(config);
 
         m_speed = kSpeed;
-        m_errorTolerance = kErrorTolerance;
 
         m_temperature = m_motor.getDeviceTemp();
         m_voltage = m_motor.getMotorVoltage();
@@ -70,13 +59,13 @@ public class CarouselIOTalonFX implements CarouselIO
     @Override
     public void startCarousel()
     {
-        m_motor.setControl(m_velocityVoltage.withVelocity(m_speed));
+        m_motor.set(m_speed);
     }
 
     @Override
     public void stopCarousel()
     {
-        m_motor.setControl(m_velocityVoltage.withVelocity(0));
+        m_motor.set(0);
     }
 
     @Override

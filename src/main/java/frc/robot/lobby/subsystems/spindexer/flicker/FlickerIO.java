@@ -6,8 +6,6 @@ public interface FlickerIO
 
     public void stopFlicker();
 
-    public boolean isAtTargetSpeed();
-
     /** Called every loop to update simulation physics. No-op on real robot. */
     public default void updateSimulation(double dtSeconds)
     {

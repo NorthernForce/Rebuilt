@@ -1,8 +1,12 @@
 package frc.robot.lobby.subsystems.spindexer.flicker;
 
+import com.ctre.phoenix6.configs.CommutationConfigs;
+import com.ctre.phoenix6.configs.MotorOutputConfigs;
 import com.ctre.phoenix6.configs.TalonFXSConfiguration;
 import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.hardware.TalonFXS;
+import com.ctre.phoenix6.signals.InvertedValue;
+import com.ctre.phoenix6.signals.MotorArrangementValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
 public class FlickerIOTalonFXS implements FlickerIO
@@ -20,33 +24,22 @@ public class FlickerIOTalonFXS implements FlickerIO
         m_errorTolerance = parameters.errorTolerance();
         m_motor = new TalonFXS(parameters.motorId());
 
-        TalonFXSConfiguration config = new TalonFXSConfiguration();
-        config.MotorOutput.NeutralMode = NeutralModeValue.Brake;
-        config.Slot0.kV = parameters.kV();
-        config.Slot0.kP = parameters.kP();
-        config.Slot0.kI = parameters.kI();
-        config.Slot0.kD = parameters.kD();
-        m_motor.getConfigurator().apply(config);
+        m_motor.getConfigurator()
+                .apply(new CommutationConfigs().withMotorArrangement(MotorArrangementValue.Minion_JST));
+        m_motor.getConfigurator().apply(new MotorOutputConfigs().withNeutralMode(NeutralModeValue.Brake)
+                .withInverted(InvertedValue.Clockwise_Positive));
     }
 
     @Override
     public void rampFlicker()
     {
         // Target is mechanism RPS, but TalonFXS expects rotor RPS
-        double targetRotorRps = m_rampSpeed * m_gearRatio;
-        m_motor.setControl(m_velocityRequest.withVelocity(targetRotorRps));
+        m_motor.set(m_rampSpeed);
     }
 
     @Override
     public void stopFlicker()
     {
-        m_motor.setControl(m_velocityRequest.withVelocity(0));
-    }
-
-    @Override
-    public boolean isAtTargetSpeed()
-    {
-        // Return mechanism RPS
-        return Math.abs(m_motor.getVelocity().getValueAsDouble() - m_rampSpeed * m_gearRatio) < m_errorTolerance;
+        m_motor.set(0);
     }
 }

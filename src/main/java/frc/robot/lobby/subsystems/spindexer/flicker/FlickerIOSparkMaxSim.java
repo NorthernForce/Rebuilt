@@ -35,10 +35,4 @@ public class FlickerIOSparkMaxSim implements FlickerIO
     {
         m_motor.setVelocity(0.0);
     }
-
-    @Override
-    public boolean isAtTargetSpeed()
-    {
-        return Math.abs(m_motor.getVelocity() - m_rampSpeed * (m_simMaxRpm / 60.0)) < m_errorTolerance;
-    }
 }

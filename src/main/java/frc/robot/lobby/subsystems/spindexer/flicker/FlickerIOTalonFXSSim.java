@@ -92,11 +92,4 @@ public class FlickerIOTalonFXSSim implements FlickerIO
     {
         m_motorController.setControl(m_velocityRequest.withVelocity(0));
     }
-
-    @Override
-    public boolean isAtTargetSpeed()
-    {
-        return Math.abs(m_motorController.getVelocity().getValueAsDouble()
-                - m_rampSpeed * (m_simMaxRpm / 60.0)) < m_errorTolerance;
-    }
 }
