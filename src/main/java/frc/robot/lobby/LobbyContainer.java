@@ -17,6 +17,7 @@ import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.networktables.NetworkTableInstance;
 import frc.robot.LimelightHelpers;
 import frc.robot.lobby.generated.LobbyTunerConstants;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
@@ -24,6 +25,10 @@ import frc.robot.subsystems.apriltagvision.*;
 import frc.robot.subsystems.apriltagvision.AprilTagVisionIOLimelight;
 import frc.robot.subsystems.apriltagvision.AprilTagVisionIOPhotonVisionSim;
 import frc.robot.subsystems.apriltagvision.commands.DriveToPoseWithVision;
+import frc.robot.subsystems.fueldetection.DriveToFuelCommandConstants;
+import frc.robot.subsystems.fueldetection.FuelDetector;
+import frc.robot.subsystems.fueldetection.FuelDetectorIOLimelight;
+import frc.robot.subsystems.fueldetection.commands.DriveToFuelCommand;
 import frc.robot.util.AutoUtil;
 
 public class LobbyContainer implements NFRRobotContainer
@@ -34,10 +39,19 @@ public class LobbyContainer implements NFRRobotContainer
     private final Field2d field;
     private final DriveToPoseWithVision driveToPoseCommand;
     private Optional<String> teamActivity = Optional.empty();
+    private final FuelDetector fuelDetector;
+    private final DriveToFuelCommandConstants colloseumConstants = new DriveToFuelCommandConstants(
+            LobbyConstants.FuelDetectionConstants.kTurnSpeedMultiplier,
+            LobbyConstants.FuelDetectionConstants.kForwardSpeedMultiplier,
+            LobbyConstants.FuelDetectionConstants.kZeroAngleCutoff,
+            LobbyConstants.FuelDetectionConstants.kZeroAngleHorizontalCutoff,
+            LobbyConstants.FuelDetectionConstants.kForwardExponent,
+            LobbyConstants.FuelDetectionConstants.kTurnExponent);
 
     public LobbyContainer()
     {
-
+        fuelDetector = new FuelDetector(
+                new FuelDetectorIOLimelight(LobbyConstants.FuelDetectionConstants.kLimelightName));
         drive = new CommandSwerveDrivetrain(LobbyTunerConstants.DrivetrainConstants,
                 LobbyConstants.DrivetrainConstants.kMaxSpeed, LobbyConstants.DrivetrainConstants.kMaxAngularSpeed,
                 LobbyTunerConstants.FrontLeft, LobbyTunerConstants.FrontRight, LobbyTunerConstants.BackLeft,
@@ -132,7 +146,10 @@ public class LobbyContainer implements NFRRobotContainer
             {
                 DogLog.log("GameData/GameShift", teamActivity.get().equals("inactive") ? "inactive" : "active");
             }
-
+        DogLog.log("FuelDetection/IsFuelPresent", fuelDetector.isFuelPresent());
+        DogLog.log("FuelDetection/FuelBlobXOffsets", fuelDetector.getFuelBlobXOffsets());
+        DogLog.log("FuelDetection/NTTablesAvailable",
+                NetworkTableInstance.getDefault().getTable("limelight-fuel").getKeys().toArray(new String[0]));
     }
 
     @Override
@@ -163,6 +180,11 @@ public class LobbyContainer implements NFRRobotContainer
     public Command driveToPose(Pose2d pose)
     {
         return driveToPoseCommand.driveToPose(pose);
+    }
+
+    public Command getDriveToFuelCommand()
+    {
+        return new DriveToFuelCommand(drive, fuelDetector, colloseumConstants);
     }
 
     public void resetOdometry(Pose2d pose)
