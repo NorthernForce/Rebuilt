@@ -1,9 +1,14 @@
 package frc.robot.lobby;
 
+import static edu.wpi.first.units.Units.Degrees;
+import static edu.wpi.first.units.Units.Meters;
+
 import java.util.function.DoubleSupplier;
 
 import dev.doglog.DogLog;
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.subsystems.turret.commands.PrepTurretCommand;
@@ -36,6 +41,9 @@ public class LobbyOI
                 hood.getDangerZone(), hood.getTrenchPositions()));
 
         // Log when trigger is pressed to verify controller works
+        driveController.a().onTrue(Commands.runOnce(() -> container
+                .resetOdometry(new Pose2d(Meters.of(0), Meters.of(0), new Rotation2d(Degrees.of(180))))));
+
         manipulatorController.leftTrigger()
                 .onTrue(Commands.runOnce(() -> DogLog.log("Turret/PrepCommand/TriggerPressed", true)))
                 .whileTrue(new PrepTurretCommand(() -> container.getDrive().getState().Pose, container.getTurret()))
