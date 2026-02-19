@@ -92,7 +92,7 @@ public class LobbyConstants
     {
         public static final int kRollerMotorId = 17;
         public static final int kAngleMotorId = 16;
-        public static final int kAngleEncoderId = 19; // TODO: this is placeholder
+        public static final int kAngleEncoderId = 22; // TODO: this is placeholder
         public static final double kDriverIntakeSpeed = 0.6;
         public static final double kDriverPurgeSpeed = 1.0;
     }
