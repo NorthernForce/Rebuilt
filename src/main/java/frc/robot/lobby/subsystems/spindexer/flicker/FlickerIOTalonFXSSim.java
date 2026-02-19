@@ -105,7 +105,6 @@ public class FlickerIOTalonFXSSim implements FlickerIO
         m_rampSpeed = power;
     }
 
-
     @Override
     public double getTargetPower()
     {

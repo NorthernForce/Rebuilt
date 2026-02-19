@@ -68,6 +68,12 @@ public class LobbyContainer implements NFRRobotContainer
     private final GenericEntry flickerSpeedEntry;
     private final GenericEntry indexerSpeedEntry;
     private final GenericEntry shooterSpeedEntry;
+    private final GenericEntry shooterDutyCycleEntry;
+    private final GenericEntry shooterKPEntry;
+    private final GenericEntry shooterKIEntry;
+    private final GenericEntry shooterKDEntry;
+    private final GenericEntry shooterKVEntry;
+    private final GenericEntry shooterKAEntry;
 
     public LobbyContainer()
     {
@@ -189,12 +195,20 @@ public class LobbyContainer implements NFRRobotContainer
         Shuffleboard.getTab("Developer").add("Reset Orientation", drive.resetOrientation());
         Shuffleboard.getTab("Developer").add("Drive to Blue Reef",
                 drive.navigateToPose(new Pose2d(3, 4, new Rotation2d())));
-        indexerSpeedEntry = Shuffleboard.getTab("Tuning").add("Indexer Speed", (double) spindexer.getCarousel().getTargetPower())
-                .getEntry();
-        flickerSpeedEntry = Shuffleboard.getTab("Tuning").add("Flicker Speed", (double) spindexer.getFlicker().getTargetPower())
-                .getEntry();
+        indexerSpeedEntry = Shuffleboard.getTab("Tuning")
+                .add("Indexer Speed", (double) spindexer.getCarousel().getTargetPower()).getEntry();
+        flickerSpeedEntry = Shuffleboard.getTab("Tuning")
+                .add("Flicker Speed", (double) spindexer.getFlicker().getTargetPower()).getEntry();
         shooterSpeedEntry = Shuffleboard.getTab("Tuning")
-                .add("Shooter Speed", (double) turret.getShooter().getTargetSpeed().in(RotationsPerSecond)).getEntry();
+                .add("Shooter Velocity", (double) turret.getShooter().getTargetSpeed().in(RotationsPerSecond))
+                .getEntry();
+
+        shooterDutyCycleEntry = Shuffleboard.getTab("Tuning").add("Shooter Duty Cycle", 0).getEntry();
+        shooterKPEntry = Shuffleboard.getTab("Tuning").add("Shooter kP", 0).getEntry();
+        shooterKIEntry = Shuffleboard.getTab("Tuning").add("Shooter kI", 0).getEntry();
+        shooterKDEntry = Shuffleboard.getTab("Tuning").add("Shooter kD", 0).getEntry();
+        shooterKVEntry = Shuffleboard.getTab("Tuning").add("Shooter kV", 0).getEntry();
+        shooterKAEntry = Shuffleboard.getTab("Tuning").add("Shooter kA", 0).getEntry();
 
     }
 
@@ -287,7 +301,18 @@ public class LobbyContainer implements NFRRobotContainer
         spindexer.getFlicker().setPower(flickerSpeed);
 
         double shooterSpeed = shooterSpeedEntry.getDouble(turret.getShooter().getSpeed().in(RotationsPerSecond));
-        turret.getShooter().setTargetSpeed(RotationsPerSecond.of(shooterSpeed));
+        turret.getShooter().setPotentialSpeed(RotationsPerSecond.of(shooterSpeed));
+
+        // double shooterDuty = shooterDutyCycleEntry.getDouble(0);
+        // turret.getShooter().setPotentialDutyCycle(shooterDuty);
+
+        double shooterKP = shooterKPEntry.getDouble(0);
+        double shooterKI = shooterKIEntry.getDouble(0);
+        double shooterKD = shooterKDEntry.getDouble(0);
+        double shooterKV = shooterKVEntry.getDouble(0);
+        double shooterKA = shooterKAEntry.getDouble(0);
+
+        turret.getShooter().setPID(shooterKP, shooterKI, shooterKD, shooterKV, shooterKA);
 
     }
 

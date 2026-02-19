@@ -6,8 +6,10 @@ import java.util.function.Supplier;
 
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.MotorOutputConfigs;
+import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.MotionMagicVelocityVoltage;
+import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
 
@@ -25,8 +27,15 @@ public class ShooterIOTalonFX implements ShooterIO
     protected final StatusSignal<Current> m_current;
     protected final StatusSignal<AngularVelocity> m_velocity;
     protected final Supplier<Boolean> m_isPresent;
-    protected final MotionMagicVelocityVoltage m_motionMagicVoltage;
+    protected final VelocityVoltage m_velocityVoltage;
     protected final AngularVelocity m_errorTolerance;
+    protected double dutyCycle = 0;
+    protected String lastSetType = "dutyCycle";
+    protected double tempKP = 0;
+    protected double tempKI = 0;
+    protected double tempKD = 0;
+    protected double tempKV = 0;
+    protected double tempKA = 0;
 
     private AngularVelocity m_targetSpeed = RotationsPerSecond.of(0);
 
@@ -55,10 +64,10 @@ public class ShooterIOTalonFX implements ShooterIO
         slot0Configs.kD = kD;
         slot0Configs.kG = kG;
 
-        var motionMagicConfigs = config.MotionMagic;
-        motionMagicConfigs.MotionMagicCruiseVelocity = kCruiseVelocity;
-        motionMagicConfigs.MotionMagicAcceleration = kAcceleration;
-        motionMagicConfigs.MotionMagicJerk = kJerk;
+        // var motionMagicConfigs = config.MotionMagic;
+        // motionMagicConfigs.MotionMagicCruiseVelocity = kCruiseVelocity;
+        // motionMagicConfigs.MotionMagicAcceleration = kAcceleration;
+        // motionMagicConfigs.MotionMagicJerk = kJerk;
 
         m_motor1.getConfigurator().apply(config);
         m_motor2.getConfigurator().apply(config);
@@ -74,7 +83,7 @@ public class ShooterIOTalonFX implements ShooterIO
         m_velocity = m_motor1.getVelocity();
         m_isPresent = () -> m_motor1.isConnected() && m_motor2.isConnected();
 
-        m_motionMagicVoltage = new MotionMagicVelocityVoltage(0).withEnableFOC(true);
+        m_velocityVoltage = new VelocityVoltage(0).withEnableFOC(true);
         m_errorTolerance = kErrorTolerance;
     }
 
@@ -88,8 +97,8 @@ public class ShooterIOTalonFX implements ShooterIO
     public void setTargetSpeed(AngularVelocity speed)
     {
         m_targetSpeed = speed;
-        m_motor1.setControl(m_motionMagicVoltage.withVelocity(speed));
-        m_motor2.setControl(m_motionMagicVoltage.withVelocity(speed));
+        m_motor1.setControl(m_velocityVoltage.withVelocity(speed));
+        m_motor2.setControl(m_velocityVoltage.withVelocity(speed));
     }
 
     @Override
@@ -109,5 +118,57 @@ public class ShooterIOTalonFX implements ShooterIO
     {
         return Math.abs(getTargetSpeed().in(RotationsPerSecond) - getSpeed().in(RotationsPerSecond)) < m_errorTolerance
                 .in(RotationsPerSecond);
+    }
+
+    @Override
+    public void setPotentialSpeed(AngularVelocity speed)
+    {
+        if (m_targetSpeed != speed)
+        {
+            lastSetType = "velocity";
+            m_targetSpeed = speed;
+        }
+    }
+
+    @Override
+    public void setPotentialDutyCycle(double value)
+    {
+        if (dutyCycle != value)
+        {
+            lastSetType = "dutyCycle";
+            dutyCycle = value;
+        }
+    }
+
+    @Override
+    public void setPID(double kP, double kI, double kD, double kV, double kA)
+    {
+        if (kP != tempKP || kI != tempKI || kD != tempKD || kV != tempKV || kA != tempKA)
+        {
+            lastSetType = "velocity";
+            m_motor1.getConfigurator().apply(new Slot0Configs().withKP(kP).withKI(kI).withKD(kD).withKV(kV).withKA(kA));
+            m_motor2.getConfigurator().apply(new Slot0Configs().withKP(kP).withKI(kI).withKD(kD).withKV(kV).withKA(kA));
+        }
+    }
+
+    @Override
+    public void start()
+    {
+        if (lastSetType.equals("dutyCycle"))
+        {
+            m_motor1.set(dutyCycle);
+            m_motor2.set(dutyCycle);
+        } else
+        {
+            m_motor1.setControl(m_velocityVoltage.withVelocity(m_targetSpeed));
+            m_motor2.setControl(m_velocityVoltage.withVelocity(m_targetSpeed));
+        }
+    }
+
+    @Override
+    public void stop()
+    {
+        m_motor1.stopMotor();
+        m_motor2.stopMotor();
     }
 }

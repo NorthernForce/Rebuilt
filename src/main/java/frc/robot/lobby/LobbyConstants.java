@@ -127,12 +127,12 @@ public class LobbyConstants
 
         public class Shooter
         {
-            public static int kMotor1ID = 12;
-            public static int kMotor2ID = 13;
+            public static int kMotor1ID = 20;
+            public static int kMotor2ID = 21;
             public static double kS = 0;
-            public static double kV = 0.12 * 10;
-            public static double kA = 0.8 / 10;
-            public static double kP = 10;
+            public static double kV = 0.115;
+            public static double kA = 0;
+            public static double kP = 0.55;
             public static double kI = 0;
             public static double kD = 0;
             public static double kG = 0;

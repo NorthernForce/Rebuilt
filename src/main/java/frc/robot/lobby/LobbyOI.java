@@ -12,6 +12,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.subsystems.turret.commands.PrepTurretCommand;
+import frc.robot.subsystems.turret.commands.PrepTurretWithValues;
 import frc.robot.lobby.subsystems.spindexer.commands.RunSpindexer;
 
 public class LobbyOI
@@ -49,8 +50,9 @@ public class LobbyOI
         {
             DogLog.log("Turret/csvValue", container.getTurret().getHoodTargetingCalculator().getValueForDistance(5.0));
         }));
-        manipulatorController.rightTrigger().whileTrue(new RunSpindexer(container.getSpindexer())
-                .alongWith(new PrepTurretCommand(() -> container.getDrive().getState().Pose, container.getTurret())));
+
+        driveController.rightTrigger().whileTrue(new RunSpindexer(container.getSpindexer()));
+        driveController.leftTrigger().whileTrue(new PrepTurretWithValues(container.getTurret()));
         driveController.a().onTrue(Commands.runOnce(() -> container
                 .resetOdometry(new Pose2d(Meters.of(0), Meters.of(0), new Rotation2d(Degrees.of(180))))));
     }
