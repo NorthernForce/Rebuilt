@@ -17,7 +17,7 @@ import edu.wpi.first.units.measure.Voltage;
 public class CarouselIOTalonFX implements CarouselIO
 {
     protected final TalonFX m_motor;
-    protected final double m_speed;
+    protected double m_speed;
     protected final StatusSignal<Temperature> m_temperature;
     protected final StatusSignal<Voltage> m_voltage;
     protected final StatusSignal<Current> m_current;
@@ -75,8 +75,26 @@ public class CarouselIOTalonFX implements CarouselIO
     }
 
     @Override
+    public double getPower()
+    {
+        return m_motor.get();
+    }
+
+    @Override
     public void update()
     {
         StatusSignal.refreshAll(m_temperature, m_voltage, m_current, m_velocity, m_rotorVelocity);
+    }
+
+    @Override
+    public void setPower(double power)
+    {
+        m_speed = power;
+    }
+
+    @Override
+    public double getTargetPower()
+    {
+        return m_speed;
     }
 }

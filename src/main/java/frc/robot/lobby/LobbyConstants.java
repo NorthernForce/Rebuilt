@@ -80,6 +80,7 @@ public class LobbyConstants
 
         public class Suzie
         {
+            public static int kEncoderDIOPin = 9;
             public static int kMotorID = 10;
             public static int kEncoderID = 1;
             public static double kS = 0;

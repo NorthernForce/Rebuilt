@@ -1,6 +1,8 @@
 package frc.robot.lobby;
 
+import static edu.wpi.first.units.Units.DegreesPerSecond;
 import static edu.wpi.first.units.Units.Radians;
+import static edu.wpi.first.units.Units.RotationsPerSecond;
 
 import java.util.List;
 
@@ -16,6 +18,7 @@ import dev.doglog.DogLog;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.networktables.GenericEntry;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
@@ -62,6 +65,9 @@ public class LobbyContainer implements NFRRobotContainer
     private final Spindexer spindexer;
     private final DriveToPoseWithVision driveToPoseCommand;
     private Optional<String> teamActivity = Optional.empty();
+    private final GenericEntry flickerSpeedEntry;
+    private final GenericEntry indexerSpeedEntry;
+    private final GenericEntry shooterSpeedEntry;
 
     public LobbyContainer()
     {
@@ -93,7 +99,7 @@ public class LobbyContainer implements NFRRobotContainer
                             LobbyConstants.Turret.Suzie.kJerk, LobbyConstants.Turret.Suzie.kGearRatio,
                             LobbyConstants.Turret.Suzie.kInverted, LobbyConstants.Turret.Suzie.kLowerSoftLimit,
                             LobbyConstants.Turret.Suzie.kUpperSoftLimit, LobbyConstants.Turret.Suzie.kErrorTolerance,
-                            LobbyConstants.Turret.Suzie.kMotorArrangement)),
+                            LobbyConstants.Turret.Suzie.kMotorArrangement, LobbyConstants.Turret.Suzie.kEncoderDIOPin)),
                     new HoodIOServoSim(new HoodConstants(LobbyConstants.Turret.Hood.kMotorID,
                             LobbyConstants.Turret.Hood.kEncoderID, LobbyConstants.Turret.Hood.kS,
                             LobbyConstants.Turret.Hood.kV, LobbyConstants.Turret.Hood.kA, LobbyConstants.Turret.Hood.kP,
@@ -140,7 +146,7 @@ public class LobbyContainer implements NFRRobotContainer
                             LobbyConstants.Turret.Suzie.kJerk, LobbyConstants.Turret.Suzie.kGearRatio,
                             LobbyConstants.Turret.Suzie.kInverted, LobbyConstants.Turret.Suzie.kLowerSoftLimit,
                             LobbyConstants.Turret.Suzie.kUpperSoftLimit, LobbyConstants.Turret.Suzie.kErrorTolerance,
-                            LobbyConstants.Turret.Suzie.kMotorArrangement)),
+                            LobbyConstants.Turret.Suzie.kMotorArrangement, LobbyConstants.Turret.Suzie.kEncoderDIOPin)),
                     new HoodIOTalonFXS(new HoodConstants(LobbyConstants.Turret.Hood.kMotorID,
                             LobbyConstants.Turret.Hood.kEncoderID, LobbyConstants.Turret.Hood.kS,
                             LobbyConstants.Turret.Hood.kV, LobbyConstants.Turret.Hood.kA, LobbyConstants.Turret.Hood.kP,
@@ -183,6 +189,13 @@ public class LobbyContainer implements NFRRobotContainer
         Shuffleboard.getTab("Developer").add("Reset Orientation", drive.resetOrientation());
         Shuffleboard.getTab("Developer").add("Drive to Blue Reef",
                 drive.navigateToPose(new Pose2d(3, 4, new Rotation2d())));
+        indexerSpeedEntry = Shuffleboard.getTab("Tuning").add("Indexer Speed", (double) spindexer.getCarousel().getTargetPower())
+                .getEntry();
+        flickerSpeedEntry = Shuffleboard.getTab("Tuning").add("Flicker Speed", (double) spindexer.getFlicker().getTargetPower())
+                .getEntry();
+        shooterSpeedEntry = Shuffleboard.getTab("Tuning")
+                .add("Shooter Speed", (double) turret.getShooter().getTargetSpeed().in(RotationsPerSecond)).getEntry();
+
     }
 
     /**
@@ -267,6 +280,14 @@ public class LobbyContainer implements NFRRobotContainer
             {
                 DogLog.log("GameData/GameShift", teamActivity.get().equals("inactive") ? "inactive" : "active");
             }
+        double indexerSpeed = indexerSpeedEntry.getDouble(spindexer.getCarousel().getPower());
+        spindexer.getCarousel().setPower(indexerSpeed);
+
+        double flickerSpeed = flickerSpeedEntry.getDouble(spindexer.getFlicker().getPower());
+        spindexer.getFlicker().setPower(flickerSpeed);
+
+        double shooterSpeed = shooterSpeedEntry.getDouble(turret.getShooter().getSpeed().in(RotationsPerSecond));
+        turret.getShooter().setTargetSpeed(RotationsPerSecond.of(shooterSpeed));
 
     }
 

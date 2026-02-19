@@ -92,4 +92,23 @@ public class FlickerIOTalonFXSSim implements FlickerIO
     {
         m_motorController.setControl(m_velocityRequest.withVelocity(0));
     }
+
+    @Override
+    public double getPower()
+    {
+        return m_motorController.get();
+    }
+
+    @Override
+    public void setPower(double power)
+    {
+        m_rampSpeed = power;
+    }
+
+
+    @Override
+    public double getTargetPower()
+    {
+        return m_rampSpeed;
+    }
 }

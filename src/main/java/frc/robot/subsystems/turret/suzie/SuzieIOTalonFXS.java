@@ -12,12 +12,15 @@ import com.ctre.phoenix6.hardware.TalonFXS;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.MotorArrangementValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
+import com.revrobotics.AbsoluteEncoder;
 
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Temperature;
 import edu.wpi.first.units.measure.Voltage;
+import edu.wpi.first.wpilibj.DutyCycleEncoder;
+import edu.wpi.first.wpilibj.Encoder;
 
 public class SuzieIOTalonFXS implements SuzieIO
 {
@@ -40,13 +43,13 @@ public class SuzieIOTalonFXS implements SuzieIO
                 constants.kP(), constants.kI(), constants.kD(), constants.kG(), constants.kCruiseVelocity(),
                 constants.kAcceleration(), constants.kJerk(), constants.kGearRatio(), constants.kInverted(),
                 constants.kLowerSoftLimit(), constants.kUpperSoftLimit(), constants.kErrorTolerance(),
-                constants.kMotorArrangement());
+                constants.kMotorArrangement(), constants.kEncoderDIOPin());
     }
 
     private SuzieIOTalonFXS(int kMotorID, int kEncoderID, double kS, double kV, double kA, double kP, double kI,
             double kD, double kG, double kCruiseVelocity, double kAcceleration, double kJerk, double kGearRatio,
             boolean kInverted, Angle kLowerSoftLimit, Angle kUpperSoftLimit, Angle kErrorTolerance,
-            MotorArrangementValue kMotorArrangement)
+            MotorArrangementValue kMotorArrangement, int kEncoderDIOPin)
     {
         m_motor = new TalonFXS(kMotorID);
         TalonFXSConfiguration config = new TalonFXSConfiguration();
@@ -80,7 +83,7 @@ public class SuzieIOTalonFXS implements SuzieIO
         config.SoftwareLimitSwitch.ReverseSoftLimitThreshold = kLowerSoftLimit.in(Degrees);
 
         config.Commutation.MotorArrangement = kMotorArrangement;
-
+        DutyCycleEncoder encoder = new DutyCycleEncoder(kEncoderDIOPin);
         m_motor.getConfigurator().apply(config);
 
         m_position = m_motor.getPosition();

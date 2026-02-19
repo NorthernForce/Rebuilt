@@ -28,4 +28,22 @@ public class FlickerIOSparkMax implements FlickerIO
     {
         m_motor.set(0.0);
     }
+
+    @Override
+    public double getPower()
+    {
+        return m_motor.get();
+    }
+
+    @Override
+    public void setPower(double power)
+    {
+        m_rampSpeed = power;
+    }
+
+    @Override
+    public double getTargetPower()
+    {
+        return m_rampSpeed;
+    }
 }

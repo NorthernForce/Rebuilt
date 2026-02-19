@@ -14,4 +14,10 @@ public interface CarouselIO
     public AngularVelocity getSpeed();
 
     public void update();
+
+    public double getPower();
+
+    public void setPower(double power);
+
+    public double getTargetPower();
 }

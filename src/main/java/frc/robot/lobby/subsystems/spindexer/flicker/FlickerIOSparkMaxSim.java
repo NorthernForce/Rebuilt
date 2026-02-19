@@ -35,4 +35,22 @@ public class FlickerIOSparkMaxSim implements FlickerIO
     {
         m_motor.setVelocity(0.0);
     }
+
+    @Override
+    public double getPower()
+    {
+        return m_rampSpeed;
+    }
+
+    @Override
+    public void setPower(double power)
+    {
+        m_rampSpeed = power;
+    }
+
+    @Override
+    public double getTargetPower()
+    {
+        return m_rampSpeed;
+    }
 }

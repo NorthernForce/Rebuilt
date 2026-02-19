@@ -33,7 +33,6 @@ public class FlickerIOTalonFXS implements FlickerIO
     @Override
     public void rampFlicker()
     {
-        // Target is mechanism RPS, but TalonFXS expects rotor RPS
         m_motor.set(m_rampSpeed);
     }
 
@@ -41,5 +40,23 @@ public class FlickerIOTalonFXS implements FlickerIO
     public void stopFlicker()
     {
         m_motor.set(0);
+    }
+
+    @Override
+    public double getPower()
+    {
+        return m_motor.get();
+    }
+
+    @Override
+    public void setPower(double power)
+    {
+        m_rampSpeed = power;
+    }
+
+    @Override
+    public double getTargetPower()
+    {
+        return m_rampSpeed;
     }
 }
