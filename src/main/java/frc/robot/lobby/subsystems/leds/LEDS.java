@@ -1,4 +1,4 @@
-package frc.robot.subsystems.leds;
+package frc.robot.lobby.subsystems.leds;
 
 import com.ctre.phoenix6.configs.CANdleConfiguration;
 import com.ctre.phoenix6.controls.ColorFlowAnimation;

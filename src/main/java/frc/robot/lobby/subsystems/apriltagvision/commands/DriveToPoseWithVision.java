@@ -1,9 +1,9 @@
-package frc.robot.subsystems.apriltagvision.commands;
+package frc.robot.lobby.subsystems.apriltagvision.commands;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj2.command.Command;
-import frc.robot.subsystems.CommandSwerveDrivetrain;
+import frc.robot.lobby.subsystems.CommandSwerveDrivetrain;
 
 /**
  * A command factory that creates drive-to-pose commands.

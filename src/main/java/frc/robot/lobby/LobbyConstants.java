@@ -67,27 +67,45 @@ public class LobbyConstants
 
     }
 
-    public class ShooterConstants
+    public class FlickerConstants
     {
-        public static final int kMotorId = 19;
-        public static final double kIntakeSpeed = 0.6;
-        public static final double kOuttakeSpeed = 0.89;
-        public static final double kReentrySpeed = 0.2;
-        public static final Time kReentryTimeout = Seconds.of(0.5);
-        public static final double kSlowOuttakeSpeed = 0.4;
-        public static final double kPurgeSpeed = 0.2;
-        public static final boolean kMotorInverted = true;
-        public static final int kBeamBreakId = 2;
-        public static final double kStatorCurrentLimit = 40.0;
-        public static final boolean kStatorCurrentLimitEnable = true;
-        public static final Time kBruteOuttakeTimeout = Seconds.of(1.0);
+        // TODO: check ALL values
+        public static final int kMotorId = 18;
+        public static final double kRampSpeed = 1.0;
+        public static final boolean kMotorInverted = false;
+        public static final double kGearRatio = 5.0;
+
+        // PID gains for velocity control
+        public static final double kV = 0.0925;
+        public static final double kP = 0.5;
+        public static final double kI = 0.0;
+        public static final double kD = 0.0;
+
+        // Simulation constants
+        public static final double kSimRpm = 500.0;
+        public static final double kSimMoi = 0.02; // Moment of inertia in kg*m^2
+
+        public static final double kErrorTolerance = 0.25;
     }
 
-    public class MotorConstants
+    public class CarouselConstants
     {
-        public class TalonFXConstants
-        {
-            public static final Temperature kMaxTemperature = Celsius.of(60.0);
-        }
+        public static final int kMotorID = 15;
+        public static final double kSpeed = 0.5;
+        public static final boolean kInverted = false;
+        public static final double kGearRatio = 10.0;
+
+        public static final double kV = 0.1;
+        public static final double kA = 0.05;
+        public static final double kP = 0.5;
+        public static final double kI = 0.0;
+        public static final double kD = 0.0;
+
+        public static final AngularVelocity kErrorTolerance = RotationsPerSecond.of(0.25);
+    }
+
+    public class TalonFXConstants
+    {
+        public static final Temperature kMaxTemperature = Celsius.of(60.0);
     }
 }

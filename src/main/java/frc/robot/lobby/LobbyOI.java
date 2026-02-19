@@ -11,6 +11,7 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import frc.robot.lobby.subsystems.spindexer.commands.RunSpindexer;
 
 public class LobbyOI
 {
@@ -33,9 +34,9 @@ public class LobbyOI
         drive.setDefaultCommand(drive.driveByJoystick(inputProc(driveController::getLeftY),
                 inputProc(driveController::getLeftX), inputProc(driveController::getRightX)));
         driveController.back().onTrue(drive.resetOrientation());
+
+        manipulatorController.rightTrigger().whileTrue(new RunSpindexer(container.getSpindexer()));
         driveController.a().onTrue(Commands.runOnce(() -> container
                 .resetOdometry(new Pose2d(Meters.of(0), Meters.of(0), new Rotation2d(Degrees.of(180))))));
-        driveController.leftTrigger().whileTrue(container
-                .driveToPose(new Pose2d(Meters.of(14.728), Meters.of(7.433), new Rotation2d(Degrees.of(138.5)))));
     }
 }
