@@ -145,11 +145,45 @@ public class LobbyConstants
         }
     }
 
-    public class MotorConstants
+    public class FlickerConstants
     {
-        public class TalonFXConstants
-        {
-            public static final Temperature kMaxTemperature = Celsius.of(60.0);
-        }
+        // TODO: check ALL values
+        public static final int kMotorId = 18;
+        public static final double kRampSpeed = 1.0;
+        public static final boolean kMotorInverted = false;
+        public static final double kGearRatio = 5.0;
+
+        // PID gains for velocity control
+        public static final double kV = 0.0925;
+        public static final double kP = 0.5;
+        public static final double kI = 0.0;
+        public static final double kD = 0.0;
+
+        // Simulation constants
+        public static final double kSimRpm = 500.0;
+        public static final double kSimMoi = 0.02; // Moment of inertia in kg*m^2
+
+        public static final double kErrorTolerance = 0.25;
+    }
+
+    public class CarouselConstants
+    {
+        public static final int kMotorID = 15;
+        public static final double kSpeed = 0.5;
+        public static final boolean kInverted = false;
+        public static final double kGearRatio = 10.0;
+
+        public static final double kV = 0.1;
+        public static final double kA = 0.05;
+        public static final double kP = 0.5;
+        public static final double kI = 0.0;
+        public static final double kD = 0.0;
+
+        public static final AngularVelocity kErrorTolerance = RotationsPerSecond.of(0.25);
+    }
+
+    public class TalonFXConstants
+    {
+        public static final Temperature kMaxTemperature = Celsius.of(60.0);
     }
 }

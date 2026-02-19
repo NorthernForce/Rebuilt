@@ -24,10 +24,10 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import frc.robot.FieldConstants;
 import frc.robot.lobby.generated.LobbyTunerConstants;
-import frc.robot.subsystems.CommandSwerveDrivetrain;
-import frc.robot.subsystems.apriltagvision.*;
-import frc.robot.subsystems.apriltagvision.AprilTagVisionIOLimelight;
-import frc.robot.subsystems.apriltagvision.AprilTagVisionIOPhotonVisionSim;
+import frc.robot.lobby.subsystems.CommandSwerveDrivetrain;
+import frc.robot.lobby.subsystems.apriltagvision.*;
+import frc.robot.lobby.subsystems.apriltagvision.AprilTagVisionIOLimelight;
+import frc.robot.lobby.subsystems.apriltagvision.AprilTagVisionIOPhotonVisionSim;
 import frc.robot.subsystems.turret.Turret.TurretConstants;
 import frc.robot.subsystems.turret.hood.HoodIO.HoodConstants;
 import frc.robot.subsystems.turret.hood.HoodIOServoSim;
@@ -39,7 +39,15 @@ import frc.robot.subsystems.turret.Turret;
 import frc.robot.subsystems.turret.suzie.SuzieIO.SuzieConstants;
 import frc.robot.subsystems.turret.suzie.SuzieIOTalonFXS;
 import frc.robot.subsystems.turret.suzie.SuzieIOTalonFXSSim;
-import frc.robot.subsystems.apriltagvision.commands.DriveToPoseWithVision;
+import frc.robot.lobby.subsystems.apriltagvision.commands.DriveToPoseWithVision;
+import frc.robot.lobby.subsystems.spindexer.Spindexer;
+import frc.robot.lobby.subsystems.spindexer.carousel.CarouselIO.CarouselConstants;
+import frc.robot.lobby.subsystems.spindexer.carousel.CarouselIOTalonFX;
+import frc.robot.lobby.subsystems.spindexer.carousel.CarouselIOTalonFXSim;
+import frc.robot.lobby.subsystems.spindexer.flicker.FlickerIOTalonFXS;
+import frc.robot.lobby.subsystems.spindexer.flicker.FlickerIOTalonFXSSim;
+import frc.robot.lobby.subsystems.spindexer.flicker.FlickerParameters;
+import frc.robot.lobby.subsystems.spindexer.flicker.FlickerSimParameters;
 import frc.robot.util.AutoUtil;
 import frc.robot.util.InterpolatedTargetingCalculator;
 import frc.robot.util.TrigHoodTargetingCalculator;
@@ -51,6 +59,7 @@ public class LobbyContainer implements NFRRobotContainer
     private final AutoUtil autoUtil;
     private final Field2d field;
     private final Turret turret;
+    private final Spindexer spindexer;
     private final DriveToPoseWithVision driveToPoseCommand;
     private Optional<String> teamActivity = Optional.empty();
 
@@ -105,6 +114,16 @@ public class LobbyContainer implements NFRRobotContainer
                             LobbyConstants.Turret.Shooter.kMotor2Inverted,
                             LobbyConstants.Turret.Shooter.kErrorTolerance)),
                     new TrigHoodTargetingCalculator(), new TrigHoodTargetingCalculator());
+            spindexer = new Spindexer(
+                    new CarouselIOTalonFXSim(new CarouselConstants(LobbyConstants.CarouselConstants.kMotorID,
+                            LobbyConstants.CarouselConstants.kSpeed, LobbyConstants.CarouselConstants.kGearRatio,
+                            LobbyConstants.CarouselConstants.kInverted)),
+                    new FlickerIOTalonFXSSim(new FlickerSimParameters(LobbyConstants.FlickerConstants.kMotorId,
+                            LobbyConstants.FlickerConstants.kRampSpeed, LobbyConstants.FlickerConstants.kGearRatio,
+                            LobbyConstants.FlickerConstants.kV, LobbyConstants.FlickerConstants.kP,
+                            LobbyConstants.FlickerConstants.kI, LobbyConstants.FlickerConstants.kD,
+                            LobbyConstants.FlickerConstants.kErrorTolerance, LobbyConstants.FlickerConstants.kSimRpm,
+                            LobbyConstants.FlickerConstants.kSimMoi)));
         } else
         {
             vision = new AprilTagVision(drive,
@@ -143,6 +162,15 @@ public class LobbyContainer implements NFRRobotContainer
                             LobbyConstants.Turret.Shooter.kErrorTolerance)),
                     new InterpolatedTargetingCalculator(LobbyConstants.Turret.Hood.kTargetingDataFilepath),
                     new InterpolatedTargetingCalculator(LobbyConstants.Turret.Hood.kTargetingDataFilepath));
+            spindexer = new Spindexer(
+                    new CarouselIOTalonFX(new CarouselConstants(LobbyConstants.CarouselConstants.kMotorID,
+                            LobbyConstants.CarouselConstants.kSpeed, LobbyConstants.CarouselConstants.kGearRatio,
+                            LobbyConstants.CarouselConstants.kInverted)),
+                    new FlickerIOTalonFXS(new FlickerParameters(LobbyConstants.FlickerConstants.kMotorId,
+                            LobbyConstants.FlickerConstants.kRampSpeed, LobbyConstants.FlickerConstants.kGearRatio,
+                            LobbyConstants.FlickerConstants.kV, LobbyConstants.FlickerConstants.kP,
+                            LobbyConstants.FlickerConstants.kI, LobbyConstants.FlickerConstants.kD,
+                            LobbyConstants.FlickerConstants.kErrorTolerance)));
         }
 
         field = new Field2d();
@@ -170,6 +198,11 @@ public class LobbyContainer implements NFRRobotContainer
     public Turret getTurret()
     {
         return turret;
+    }
+
+    public Spindexer getSpindexer()
+    {
+        return spindexer;
     }
 
     @Override
