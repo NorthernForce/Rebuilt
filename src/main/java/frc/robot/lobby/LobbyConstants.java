@@ -87,14 +87,14 @@ public class LobbyConstants
     public class FuelDetectionConstants
     {
         public static final String kLimelightName = "limelight-fuel";
-        public static final double kTurnSpeedMultiplier = 5;
+        public static final double kTurnSpeedMultiplier = 7;
         public static final double kForwardSpeedMultiplier = 10;
         public static final Angle kZeroAngleCutoff = Degrees.of(23.0);
         public static final Angle kZeroAngleHorizontalCutoff = Degrees.zero();
-        public static final double kForwardExponent = 3.0;
+        public static final double kForwardExponent = 4.0;
         public static final double kTurnExponent = 2.0;
-        public static final double kTurnDampening = 40.0;
-        public static final double kForwardDampening = 20.0;
+        public static final double kTurnDampening = 30.0;
+        public static final double kForwardDampening = 17.0;
 
     }
 
