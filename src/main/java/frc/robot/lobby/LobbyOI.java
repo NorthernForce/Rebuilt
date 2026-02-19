@@ -29,7 +29,9 @@ public class LobbyOI
         driveController.back().onTrue(drive.resetOrientation());
 
         // climber bindings
-        climber.setDefaultCommand(climber.stow());
+        climber.setDefaultCommand(climber.stow(
+            () -> climber.getInputs().positionMeters < 0.1
+        ));
 
         // Climb Sequence
         manipulatorController.povUp().whileTrue(climber.climbSequence());

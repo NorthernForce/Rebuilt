@@ -1,10 +1,13 @@
 package frc.robot.subsystems.climber;
 
+import java.util.function.BooleanSupplier;
+
 import edu.wpi.first.wpilibj.Servo;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.lobby.LobbyConstants;
+
 
 public class Climber extends SubsystemBase
 {
@@ -58,6 +61,10 @@ public class Climber extends SubsystemBase
                 () -> Math.abs(inputs.positionMeters - meters) < LobbyConstants.ClimberConstants.kPositionTolerance);
     }
 
+    public ClimberIO.ClimberIOInputs getInputs() {
+        return inputs;
+    }
+
     private Command climbCycle()
     {
         return Commands.sequence(extendHooks(),
@@ -97,6 +104,29 @@ public class Climber extends SubsystemBase
             {
                 io.stop();
                 io.setPosition(0.0);
+            }
+        });
+    }
+
+   
+    public Command stow(BooleanSupplier isSafeToRetract) 
+    {
+        return this.run(() -> {
+            boolean safe = isSafeToRetract.getAsBoolean();
+
+            if (safe) {
+                hookServo.setAngle(LobbyConstants.ClimberConstants.kHookRetractAngle.getDegrees());
+                
+                if (!inputs.atBottomLimit) {
+                    io.setVoltage(LobbyConstants.ClimberConstants.kHomingVolts);
+                } else {
+                    io.stop();
+                    io.setPosition(0.0);
+                }
+            } else {
+                hookServo.setAngle(LobbyConstants.ClimberConstants.kHookExtendAngle.getDegrees());
+                
+                io.stop(); 
             }
         });
     }
