@@ -33,14 +33,14 @@ public class DriveToFuelCommand extends Command
     {
         if (fuelDetector.isFuelPresent())
         {
-            double xOffset = fuelDetector.getFuelBlobXOffsets().in(Radians);
+            double xOffset = fuelDetector.getFuelBlobXOffsets().in(Degrees);
             double yOffset = fuelDetector.getFuelBlobYOffsets().in(Degrees);
-            double turnSpeed = config.turnSpeedMultiplier() * -MathUtil
-                    .clamp(Math.pow(((config.zeroXAngle().in(Degrees) - yOffset) / config.zeroXAngle().in(Degrees)),
-                            config.turnExponent()), 0, 1); // P-gain to turn toward fuel
-            double forwardSpeed = config.forwardSpeedMultiplier() * -MathUtil
-                    .clamp(Math.pow(((config.zeroAngle().in(Degrees) - yOffset) / config.zeroAngle().in(Degrees)),
-                            config.forwardExponent()), 0, 1); // Drive
+            double turnSpeed = config.turnSpeedMultiplier() * Math.pow(MathUtil
+                    .clamp(Math.abs((config.zeroXAngle().in(Degrees) - xOffset) / config.turnDampening()), 0, 1),
+                    config.turnExponent()) * (Math.abs(xOffset) / xOffset);
+            double forwardSpeed = config.forwardSpeedMultiplier() * -Math.pow(
+                    MathUtil.clamp((config.zeroAngle().in(Degrees) - yOffset) / config.forwardDampening(), 0, 1),
+                    config.forwardExponent()); // Drive
             // forward
             // toward
             // fuel

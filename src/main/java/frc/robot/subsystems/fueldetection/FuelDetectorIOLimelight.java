@@ -32,13 +32,13 @@ public class FuelDetectorIOLimelight implements FuelDetectorIO
     @Override
     public Angle getFuelBlobXOffsets()
     {
-        return Degrees.of(LimelightHelpers.getTX(limelightName));
+        return Degrees.of(-LimelightHelpers.getTX(limelightName));
     }
 
     @Override
     public Angle getFuelBlobYOffsets()
     {
-        return Degrees.of(LimelightHelpers.getTY(limelightName));
+        return Degrees.of(-LimelightHelpers.getTY(limelightName));
     }
 
 }

@@ -45,8 +45,9 @@ public class LobbyContainer implements NFRRobotContainer
             LobbyConstants.FuelDetectionConstants.kForwardSpeedMultiplier,
             LobbyConstants.FuelDetectionConstants.kZeroAngleCutoff,
             LobbyConstants.FuelDetectionConstants.kZeroAngleHorizontalCutoff,
-            LobbyConstants.FuelDetectionConstants.kForwardExponent,
-            LobbyConstants.FuelDetectionConstants.kTurnExponent);
+            LobbyConstants.FuelDetectionConstants.kForwardExponent, LobbyConstants.FuelDetectionConstants.kTurnExponent,
+            LobbyConstants.FuelDetectionConstants.kTurnDampening,
+            LobbyConstants.FuelDetectionConstants.kForwardDampening);
 
     public LobbyContainer()
     {
