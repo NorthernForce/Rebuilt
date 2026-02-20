@@ -9,9 +9,10 @@ import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.numbers.N3;
 import static edu.wpi.first.units.Units.Celsius;
 import static edu.wpi.first.units.Units.Degrees;
-import static edu.wpi.first.units.Units.Inches;
+import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 import static edu.wpi.first.units.Units.Seconds;
+
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.LinearVelocity;
 import edu.wpi.first.units.measure.Temperature;
@@ -39,17 +40,10 @@ public class LobbyConstants
 
     public static class CameraConstants
     {
-        public static final Transform3d kFrontRightCameraTransform = new Transform3d(
-                new Translation3d(Inches.of(15.0 - 3.0), Inches.of(-(15.0 - 7.5)), Inches.of(8.5)),
-                new Rotation3d(Degrees.zero(), Degrees.zero(), Degrees.zero()));
 
-        public static final Transform3d kFrontLeftCameraTransform = new Transform3d(
-                new Translation3d(Inches.of(15.0 - 3.0), Inches.of(15.0 - 7.75), Inches.of(8.5)),
-                new Rotation3d(Degrees.zero(), Degrees.of(-27.4), Degrees.of(53.4)));
-
-        public static final Transform3d kCenterCameraTransform = new Transform3d(
-                new Translation3d(Inches.of(15.0 - 2.5), Inches.zero(), Inches.of(9.5)),
-                new Rotation3d(Degrees.zero(), Degrees.of(-25), Degrees.zero()));
+        public static final Transform3d kBackLeftCameraTransform = new Transform3d(
+                new Translation3d(Meters.of(-0.14605), Meters.of(-0.1397), Meters.of(0.1778)),
+                new Rotation3d(Degrees.zero(), Degrees.of(2.0), Degrees.of(78.5)));
     }
 
     public class VisionConstants
@@ -58,10 +52,11 @@ public class LobbyConstants
 
         public class LimeLightConstants
         {
-            public static final String kLimeLightName = "limelight";
+            public static final String kLimeLightName = "limelight-left";
             public static final int[] kValidIds =
             { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29,
-                    30, 31, 32 };
+                    30, 31 };
+
         }
 
         public class PhotonVisionConstants
@@ -72,20 +67,25 @@ public class LobbyConstants
 
     }
 
-    public class ShooterConstants
+    public class FlickerConstants
     {
-        public static final int kMotorId = 19;
-        public static final double kIntakeSpeed = 0.6;
-        public static final double kOuttakeSpeed = 0.89;
-        public static final double kReentrySpeed = 0.2;
-        public static final Time kReentryTimeout = Seconds.of(0.5);
-        public static final double kSlowOuttakeSpeed = 0.4;
-        public static final double kPurgeSpeed = 0.2;
-        public static final boolean kMotorInverted = true;
-        public static final int kBeamBreakId = 2;
-        public static final double kStatorCurrentLimit = 40.0;
-        public static final boolean kStatorCurrentLimitEnable = true;
-        public static final Time kBruteOuttakeTimeout = Seconds.of(1.0);
+        // TODO: check ALL values
+        public static final int kMotorId = 18;
+        public static final double kRampSpeed = 1.0;
+        public static final boolean kMotorInverted = false;
+        public static final double kGearRatio = 5.0;
+
+        // PID gains for velocity control
+        public static final double kV = 0.0925;
+        public static final double kP = 0.5;
+        public static final double kI = 0.0;
+        public static final double kD = 0.0;
+
+        // Simulation constants
+        public static final double kSimRpm = 500.0;
+        public static final double kSimMoi = 0.02; // Moment of inertia in kg*m^2
+
+        public static final double kErrorTolerance = 0.25;
     }
 
     public class IntakeConstants
@@ -97,11 +97,24 @@ public class LobbyConstants
         public static final double kDriverPurgeSpeed = 1.0;
     }
 
-    public class MotorConstants
+    public class CarouselConstants
     {
-        public class TalonFXConstants
-        {
-            public static final Temperature kMaxTemperature = Celsius.of(60.0);
-        }
+        public static final int kMotorID = 15;
+        public static final double kSpeed = 0.5;
+        public static final boolean kInverted = false;
+        public static final double kGearRatio = 10.0;
+
+        public static final double kV = 0.1;
+        public static final double kA = 0.05;
+        public static final double kP = 0.5;
+        public static final double kI = 0.0;
+        public static final double kD = 0.0;
+
+        public static final AngularVelocity kErrorTolerance = RotationsPerSecond.of(0.25);
+    }
+
+    public class TalonFXConstants
+    {
+        public static final Temperature kMaxTemperature = Celsius.of(60.0);
     }
 }
