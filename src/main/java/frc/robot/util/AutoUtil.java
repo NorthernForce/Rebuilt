@@ -2,6 +2,8 @@ package frc.robot.util;
 
 import java.util.function.Function;
 
+import com.pathplanner.lib.commands.PathPlannerAuto;
+
 import choreo.auto.AutoFactory;
 import choreo.auto.AutoRoutine;
 import choreo.trajectory.SwerveSample;
@@ -47,6 +49,11 @@ public class AutoUtil
     public void bindAuto(String name, Function<AutoFactory, AutoRoutine> autoBuilder)
     {
         chooser.addOption(name, autoBuilder.apply(factory).cmd());
+    }
+
+    public void bindAuto(String name, PathPlannerAuto auto)
+    {
+        chooser.addOption(name, auto);
     }
 
     public Command getSelected()
