@@ -64,7 +64,8 @@ public class LobbyOI
                 .onFalse(Commands.runOnce(() -> hood.setTargetAngle(Degrees.zero()), container.getTurret()));
         // manipulatorController.leftTrigger().whileTrue(intake.getRunToIntakeAngleCommand());
         // intake.setDefaultCommand(intake.getRunToStowAngleCommand());
-        manipulatorController.leftTrigger().whileTrue(intake.intake(0.75)).onFalse(intake.stopIntake());
+        manipulatorController.leftBumper().whileTrue(intake.intake(0.75)).onFalse(intake.stopIntake());
+        manipulatorController.leftTrigger().whileTrue(new PrepTurretWithValues(container.getTurret()));
         manipulatorController.rightTrigger().whileTrue(new RunSpindexer(container.getSpindexer()));
         driveController.a().onTrue(Commands.runOnce(() -> container
                 .resetOdometry(new Pose2d(Meters.of(0), Meters.of(0), new Rotation2d(Degrees.of(180))))));

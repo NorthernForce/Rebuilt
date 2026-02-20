@@ -39,7 +39,9 @@ public class HoodIOServo implements HoodIO
     @Override
     public void setTargetAngle(Angle angle)
     {
-        DogLog.log("Turret/Hood/MechanismAngle", (m_lowerSoftLimit.minus(angle).div(m_lowerSoftLimit.minus(m_upperSoftLimit)).times(m_upperMechanismAngle.minus(m_lowerMechanismAngle)).plus(m_lowerMechanismAngle)));
+        DogLog.log("Turret/Hood/MechanismAngle",
+                (m_lowerSoftLimit.minus(angle).div(m_lowerSoftLimit.minus(m_upperSoftLimit))
+                        .times(m_upperMechanismAngle.minus(m_lowerMechanismAngle)).plus(m_lowerMechanismAngle)));
         DogLog.log("Turret/Hood/SetTargetAngle", angle.in(Radians));
         if (angle.lt(m_lowerSoftLimit))
         {
@@ -51,7 +53,6 @@ public class HoodIOServo implements HoodIO
         m_targetAngle = angle;
         m_motor.setAngle(angle.in(Degrees));
     }
-
 
     @Override
     public Angle getTargetAngle()

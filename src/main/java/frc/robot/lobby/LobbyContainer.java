@@ -126,7 +126,8 @@ public class LobbyContainer implements NFRRobotContainer
                             LobbyConstants.Turret.Hood.kInverted, LobbyConstants.Turret.Hood.kLowerSoftLimit,
                             LobbyConstants.Turret.Hood.kUpperSoftLimit, LobbyConstants.Turret.Hood.kErrorTolerance,
                             LobbyConstants.Turret.Hood.kMotorArrangement, LobbyConstants.Turret.Hood.kDangerZone,
-                            allTrenchPositions, LobbyConstants.Turret.Hood.kMechanismLowerAngle, LobbyConstants.Turret.Hood.kMechanismUpperAngle)),
+                            allTrenchPositions, LobbyConstants.Turret.Hood.kMechanismLowerAngle,
+                            LobbyConstants.Turret.Hood.kMechanismUpperAngle)),
                     new ShooterIOTalonFXSim(new ShooterConstants(LobbyConstants.Turret.Shooter.kMotor1ID,
                             LobbyConstants.Turret.Shooter.kMotor2ID, LobbyConstants.Turret.Shooter.kS,
                             LobbyConstants.Turret.Shooter.kV, LobbyConstants.Turret.Shooter.kA,
@@ -179,7 +180,8 @@ public class LobbyContainer implements NFRRobotContainer
                             LobbyConstants.Turret.Hood.kInverted, LobbyConstants.Turret.Hood.kLowerServoLimit,
                             LobbyConstants.Turret.Hood.kUpperServoLimit, LobbyConstants.Turret.Hood.kErrorTolerance,
                             LobbyConstants.Turret.Hood.kMotorArrangement, LobbyConstants.Turret.Hood.kDangerZone,
-                            allTrenchPositions, LobbyConstants.Turret.Hood.kMechanismLowerAngle, LobbyConstants.Turret.Hood.kMechanismUpperAngle)),
+                            allTrenchPositions, LobbyConstants.Turret.Hood.kMechanismLowerAngle,
+                            LobbyConstants.Turret.Hood.kMechanismUpperAngle)),
                     new ShooterIOTalonFX(new ShooterConstants(LobbyConstants.Turret.Shooter.kMotor1ID,
                             LobbyConstants.Turret.Shooter.kMotor2ID, LobbyConstants.Turret.Shooter.kS,
                             LobbyConstants.Turret.Shooter.kV, LobbyConstants.Turret.Shooter.kA,
@@ -254,6 +256,7 @@ public class LobbyContainer implements NFRRobotContainer
     {
         return turret;
     }
+
     public Intake getIntake()
     {
         return intake;
