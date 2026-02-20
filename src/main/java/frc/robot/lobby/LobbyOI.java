@@ -52,7 +52,10 @@ public class LobbyOI
         }));
 
         driveController.rightTrigger().whileTrue(new RunSpindexer(container.getSpindexer()));
-        driveController.leftTrigger().whileTrue(new PrepTurretWithValues(container.getTurret()));
+        // driveController.leftTrigger().whileTrue(new
+        // PrepTurretWithValues(container.getTurret()));
+        driveController.povUp().whileTrue(Commands.run(() -> hood.setTargetAngle(Degrees.of(180))))
+                .whileFalse(Commands.run(() -> hood.setTargetAngle(Degrees.zero())));
         driveController.a().onTrue(Commands.runOnce(() -> container
                 .resetOdometry(new Pose2d(Meters.of(0), Meters.of(0), new Rotation2d(Degrees.of(180))))));
     }

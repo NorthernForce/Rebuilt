@@ -123,6 +123,11 @@ public class LobbyConstants
             public static Angle kErrorTolerance = Degrees.of(1);
             public static MotorArrangementValue kMotorArrangement = MotorArrangementValue.Minion_JST;
             public static String kTargetingDataFilepath = "src/main/java/frc/robot/subsystems/turret/targeting_data/HoodTargetingData.csv";
+
+            // servo constants
+            public static int kServoID = 0;
+            public static Angle kLowerServoLimit = Degrees.of(0);
+            public static Angle kUpperServoLimit = Degrees.of(180);
         }
 
         public class Shooter

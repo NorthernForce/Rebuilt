@@ -33,6 +33,7 @@ import frc.robot.lobby.subsystems.apriltagvision.AprilTagVisionIOLimelight;
 import frc.robot.lobby.subsystems.apriltagvision.AprilTagVisionIOPhotonVisionSim;
 import frc.robot.subsystems.turret.Turret.TurretConstants;
 import frc.robot.subsystems.turret.hood.HoodIO.HoodConstants;
+import frc.robot.subsystems.turret.hood.HoodIOServo;
 import frc.robot.subsystems.turret.hood.HoodIOServoSim;
 import frc.robot.subsystems.turret.hood.HoodIOTalonFXS;
 import frc.robot.subsystems.turret.shooter.ShooterIO.ShooterConstants;
@@ -153,14 +154,14 @@ public class LobbyContainer implements NFRRobotContainer
                             LobbyConstants.Turret.Suzie.kInverted, LobbyConstants.Turret.Suzie.kLowerSoftLimit,
                             LobbyConstants.Turret.Suzie.kUpperSoftLimit, LobbyConstants.Turret.Suzie.kErrorTolerance,
                             LobbyConstants.Turret.Suzie.kMotorArrangement, LobbyConstants.Turret.Suzie.kEncoderDIOPin)),
-                    new HoodIOTalonFXS(new HoodConstants(LobbyConstants.Turret.Hood.kMotorID,
+                    new HoodIOServo(new HoodConstants(LobbyConstants.Turret.Hood.kServoID,
                             LobbyConstants.Turret.Hood.kEncoderID, LobbyConstants.Turret.Hood.kS,
                             LobbyConstants.Turret.Hood.kV, LobbyConstants.Turret.Hood.kA, LobbyConstants.Turret.Hood.kP,
                             LobbyConstants.Turret.Hood.kI, LobbyConstants.Turret.Hood.kD, LobbyConstants.Turret.Hood.kG,
                             LobbyConstants.Turret.Hood.kCruiseVelocity, LobbyConstants.Turret.Hood.kAcceleration,
                             LobbyConstants.Turret.Hood.kJerk, LobbyConstants.Turret.Hood.kGearRatio,
-                            LobbyConstants.Turret.Hood.kInverted, LobbyConstants.Turret.Hood.kLowerSoftLimit,
-                            LobbyConstants.Turret.Hood.kUpperSoftLimit, LobbyConstants.Turret.Hood.kErrorTolerance,
+                            LobbyConstants.Turret.Hood.kInverted, LobbyConstants.Turret.Hood.kLowerServoLimit,
+                            LobbyConstants.Turret.Hood.kUpperServoLimit, LobbyConstants.Turret.Hood.kErrorTolerance,
                             LobbyConstants.Turret.Hood.kMotorArrangement, LobbyConstants.Turret.Hood.kDangerZone,
                             allTrenchPositions)),
                     new ShooterIOTalonFX(new ShooterConstants(LobbyConstants.Turret.Shooter.kMotor1ID,
