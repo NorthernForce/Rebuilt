@@ -1,4 +1,4 @@
-package frc.robot.subsystems;
+package frc.robot.lobby.subsystems;
 
 import static edu.wpi.first.units.Units.*;
 
@@ -74,6 +74,18 @@ public class MapleSimSwerveDrivetrain
         pigeonSim.setRawYaw(mapleSimDrive.getSimulatedDriveTrainPose().getRotation().getMeasure());
         pigeonSim.setAngularVelocityZ(RadiansPerSecond
                 .of(mapleSimDrive.getDriveTrainSimulatedChassisSpeedsRobotRelative().omegaRadiansPerSecond));
+    }
+
+    /**
+     * Resets the simulated gyro yaw to match a given rotation. This should be
+     * called when resetting the robot pose to ensure the gyro and odometry stay in
+     * sync.
+     *
+     * @param rotation The rotation to set the gyro to
+     */
+    public void resetGyroYaw(edu.wpi.first.math.geometry.Rotation2d rotation)
+    {
+        pigeonSim.setRawYaw(rotation.getMeasure());
     }
 
     protected static class SimSwerveModule

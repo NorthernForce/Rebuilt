@@ -1,4 +1,4 @@
-package frc.robot.subsystems.apriltagvision;
+package frc.robot.lobby.subsystems.apriltagvision;
 
 import java.util.List;
 
@@ -33,8 +33,14 @@ public class AprilTagVisionIOLimelight implements AprilTagVisionIO
     {
         this.limelightName = limelightName;
         LimelightHelpers.SetFiducialIDFiltersOverride(limelightName, validIds);
-        LimelightHelpers.setCameraPose_RobotSpace(limelightName, robotToCamera.getY(), robotToCamera.getX(),
-                robotToCamera.getZ(), 0, 0, 0);
+        // setCameraPose_RobotSpace parameters: forward, right, up, roll, pitch, yaw
+        // (all in meters/degrees)
+        LimelightHelpers.setCameraPose_RobotSpace(limelightName, robotToCamera.getY(), // forward
+                robotToCamera.getX(), // right
+                robotToCamera.getZ(), // up
+                Math.toDegrees(robotToCamera.getRotation().getX()), // roll
+                Math.toDegrees(robotToCamera.getRotation().getY()), // pitch
+                Math.toDegrees(robotToCamera.getRotation().getZ())); // yaw
     }
 
     /**
@@ -50,20 +56,28 @@ public class AprilTagVisionIOLimelight implements AprilTagVisionIO
     {
         this.limelightName = limelightName;
 
-        // getY is the forward/backward parameter, getX is the right/left parameter,
-        // getZ is the up/down parameter
-        LimelightHelpers.setCameraPose_RobotSpace(limelightName, robotToCamera.getY(), robotToCamera.getX(),
-                robotToCamera.getZ(), 0, 0, 0);
+        // setCameraPose_RobotSpace parameters: forward, right, up, roll, pitch, yaw
+        // (all in meters/degrees)
+        LimelightHelpers.setCameraPose_RobotSpace(limelightName, robotToCamera.getY(), // forward
+                robotToCamera.getX(), // right
+                robotToCamera.getZ(), // up
+                Math.toDegrees(robotToCamera.getRotation().getX()), // roll
+                Math.toDegrees(robotToCamera.getRotation().getY()), // pitch
+                Math.toDegrees(robotToCamera.getRotation().getZ())); // yaw
     }
 
     /**
      * Set the heading of the robot to the Limelight camera.
      * 
-     * @param heading The heading of the robot in degrees.
+     * @param heading The heading of the robot (WPILib blue alliance convention)
+     * @param yawRate The yaw rate of the robot
      */
     @Override
     public void setHeading(Rotation2d heading, Rotation2d yawRate)
     {
+        // WPILib blue alliance: 0° = facing red alliance wall (positive X)
+        // Limelight: 0° = facing red alliance wall
+        // These should match, so pass heading directly
         LimelightHelpers.SetRobotOrientation(limelightName, heading.getDegrees(), yawRate.getDegrees(), 0, 0, 0, 0);
     }
 

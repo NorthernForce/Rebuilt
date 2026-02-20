@@ -1,4 +1,4 @@
-package frc.robot.subsystems;
+package frc.robot.lobby.subsystems;
 
 import static edu.wpi.first.units.Units.*;
 
@@ -22,6 +22,8 @@ import com.pathplanner.lib.config.PIDConstants;
 import com.pathplanner.lib.config.RobotConfig;
 import com.pathplanner.lib.controllers.PPHolonomicDriveController;
 import com.pathplanner.lib.path.PathConstraints;
+import com.pathplanner.lib.pathfinding.Pathfinding;
+import com.pathplanner.lib.pathfinding.LocalADStar;
 
 import dev.doglog.DogLog;
 import edu.wpi.first.math.MathUtil;
@@ -255,6 +257,9 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
     {
         try
         {
+            // Configure pathfinding to use LocalADStar with the navgrid
+            Pathfinding.setPathfinder(new LocalADStar());
+
             var config = RobotConfig.fromGUISettings();
             AutoBuilder.configure(() -> getState().Pose, // Supplier of current robot pose
                     this::resetPose, // Consumer for seeding pose against auto
@@ -363,7 +368,12 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
     public void resetPose(Pose2d pose)
     {
         if (this.mapleSimSwerveDrivetrain != null)
+        {
             mapleSimSwerveDrivetrain.mapleSimDrive.setSimulationWorldPose(pose);
+            // Also update the gyro sim state to match the new pose heading
+            // This ensures odometry calculations are correct after pose reset
+            mapleSimSwerveDrivetrain.resetGyroYaw(pose.getRotation());
+        }
         super.resetPose(pose);
         NFRLog.log("Drive/State", getState());
         NFRLog.log("Drive/Status", getStatus());
