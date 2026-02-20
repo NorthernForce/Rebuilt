@@ -127,7 +127,6 @@ public class LobbyContainer implements NFRRobotContainer
         return intake;
     }
 
-
     public Spindexer getSpindexer()
     {
         return spindexer;

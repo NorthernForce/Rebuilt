@@ -101,6 +101,7 @@ public class LobbyConstants
         public static final Angle kMiddleAngle = Rotations.of(-0.154);
         public static final Angle kStowedAngle = Rotations.of(-0.370);
     }
+
     public class CarouselConstants
     {
         public static final int kMotorID = 15;
