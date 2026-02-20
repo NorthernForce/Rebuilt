@@ -465,15 +465,60 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
     {
         Pose2d newPose;
 
-        if (current.getY() < waypoint.getY())
+        if (current.getX() < waypoint.getX())
         {
-            newPose = new Pose2d(waypoint.getX(), waypoint.getY() + offset, current.getRotation());
+            newPose = new Pose2d(waypoint.getX() + offset, waypoint.getY(), current.getRotation());
         } else
         {
-            newPose = new Pose2d(waypoint.getX(), waypoint.getY() - offset, current.getRotation());
+            newPose = new Pose2d(waypoint.getX() - offset, waypoint.getY(), current.getRotation());
         }
 
+        DogLog.log("Drive/NewPose", newPose);
+
         return newPose;
+    }
+
+    public Pose2d getPose()
+    {
+        return getState().Pose;
+    }
+
+    public Pose2d preAlign(Pose2d current, Translation2d waypoint)
+    {
+        if (waypoint == null)
+        {
+            return current;
+        }
+        Pose2d newPose;
+
+        double newAngle = Math.round(current.getRotation().getDegrees() / 90.0) * 90.0;
+
+        newPose = new Pose2d(waypoint.getX(), current.getY(), Rotation2d.fromDegrees(newAngle));
+        return newPose;
+    }
+
+    public Translation2d getTargetAutoTrench()
+    {
+        final double triggerRadius = 1.6;
+
+        var pose = getState().Pose;
+        var roberto = pose.getTranslation();
+        Translation2d target = null;
+        if (roberto.getDistance(FieldConstants.kRedTrench1) <= triggerRadius)
+        {
+            target = FieldConstants.kRedTrench1;
+        } else if (roberto.getDistance(FieldConstants.kRedTrench2) <= triggerRadius)
+        {
+            target = FieldConstants.kRedTrench2;
+        } else if (roberto.getDistance(FieldConstants.kBlueTrench1) <= triggerRadius)
+        {
+            target = FieldConstants.kBlueTrench1;
+        } else if (roberto.getDistance(FieldConstants.kBlueTrench2) <= triggerRadius)
+        {
+            target = FieldConstants.kBlueTrench2;
+        }
+
+        return target;
     }
 
     public Command autoTrenchRun()
@@ -499,8 +544,18 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
 
         if (target != null)
         {
-            return new DriveToPoseWithVision(this).driveToPose(new Pose2d(target, new Rotation2d()));
+            var currentPose = getState().Pose;
+            var prePose = preAlign(currentPose, target);
+
+            // var preCmd = new DriveToPoseWithVision(this).driveToPoseWithHeading(prePose,
+            // prePose.getRotation());
+
+            var finalCmd = new DriveToPoseWithVision(this)
+                    .driveToPoseWithHeading((newPose2d(prePose, target, triggerRadius + 0.1)), prePose.getRotation());
+
+            return /* Commands.run(preCmd, */ finalCmd/* ) */;
         }
+
         return Commands.none();
 
     }

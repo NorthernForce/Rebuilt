@@ -31,7 +31,9 @@ public class LobbyOI
 
         drive.setDefaultCommand(drive.driveByJoystick(inputProc(driveController::getLeftY),
                 inputProc(driveController::getLeftX), inputProc(driveController::getRightX)));
-        (new Trigger(container.inTrenchZone())).whileTrue(drive.run(() -> drive.autoTrenchRun()));
+        (new Trigger(container.inTrenchZone())).whileTrue(drive.run(() -> Commands.sequence(
+                container.driveToPose(drive.preAlign(drive.getPose(), drive.getTargetAutoTrench())),
+                container.driveToPose(drive.newPose2d(drive.getPose(), drive.getTargetAutoTrench(), 1.7)))));
         driveController.back().onTrue(drive.resetOrientation());
         driveController.a().onTrue(Commands.runOnce(() -> container
                 .resetOdometry(new Pose2d(Meters.of(0), Meters.of(0), new Rotation2d(Degrees.of(180))))));
