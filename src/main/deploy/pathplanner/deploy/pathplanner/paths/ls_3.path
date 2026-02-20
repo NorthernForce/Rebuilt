@@ -3,32 +3,41 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 1.8467615658362995,
-        "y": 7.3434519572953745
+        "x": 7.795945945945945,
+        "y": 6.168243243243244
       },
       "prevControl": null,
       "nextControl": {
-        "x": 2.8149682634115516,
-        "y": 7.331811738917102
+        "x": 6.423164414414415,
+        "y": 7.649662162162162
       },
       "isLocked": false,
-      "linkedName": null
+      "linkedName": "ls_3"
     },
     {
       "anchor": {
-        "x": 6.118161328588376,
-        "y": 7.3434519572953745
+        "x": 2.5122184684684687,
+        "y": 4.133761261261261
       },
       "prevControl": {
-        "x": 5.207507284847404,
-        "y": 7.346448046528392
+        "x": 2.4332094594594595,
+        "y": 8.943434684684684
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": null
+      "linkedName": "ls_4"
     }
   ],
-  "rotationTargets": [],
+  "rotationTargets": [
+    {
+      "waypointRelativePos": 0.5,
+      "rotationDegrees": 180.0
+    },
+    {
+      "waypointRelativePos": 0.736842105263162,
+      "rotationDegrees": -123.29986322387836
+    }
+  ],
   "constraintZones": [],
   "pointTowardsZones": [],
   "eventMarkers": [],
@@ -45,10 +54,10 @@
     "rotation": 0.0
   },
   "reversed": false,
-  "folder": null,
+  "folder": "ls",
   "idealStartingState": {
     "velocity": 0,
-    "rotation": 0.0
+    "rotation": -90.0
   },
   "useDefaultConstraints": true
 }

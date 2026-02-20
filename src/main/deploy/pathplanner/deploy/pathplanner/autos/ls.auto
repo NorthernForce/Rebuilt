@@ -1,0 +1,37 @@
+{
+  "version": "2025.0",
+  "command": {
+    "type": "sequential",
+    "data": {
+      "commands": [
+        {
+          "type": "path",
+          "data": {
+            "pathName": "ls_0"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "ls_1"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "ls_2"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "ls_3"
+          }
+        }
+      ]
+    }
+  },
+  "resetOdom": true,
+  "folder": null,
+  "choreoAuto": false
+}
