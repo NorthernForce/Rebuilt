@@ -10,19 +10,25 @@ import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.numbers.N3;
+
+import static edu.wpi.first.units.Units.Amps;
 import static edu.wpi.first.units.Units.Celsius;
 import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.Feet;
 import static edu.wpi.first.units.Units.Inches;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
+import static edu.wpi.first.units.Units.Seconds;
+
 import com.ctre.phoenix6.signals.MotorArrangementValue;
 
 import edu.wpi.first.units.measure.Angle;
 import static edu.wpi.first.units.Units.Meters;
 import edu.wpi.first.units.measure.AngularVelocity;
+import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.units.measure.LinearVelocity;
 import edu.wpi.first.units.measure.Temperature;
+import edu.wpi.first.units.measure.Time;
 import frc.robot.lobby.generated.LobbyTunerConstants;
 
 public class LobbyConstants
@@ -153,6 +159,10 @@ public class LobbyConstants
 
     public class FlickerConstants
     {
+        public static final Current kJamCurrentThreshold = Amps.of(10);
+        public static final Time kJamTimeout = Seconds.of(0.5);
+        public static final double kDejamSpeed = 0.2;
+
         // TODO: check ALL values
         public static final int kMotorId = 18;
         public static final double kRampSpeed = 1.0;
@@ -174,6 +184,10 @@ public class LobbyConstants
 
     public class CarouselConstants
     {
+        public static final Current kJamCurrentThreshold = Amps.of(10);
+        public static final Time kJamTimeout = Seconds.of(0.5);
+        public static final double kDejamSpeed = 0.2;
+
         public static final int kMotorID = 15;
         public static final double kSpeed = 0.5;
         public static final boolean kInverted = false;
@@ -186,6 +200,11 @@ public class LobbyConstants
         public static final double kD = 0.0;
 
         public static final AngularVelocity kErrorTolerance = RotationsPerSecond.of(0.25);
+    }
+
+    public class SpindexerConstants
+    {
+        public static final Time kDeJamTimeout = Seconds.of(1);
     }
 
     public class TalonFXConstants

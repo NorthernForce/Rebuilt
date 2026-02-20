@@ -1,5 +1,8 @@
 package frc.robot.lobby.subsystems.spindexer.flicker;
 
+import static edu.wpi.first.units.Units.Amps;
+import static edu.wpi.first.units.Units.Seconds;
+
 import com.ctre.phoenix6.configs.TalonFXSConfiguration;
 import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.hardware.TalonFXS;
@@ -9,6 +12,8 @@ import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.system.LinearSystem;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.system.plant.LinearSystemId;
+import edu.wpi.first.units.measure.Current;
+import edu.wpi.first.units.measure.Time;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.simulation.FlywheelSim;
 
@@ -25,6 +30,10 @@ public class FlickerIOTalonFXSSim implements FlickerIO
 
     private final VelocityVoltage m_velocityRequest = new VelocityVoltage(0);
     private double m_rotorPosition = 0;
+    private final Current jamCurrentThreshold;
+    private final Time jamTimeout;
+    private double nanoTimeLastChecked = 0.0;
+    private final double dejamSpeed;
 
     public FlickerIOTalonFXSSim(FlickerSimParameters parameters)
     {
@@ -32,7 +41,8 @@ public class FlickerIOTalonFXSSim implements FlickerIO
         m_errorTolerance = parameters.errorTolerance();
         m_gearRatio = parameters.gearRatio();
         m_motorController = new TalonFXS(parameters.motorId());
-
+        jamCurrentThreshold = parameters.jamCurrentThreshold();
+        jamTimeout = parameters.jamTimeout();
         // Configure PID gains for velocity control
         TalonFXSConfiguration config = new TalonFXSConfiguration();
         config.Slot0.kV = parameters.kV();
@@ -48,6 +58,8 @@ public class FlickerIOTalonFXSSim implements FlickerIO
 
         m_simState = m_motorController.getSimState();
         m_simMaxRpm = parameters.simMaxRpm();
+        dejamSpeed = parameters.dejamSpeed();
+
     }
 
     public void simulationPeriodic(double dtSeconds)
@@ -109,5 +121,37 @@ public class FlickerIOTalonFXSSim implements FlickerIO
     public double getTargetPower()
     {
         return m_rampSpeed;
+    }
+
+    @Override
+    public boolean getJammed()
+    {
+        double currentTime = System.nanoTime();
+        if (m_motorController.getTorqueCurrent().getValueAsDouble() > jamCurrentThreshold.in(Amps))
+        {
+            if (currentTime - nanoTimeLastChecked > jamTimeout.in(Seconds) * Math.pow(10, 9))
+            {
+                return true;
+            } else
+            {
+                return false;
+            }
+        } else
+        {
+            nanoTimeLastChecked = currentTime;
+            return false;
+        }
+    }
+
+    @Override
+    public void dejam()
+    {
+        m_motorController.set(-dejamSpeed);
+    }
+
+    @Override
+    public void resetJamDetection()
+    {
+        nanoTimeLastChecked = System.nanoTime();
     }
 }

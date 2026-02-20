@@ -45,6 +45,7 @@ import frc.robot.subsystems.turret.suzie.SuzieIOTalonFXS;
 import frc.robot.subsystems.turret.suzie.SuzieIOTalonFXSSim;
 import frc.robot.lobby.subsystems.apriltagvision.commands.DriveToPoseWithVision;
 import frc.robot.lobby.subsystems.spindexer.Spindexer;
+import frc.robot.lobby.subsystems.spindexer.Spindexer.SpindexerParameters;
 import frc.robot.lobby.subsystems.spindexer.carousel.CarouselIO.CarouselConstants;
 import frc.robot.lobby.subsystems.spindexer.carousel.CarouselIOTalonFX;
 import frc.robot.lobby.subsystems.spindexer.carousel.CarouselIOTalonFXSim;
@@ -130,13 +131,19 @@ public class LobbyContainer implements NFRRobotContainer
             spindexer = new Spindexer(
                     new CarouselIOTalonFXSim(new CarouselConstants(LobbyConstants.CarouselConstants.kMotorID,
                             LobbyConstants.CarouselConstants.kSpeed, LobbyConstants.CarouselConstants.kGearRatio,
-                            LobbyConstants.CarouselConstants.kInverted)),
+                            LobbyConstants.CarouselConstants.kInverted,
+                            LobbyConstants.CarouselConstants.kJamCurrentThreshold,
+                            LobbyConstants.CarouselConstants.kJamTimeout,
+                            LobbyConstants.CarouselConstants.kDejamSpeed)),
                     new FlickerIOTalonFXSSim(new FlickerSimParameters(LobbyConstants.FlickerConstants.kMotorId,
                             LobbyConstants.FlickerConstants.kRampSpeed, LobbyConstants.FlickerConstants.kGearRatio,
                             LobbyConstants.FlickerConstants.kV, LobbyConstants.FlickerConstants.kP,
                             LobbyConstants.FlickerConstants.kI, LobbyConstants.FlickerConstants.kD,
                             LobbyConstants.FlickerConstants.kErrorTolerance, LobbyConstants.FlickerConstants.kSimRpm,
-                            LobbyConstants.FlickerConstants.kSimMoi)));
+                            LobbyConstants.FlickerConstants.kSimMoi,
+                            LobbyConstants.FlickerConstants.kJamCurrentThreshold,
+                            LobbyConstants.FlickerConstants.kJamTimeout, LobbyConstants.FlickerConstants.kDejamSpeed)),
+                    new SpindexerParameters(LobbyConstants.SpindexerConstants.kDeJamTimeout));
         } else
         {
             vision = new AprilTagVision(drive,
@@ -178,12 +185,18 @@ public class LobbyContainer implements NFRRobotContainer
             spindexer = new Spindexer(
                     new CarouselIOTalonFX(new CarouselConstants(LobbyConstants.CarouselConstants.kMotorID,
                             LobbyConstants.CarouselConstants.kSpeed, LobbyConstants.CarouselConstants.kGearRatio,
-                            LobbyConstants.CarouselConstants.kInverted)),
+                            LobbyConstants.CarouselConstants.kInverted,
+                            LobbyConstants.CarouselConstants.kJamCurrentThreshold,
+                            LobbyConstants.CarouselConstants.kJamTimeout,
+                            LobbyConstants.CarouselConstants.kDejamSpeed)),
                     new FlickerIOTalonFXS(new FlickerParameters(LobbyConstants.FlickerConstants.kMotorId,
                             LobbyConstants.FlickerConstants.kRampSpeed, LobbyConstants.FlickerConstants.kGearRatio,
                             LobbyConstants.FlickerConstants.kV, LobbyConstants.FlickerConstants.kP,
                             LobbyConstants.FlickerConstants.kI, LobbyConstants.FlickerConstants.kD,
-                            LobbyConstants.FlickerConstants.kErrorTolerance)));
+                            LobbyConstants.FlickerConstants.kErrorTolerance,
+                            LobbyConstants.FlickerConstants.kJamCurrentThreshold,
+                            LobbyConstants.FlickerConstants.kJamTimeout, LobbyConstants.FlickerConstants.kDejamSpeed)),
+                    new SpindexerParameters(LobbyConstants.SpindexerConstants.kDeJamTimeout));
         }
 
         field = new Field2d();

@@ -3,6 +3,7 @@ package frc.robot.lobby;
 import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.Meters;
 
+import java.util.Set;
 import java.util.function.DoubleSupplier;
 
 import dev.doglog.DogLog;
@@ -11,6 +12,7 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.subsystems.turret.commands.PrepTurretCommand;
 import frc.robot.subsystems.turret.commands.PrepTurretWithValues;
 import frc.robot.lobby.subsystems.spindexer.commands.RunSpindexer;
@@ -50,7 +52,8 @@ public class LobbyOI
         {
             DogLog.log("Turret/csvValue", container.getTurret().getHoodTargetingCalculator().getValueForDistance(5.0));
         }));
-
+        (new Trigger(() -> container.getSpindexer().getJammed())).whileTrue(
+                Commands.defer(() -> container.getSpindexer().runBackwards(), Set.of(container.getSpindexer())));
         driveController.rightTrigger().whileTrue(new RunSpindexer(container.getSpindexer()));
         // driveController.leftTrigger().whileTrue(new
         // PrepTurretWithValues(container.getTurret()));
