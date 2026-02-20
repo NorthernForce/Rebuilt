@@ -1,5 +1,9 @@
 package frc.robot.lobby.subsystems.spindexer.carousel;
 
+import static edu.wpi.first.units.Units.Amps;
+
+import static edu.wpi.first.units.Units.Seconds;
+
 import java.util.function.Supplier;
 
 import com.ctre.phoenix6.StatusSignal;
@@ -12,12 +16,13 @@ import com.ctre.phoenix6.signals.NeutralModeValue;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Temperature;
+import edu.wpi.first.units.measure.Time;
 import edu.wpi.first.units.measure.Voltage;
 
 public class CarouselIOTalonFX implements CarouselIO
 {
     protected final TalonFX m_motor;
-    protected final double m_speed;
+    protected double m_speed;
     protected final StatusSignal<Temperature> m_temperature;
     protected final StatusSignal<Voltage> m_voltage;
     protected final StatusSignal<Current> m_current;
@@ -25,13 +30,19 @@ public class CarouselIOTalonFX implements CarouselIO
     protected final StatusSignal<AngularVelocity> m_rotorVelocity;
     protected final Supplier<Boolean> m_isPresent;
     protected final VelocityVoltage m_velocityVoltage;
+    private final Current jamCurrentThreshold;
+    private final Time jamTimeout;
+    private double nanoTimeLastChecked = 0.0;
+    private final double dejamSpeed;
 
     public CarouselIOTalonFX(CarouselConstants constants)
     {
-        this(constants.kMotorId(), constants.kSpeed(), constants.kGearRatio(), constants.kInverted());
+        this(constants.kMotorId(), constants.kSpeed(), constants.kGearRatio(), constants.kInverted(),
+                constants.kJamCurrentThreshold(), constants.kJamTimeout(), constants.dejamSpeed());
     }
 
-    public CarouselIOTalonFX(int kMotorID, double kSpeed, double kGearRatio, boolean kInverted)
+    public CarouselIOTalonFX(int kMotorID, double kSpeed, double kGearRatio, boolean kInverted,
+            Current kJamCurrentThreshold, Time kJamTimeout, double kDejamSpeed)
     {
         m_motor = new TalonFX(kMotorID);
         TalonFXConfiguration config = new TalonFXConfiguration();
@@ -52,8 +63,12 @@ public class CarouselIOTalonFX implements CarouselIO
         m_velocity = m_motor.getVelocity();
         m_rotorVelocity = m_motor.getRotorVelocity();
         m_isPresent = () -> m_motor.isConnected();
+        jamCurrentThreshold = kJamCurrentThreshold;
+        jamTimeout = kJamTimeout;
 
         m_velocityVoltage = new VelocityVoltage(0);
+        dejamSpeed = kDejamSpeed;
+
     }
 
     @Override
@@ -75,8 +90,58 @@ public class CarouselIOTalonFX implements CarouselIO
     }
 
     @Override
+    public double getPower()
+    {
+        return m_motor.get();
+    }
+
+    @Override
     public void update()
     {
         StatusSignal.refreshAll(m_temperature, m_voltage, m_current, m_velocity, m_rotorVelocity);
+    }
+
+    @Override
+    public void setPower(double power)
+    {
+        m_speed = power;
+    }
+
+    @Override
+    public double getTargetPower()
+    {
+        return m_speed;
+    }
+
+    @Override
+    public boolean getJammed()
+    {
+        double currentTime = System.nanoTime();
+        if (m_motor.getTorqueCurrent().getValueAsDouble() > jamCurrentThreshold.in(Amps))
+        {
+            if (currentTime - nanoTimeLastChecked > jamTimeout.in(Seconds) * Math.pow(10, 9))
+            {
+                return true;
+            } else
+            {
+                return false;
+            }
+        } else
+        {
+            nanoTimeLastChecked = currentTime;
+            return false;
+        }
+    }
+
+    @Override
+    public void dejam()
+    {
+        m_motor.set(-dejamSpeed);
+    }
+
+    @Override
+    public void resetJamDetection()
+    {
+        nanoTimeLastChecked = System.nanoTime();
     }
 }

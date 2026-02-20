@@ -3,17 +3,35 @@ package frc.robot.lobby;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.Vector;
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.numbers.N3;
+
+import static edu.wpi.first.units.Units.Amps;
 import static edu.wpi.first.units.Units.Celsius;
 import static edu.wpi.first.units.Units.Degrees;
-import static edu.wpi.first.units.Units.Meters;
+import static edu.wpi.first.units.Units.Feet;
+import static edu.wpi.first.units.Units.Inches;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 import static edu.wpi.first.units.Units.Seconds;
 
+import com.ctre.phoenix6.signals.MotorArrangementValue;
+
+import edu.wpi.first.units.measure.Angle;
+import static edu.wpi.first.units.Units.Meters;
+import static edu.wpi.first.units.Units.Meters;
+import static edu.wpi.first.units.Units.Rotations;
+import static edu.wpi.first.units.Units.RotationsPerSecond;
+import static edu.wpi.first.units.Units.Seconds;
+
+import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
+import edu.wpi.first.units.measure.Current;
+import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.units.measure.LinearVelocity;
 import edu.wpi.first.units.measure.Temperature;
 import edu.wpi.first.units.measure.Time;
@@ -67,8 +85,92 @@ public class LobbyConstants
 
     }
 
+    public class Turret
+    {
+        public static Pose2d offset = new Pose2d(new Translation2d(Inches.of(6.264), Inches.of(6.300)),
+                new Rotation2d(Degrees.of(2.5)));
+
+        public class Suzie
+        {
+            public static int kEncoderDIOPin = 9;
+            public static int kMotorID = 10;
+            public static int kEncoderID = 1;
+            public static double kS = 0;
+            public static double kV = 0.116;
+            public static double kA = 0.110;
+            public static double kP = 10;
+            public static double kI = 0;
+            public static double kD = 0.6;
+            public static double kG = 0;
+            public static double kCruiseVelocity = 0;
+            public static double kAcceleration = 160;
+            public static double kJerk = 1600;
+            public static double kGearRatio = 3 * 3 * 5;
+            public static boolean kInverted = false;
+            public static Angle kLowerSoftLimit = Degrees.of(-180);
+            public static Angle kUpperSoftLimit = Degrees.of(180);
+            public static Angle kErrorTolerance = Degrees.of(1);
+            public static MotorArrangementValue kMotorArrangement = MotorArrangementValue.Minion_JST;
+        }
+
+        public class Hood
+        {
+            public static Distance kDangerZone = Feet.of(10);
+            public static int kMotorID = 11;
+            public static int kEncoderID = 2;
+            public static double kS = 0;
+            public static double kV = 0.12 * 10;
+            public static double kA = 0.8 / 10;
+            public static double kP = 10;
+            public static double kI = 0;
+            public static double kD = 0;
+            public static double kG = 0;
+            public static double kCruiseVelocity = 0;
+            public static double kAcceleration = 160;
+            public static double kJerk = 1600;
+            public static double kGearRatio = 10;
+            public static boolean kInverted = false;
+            public static Angle kLowerSoftLimit = Degrees.of(0);
+            public static Angle kUpperSoftLimit = Degrees.of(20);
+            public static Angle kErrorTolerance = Degrees.of(1);
+            public static MotorArrangementValue kMotorArrangement = MotorArrangementValue.Minion_JST;
+            public static String kTargetingDataFilepath = "src/main/java/frc/robot/subsystems/turret/targeting_data/HoodTargetingData.csv";
+
+            // servo constants
+            public static int kServoID = 9;
+            public static Angle kLowerServoLimit = Degrees.of(145);
+            public static Angle kUpperServoLimit = Degrees.of(-20);
+            public static Angle kMechanismLowerAngle = Degrees.of(10);
+            public static Angle kMechanismUpperAngle = Degrees.of(40);
+        }
+
+        public class Shooter
+        {
+            public static int kMotor1ID = 20;
+            public static int kMotor2ID = 21;
+            public static double kS = 0;
+            public static double kV = 0.115;
+            public static double kA = 0;
+            public static double kP = 0.55;
+            public static double kI = 0;
+            public static double kD = 0;
+            public static double kG = 0;
+            public static double kCruiseVelocity = 100;
+            public static double kAcceleration = 100;
+            public static double kJerk = 0;
+            public static boolean kMotor1Inverted = false;
+            public static boolean kMotor2Inverted = true;
+            public static AngularVelocity kErrorTolerance = RotationsPerSecond.of(10);
+            public static String kTargetingDataFilepath = "src/main/java/frc/robot/subsystems/turret/targeting_data/ShooterTargetingData.csv";
+        }
+    }
+
     public class FlickerConstants
     {
+        public static final Current kJamCurrentThreshold = Amps.of(10);
+        public static final Time kJamTimeout = Seconds.of(0.5);
+        public static final double kDejamSpeed = 0.2;
+
         // TODO: check ALL values
         public static final int kMotorId = 18;
         public static final double kRampSpeed = 1.0;
@@ -88,8 +190,24 @@ public class LobbyConstants
         public static final double kErrorTolerance = 0.25;
     }
 
+    public class IntakeConstants
+    {
+        public static final int kRollerMotorId = 17;
+        public static final int kAngleMotorId = 16;
+        public static final int kAngleEncoderId = 22;
+        public static final double kDriverIntakeSpeed = 0.6;
+        public static final double kDriverPurgeSpeed = 1.0;
+        public static final Angle kDownAngle = Rotations.zero();
+        public static final Angle kMiddleAngle = Rotations.of(-0.154);
+        public static final Angle kStowedAngle = Rotations.of(-0.370);
+    }
+
     public class CarouselConstants
     {
+        public static final Current kJamCurrentThreshold = Amps.of(10);
+        public static final Time kJamTimeout = Seconds.of(0.5);
+        public static final double kDejamSpeed = 0.2;
+
         public static final int kMotorID = 15;
         public static final double kSpeed = 0.5;
         public static final boolean kInverted = false;
@@ -102,6 +220,11 @@ public class LobbyConstants
         public static final double kD = 0.0;
 
         public static final AngularVelocity kErrorTolerance = RotationsPerSecond.of(0.25);
+    }
+
+    public class SpindexerConstants
+    {
+        public static final Time kDeJamTimeout = Seconds.of(1);
     }
 
     public class TalonFXConstants

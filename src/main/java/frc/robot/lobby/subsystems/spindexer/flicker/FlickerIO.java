@@ -10,4 +10,17 @@ public interface FlickerIO
     public default void updateSimulation(double dtSeconds)
     {
     }
+
+    public double getPower();
+
+    public void setPower(double power);
+
+    public double getTargetPower();
+
+    public boolean getJammed();
+
+    public void dejam();
+
+    public void resetJamDetection();
+
 }
