@@ -29,8 +29,6 @@ import frc.robot.FieldConstants;
 import frc.robot.lobby.generated.LobbyTunerConstants;
 import frc.robot.lobby.subsystems.CommandSwerveDrivetrain;
 import frc.robot.lobby.subsystems.apriltagvision.*;
-import frc.robot.lobby.subsystems.apriltagvision.AprilTagVisionIOLimelight;
-import frc.robot.lobby.subsystems.apriltagvision.AprilTagVisionIOPhotonVisionSim;
 import frc.robot.subsystems.turret.Turret.TurretConstants;
 import frc.robot.subsystems.turret.hood.HoodIO.HoodConstants;
 import frc.robot.subsystems.turret.hood.HoodIOServo;
@@ -44,6 +42,10 @@ import frc.robot.subsystems.turret.suzie.SuzieIO.SuzieConstants;
 import frc.robot.subsystems.turret.suzie.SuzieIOTalonFXS;
 import frc.robot.subsystems.turret.suzie.SuzieIOTalonFXSSim;
 import frc.robot.lobby.subsystems.apriltagvision.commands.DriveToPoseWithVision;
+import frc.robot.subsystems.intake.Intake;
+import frc.robot.subsystems.intake.IntakeIOTalonFX;
+import frc.robot.lobby.subsystems.CommandSwerveDrivetrain;
+import frc.robot.lobby.subsystems.CommandSwerveDrivetrain;
 import frc.robot.lobby.subsystems.spindexer.Spindexer;
 import frc.robot.lobby.subsystems.spindexer.Spindexer.SpindexerParameters;
 import frc.robot.lobby.subsystems.spindexer.carousel.CarouselIO.CarouselConstants;
@@ -53,6 +55,10 @@ import frc.robot.lobby.subsystems.spindexer.flicker.FlickerIOTalonFXS;
 import frc.robot.lobby.subsystems.spindexer.flicker.FlickerIOTalonFXSSim;
 import frc.robot.lobby.subsystems.spindexer.flicker.FlickerParameters;
 import frc.robot.lobby.subsystems.spindexer.flicker.FlickerSimParameters;
+import frc.robot.lobby.subsystems.apriltagvision.*;
+import frc.robot.lobby.subsystems.CommandSwerveDrivetrain;
+import frc.robot.lobby.subsystems.apriltagvision.*;
+import frc.robot.lobby.subsystems.apriltagvision.commands.DriveToPoseWithVision;
 import frc.robot.util.AutoUtil;
 import frc.robot.util.InterpolatedTargetingCalculator;
 import frc.robot.util.TrigHoodTargetingCalculator;
@@ -60,13 +66,12 @@ import frc.robot.util.TrigHoodTargetingCalculator;
 public class LobbyContainer implements NFRRobotContainer
 {
     private final CommandSwerveDrivetrain drive;
+    private final Intake intake;
+
     private final AprilTagVision vision;
     private final AutoUtil autoUtil;
     private final Field2d field;
     private final Turret turret;
-    private final Spindexer spindexer;
-    private final DriveToPoseWithVision driveToPoseCommand;
-    private Optional<String> teamActivity = Optional.empty();
     private final GenericEntry flickerSpeedEntry;
     private final GenericEntry indexerSpeedEntry;
     private final GenericEntry shooterSpeedEntry;
@@ -76,6 +81,9 @@ public class LobbyContainer implements NFRRobotContainer
     private final GenericEntry shooterKDEntry;
     private final GenericEntry shooterKVEntry;
     private final GenericEntry shooterKAEntry;
+    private final Spindexer spindexer;
+    private final DriveToPoseWithVision driveToPoseCommand;
+    private Optional<String> teamActivity = Optional.empty();
 
     public LobbyContainer()
     {
@@ -90,6 +98,7 @@ public class LobbyContainer implements NFRRobotContainer
         List<Translation2d> allTrenchPositions = List.of(FieldConstants.kBlueTrench1, FieldConstants.kBlueTrench2,
                 FieldConstants.kRedTrench1, FieldConstants.kRedTrench2);
 
+        drive.setVisionMeasurementStdDevs(LobbyConstants.VisionConstants.kStdDevs);
         if (Utils.isSimulation())
         {
             // TODO: get camera json config for sim
@@ -117,7 +126,7 @@ public class LobbyContainer implements NFRRobotContainer
                             LobbyConstants.Turret.Hood.kInverted, LobbyConstants.Turret.Hood.kLowerSoftLimit,
                             LobbyConstants.Turret.Hood.kUpperSoftLimit, LobbyConstants.Turret.Hood.kErrorTolerance,
                             LobbyConstants.Turret.Hood.kMotorArrangement, LobbyConstants.Turret.Hood.kDangerZone,
-                            allTrenchPositions)),
+                            allTrenchPositions, LobbyConstants.Turret.Hood.kMechanismLowerAngle, LobbyConstants.Turret.Hood.kMechanismUpperAngle)),
                     new ShooterIOTalonFXSim(new ShooterConstants(LobbyConstants.Turret.Shooter.kMotor1ID,
                             LobbyConstants.Turret.Shooter.kMotor2ID, LobbyConstants.Turret.Shooter.kS,
                             LobbyConstants.Turret.Shooter.kV, LobbyConstants.Turret.Shooter.kA,
@@ -170,7 +179,7 @@ public class LobbyContainer implements NFRRobotContainer
                             LobbyConstants.Turret.Hood.kInverted, LobbyConstants.Turret.Hood.kLowerServoLimit,
                             LobbyConstants.Turret.Hood.kUpperServoLimit, LobbyConstants.Turret.Hood.kErrorTolerance,
                             LobbyConstants.Turret.Hood.kMotorArrangement, LobbyConstants.Turret.Hood.kDangerZone,
-                            allTrenchPositions)),
+                            allTrenchPositions, LobbyConstants.Turret.Hood.kMechanismLowerAngle, LobbyConstants.Turret.Hood.kMechanismUpperAngle)),
                     new ShooterIOTalonFX(new ShooterConstants(LobbyConstants.Turret.Shooter.kMotor1ID,
                             LobbyConstants.Turret.Shooter.kMotor2ID, LobbyConstants.Turret.Shooter.kS,
                             LobbyConstants.Turret.Shooter.kV, LobbyConstants.Turret.Shooter.kA,
@@ -198,6 +207,11 @@ public class LobbyContainer implements NFRRobotContainer
                             LobbyConstants.FlickerConstants.kJamTimeout, LobbyConstants.FlickerConstants.kDejamSpeed)),
                     new SpindexerParameters(LobbyConstants.SpindexerConstants.kDeJamTimeout));
         }
+
+        intake = new Intake(new IntakeIOTalonFX(LobbyConstants.IntakeConstants.kRollerMotorId,
+                LobbyConstants.IntakeConstants.kAngleMotorId, LobbyConstants.IntakeConstants.kAngleEncoderId,
+                LobbyConstants.IntakeConstants.kDownAngle, LobbyConstants.IntakeConstants.kMiddleAngle,
+                LobbyConstants.IntakeConstants.kStowedAngle));
 
         field = new Field2d();
         driveToPoseCommand = new DriveToPoseWithVision(drive);
@@ -239,6 +253,10 @@ public class LobbyContainer implements NFRRobotContainer
     public Turret getTurret()
     {
         return turret;
+    }
+    public Intake getIntake()
+    {
+        return intake;
     }
 
     public Spindexer getSpindexer()

@@ -34,6 +34,7 @@ public class LobbyOI
         var manipulatorController = new CommandXboxController(1);
 
         var drive = container.getDrive();
+        var intake = container.getIntake();
 
         drive.setDefaultCommand(drive.driveByJoystick(inputProc(driveController::getLeftY),
                 inputProc(driveController::getLeftX), inputProc(driveController::getRightX)));
@@ -61,6 +62,10 @@ public class LobbyOI
         driveController.povUp()
                 .onTrue(Commands.runOnce(() -> hood.setTargetAngle(Degrees.of(180)), container.getTurret()))
                 .onFalse(Commands.runOnce(() -> hood.setTargetAngle(Degrees.zero()), container.getTurret()));
+        // manipulatorController.leftTrigger().whileTrue(intake.getRunToIntakeAngleCommand());
+        // intake.setDefaultCommand(intake.getRunToStowAngleCommand());
+        manipulatorController.leftTrigger().whileTrue(intake.intake(0.75)).onFalse(intake.stopIntake());
+        manipulatorController.rightTrigger().whileTrue(new RunSpindexer(container.getSpindexer()));
         driveController.a().onTrue(Commands.runOnce(() -> container
                 .resetOdometry(new Pose2d(Meters.of(0), Meters.of(0), new Rotation2d(Degrees.of(180))))));
     }
