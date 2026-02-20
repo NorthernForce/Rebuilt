@@ -16,22 +16,25 @@ import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.FieldConstants;
+import frc.robot.subsystems.turret.hood.Hood;
 import frc.robot.subsystems.turret.hood.HoodIO;
+import frc.robot.subsystems.turret.shooter.Shooter;
 import frc.robot.subsystems.turret.shooter.ShooterIO;
+import frc.robot.subsystems.turret.suzie.Suzie;
 import frc.robot.subsystems.turret.suzie.SuzieIO;
 import frc.robot.util.TargetingCalculator;
 
 public class Turret extends SubsystemBase
 {
     private final TurretConstants constants;
-    private final SuzieIO suzie;
-    private final HoodIO hood;
-    private final ShooterIO shooter;
+    private final Suzie suzie;
+    private final Hood hood;
+    private final Shooter shooter;
     private final Distance shooterOffsetDistance;
     private final TargetingCalculator hoodCalculator;
     private final TargetingCalculator shooterCalculator;
 
-    public Turret(TurretConstants constants, SuzieIO suzie, HoodIO hood, ShooterIO shooter,
+    public Turret(TurretConstants constants, Suzie suzie, Hood hood, Shooter shooter,
             TargetingCalculator hoodCalculator, TargetingCalculator shooterCalculator)
     {
         this.constants = constants;
@@ -127,9 +130,9 @@ public class Turret extends SubsystemBase
 
     public void setTargetPose(TurretPose pose)
     {
-        suzie.setTargetAngle(pose.suzieAngle);
+        suzie.getIO().setTargetAngle(pose.suzieAngle);
         hood.setTargetAngle(pose.hoodAngle);
-        shooter.setTargetSpeed(pose.shooterSpeed);
+        shooter.getIO().setTargetSpeed(pose.shooterSpeed);
     }
 
     public TurretPose calculateTargetPose(Pose2d robotPose)
@@ -235,17 +238,17 @@ public class Turret extends SubsystemBase
         return calculateShooterDistanceToHub(robotPose).in(Meters);
     }
 
-    public SuzieIO getSuzie()
+    public Suzie getSuzie()
     {
         return suzie;
     }
 
-    public HoodIO getHood()
+    public Hood getHood()
     {
         return hood;
     }
 
-    public ShooterIO getShooter()
+    public Shooter getShooter()
     {
         return shooter;
     }
@@ -300,15 +303,15 @@ public class Turret extends SubsystemBase
     @Override
     public void periodic()
     {
-        suzie.update();
-        hood.update();
-        shooter.update();
-        DogLog.log("Turret/Suzie/Angle", suzie.getAngle().in(Radians));
-        DogLog.log("Turret/Suzie/TargetAngle", suzie.getTargetAngle().in(Radians));
-        DogLog.log("Turret/Suzie/IsAtTarget", suzie.isAtTargetAngle());
-        DogLog.log("Turret/Hood/Angle", hood.getAngle().in(Radians));
-        DogLog.log("Turret/Hood/TargetAngle", hood.getTargetAngle().in(Radians));
-        DogLog.log("Turret/Hood/IsAtTarget", hood.isAtTargetAngle());
+        suzie.getIO().update();
+        hood.getIO().update();
+        shooter.getIO().update();
+        DogLog.log("Turret/Suzie/Angle", suzie.getIO().getAngle().in(Radians));
+        DogLog.log("Turret/Suzie/TargetAngle", suzie.getIO().getTargetAngle().in(Radians));
+        DogLog.log("Turret/Suzie/IsAtTarget", suzie.getIO().isAtTargetAngle());
+        DogLog.log("Turret/Hood/Angle", hood.getIO().getAngle().in(Radians));
+        DogLog.log("Turret/Hood/TargetAngle", hood.getIO().getTargetAngle().in(Radians));
+        DogLog.log("Turret/Hood/IsAtTarget", hood.getIO().isAtTargetAngle());
         DogLog.log("Turret/Alliance", getAlliance().toString());
     }
 }

@@ -44,4 +44,9 @@ public interface SuzieIO
     public default void resetAngle(Angle angle)
     {
     }
+
+    public default String getAppliedControlName()
+    {
+        return "";
+    }
 }

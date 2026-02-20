@@ -59,9 +59,11 @@ public class LobbyOI
         driveController.rightTrigger().whileTrue(new RunSpindexer(container.getSpindexer()));
         // driveController.leftTrigger().whileTrue(new
         // PrepTurretWithValues(container.getTurret()));
-        driveController.povUp()
-                .onTrue(Commands.runOnce(() -> hood.setTargetAngle(Degrees.of(180)), container.getTurret()))
-                .onFalse(Commands.runOnce(() -> hood.setTargetAngle(Degrees.zero()), container.getTurret()));
+        // driveController.povUp()
+        // .onTrue(Commands.runOnce(() -> hood.setTargetAngle(Degrees.of(180)),
+        // container.getTurret()))
+        // .onFalse(Commands.runOnce(() -> hood.setTargetAngle(Degrees.zero()),
+        // container.getTurret()));
         // manipulatorController.leftTrigger().whileTrue(intake.getRunToIntakeAngleCommand());
         // intake.setDefaultCommand(intake.getRunToStowAngleCommand());
         manipulatorController.leftBumper().whileTrue(intake.intake(0.75)).onFalse(intake.stopIntake());
@@ -69,5 +71,10 @@ public class LobbyOI
         manipulatorController.rightTrigger().whileTrue(new RunSpindexer(container.getSpindexer()));
         driveController.a().onTrue(Commands.runOnce(() -> container
                 .resetOdometry(new Pose2d(Meters.of(0), Meters.of(0), new Rotation2d(Degrees.of(180))))));
+
+        manipulatorController.povLeft().whileTrue(container.getTurret().getSuzie().setSpeed(0.05))
+                .onFalse(container.getTurret().getSuzie().setSpeed(0));
+        manipulatorController.povRight().whileTrue(container.getTurret().getSuzie().setSpeed(-0.05))
+                .onFalse(container.getTurret().getSuzie().setSpeed(0));
     }
 }

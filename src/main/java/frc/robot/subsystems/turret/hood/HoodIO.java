@@ -29,6 +29,10 @@ public interface HoodIO
     {
     }
 
+    public default void setTargetMechanismAngle(Angle angle)
+    {
+    }
+
     public default void setSpeed(double speed, boolean overrideSoftLimit)
     {
     }

@@ -21,7 +21,7 @@ public class PrepTurretWithValues extends Command
 
     public PrepTurretWithValues(Turret turret)
     {
-        addRequirements(turret);
+        addRequirements(turret.getShooter());
         this.turret = turret;
     }
 
@@ -29,13 +29,13 @@ public class PrepTurretWithValues extends Command
     public void initialize()
     {
         DogLog.log("Turret/PrepCommand/Running", true);
-        turret.getShooter().start();
+        turret.getShooter().getIO().start();
     }
 
     @Override
     public void end(boolean interrupted)
     {
-        turret.getShooter().stop();
+        turret.getShooter().getIO().stop();
         DogLog.log("Turret/PrepCommand/Running", false);
     }
 }

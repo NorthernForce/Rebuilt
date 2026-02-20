@@ -7,6 +7,7 @@ import java.util.function.Supplier;
 
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.TalonFXSConfiguration;
+import com.ctre.phoenix6.controls.DutyCycleOut;
 import com.ctre.phoenix6.controls.PositionVoltage;
 import com.ctre.phoenix6.hardware.TalonFXS;
 import com.ctre.phoenix6.signals.InvertedValue;
@@ -14,6 +15,7 @@ import com.ctre.phoenix6.signals.MotorArrangementValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.revrobotics.AbsoluteEncoder;
 
+import dev.doglog.DogLog;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
@@ -83,6 +85,7 @@ public class SuzieIOTalonFXS implements SuzieIO
         config.SoftwareLimitSwitch.ReverseSoftLimitThreshold = kLowerSoftLimit.in(Degrees);
 
         config.Commutation.MotorArrangement = kMotorArrangement;
+
         DutyCycleEncoder encoder = new DutyCycleEncoder(kEncoderDIOPin);
         m_motor.getConfigurator().apply(config);
 
@@ -114,7 +117,7 @@ public class SuzieIOTalonFXS implements SuzieIO
     @Override
     public void setSpeed(double speed)
     {
-        m_motor.set(speed);
+        m_motor.setControl(new DutyCycleOut(speed));
     }
 
     @Override
@@ -139,5 +142,11 @@ public class SuzieIOTalonFXS implements SuzieIO
     public void resetAngle(Angle angle)
     {
         m_motor.setPosition(angle.in(Degrees));
+    }
+
+    @Override
+    public String getAppliedControlName()
+    {
+        return m_motor.getAppliedControl().getName();
     }
 }

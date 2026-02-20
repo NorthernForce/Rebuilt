@@ -93,7 +93,7 @@ public class LobbyConstants
         public class Suzie
         {
             public static int kEncoderDIOPin = 9;
-            public static int kMotorID = 10;
+            public static int kMotorID = 19;
             public static int kEncoderID = 1;
             public static double kS = 0;
             public static double kV = 0.116;
@@ -140,8 +140,8 @@ public class LobbyConstants
             public static int kServoID = 9;
             public static Angle kLowerServoLimit = Degrees.of(145);
             public static Angle kUpperServoLimit = Degrees.of(-20);
-            public static Angle kMechanismLowerAngle = Degrees.of(10);
-            public static Angle kMechanismUpperAngle = Degrees.of(40);
+            public static Angle kMechanismLowerAngle = Degrees.of(20);
+            public static Angle kMechanismUpperAngle = Degrees.of(37);
         }
 
         public class Shooter
