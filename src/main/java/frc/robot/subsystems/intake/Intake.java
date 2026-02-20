@@ -23,6 +23,21 @@ public class Intake extends SubsystemBase
         return run(() -> io.purgeIntake(speed));
     }
 
+    public Command getRunToIntakeAngleCommand()
+    {
+        return run(() -> io.runToIntakeAngle());
+    }
+
+    public Command getRunToStowAngleCommand()
+    {
+        return run(() -> io.runToStowAngle());
+    }
+
+    public Command getRunToMidAngleCommand()
+    {
+        return run(() -> io.runToMidAngle());
+    }
+
     public Command stopIntake()
     {
         return run(() -> io.stopIntake());

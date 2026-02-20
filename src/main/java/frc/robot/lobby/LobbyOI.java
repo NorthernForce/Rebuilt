@@ -36,11 +36,8 @@ public class LobbyOI
                 inputProc(driveController::getLeftX), inputProc(driveController::getRightX)));
         driveController.back().onTrue(drive.resetOrientation());
 
-        manipulatorController.rightBumper().whileTrue(intake.intake(LobbyConstants.IntakeConstants.kDriverIntakeSpeed))
-                .onFalse(intake.stopIntake());
-        manipulatorController.leftBumper()
-                .whileTrue(intake.purgeIntake(LobbyConstants.IntakeConstants.kDriverPurgeSpeed))
-                .onFalse(intake.stopIntake());
+        // manipulatorController.leftTrigger().whileTrue(intake.getRunToIntakeAngleCommand());
+        // intake.setDefaultCommand(intake.getRunToStowAngleCommand());
         manipulatorController.rightTrigger().whileTrue(new RunSpindexer(container.getSpindexer()));
         driveController.a().onTrue(Commands.runOnce(() -> container
                 .resetOdometry(new Pose2d(Meters.of(0), Meters.of(0), new Rotation2d(Degrees.of(180))))));

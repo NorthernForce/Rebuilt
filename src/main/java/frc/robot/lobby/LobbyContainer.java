@@ -90,7 +90,9 @@ public class LobbyContainer implements NFRRobotContainer
         }
 
         intake = new Intake(new IntakeIOTalonFX(LobbyConstants.IntakeConstants.kRollerMotorId,
-                LobbyConstants.IntakeConstants.kAngleMotorId, LobbyConstants.IntakeConstants.kAngleEncoderId));
+                LobbyConstants.IntakeConstants.kAngleMotorId, LobbyConstants.IntakeConstants.kAngleEncoderId,
+                LobbyConstants.IntakeConstants.kDownAngle, LobbyConstants.IntakeConstants.kMiddleAngle,
+                LobbyConstants.IntakeConstants.kStowedAngle));
 
         field = new Field2d();
         driveToPoseCommand = new DriveToPoseWithVision(drive);

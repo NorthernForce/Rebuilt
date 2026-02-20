@@ -14,4 +14,10 @@ public interface IntakeIO
     public void setAngle(Angle angle);
 
     public void resetAngle();
+
+    public void runToStowAngle();
+
+    public void runToMidAngle();
+
+    public void runToIntakeAngle();
 }

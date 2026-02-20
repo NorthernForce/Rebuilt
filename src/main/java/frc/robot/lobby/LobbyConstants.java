@@ -10,9 +10,11 @@ import edu.wpi.first.math.numbers.N3;
 import static edu.wpi.first.units.Units.Celsius;
 import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.Meters;
+import static edu.wpi.first.units.Units.Rotations;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 import static edu.wpi.first.units.Units.Seconds;
 
+import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.LinearVelocity;
 import edu.wpi.first.units.measure.Temperature;
@@ -92,9 +94,12 @@ public class LobbyConstants
     {
         public static final int kRollerMotorId = 17;
         public static final int kAngleMotorId = 16;
-        public static final int kAngleEncoderId = 22; // TODO: this is placeholder
+        public static final int kAngleEncoderId = 22;
         public static final double kDriverIntakeSpeed = 0.6;
         public static final double kDriverPurgeSpeed = 1.0;
+        public static final Angle kDownAngle = Rotations.zero();
+        public static final Angle kMiddleAngle = Rotations.of(-0.154);
+        public static final Angle kStowedAngle = Rotations.of(-0.370);
     }
 
     public class CarouselConstants
