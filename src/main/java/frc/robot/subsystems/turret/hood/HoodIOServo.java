@@ -18,6 +18,8 @@ public class HoodIOServo implements HoodIO
     private final Angle m_upperSoftLimit;
     private final Distance m_dangerZone;
     private final List<Translation2d> m_trenchPositions;
+    private final Angle m_lowerMechanismAngle;
+    private final Angle m_upperMechanismAngle;
 
     private Angle m_targetAngle;
 
@@ -29,11 +31,15 @@ public class HoodIOServo implements HoodIO
         m_targetAngle = m_lowerSoftLimit;
         m_dangerZone = constants.dangerZone();
         m_trenchPositions = constants.trenchPositions();
+        m_lowerMechanismAngle = constants.kLowerMechanismAngle();
+        m_upperMechanismAngle = constants.kUpperMechanismAngle();
+
     }
 
     @Override
     public void setTargetAngle(Angle angle)
     {
+        DogLog.log("Turret/Hood/MechanismAngle", (m_lowerSoftLimit.minus(angle).div(m_lowerSoftLimit.minus(m_upperSoftLimit)).times(m_upperMechanismAngle.minus(m_lowerMechanismAngle)).plus(m_lowerMechanismAngle)));
         DogLog.log("Turret/Hood/SetTargetAngle", angle.in(Radians));
         if (angle.lt(m_lowerSoftLimit))
         {
@@ -45,6 +51,7 @@ public class HoodIOServo implements HoodIO
         m_targetAngle = angle;
         m_motor.setAngle(angle.in(Degrees));
     }
+
 
     @Override
     public Angle getTargetAngle()

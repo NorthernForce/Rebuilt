@@ -131,9 +131,11 @@ public class LobbyConstants
             public static String kTargetingDataFilepath = "src/main/java/frc/robot/subsystems/turret/targeting_data/HoodTargetingData.csv";
 
             // servo constants
-            public static int kServoID = 0;
-            public static Angle kLowerServoLimit = Degrees.of(0);
-            public static Angle kUpperServoLimit = Degrees.of(180);
+            public static int kServoID = 9;
+            public static Angle kLowerServoLimit = Degrees.of(145);
+            public static Angle kUpperServoLimit = Degrees.of(-20);
+            public static Angle kMechanismLowerAngle = Degrees.of(10);
+            public static Angle kMechanismUpperAngle = Degrees.of(40);
         }
 
         public class Shooter
