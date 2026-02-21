@@ -8,7 +8,6 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.lobby.LobbyConstants;
 
-
 public class Climber extends SubsystemBase
 {
 
@@ -61,7 +60,8 @@ public class Climber extends SubsystemBase
                 () -> Math.abs(inputs.positionMeters - meters) < LobbyConstants.ClimberConstants.kPositionTolerance);
     }
 
-    public ClimberIO.ClimberIOInputs getInputs() {
+    public ClimberIO.ClimberIOInputs getInputs()
+    {
         return inputs;
     }
 
@@ -108,25 +108,29 @@ public class Climber extends SubsystemBase
         });
     }
 
-   
-    public Command stow(BooleanSupplier isSafeToRetract) 
+    public Command stow(BooleanSupplier isSafeToRetract)
     {
-        return this.run(() -> {
+        return this.run(() ->
+        {
             boolean safe = isSafeToRetract.getAsBoolean();
 
-            if (safe) {
+            if (safe)
+            {
                 hookServo.setAngle(LobbyConstants.ClimberConstants.kHookRetractAngle.getDegrees());
-                
-                if (!inputs.atBottomLimit) {
+
+                if (!inputs.atBottomLimit)
+                {
                     io.setVoltage(LobbyConstants.ClimberConstants.kHomingVolts);
-                } else {
+                } else
+                {
                     io.stop();
                     io.setPosition(0.0);
                 }
-            } else {
+            } else
+            {
                 hookServo.setAngle(LobbyConstants.ClimberConstants.kHookExtendAngle.getDegrees());
-                
-                io.stop(); 
+
+                io.stop();
             }
         });
     }
