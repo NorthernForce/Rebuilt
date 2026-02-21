@@ -1,5 +1,7 @@
 package frc.robot.lobby;
 
+import com.ctre.phoenix6.signals.MotorArrangementValue;
+
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.Vector;
 import edu.wpi.first.math.controller.PIDController;
@@ -10,24 +12,15 @@ import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.numbers.N3;
-
 import static edu.wpi.first.units.Units.Amps;
 import static edu.wpi.first.units.Units.Celsius;
 import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.Feet;
 import static edu.wpi.first.units.Units.Inches;
-import static edu.wpi.first.units.Units.RotationsPerSecond;
-import static edu.wpi.first.units.Units.Seconds;
-
-import com.ctre.phoenix6.signals.MotorArrangementValue;
-
-import edu.wpi.first.units.measure.Angle;
-import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.Rotations;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 import static edu.wpi.first.units.Units.Seconds;
-
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
@@ -150,7 +143,8 @@ public class LobbyConstants
             public static int kMotor2ID = 21;
             public static double kS = 0;
             public static double kV = 0.115;
-            public static double kA = 0;
+            // sim error
+            public static double kA = 0.1;
             public static double kP = 0.55;
             public static double kI = 0;
             public static double kD = 0;
@@ -230,5 +224,15 @@ public class LobbyConstants
     public class TalonFXConstants
     {
         public static final Temperature kMaxTemperature = Celsius.of(60.0);
+    }
+
+    public class AutoTrenchConstants
+    {
+        public static final double kTriggerRadius = 1.8;
+        public static final double kTriggerOffset = 0.1;
+        // Distance (meters) to position before the trench center to begin the auto pass
+        public static final double kApproachDistance = 1.5;
+        // Distance (meters) beyond the trench center to drive to (exit point)
+        public static final double kThroughDistance = 1.7;
     }
 }
