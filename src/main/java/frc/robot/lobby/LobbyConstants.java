@@ -3,10 +3,12 @@ package frc.robot.lobby;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.Vector;
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.numbers.N3;
+import edu.wpi.first.math.util.Units;
 import static edu.wpi.first.units.Units.Celsius;
 import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.Inches;
@@ -95,4 +97,38 @@ public class LobbyConstants
             public static final Temperature kMaxTemperature = Celsius.of(60.0);
         }
     }
+
+    public static class ClimberConstants
+    {
+        // IDs - hwat are these values
+        public static final int kMotorId = 20;
+        public static final int kServoId = 0;
+        public static final int kLimitSwitchId = 9;
+
+        // Mechanical Math
+        public static final double kGearReduction = 80.0;
+        public static final double kDrumRadiusMeters = Units.inchesToMeters(1.0);
+
+        public static final double kMetersPerRotation = (2 * Math.PI * kDrumRadiusMeters) / kGearReduction;
+
+        // Climb Sequence
+        public static final double kRaiseHeightMeters = Units.inchesToMeters(20.5);
+        public static final double kSafeRetractHeight = Units.inchesToMeters(5.0);
+        public static final double kPullDownVolts = -8.0;
+        public static final double kHomingVolts = -2.0;
+
+        // PID
+        public static final double kP = 1.0;
+        public static final double kI = 0.0;
+        public static final double kD = 0.0;
+        public static final double kG = 0.5;
+
+        public static final double kPositionTolerance = 0.01;
+        public static final double kCurrentLimit = 40.0;
+
+        // Servo Angles
+        public static final Rotation2d kHookExtendAngle = Rotation2d.fromDegrees(0.0);
+        public static final Rotation2d kHookRetractAngle = Rotation2d.fromDegrees(180.0);
+    }
+
 }

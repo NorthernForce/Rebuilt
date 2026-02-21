@@ -22,9 +22,16 @@ public class LobbyOI
         var manipulatorController = new CommandXboxController(1);
 
         var drive = container.getDrive();
-
+        var climber = container.getClimber(); // Get the climber
+        // Drive Bindings
         drive.setDefaultCommand(drive.driveByJoystick(inputProc(driveController::getLeftY),
                 inputProc(driveController::getLeftX), inputProc(driveController::getRightX)));
         driveController.back().onTrue(drive.resetOrientation());
+
+        // climber bindings
+        climber.setDefaultCommand(climber.stow(() -> climber.getInputs().positionMeters < 0.1));
+
+        // Climb Sequence
+        manipulatorController.povUp().whileTrue(climber.climbSequence());
     }
 }
