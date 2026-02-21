@@ -146,41 +146,44 @@ public class LobbyOI
             double entryDist = LobbyConstants.AutoTrenchConstants.kApproachDistance;
             double throughDist = LobbyConstants.AutoTrenchConstants.kThroughDistance;
 
-        double entryX = nearest.getX() - Math.cos(angleNearest90) * entryDist;
-        double entryY = nearest.getY() - Math.sin(angleNearest90) * entryDist;
-        Pose2d entryPose = new Pose2d(entryX, entryY, new Rotation2d(angleNearest90));
+            double entryX = nearest.getX() - Math.cos(angleNearest90) * entryDist;
+            double entryY = nearest.getY() - Math.sin(angleNearest90) * entryDist;
+            Pose2d entryPose = new Pose2d(entryX, entryY, new Rotation2d(angleNearest90));
 
-        double throughX = nearest.getX() + Math.cos(angleNearest90) * throughDist;
-        double throughY = nearest.getY() + Math.sin(angleNearest90) * throughDist;
-        Pose2d throughPose = new Pose2d(throughX, throughY, new Rotation2d(angleNearest90));
+            double throughX = nearest.getX() + Math.cos(angleNearest90) * throughDist;
+            double throughY = nearest.getY() + Math.sin(angleNearest90) * throughDist;
+            Pose2d throughPose = new Pose2d(throughX, throughY, new Rotation2d(angleNearest90));
 
-        // Pre-align rotation-only command: rotate to the nearest 90-degree heading
-        PIDController preRotatePid = new PIDController(7.0, 0.0, 0.0);
-        preRotatePid.enableContinuousInput(-Math.PI, Math.PI);
-        preRotatePid.setSetpoint(angleNearest90);
+            // Pre-align rotation-only command: rotate to the nearest 90-degree heading
+            PIDController preRotatePid = new PIDController(7.0, 0.0, 0.0);
+            preRotatePid.enableContinuousInput(-Math.PI, Math.PI);
+            preRotatePid.setSetpoint(angleNearest90);
 
-        double tol = Math.toRadians(4.0);
+            double tol = Math.toRadians(4.0);
 
-        var rotateCommand = Commands.run(() -> {
-        double curr = drive.getState().Pose.getRotation().getRadians();
-        double output = preRotatePid.calculate(curr, angleNearest90);
-        double maxOmega = LobbyConstants.DrivetrainConstants.kMaxAngularSpeed.in(RadiansPerSecond);
-        double clipped = MathUtil.clamp(output, -maxOmega, maxOmega);
-        drive.fieldRelativeDrive(new ChassisSpeeds(0.0, 0.0, clipped));
-        }, drive).until(() -> {
-        double curr = drive.getState().Pose.getRotation().getRadians();
-        double err = Math.atan2(Math.sin(angleNearest90 - curr), Math.cos(angleNearest90 - curr));
-        return Math.abs(err) < tol;
-        });
+            var rotateCommand = Commands.run(() ->
+            {
+                double curr = drive.getState().Pose.getRotation().getRadians();
+                double output = preRotatePid.calculate(curr, angleNearest90);
+                double maxOmega = LobbyConstants.DrivetrainConstants.kMaxAngularSpeed.in(RadiansPerSecond);
+                double clipped = MathUtil.clamp(output, -maxOmega, maxOmega);
+                drive.fieldRelativeDrive(new ChassisSpeeds(0.0, 0.0, clipped));
+            }, drive).until(() ->
+            {
+                double curr = drive.getState().Pose.getRotation().getRadians();
+                double err = Math.atan2(Math.sin(angleNearest90 - curr), Math.cos(angleNearest90 - curr));
+                return Math.abs(err) < tol;
+            });
 
-        return Commands.sequence(
-            Commands.runOnce(() -> DogLog.log("Auto/Trench", "Auto-trench activate, nearest=" + nearestDesc), drive),
-            // Rotate in place to pre-align
-            rotateCommand,
-            // Move to entry (positioned before trench)
-            container.driveToPose(entryPose),
-            // Drive through to exit point past the trench
-            container.driveToPose(throughPose));
+            return Commands.sequence(
+                    Commands.runOnce(() -> DogLog.log("Auto/Trench", "Auto-trench activate, nearest=" + nearestDesc),
+                            drive),
+                    // Rotate in place to pre-align
+                    rotateCommand,
+                    // Move to entry (positioned before trench)
+                    container.driveToPose(entryPose),
+                    // Drive through to exit point past the trench
+                    container.driveToPose(throughPose));
         }, Set.of(drive)));
     }
 }
