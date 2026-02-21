@@ -5,11 +5,14 @@ import java.util.function.DoubleSupplier;
 
 import dev.doglog.DogLog;
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.Meters;
+import static edu.wpi.first.units.Units.RadiansPerSecond;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
@@ -132,26 +135,52 @@ public class LobbyOI
             double dy = nearest.getY() - current.getY();
             double angle = Math.atan2(dy, dx);
 
+            // Round heading to the nearest 90 degrees (PI/2) so the robot will
+            // align to the closest cardinal orientation before driving through.
+            double ninety = Math.PI / 2.0;
+            double rawNearest = Math.round(angle / ninety) * ninety;
+            final double angleNearest90 = (rawNearest > Math.PI) ? rawNearest - 2.0 * Math.PI : rawNearest;
+
             // Compute an entry point before the trench and an exit point beyond it so the
             // robot drives completely through the trench instead of stopping at the center.
             double entryDist = LobbyConstants.AutoTrenchConstants.kApproachDistance;
             double throughDist = LobbyConstants.AutoTrenchConstants.kThroughDistance;
 
-            double entryX = nearest.getX() - Math.cos(angle) * entryDist;
-            double entryY = nearest.getY() - Math.sin(angle) * entryDist;
-            Pose2d entryPose = new Pose2d(entryX, entryY, new Rotation2d(angle));
+        double entryX = nearest.getX() - Math.cos(angleNearest90) * entryDist;
+        double entryY = nearest.getY() - Math.sin(angleNearest90) * entryDist;
+        Pose2d entryPose = new Pose2d(entryX, entryY, new Rotation2d(angleNearest90));
 
-            double throughX = nearest.getX() + Math.cos(angle) * throughDist;
-            double throughY = nearest.getY() + Math.sin(angle) * throughDist;
-            Pose2d throughPose = new Pose2d(throughX, throughY, new Rotation2d(angle));
+        double throughX = nearest.getX() + Math.cos(angleNearest90) * throughDist;
+        double throughY = nearest.getY() + Math.sin(angleNearest90) * throughDist;
+        Pose2d throughPose = new Pose2d(throughX, throughY, new Rotation2d(angleNearest90));
 
-            return Commands.sequence(
-                    Commands.runOnce(() -> DogLog.log("Auto/Trench", "Auto-trench activate, nearest=" + nearestDesc),
-                            drive),
-                    // Move to entry (pre-align and position)
-                    container.driveToPose(entryPose),
-                    // Drive through to exit point past the trench
-                    container.driveToPose(throughPose));
+        // Pre-align rotation-only command: rotate to the nearest 90-degree heading
+        PIDController preRotatePid = new PIDController(7.0, 0.0, 0.0);
+        preRotatePid.enableContinuousInput(-Math.PI, Math.PI);
+        preRotatePid.setSetpoint(angleNearest90);
+
+        double tol = Math.toRadians(4.0);
+
+        var rotateCommand = Commands.run(() -> {
+        double curr = drive.getState().Pose.getRotation().getRadians();
+        double output = preRotatePid.calculate(curr, angleNearest90);
+        double maxOmega = LobbyConstants.DrivetrainConstants.kMaxAngularSpeed.in(RadiansPerSecond);
+        double clipped = MathUtil.clamp(output, -maxOmega, maxOmega);
+        drive.fieldRelativeDrive(new ChassisSpeeds(0.0, 0.0, clipped));
+        }, drive).until(() -> {
+        double curr = drive.getState().Pose.getRotation().getRadians();
+        double err = Math.atan2(Math.sin(angleNearest90 - curr), Math.cos(angleNearest90 - curr));
+        return Math.abs(err) < tol;
+        });
+
+        return Commands.sequence(
+            Commands.runOnce(() -> DogLog.log("Auto/Trench", "Auto-trench activate, nearest=" + nearestDesc), drive),
+            // Rotate in place to pre-align
+            rotateCommand,
+            // Move to entry (positioned before trench)
+            container.driveToPose(entryPose),
+            // Drive through to exit point past the trench
+            container.driveToPose(throughPose));
         }, Set.of(drive)));
     }
 }
