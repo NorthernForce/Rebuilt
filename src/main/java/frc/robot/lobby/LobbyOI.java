@@ -56,7 +56,7 @@ public class LobbyOI
         {
             DogLog.log("Turret/csvValue", container.getTurret().getHoodTargetingCalculator().getValueForDistance(5.0));
         }));
-                
+
         driveController.rightTrigger().whileTrue(new RunSpindexer(container.getSpindexer()));
         // driveController.leftTrigger().whileTrue(new
         // PrepTurretWithValues(container.getTurret()));

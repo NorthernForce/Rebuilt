@@ -17,6 +17,7 @@ public class RunSpindexer extends Command
         this.spindexer = spindexer;
         timer = new Timer();
     }
+
     @Override
     public void initialize()
     {
@@ -39,8 +40,7 @@ public class RunSpindexer extends Command
         {
             spindexer.getCarousel().startCarousel();
             spindexer.getFlicker().rampFlicker();
-        }
-        else
+        } else
         {
             spindexer.getCarousel().dejam();
             spindexer.getFlicker().dejam();
