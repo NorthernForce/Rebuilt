@@ -2,6 +2,7 @@ package frc.robot.subsystems.turret.hood;
 
 import java.util.List;
 
+import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.Distance;
@@ -32,8 +33,39 @@ public class Hood extends SubsystemBase
         return run(() -> io.setSpeed(speed, overrideSoftLimit));
     }
 
+    public List<Translation2d> getTrenchPositions()
+    {
+        return io.getTrenchPositions();
+    }
+
+    public Distance getDangerZone()
+    {
+        return io.getDangerZone();
+    }
+
+    public Angle getTargetAngle()
+    {
+        return io.getTargetAngle();
+    }
+
+    public Angle getAngle()
+    {
+        return io.getAngle();
+    }
+
+    public boolean isAtTargetAngle()
+    {
+        return io.isAtTargetAngle();
+    }
+
     public HoodIO getIO()
     {
         return io;
+    }
+
+    @Override
+    public void periodic()
+    {
+        io.update();
     }
 }

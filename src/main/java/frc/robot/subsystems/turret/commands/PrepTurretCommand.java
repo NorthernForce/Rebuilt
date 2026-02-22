@@ -42,8 +42,7 @@ public class PrepTurretCommand extends Command
         DogLog.log("Turret/PrepCommand/TurretPosition", turretPosition);
 
         var hood = turret.getHood();
-        boolean inDanger = turret.isInDangerProximity(turretPosition, hood.getIO().getDangerZone(),
-                hood.getIO().getTrenchPositions());
+        boolean inDanger = turret.isInDangerProximity(turretPosition, hood.getDangerZone(), hood.getTrenchPositions());
         DogLog.log("Turret/PrepCommand/InDanger", inDanger);
 
         // Calculate the target pose

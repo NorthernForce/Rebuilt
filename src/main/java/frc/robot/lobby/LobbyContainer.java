@@ -1,7 +1,6 @@
 package frc.robot.lobby;
 
 import static edu.wpi.first.units.Units.Degrees;
-import static edu.wpi.first.units.Units.DegreesPerSecond;
 import static edu.wpi.first.units.Units.Radians;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 
@@ -35,7 +34,6 @@ import frc.robot.subsystems.turret.hood.Hood;
 import frc.robot.subsystems.turret.hood.HoodIO.HoodConstants;
 import frc.robot.subsystems.turret.hood.HoodIOServo;
 import frc.robot.subsystems.turret.hood.HoodIOServoSim;
-import frc.robot.subsystems.turret.hood.HoodIOTalonFXS;
 import frc.robot.subsystems.turret.shooter.Shooter;
 import frc.robot.subsystems.turret.shooter.ShooterIO.ShooterConstants;
 import frc.robot.subsystems.turret.shooter.ShooterIOTalonFX;
@@ -48,8 +46,6 @@ import frc.robot.subsystems.turret.suzie.SuzieIOTalonFXSSim;
 import frc.robot.lobby.subsystems.apriltagvision.commands.DriveToPoseWithVision;
 import frc.robot.subsystems.intake.Intake;
 import frc.robot.subsystems.intake.IntakeIOTalonFX;
-import frc.robot.lobby.subsystems.CommandSwerveDrivetrain;
-import frc.robot.lobby.subsystems.CommandSwerveDrivetrain;
 import frc.robot.lobby.subsystems.spindexer.Spindexer;
 import frc.robot.lobby.subsystems.spindexer.Spindexer.SpindexerParameters;
 import frc.robot.lobby.subsystems.spindexer.carousel.CarouselIO.CarouselConstants;
@@ -59,10 +55,6 @@ import frc.robot.lobby.subsystems.spindexer.flicker.FlickerIOTalonFXS;
 import frc.robot.lobby.subsystems.spindexer.flicker.FlickerIOTalonFXSSim;
 import frc.robot.lobby.subsystems.spindexer.flicker.FlickerParameters;
 import frc.robot.lobby.subsystems.spindexer.flicker.FlickerSimParameters;
-import frc.robot.lobby.subsystems.apriltagvision.*;
-import frc.robot.lobby.subsystems.CommandSwerveDrivetrain;
-import frc.robot.lobby.subsystems.apriltagvision.*;
-import frc.robot.lobby.subsystems.apriltagvision.commands.DriveToPoseWithVision;
 import frc.robot.util.AutoUtil;
 import frc.robot.util.InterpolatedTargetingCalculator;
 import frc.robot.util.TrigHoodTargetingCalculator;
@@ -230,25 +222,23 @@ public class LobbyContainer implements NFRRobotContainer
         Shuffleboard.getTab("Developer").add(field);
         Shuffleboard.getTab("Developer").add("Reset Encoders", drive.resetEncoders());
         Shuffleboard.getTab("Developer").add("Reset Orientation", drive.resetOrientation());
-        Shuffleboard.getTab("Developer").add("Drive to Blue Reef",
-                drive.navigateToPose(new Pose2d(3, 4, new Rotation2d())));
+
         indexerSpeedEntry = Shuffleboard.getTab("Tuning")
                 .add("Indexer Speed", (double) spindexer.getCarousel().getTargetPower()).getEntry();
         flickerSpeedEntry = Shuffleboard.getTab("Tuning")
                 .add("Flicker Speed", (double) spindexer.getFlicker().getTargetPower()).getEntry();
         shooterSpeedEntry = Shuffleboard.getTab("Tuning")
-                .add("Shooter Velocity", (double) turret.getShooter().getIO().getTargetSpeed().in(RotationsPerSecond))
+                .add("Shooter Velocity", (double) turret.getShooter().getTargetSpeed().in(RotationsPerSecond))
                 .getEntry();
 
         hoodAngleEntry = Shuffleboard.getTab("Tuning").add("Hood Angle (degrees)", 0.0).getEntry();
 
-        shooterDutyCycleEntry = Shuffleboard.getTab("Tuning").add("Shooter Duty Cycle", 0).getEntry();
-        shooterKPEntry = Shuffleboard.getTab("Tuning").add("Shooter kP", 0).getEntry();
-        shooterKIEntry = Shuffleboard.getTab("Tuning").add("Shooter kI", 0).getEntry();
-        shooterKDEntry = Shuffleboard.getTab("Tuning").add("Shooter kD", 0).getEntry();
-        shooterKVEntry = Shuffleboard.getTab("Tuning").add("Shooter kV", 0).getEntry();
-        shooterKAEntry = Shuffleboard.getTab("Tuning").add("Shooter kA", 0).getEntry();
-
+        shooterDutyCycleEntry = Shuffleboard.getTab("Tuning").add("Shooter Duty Cycle", 0.0).getEntry();
+        shooterKPEntry = Shuffleboard.getTab("Tuning").add("Shooter kP", 0.0).getEntry();
+        shooterKIEntry = Shuffleboard.getTab("Tuning").add("Shooter kI", 0.0).getEntry();
+        shooterKDEntry = Shuffleboard.getTab("Tuning").add("Shooter kD", 0.0).getEntry();
+        shooterKVEntry = Shuffleboard.getTab("Tuning").add("Shooter kV", 0.0).getEntry();
+        shooterKAEntry = Shuffleboard.getTab("Tuning").add("Shooter kA", 0.0).getEntry();
     }
 
     /**
@@ -300,9 +290,9 @@ public class LobbyContainer implements NFRRobotContainer
         DogLog.log("Turret/Direction",
                 getTurret().calculateFieldRelativeShooterPosition(drive.getState().Pose)
                         .plus(new Translation2d(
-                                Math.cos(getTurret().getSuzie().getIO().getAngle().in(Radians)
+                                Math.cos(getTurret().getSuzie().getAngle().in(Radians)
                                         + getDrive().getState().Pose.getRotation().getRadians()),
-                                Math.sin(getTurret().getSuzie().getIO().getAngle().in(Radians)
+                                Math.sin(getTurret().getSuzie().getAngle().in(Radians)
                                         + getDrive().getState().Pose.getRotation().getRadians()))));
 
         if (DriverStation.getGameSpecificMessage().equals("R"))
@@ -344,9 +334,8 @@ public class LobbyContainer implements NFRRobotContainer
         double flickerSpeed = flickerSpeedEntry.getDouble(spindexer.getFlicker().getPower());
         spindexer.getFlicker().setPower(flickerSpeed);
 
-        double shooterSpeed = shooterSpeedEntry
-                .getDouble(turret.getShooter().getIO().getSpeed().in(RotationsPerSecond));
-        turret.getShooter().getIO().setPotentialSpeed(RotationsPerSecond.of(shooterSpeed));
+        double shooterSpeed = shooterSpeedEntry.getDouble(turret.getShooter().getSpeed().in(RotationsPerSecond));
+        turret.getShooter().setPotentialSpeed(RotationsPerSecond.of(shooterSpeed));
 
         // double shooterDuty = shooterDutyCycleEntry.getDouble(0);
         // turret.getShooter().setPotentialDutyCycle(shooterDuty);
@@ -356,8 +345,8 @@ public class LobbyContainer implements NFRRobotContainer
         double shooterKD = shooterKDEntry.getDouble(0);
         double shooterKV = shooterKVEntry.getDouble(0);
         double shooterKA = shooterKAEntry.getDouble(0);
-        turret.getHood().getIO().setTargetMechanismAngle(Degrees.of(hoodAngleEntry.getDouble(0.0)));
-        turret.getShooter().getIO().setPID(shooterKP, shooterKI, shooterKD, shooterKV, shooterKA);
+        turret.getHood().setTargetMechanismAngle(Degrees.of(hoodAngleEntry.getDouble(0.0)));
+        turret.getShooter().setPID(shooterKP, shooterKI, shooterKD, shooterKV, shooterKA);
 
     }
 

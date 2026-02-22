@@ -24,10 +24,30 @@ public class Suzie extends SubsystemBase
         return io;
     }
 
+    public Angle getAngle()
+    {
+        return io.getAngle();
+    }
+
+    public Angle getTargetAngle()
+    {
+        return io.getTargetAngle();
+    }
+
+    public boolean isAtTargetAngle()
+    {
+        return io.isAtTargetAngle();
+    }
+
+    public void setTargetAngle(Angle angle)
+    {
+        io.setTargetAngle(angle);
+    }
+
     @Override
     public void periodic()
     {
-
+        io.update();
         DogLog.log("Turret/Suzie/ControlRequest", io.getAppliedControlName());
     }
 

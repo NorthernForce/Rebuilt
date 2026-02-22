@@ -15,6 +15,8 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.subsystems.turret.commands.PrepTurretCommand;
 import frc.robot.subsystems.turret.commands.PrepTurretWithValues;
+import frc.robot.lobby.subsystems.spindexer.Spindexer;
+import frc.robot.lobby.subsystems.spindexer.commands.DejamSpindexer;
 import frc.robot.lobby.subsystems.spindexer.commands.RunSpindexer;
 
 public class LobbyOI
@@ -54,8 +56,7 @@ public class LobbyOI
         {
             DogLog.log("Turret/csvValue", container.getTurret().getHoodTargetingCalculator().getValueForDistance(5.0));
         }));
-        (new Trigger(() -> container.getSpindexer().getJammed())).whileTrue(
-                Commands.defer(() -> container.getSpindexer().runBackwards(), Set.of(container.getSpindexer())));
+                
         driveController.rightTrigger().whileTrue(new RunSpindexer(container.getSpindexer()));
         // driveController.leftTrigger().whileTrue(new
         // PrepTurretWithValues(container.getTurret()));
@@ -67,7 +68,12 @@ public class LobbyOI
         // manipulatorController.leftTrigger().whileTrue(intake.getRunToIntakeAngleCommand());
         // intake.setDefaultCommand(intake.getRunToStowAngleCommand());
         manipulatorController.leftTrigger().whileTrue(intake.intake(0.75)).onFalse(intake.stopIntake());
-        manipulatorController.rightTrigger().whileTrue(new RunSpindexer(container.getSpindexer()).alongWith(new PrepTurretWithValues(container.getTurret())));
+        manipulatorController.rightTrigger().whileTrue(
+                new RunSpindexer(container.getSpindexer()).alongWith(new PrepTurretWithValues(container.getTurret())));
+        // manipulatorController.rightTrigger().whileTrue(new
+        // RunSpindexer(container.getSpindexer()));
+        // manipulatorController.leftBumper().whileTrue(new
+        // PrepTurretWithValues(container.getTurret()));
         driveController.a().onTrue(Commands.runOnce(() -> container
                 .resetOdometry(new Pose2d(Meters.of(0), Meters.of(0), new Rotation2d(Degrees.of(180))))));
 

@@ -130,9 +130,9 @@ public class Turret extends SubsystemBase
 
     public void setTargetPose(TurretPose pose)
     {
-        suzie.getIO().setTargetAngle(pose.suzieAngle);
+        suzie.setTargetAngle(pose.suzieAngle);
         hood.setTargetAngle(pose.hoodAngle);
-        shooter.getIO().setTargetSpeed(pose.shooterSpeed);
+        shooter.setTargetSpeed(pose.shooterSpeed);
     }
 
     public TurretPose calculateTargetPose(Pose2d robotPose)
@@ -303,15 +303,12 @@ public class Turret extends SubsystemBase
     @Override
     public void periodic()
     {
-        suzie.getIO().update();
-        hood.getIO().update();
-        shooter.getIO().update();
-        DogLog.log("Turret/Suzie/Angle", suzie.getIO().getAngle().in(Radians));
-        DogLog.log("Turret/Suzie/TargetAngle", suzie.getIO().getTargetAngle().in(Radians));
-        DogLog.log("Turret/Suzie/IsAtTarget", suzie.getIO().isAtTargetAngle());
-        DogLog.log("Turret/Hood/Angle", hood.getIO().getAngle().in(Radians));
-        DogLog.log("Turret/Hood/TargetAngle", hood.getIO().getTargetAngle().in(Radians));
-        DogLog.log("Turret/Hood/IsAtTarget", hood.getIO().isAtTargetAngle());
+        DogLog.log("Turret/Suzie/Angle", suzie.getAngle().in(Radians));
+        DogLog.log("Turret/Suzie/TargetAngle", suzie.getTargetAngle().in(Radians));
+        DogLog.log("Turret/Suzie/IsAtTarget", suzie.isAtTargetAngle());
+        DogLog.log("Turret/Hood/Angle", hood.getAngle().in(Radians));
+        DogLog.log("Turret/Hood/TargetAngle", hood.getTargetAngle().in(Radians));
+        DogLog.log("Turret/Hood/IsAtTarget", hood.isAtTargetAngle());
         DogLog.log("Turret/Alliance", getAlliance().toString());
     }
 }

@@ -23,12 +23,7 @@ import com.ctre.phoenix6.signals.MotorArrangementValue;
 
 import edu.wpi.first.units.measure.Angle;
 import static edu.wpi.first.units.Units.Meters;
-import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.Rotations;
-import static edu.wpi.first.units.Units.RotationsPerSecond;
-import static edu.wpi.first.units.Units.Seconds;
-
-import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Distance;
@@ -150,7 +145,7 @@ public class LobbyConstants
             public static int kMotor2ID = 21;
             public static double kS = 0;
             public static double kV = 0.115;
-            public static double kA = 0;
+            public static double kA = 1;
             public static double kP = 0.55;
             public static double kI = 0;
             public static double kD = 0;
