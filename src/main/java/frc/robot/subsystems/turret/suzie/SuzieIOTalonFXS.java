@@ -7,6 +7,7 @@ import java.util.function.Supplier;
 
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.TalonFXSConfiguration;
+import com.ctre.phoenix6.controls.DutyCycleOut;
 import com.ctre.phoenix6.controls.PositionVoltage;
 import com.ctre.phoenix6.hardware.TalonFXS;
 import com.ctre.phoenix6.signals.InvertedValue;
@@ -111,7 +112,7 @@ public class SuzieIOTalonFXS implements SuzieIO
     @Override
     public void setSpeed(double speed)
     {
-        m_motor.set(speed);
+        m_motor.setControl(new DutyCycleOut(speed));
     }
 
     @Override
@@ -136,5 +137,11 @@ public class SuzieIOTalonFXS implements SuzieIO
     public void resetAngle(Angle angle)
     {
         m_motor.setPosition(angle.in(Degrees));
+    }
+
+    @Override
+    public String getAppliedControlName()
+    {
+        return m_motor.getAppliedControl().getName();
     }
 }

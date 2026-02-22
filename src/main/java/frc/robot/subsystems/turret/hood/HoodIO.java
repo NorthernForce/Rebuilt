@@ -17,7 +17,8 @@ public interface HoodIO
     public static record HoodConstants(int kMotorID, int kEncoderID, double kS, double kV, double kA, double kP,
             double kI, double kD, double kG, double kCruiseVelocity, double kAcceleration, double kJerk,
             double kGearRatio, boolean kInverted, Angle kLowerSoftLimit, Angle kUpperSoftLimit, Angle kErrorTolerance,
-            MotorArrangementValue kMotorArrangement, Distance dangerZone, List<Translation2d> trenchPositions) {
+            MotorArrangementValue kMotorArrangement, Distance dangerZone, List<Translation2d> trenchPositions,
+            Angle kLowerMechanismAngle, Angle kUpperMechanismAngle) {
     };
 
     public default void update()
@@ -25,6 +26,10 @@ public interface HoodIO
     }
 
     public default void setTargetAngle(Angle angle)
+    {
+    }
+
+    public default void setTargetMechanismAngle(Angle angle)
     {
     }
 
