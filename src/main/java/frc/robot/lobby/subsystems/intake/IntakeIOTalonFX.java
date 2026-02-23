@@ -1,4 +1,4 @@
-package frc.robot.subsystems.intake;
+package frc.robot.lobby.subsystems.intake;
 
 import com.ctre.phoenix6.configs.TalonFXSConfiguration;
 import com.ctre.phoenix6.controls.MotionMagicVoltage;
