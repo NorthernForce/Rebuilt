@@ -1,4 +1,4 @@
-package frc.robot.subsystems.turret;
+package frc.robot.lobby.subsystems.turret;
 
 import static edu.wpi.first.units.Units.*;
 
@@ -16,12 +16,9 @@ import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.FieldConstants;
-import frc.robot.subsystems.turret.hood.Hood;
-import frc.robot.subsystems.turret.hood.HoodIO;
-import frc.robot.subsystems.turret.shooter.Shooter;
-import frc.robot.subsystems.turret.shooter.ShooterIO;
-import frc.robot.subsystems.turret.suzie.Suzie;
-import frc.robot.subsystems.turret.suzie.SuzieIO;
+import frc.robot.lobby.subsystems.turret.hood.Hood;
+import frc.robot.lobby.subsystems.turret.shooter.Shooter;
+import frc.robot.lobby.subsystems.turret.suzie.Suzie;
 import frc.robot.util.TargetingCalculator;
 
 public class Turret extends SubsystemBase
@@ -303,8 +300,8 @@ public class Turret extends SubsystemBase
     @Override
     public void periodic()
     {
-        DogLog.log("Turret/Suzie/Angle", suzie.getAngle().in(Radians));
-        DogLog.log("Turret/Suzie/TargetAngle", suzie.getTargetAngle().in(Radians));
+        DogLog.log("Turret/Suzie/Angle", suzie.getAngle().in(Degrees));
+        DogLog.log("Turret/Suzie/TargetAngle", suzie.getTargetAngle().in(Degrees));
         DogLog.log("Turret/Suzie/IsAtTarget", suzie.isAtTargetAngle());
         DogLog.log("Turret/Hood/Angle", hood.getAngle().in(Radians));
         DogLog.log("Turret/Hood/TargetAngle", hood.getTargetAngle().in(Radians));

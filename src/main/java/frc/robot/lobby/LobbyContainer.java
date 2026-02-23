@@ -1,10 +1,6 @@
 package frc.robot.lobby;
 
-import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.Radians;
-import static edu.wpi.first.units.Units.RotationsPerSecond;
-
-import java.util.List;
 
 import java.util.Optional;
 import org.northernforce.util.NFRRobotContainer;
@@ -18,31 +14,15 @@ import dev.doglog.DogLog;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
-import edu.wpi.first.networktables.GenericEntry;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
-import frc.robot.FieldConstants;
 import frc.robot.lobby.generated.LobbyTunerConstants;
 import frc.robot.lobby.subsystems.CommandSwerveDrivetrain;
 import frc.robot.lobby.subsystems.apriltagvision.*;
-import frc.robot.subsystems.turret.Turret.TurretConstants;
-import frc.robot.subsystems.turret.hood.Hood;
-import frc.robot.subsystems.turret.hood.HoodIO.HoodConstants;
-import frc.robot.subsystems.turret.hood.HoodIOServo;
-import frc.robot.subsystems.turret.hood.HoodIOServoSim;
-import frc.robot.subsystems.turret.shooter.Shooter;
-import frc.robot.subsystems.turret.shooter.ShooterIO.ShooterConstants;
-import frc.robot.subsystems.turret.shooter.ShooterIOTalonFX;
-import frc.robot.subsystems.turret.shooter.ShooterIOTalonFXSim;
-import frc.robot.subsystems.turret.Turret;
-import frc.robot.subsystems.turret.suzie.Suzie;
-import frc.robot.subsystems.turret.suzie.SuzieIO.SuzieConstants;
-import frc.robot.subsystems.turret.suzie.SuzieIOTalonFXS;
-import frc.robot.subsystems.turret.suzie.SuzieIOTalonFXSSim;
 import frc.robot.lobby.subsystems.apriltagvision.commands.DriveToPoseWithVision;
 import frc.robot.subsystems.intake.Intake;
 import frc.robot.subsystems.intake.IntakeIOTalonFX;
@@ -55,6 +35,17 @@ import frc.robot.lobby.subsystems.spindexer.flicker.FlickerIOTalonFXS;
 import frc.robot.lobby.subsystems.spindexer.flicker.FlickerIOTalonFXSSim;
 import frc.robot.lobby.subsystems.spindexer.flicker.FlickerParameters;
 import frc.robot.lobby.subsystems.spindexer.flicker.FlickerSimParameters;
+import frc.robot.lobby.subsystems.turret.Turret;
+import frc.robot.lobby.subsystems.turret.Turret.TurretConstants;
+import frc.robot.lobby.subsystems.turret.hood.Hood;
+import frc.robot.lobby.subsystems.turret.hood.HoodIOServo;
+import frc.robot.lobby.subsystems.turret.hood.HoodIOServoSim;
+import frc.robot.lobby.subsystems.turret.shooter.Shooter;
+import frc.robot.lobby.subsystems.turret.shooter.ShooterIOTalonFX;
+import frc.robot.lobby.subsystems.turret.shooter.ShooterIOTalonFXSim;
+import frc.robot.lobby.subsystems.turret.suzie.Suzie;
+import frc.robot.lobby.subsystems.turret.suzie.SuzieIOTalonFXS;
+import frc.robot.lobby.subsystems.turret.suzie.SuzieIOTalonFXSSim;
 import frc.robot.util.AutoUtil;
 import frc.robot.util.InterpolatedTargetingCalculator;
 import frc.robot.util.TrigHoodTargetingCalculator;
@@ -68,17 +59,7 @@ public class LobbyContainer implements NFRRobotContainer
     private final AutoUtil autoUtil;
     private final Field2d field;
     private final Turret turret;
-    private final GenericEntry flickerSpeedEntry;
-    private final GenericEntry indexerSpeedEntry;
-    private final GenericEntry shooterSpeedEntry;
-    private final GenericEntry shooterDutyCycleEntry;
-    private final GenericEntry shooterKPEntry;
-    private final GenericEntry shooterKIEntry;
-    private final GenericEntry shooterKDEntry;
-    private final GenericEntry shooterKVEntry;
-    private final GenericEntry shooterKAEntry;
     private final Spindexer spindexer;
-    private final GenericEntry hoodAngleEntry;
     private final DriveToPoseWithVision driveToPoseCommand;
     private Optional<String> teamActivity = Optional.empty();
 
@@ -91,10 +72,6 @@ public class LobbyContainer implements NFRRobotContainer
                 LobbyTunerConstants.BackRight);
         drive.resetPose(new Pose2d(3, 3, new Rotation2d()));
 
-        // Create list of all 4 trench positions
-        List<Translation2d> allTrenchPositions = List.of(FieldConstants.kBlueTrench1, FieldConstants.kBlueTrench2,
-                FieldConstants.kRedTrench1, FieldConstants.kRedTrench2);
-
         drive.setVisionMeasurementStdDevs(LobbyConstants.VisionConstants.kStdDevs);
         if (Utils.isSimulation())
         {
@@ -104,36 +81,9 @@ public class LobbyContainer implements NFRRobotContainer
                             LobbyConstants.VisionConstants.LimeLightConstants.kLimeLightName, new SimCameraProperties(),
                             LobbyConstants.CameraConstants.kBackLeftCameraTransform));
             turret = new Turret(new TurretConstants(LobbyConstants.Turret.offset),
-                    new Suzie(new SuzieIOTalonFXSSim(new SuzieConstants(LobbyConstants.Turret.Suzie.kMotorID,
-                            LobbyConstants.Turret.Suzie.kDrivingEncoderID, LobbyConstants.Turret.Suzie.kSensingEncoderID, LobbyConstants.Turret.Suzie.kS,
-                            LobbyConstants.Turret.Suzie.kV, LobbyConstants.Turret.Suzie.kA,
-                            LobbyConstants.Turret.Suzie.kP, LobbyConstants.Turret.Suzie.kI,
-                            LobbyConstants.Turret.Suzie.kD, LobbyConstants.Turret.Suzie.kG,
-                            LobbyConstants.Turret.Suzie.kCruiseVelocity, LobbyConstants.Turret.Suzie.kAcceleration,
-                            LobbyConstants.Turret.Suzie.kJerk, LobbyConstants.Turret.Suzie.kDrivingGearTeeth, LobbyConstants.Turret.Suzie.kSensingGearTeeth,
-                            LobbyConstants.Turret.Suzie.kTurntableGearTeeth, LobbyConstants.Turret.Suzie.kInverted, LobbyConstants.Turret.Suzie.kLowerSoftLimit,
-                            LobbyConstants.Turret.Suzie.kUpperSoftLimit, LobbyConstants.Turret.Suzie.kErrorTolerance,
-                            LobbyConstants.Turret.Suzie.kMotorArrangement))),
-                    new Hood(new HoodIOServoSim(new HoodConstants(LobbyConstants.Turret.Hood.kMotorID,
-                            LobbyConstants.Turret.Hood.kEncoderID, LobbyConstants.Turret.Hood.kS,
-                            LobbyConstants.Turret.Hood.kV, LobbyConstants.Turret.Hood.kA, LobbyConstants.Turret.Hood.kP,
-                            LobbyConstants.Turret.Hood.kI, LobbyConstants.Turret.Hood.kD, LobbyConstants.Turret.Hood.kG,
-                            LobbyConstants.Turret.Hood.kCruiseVelocity, LobbyConstants.Turret.Hood.kAcceleration,
-                            LobbyConstants.Turret.Hood.kJerk, LobbyConstants.Turret.Hood.kGearRatio,
-                            LobbyConstants.Turret.Hood.kInverted, LobbyConstants.Turret.Hood.kLowerSoftLimit,
-                            LobbyConstants.Turret.Hood.kUpperSoftLimit, LobbyConstants.Turret.Hood.kErrorTolerance,
-                            LobbyConstants.Turret.Hood.kMotorArrangement, LobbyConstants.Turret.Hood.kDangerZone,
-                            allTrenchPositions, LobbyConstants.Turret.Hood.kMechanismLowerAngle,
-                            LobbyConstants.Turret.Hood.kMechanismUpperAngle))),
-                    new Shooter(new ShooterIOTalonFXSim(new ShooterConstants(LobbyConstants.Turret.Shooter.kMotor1ID,
-                            LobbyConstants.Turret.Shooter.kMotor2ID, LobbyConstants.Turret.Shooter.kS,
-                            LobbyConstants.Turret.Shooter.kV, LobbyConstants.Turret.Shooter.kA,
-                            LobbyConstants.Turret.Shooter.kP, LobbyConstants.Turret.Shooter.kI,
-                            LobbyConstants.Turret.Shooter.kD, LobbyConstants.Turret.Shooter.kG,
-                            LobbyConstants.Turret.Shooter.kCruiseVelocity, LobbyConstants.Turret.Shooter.kAcceleration,
-                            LobbyConstants.Turret.Shooter.kJerk, LobbyConstants.Turret.Shooter.kMotor1Inverted,
-                            LobbyConstants.Turret.Shooter.kMotor2Inverted,
-                            LobbyConstants.Turret.Shooter.kErrorTolerance))),
+                    new Suzie(new SuzieIOTalonFXSSim(LobbyConstants.Turret.Suzie.kMinionConstants)),
+                    new Hood(new HoodIOServoSim(LobbyConstants.Turret.Hood.kServoConstants)),
+                    new Shooter(new ShooterIOTalonFXSim(LobbyConstants.Turret.Shooter.kKrakenConstants)),
                     new TrigHoodTargetingCalculator(), new TrigHoodTargetingCalculator());
             spindexer = new Spindexer(
                     new CarouselIOTalonFXSim(new CarouselConstants(LobbyConstants.CarouselConstants.kMotorID,
@@ -158,36 +108,9 @@ public class LobbyContainer implements NFRRobotContainer
                             LobbyConstants.CameraConstants.kBackLeftCameraTransform,
                             LobbyConstants.VisionConstants.LimeLightConstants.kValidIds));
             turret = new Turret(new TurretConstants(LobbyConstants.Turret.offset),
-                    new Suzie(new SuzieIOTalonFXS(new SuzieConstants(LobbyConstants.Turret.Suzie.kMotorID,
-                            LobbyConstants.Turret.Suzie.kDrivingEncoderID, LobbyConstants.Turret.Suzie.kSensingEncoderID, LobbyConstants.Turret.Suzie.kS,
-                            LobbyConstants.Turret.Suzie.kV, LobbyConstants.Turret.Suzie.kA,
-                            LobbyConstants.Turret.Suzie.kP, LobbyConstants.Turret.Suzie.kI,
-                            LobbyConstants.Turret.Suzie.kD, LobbyConstants.Turret.Suzie.kG,
-                            LobbyConstants.Turret.Suzie.kCruiseVelocity, LobbyConstants.Turret.Suzie.kAcceleration,
-                            LobbyConstants.Turret.Suzie.kJerk, LobbyConstants.Turret.Suzie.kDrivingGearTeeth, LobbyConstants.Turret.Suzie.kSensingGearTeeth, LobbyConstants.Turret.Suzie.kTurntableGearTeeth, 
-                            LobbyConstants.Turret.Suzie.kInverted, LobbyConstants.Turret.Suzie.kLowerSoftLimit,
-                            LobbyConstants.Turret.Suzie.kUpperSoftLimit, LobbyConstants.Turret.Suzie.kErrorTolerance,
-                            LobbyConstants.Turret.Suzie.kMotorArrangement))),
-                    new Hood(new HoodIOServo(new HoodConstants(LobbyConstants.Turret.Hood.kServoID,
-                            LobbyConstants.Turret.Hood.kEncoderID, LobbyConstants.Turret.Hood.kS,
-                            LobbyConstants.Turret.Hood.kV, LobbyConstants.Turret.Hood.kA, LobbyConstants.Turret.Hood.kP,
-                            LobbyConstants.Turret.Hood.kI, LobbyConstants.Turret.Hood.kD, LobbyConstants.Turret.Hood.kG,
-                            LobbyConstants.Turret.Hood.kCruiseVelocity, LobbyConstants.Turret.Hood.kAcceleration,
-                            LobbyConstants.Turret.Hood.kJerk, LobbyConstants.Turret.Hood.kGearRatio,
-                            LobbyConstants.Turret.Hood.kInverted, LobbyConstants.Turret.Hood.kLowerServoLimit,
-                            LobbyConstants.Turret.Hood.kUpperServoLimit, LobbyConstants.Turret.Hood.kErrorTolerance,
-                            LobbyConstants.Turret.Hood.kMotorArrangement, LobbyConstants.Turret.Hood.kDangerZone,
-                            allTrenchPositions, LobbyConstants.Turret.Hood.kMechanismLowerAngle,
-                            LobbyConstants.Turret.Hood.kMechanismUpperAngle))),
-                    new Shooter(new ShooterIOTalonFX(new ShooterConstants(LobbyConstants.Turret.Shooter.kMotor1ID,
-                            LobbyConstants.Turret.Shooter.kMotor2ID, LobbyConstants.Turret.Shooter.kS,
-                            LobbyConstants.Turret.Shooter.kV, LobbyConstants.Turret.Shooter.kA,
-                            LobbyConstants.Turret.Shooter.kP, LobbyConstants.Turret.Shooter.kI,
-                            LobbyConstants.Turret.Shooter.kD, LobbyConstants.Turret.Shooter.kG,
-                            LobbyConstants.Turret.Shooter.kCruiseVelocity, LobbyConstants.Turret.Shooter.kAcceleration,
-                            LobbyConstants.Turret.Shooter.kJerk, LobbyConstants.Turret.Shooter.kMotor1Inverted,
-                            LobbyConstants.Turret.Shooter.kMotor2Inverted,
-                            LobbyConstants.Turret.Shooter.kErrorTolerance))),
+                    new Suzie(new SuzieIOTalonFXS(LobbyConstants.Turret.Suzie.kMinionConstants)),
+                    new Hood(new HoodIOServo(LobbyConstants.Turret.Hood.kServoConstants)),
+                    new Shooter(new ShooterIOTalonFX(LobbyConstants.Turret.Shooter.kKrakenConstants)),
                     new InterpolatedTargetingCalculator(LobbyConstants.Turret.Hood.kTargetingDataFilepath),
                     new InterpolatedTargetingCalculator(LobbyConstants.Turret.Hood.kTargetingDataFilepath));
             spindexer = new Spindexer(
@@ -220,23 +143,6 @@ public class LobbyContainer implements NFRRobotContainer
         Shuffleboard.getTab("Developer").add(field);
         Shuffleboard.getTab("Developer").add("Reset Encoders", drive.resetEncoders());
         Shuffleboard.getTab("Developer").add("Reset Orientation", drive.resetOrientation());
-
-        indexerSpeedEntry = Shuffleboard.getTab("Tuning")
-                .add("Indexer Speed", (double) spindexer.getCarousel().getTargetPower()).getEntry();
-        flickerSpeedEntry = Shuffleboard.getTab("Tuning")
-                .add("Flicker Speed", (double) spindexer.getFlicker().getTargetPower()).getEntry();
-        shooterSpeedEntry = Shuffleboard.getTab("Tuning")
-                .add("Shooter Velocity", (double) turret.getShooter().getTargetSpeed().in(RotationsPerSecond))
-                .getEntry();
-
-        hoodAngleEntry = Shuffleboard.getTab("Tuning").add("Hood Angle (degrees)", 0.0).getEntry();
-
-        shooterDutyCycleEntry = Shuffleboard.getTab("Tuning").add("Shooter Duty Cycle", 0.0).getEntry();
-        shooterKPEntry = Shuffleboard.getTab("Tuning").add("Shooter kP", 0.0).getEntry();
-        shooterKIEntry = Shuffleboard.getTab("Tuning").add("Shooter kI", 0.0).getEntry();
-        shooterKDEntry = Shuffleboard.getTab("Tuning").add("Shooter kD", 0.0).getEntry();
-        shooterKVEntry = Shuffleboard.getTab("Tuning").add("Shooter kV", 0.0).getEntry();
-        shooterKAEntry = Shuffleboard.getTab("Tuning").add("Shooter kA", 0.0).getEntry();
     }
 
     /**
@@ -326,26 +232,6 @@ public class LobbyContainer implements NFRRobotContainer
             {
                 DogLog.log("GameData/GameShift", teamActivity.get().equals("inactive") ? "inactive" : "active");
             }
-        double indexerSpeed = indexerSpeedEntry.getDouble(spindexer.getCarousel().getPower());
-        spindexer.getCarousel().setPower(indexerSpeed);
-
-        double flickerSpeed = flickerSpeedEntry.getDouble(spindexer.getFlicker().getPower());
-        spindexer.getFlicker().setPower(flickerSpeed);
-
-        double shooterSpeed = shooterSpeedEntry.getDouble(turret.getShooter().getSpeed().in(RotationsPerSecond));
-        turret.getShooter().setPotentialSpeed(RotationsPerSecond.of(shooterSpeed));
-
-        // double shooterDuty = shooterDutyCycleEntry.getDouble(0);
-        // turret.getShooter().setPotentialDutyCycle(shooterDuty);
-
-        double shooterKP = shooterKPEntry.getDouble(0);
-        double shooterKI = shooterKIEntry.getDouble(0);
-        double shooterKD = shooterKDEntry.getDouble(0);
-        double shooterKV = shooterKVEntry.getDouble(0);
-        double shooterKA = shooterKAEntry.getDouble(0);
-        turret.getHood().setTargetMechanismAngle(Degrees.of(hoodAngleEntry.getDouble(0.0)));
-        turret.getShooter().setPID(shooterKP, shooterKI, shooterKD, shooterKV, shooterKA);
-
     }
 
     @Override

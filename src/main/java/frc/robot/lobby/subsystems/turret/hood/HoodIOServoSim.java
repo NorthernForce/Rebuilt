@@ -1,4 +1,4 @@
-package frc.robot.subsystems.turret.hood;
+package frc.robot.lobby.subsystems.turret.hood;
 
 import edu.wpi.first.units.measure.Angle;
 
