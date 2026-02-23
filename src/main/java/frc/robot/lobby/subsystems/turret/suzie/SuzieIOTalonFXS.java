@@ -1,8 +1,9 @@
-package frc.robot.subsystems.turret.suzie;
+package frc.robot.lobby.subsystems.turret.suzie;
 
 import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.Rotations;
 
+import java.util.Optional;
 import java.util.function.Supplier;
 
 import com.ctre.phoenix6.StatusSignal;
@@ -13,12 +14,15 @@ import com.ctre.phoenix6.hardware.TalonFXS;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.MotorArrangementValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
+
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Temperature;
 import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj.DutyCycleEncoder;
-import frc.robot.util.CRTEncodersUtil;
+import frc.robot.util.TunablePID;
+import yams.units.EasyCRT;
+import yams.units.EasyCRTConfig;
 
 public class SuzieIOTalonFXS implements SuzieIO
 {
@@ -32,23 +36,26 @@ public class SuzieIOTalonFXS implements SuzieIO
     protected final Supplier<Boolean> m_isPresent;
     protected final PositionVoltage m_positionVoltage;
     protected final Angle m_errorTolerance;
+    protected final EasyCRT m_crtCalculator;
 
-    private Angle m_targetAngle = Degrees.of(0);
+    private Angle m_targetAngle = Degrees.zero();
 
     public SuzieIOTalonFXS(SuzieIO.SuzieConstants constants)
     {
-        this(constants.kMotorID(), constants.kDrivingEncoderID(), constants.kSensingEncoderID(), constants.kS(), constants.kV(), constants.kA(),
-            constants.kP(), constants.kI(), constants.kD(), constants.kG(), constants.kCruiseVelocity(),
-            constants.kAcceleration(), constants.kJerk(), constants.kDrivingGearTeeth(), constants.kSensingGearTeeth(), constants.kTurntableGearTeeth(), constants.kInverted(),
-            constants.kLowerSoftLimit(), constants.kUpperSoftLimit(), constants.kErrorTolerance(),
-            constants.kMotorArrangement());
+        this(constants.kMotorID(), constants.kDrivingEncoderID(), constants.kSensingEncoderID(), constants.kS(),
+                constants.kV(), constants.kA(), constants.kP(), constants.kI(), constants.kD(), constants.kG(),
+                constants.kCruiseVelocity(), constants.kAcceleration(), constants.kJerk(),
+                constants.kDrivingGearTeeth(), constants.kSensingGearTeeth(), constants.kTurntableGearTeeth(),
+                constants.kInverted(), constants.kLowerSoftLimit(), constants.kUpperSoftLimit(),
+                constants.kErrorTolerance(), constants.kMotorArrangement()/* , constants.kCRTConfig() */);
         this.constants = constants;
     }
 
-    private SuzieIOTalonFXS(int kMotorID, int kDrivingEncoderID, int kSensingEncoderID, double kS, double kV, double kA, double kP,
-            double kI, double kD, double kG, double kCruiseVelocity, double kAcceleration, double kJerk,
-            int kDrivingGearTeeth, int kSensingGearTeeth, int kTurntableGearTeeth, boolean kInverted, Angle kLowerSoftLimit, Angle kUpperSoftLimit, Angle kErrorTolerance,
-            MotorArrangementValue kMotorArrangement)
+    private SuzieIOTalonFXS(int kMotorID, int kDrivingEncoderID, int kSensingEncoderID, double kS, double kV, double kA,
+            double kP, double kI, double kD, double kG, double kCruiseVelocity, double kAcceleration, double kJerk,
+            int kDrivingGearTeeth, int kSensingGearTeeth, int kTurntableGearTeeth, boolean kInverted,
+            Angle kLowerSoftLimit, Angle kUpperSoftLimit, Angle kErrorTolerance,
+            MotorArrangementValue kMotorArrangement/* , EasyCRTConfig kCRTConfig */)
     {
         m_motor = new TalonFXS(kMotorID);
         TalonFXSConfiguration config = new TalonFXSConfiguration();
@@ -73,8 +80,6 @@ public class SuzieIOTalonFXS implements SuzieIO
                 : InvertedValue.Clockwise_Positive;
         config.MotorOutput.NeutralMode = NeutralModeValue.Brake;
 
-        config.ExternalFeedback.RotorToSensorRatio = (double)kDrivingGearTeeth/kSensingGearTeeth;
-
         config.SoftwareLimitSwitch.ForwardSoftLimitEnable = true;
         config.SoftwareLimitSwitch.ForwardSoftLimitThreshold = kUpperSoftLimit.in(Degrees);
         config.SoftwareLimitSwitch.ReverseSoftLimitEnable = true;
@@ -84,8 +89,8 @@ public class SuzieIOTalonFXS implements SuzieIO
 
         m_motor.getConfigurator().apply(config);
 
-        m_drivingEncoder = new DutyCycleEncoder(kDrivingEncoderID);
-        m_sensingEncoder = new DutyCycleEncoder(kSensingEncoderID);
+        m_drivingEncoder = new DutyCycleEncoder(kDrivingEncoderID, 1.0, 0.02);
+        m_sensingEncoder = new DutyCycleEncoder(kSensingEncoderID, 1.0, 0.075);
 
         m_temperature = m_motor.getDeviceTemp();
         m_voltage = m_motor.getMotorVoltage();
@@ -94,19 +99,43 @@ public class SuzieIOTalonFXS implements SuzieIO
 
         m_positionVoltage = new PositionVoltage(0).withEnableFOC(true);
         m_errorTolerance = kErrorTolerance;
+
+        EasyCRTConfig crtConfig = new EasyCRTConfig(() -> Rotations.of(m_drivingEncoder.get()),
+                () -> Rotations.of(m_sensingEncoder.get()))
+                        .withAbsoluteEncoder1Gearing(kDrivingGearTeeth, kTurntableGearTeeth)
+                        .withAbsoluteEncoder2Gearing(kSensingGearTeeth, kTurntableGearTeeth);
+        m_crtCalculator = new EasyCRT(crtConfig);
+
+        TunablePID.create("Turret/Suzie/PID", m_motor, config);
     }
 
     @Override
     public void update()
     {
         StatusSignal.refreshAll(m_temperature, m_voltage, m_current);
+        Optional<Angle> angle = m_crtCalculator.getAngleOptional();
+        if (angle.isPresent())
+        {
+            m_motor.setPosition(angle.get());
+        }
     }
 
     @Override
     public void setTargetAngle(Angle angle)
     {
         m_targetAngle = angle;
-        m_motor.setControl(m_positionVoltage.withPosition(angle.in(Rotations)));
+    }
+
+    @Override
+    public void start()
+    {
+        m_motor.setControl(m_positionVoltage.withPosition(m_targetAngle.in(Rotations)));
+    }
+
+    @Override
+    public void stop()
+    {
+        m_motor.stopMotor();
     }
 
     @Override
@@ -124,7 +153,7 @@ public class SuzieIOTalonFXS implements SuzieIO
     @Override
     public Angle getAngle()
     {
-        return CRTEncodersUtil.calculateAngle(constants.kDrivingGearTeeth(), constants.kSensingGearTeeth(), constants.kTurntableGearTeeth(), Rotations.of(m_drivingEncoder.get()), Rotations.of(m_sensingEncoder.get()));
+        return m_motor.getPosition().getValue();
     }
 
     @Override

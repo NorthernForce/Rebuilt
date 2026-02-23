@@ -1,4 +1,4 @@
-package frc.robot.subsystems.turret.hood;
+package frc.robot.lobby.subsystems.turret.hood;
 
 import static edu.wpi.first.units.Units.Feet;
 import static edu.wpi.first.units.Units.Meters;
@@ -17,7 +17,7 @@ public interface HoodIO
     public static record HoodConstants(int kMotorID, int kEncoderID, double kS, double kV, double kA, double kP,
             double kI, double kD, double kG, double kCruiseVelocity, double kAcceleration, double kJerk,
             double kGearRatio, boolean kInverted, Angle kLowerSoftLimit, Angle kUpperSoftLimit, Angle kErrorTolerance,
-            MotorArrangementValue kMotorArrangement, Distance dangerZone, List<Translation2d> trenchPositions,
+            MotorArrangementValue kMotorArrangement, Distance kDangerZone, List<Translation2d> trenchPositions,
             Angle kLowerMechanismAngle, Angle kUpperMechanismAngle) {
     };
 
@@ -26,6 +26,14 @@ public interface HoodIO
     }
 
     public default void setTargetAngle(Angle angle)
+    {
+    }
+
+    public default void start()
+    {
+    }
+
+    public default void stop()
     {
     }
 
@@ -65,6 +73,8 @@ public interface HoodIO
     {
         return List.of();
     }
+
+    public Angle getLowerMechanismLimit();
 
     public default boolean inDangerProximity(Translation2d turretPosition, Distance dangerZone,
             List<Translation2d> trenchPositions)

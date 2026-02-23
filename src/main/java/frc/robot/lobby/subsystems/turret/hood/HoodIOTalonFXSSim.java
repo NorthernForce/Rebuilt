@@ -1,4 +1,4 @@
-package frc.robot.subsystems.turret.suzie;
+package frc.robot.lobby.subsystems.turret.hood;
 
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 
@@ -9,13 +9,13 @@ import edu.wpi.first.math.system.plant.LinearSystemId;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.simulation.DCMotorSim;
 
-public class SuzieIOTalonFXSSim extends SuzieIOTalonFXS
+public class HoodIOTalonFXSSim extends HoodIOTalonFXS
 {
-    private SuzieConstants constants;
-    private TalonFXSSimState m_simState;
-    private DCMotorSim m_dcMotorSim;
+    private final HoodConstants constants;
+    private final TalonFXSSimState m_simState;
+    private final DCMotorSim m_dcMotorSim;
 
-    public SuzieIOTalonFXSSim(SuzieConstants constants)
+    public HoodIOTalonFXSSim(HoodConstants constants)
     {
         super(constants);
         this.constants = constants;
@@ -44,7 +44,7 @@ public class SuzieIOTalonFXSSim extends SuzieIOTalonFXS
         m_dcMotorSim
                 .setInputVoltage(constants.kInverted() ? -m_simState.getMotorVoltage() : m_simState.getMotorVoltage());
         m_dcMotorSim.update(0.02);
-        double rotationsPerSecond = m_dcMotorSim.getAngularVelocity().in(RotationsPerSecond) * ((double)constants.kDrivingGearTeeth()/constants.kTurntableGearTeeth());
+        double rotationsPerSecond = m_dcMotorSim.getAngularVelocity().in(RotationsPerSecond) * constants.kGearRatio();
         double dRot = rotationsPerSecond * 0.02;
         m_simState.addRotorPosition(constants.kInverted() ? -dRot : dRot);
         m_simState.setRotorVelocity(constants.kInverted() ? -rotationsPerSecond : rotationsPerSecond);

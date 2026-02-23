@@ -1,4 +1,4 @@
-package frc.robot.subsystems.turret.hood;
+package frc.robot.lobby.subsystems.turret.hood;
 
 import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.Radians;
@@ -13,16 +13,15 @@ import edu.wpi.first.wpilibj.Servo;
 
 public class HoodIOServo implements HoodIO
 {
-    private final Servo m_motor;
-    private final Angle m_lowerSoftLimit;
-    private final Angle m_upperSoftLimit;
-    private final Distance m_dangerZone;
-    private final List<Translation2d> m_trenchPositions;
-    private final Angle m_lowerMechanismAngle;
-    private final Angle m_upperMechanismAngle;
+    protected final Servo m_motor;
+    protected final Angle m_lowerSoftLimit;
+    protected final Angle m_upperSoftLimit;
+    protected final Distance m_dangerZone;
+    protected final List<Translation2d> m_trenchPositions;
+    protected final Angle m_lowerMechanismAngle;
+    protected final Angle m_upperMechanismAngle;
 
-    private Angle m_targetAngle;
-    private Angle m_targetMechanicalAngle;
+    protected Angle m_targetAngle;
 
     public HoodIOServo(HoodConstants constants)
     {
@@ -30,11 +29,10 @@ public class HoodIOServo implements HoodIO
         m_lowerSoftLimit = constants.kLowerSoftLimit();
         m_upperSoftLimit = constants.kUpperSoftLimit();
         m_targetAngle = m_lowerSoftLimit;
-        m_dangerZone = constants.dangerZone();
+        m_dangerZone = constants.kDangerZone();
         m_trenchPositions = constants.trenchPositions();
         m_lowerMechanismAngle = constants.kLowerMechanismAngle();
         m_upperMechanismAngle = constants.kUpperMechanismAngle();
-        m_targetMechanicalAngle = m_lowerMechanismAngle;
 
     }
 
@@ -55,8 +53,25 @@ public class HoodIOServo implements HoodIO
                 angle = m_upperSoftLimit;
             }
             m_targetAngle = angle;
-            m_motor.setAngle(angle.in(Degrees));
         }
+    }
+
+    @Override
+    public Angle getLowerMechanismLimit()
+    {
+        return m_lowerMechanismAngle;
+    }
+
+    @Override
+    public void start()
+    {
+        m_motor.setAngle(m_targetAngle.in(Degrees));
+    }
+
+    @Override
+    public void stop()
+    {
+        m_motor.setSpeed(0);
     }
 
     @Override
@@ -73,8 +88,8 @@ public class HoodIOServo implements HoodIO
             targetServoAngle = m_upperSoftLimit;
         }
 
-        m_targetMechanicalAngle = targetServoAngle;
-        m_motor.setAngle(m_targetMechanicalAngle.in(Degrees));
+        m_targetAngle = targetServoAngle;
+        m_motor.setAngle(m_targetAngle.in(Degrees));
     }
 
     @Override

@@ -1,9 +1,12 @@
-package frc.robot.subsystems.turret.hood;
+package frc.robot.lobby.subsystems.turret.hood;
+
+import static edu.wpi.first.units.Units.Degrees;
 
 import java.util.List;
 
-import edu.wpi.first.math.geometry.Transform2d;
+import dev.doglog.DogLog;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.networktables.DoubleSubscriber;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -12,10 +15,16 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 public class Hood extends SubsystemBase
 {
     protected final HoodIO io;
+    protected DoubleSubscriber m_targetMechanismAngleOverride;
 
     public Hood(HoodIO io)
     {
         this.io = io;
+        m_targetMechanismAngleOverride = DogLog.tunable("Turret/Hood/Target Mechanism Angle Override (Degrees)",
+                io.getLowerMechanismLimit(), newAngle ->
+                {
+                    setTargetAngle(Degrees.of(newAngle));
+                });
     }
 
     public Command setTargetAngle(Angle angle)
@@ -46,6 +55,16 @@ public class Hood extends SubsystemBase
     public Angle getTargetAngle()
     {
         return io.getTargetAngle();
+    }
+
+    public Command start()
+    {
+        return run(() -> io.start());
+    }
+
+    public Command stop()
+    {
+        return run(() -> io.stop());
     }
 
     public Angle getAngle()
