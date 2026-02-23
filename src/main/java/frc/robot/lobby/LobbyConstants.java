@@ -21,11 +21,12 @@ import static edu.wpi.first.units.Units.Seconds;
 
 import java.util.List;
 
+import static edu.wpi.first.units.Units.Meters;
+import static edu.wpi.first.units.Units.Rotations;
+
 import com.ctre.phoenix6.signals.MotorArrangementValue;
 
 import edu.wpi.first.units.measure.Angle;
-import static edu.wpi.first.units.Units.Meters;
-import static edu.wpi.first.units.Units.Rotations;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Distance;
