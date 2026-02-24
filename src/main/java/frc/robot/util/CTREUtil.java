@@ -6,7 +6,7 @@ import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.hardware.TalonFXS;
 
-import frc.robot.lobby.LobbyConstants.MotorConstants.TalonFXConstants;
+import frc.robot.lobby.LobbyConstants.TalonFXConstants;
 
 public class CTREUtil
 {
