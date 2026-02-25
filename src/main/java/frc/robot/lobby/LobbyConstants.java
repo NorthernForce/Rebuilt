@@ -36,6 +36,7 @@ import edu.wpi.first.units.measure.LinearVelocity;
 import edu.wpi.first.units.measure.Temperature;
 import edu.wpi.first.units.measure.Time;
 import frc.robot.lobby.generated.LobbyTunerConstants;
+import frc.robot.subsystems.climber.ClimberParameters;
 
 public class LobbyConstants
 {
@@ -150,7 +151,7 @@ public class LobbyConstants
             public static int kMotor2ID = 21;
             public static double kS = 0;
             public static double kV = 0.115;
-            public static double kA = 0;
+            public static double kA = 0.1;
             public static double kP = 0.55;
             public static double kI = 0;
             public static double kD = 0;
@@ -163,6 +164,62 @@ public class LobbyConstants
             public static AngularVelocity kErrorTolerance = RotationsPerSecond.of(10);
             public static String kTargetingDataFilepath = "src/main/java/frc/robot/subsystems/turret/targeting_data/ShooterTargetingData.csv";
         }
+    }
+
+    public class ClimberConstants
+    {
+        public static final double kGearBoxRatio = 4.0 * 4.0 * 5.0;
+        public static final double kPulleyRatio = 2.0;
+        public static final double gearRatio = kGearBoxRatio * kPulleyRatio;
+        public static final int kMotorID = 40; // TODO: verify actual CAN ID
+        public static final int kSensorID = 2;
+        public static final double slowSpeed = 1;
+        public static final Distance maxHeight = Inches.of(20.5);
+        public static final double kP = 20;
+        public static final double kI = 0;
+        public static final double kD = 0;
+        public static final double kV = 0.12;
+        public static final double kG = 0.01;
+        public static final double topRotations = 1000.0;
+        public static final int servoID = 9;
+
+        public static final Pose2d kUpperRedPose = new Pose2d(Meters.of(14.841), Meters.of(4.745),
+                new Rotation2d(Degrees.of(0)));
+        public static final Pose2d kLowerRedPose = new Pose2d(Meters.of(14.841), Meters.of(3.889),
+                new Rotation2d(Degrees.of(0)));
+        public static final Pose2d kUpperBluePose = new Pose2d(Meters.of(1.591), Meters.of(4.745),
+                new Rotation2d(Degrees.of(0)));
+        public static final Pose2d kLowerBluePose = new Pose2d(Meters.of(1.591), Meters.of(3.889),
+                new Rotation2d(Degrees.of(0)));
+
+        public static enum ClimbLevels
+        {
+            BOTTOM(0, Inches.zero()), L1(1, Inches.of(22)), L2(2, Inches.of(40)), L3(3, Inches.of(75));
+
+            private Distance height;
+            private int level;
+
+            ClimbLevels(int level, Distance height)
+            {
+                this.level = level;
+                this.height = height;
+            }
+
+            public Distance getHeight()
+            {
+                return height;
+            }
+
+            public int getLevel()
+            {
+                return level;
+            }
+        }
+
+        public static final ClimberParameters kClimberParameters = new ClimberParameters(kMotorID, kSensorID,
+                ClimbLevels.BOTTOM, ClimbLevels.L1, ClimbLevels.L2, ClimbLevels.L3, gearRatio, slowSpeed, maxHeight, kP,
+                kI, kD, kV, kG, topRotations, kUpperBluePose, kLowerBluePose, kUpperRedPose, kLowerRedPose, servoID);
+
     }
 
     public class FlickerConstants

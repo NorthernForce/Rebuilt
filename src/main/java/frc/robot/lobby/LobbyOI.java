@@ -13,8 +13,10 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
-import frc.robot.lobby.subsystems.spindexer.commands.RunSpindexer;
+import frc.robot.subsystems.climber.commands.RunToPosition;
 import frc.robot.lobby.subsystems.turret.commands.PrepTurretCommand;
+import frc.robot.lobby.LobbyConstants.ClimberConstants.ClimbLevels;
+import frc.robot.lobby.subsystems.spindexer.commands.RunSpindexer;
 import frc.robot.lobby.subsystems.turret.commands.PrepTurretWithValues;
 
 public class LobbyOI
@@ -39,7 +41,7 @@ public class LobbyOI
         drive.setDefaultCommand(drive.driveByJoystick(inputProc(driveController::getLeftY),
                 inputProc(driveController::getLeftX), inputProc(driveController::getRightX)));
         driveController.back().onTrue(drive.resetOrientation());
-
+        container.getClimber().setDefaultCommand(container.getClimber().getHomingCommand());
         // Pass turret's hood constants for danger zone calculation
         var hood = container.getTurret().getHood();
         // container.getTurret().setDefaultCommand(container.getTurret().runBasedOnLocation(()
@@ -59,9 +61,7 @@ public class LobbyOI
         driveController.rightTrigger().whileTrue(new RunSpindexer(container.getSpindexer()));
         // driveController.leftTrigger().whileTrue(new
         // PrepTurretWithValues(container.getTurret()));
-        driveController.povUp()
-                .onTrue(Commands.runOnce(() -> hood.setTargetAngle(Degrees.of(180)), container.getTurret()))
-                .onFalse(Commands.runOnce(() -> hood.setTargetAngle(Degrees.zero()), container.getTurret()));
+        driveController.povUp().whileTrue(new RunToPosition(container, ClimbLevels.L3));
         // manipulatorController.leftTrigger().whileTrue(intake.getRunToIntakeAngleCommand());
         // intake.setDefaultCommand(intake.getRunToStowAngleCommand());
         manipulatorController.leftBumper().whileTrue(intake.intake(0.75)).onFalse(intake.stopIntake());
