@@ -1,4 +1,4 @@
-package frc.robot.subsystems.turret.suzie;
+package frc.robot.lobby.subsystems.turret.suzie;
 
 import static edu.wpi.first.units.Units.Rotations;
 
