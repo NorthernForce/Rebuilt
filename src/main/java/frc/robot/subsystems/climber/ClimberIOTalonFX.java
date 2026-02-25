@@ -55,6 +55,7 @@ public class ClimberIOTalonFX implements ClimberIO
         gearRatio = params.gearRatio();
         slowSpeed = params.slowSpeed();
         bottomLevel = params.bottomLevel();
+        currentLevel = bottomLevel;
         l1 = params.l1Height();
         l2 = params.l2Height();
         l3 = params.l3Height();
@@ -107,7 +108,7 @@ public class ClimberIOTalonFX implements ClimberIO
     public Pose2d getNearestPreclimbPosition(Pose2d robotPose)
     {
         DogLog.log("Climber/RobotPose", robotPose);
-        if (DriverStation.getAlliance().get() == Alliance.Blue)
+        if (DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Blue)
         {
             double distanceToUpperBlue = robotPose.getTranslation()
                     .getDistance(upperBlueClimbPosition.getTranslation());

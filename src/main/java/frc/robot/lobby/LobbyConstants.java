@@ -171,7 +171,7 @@ public class LobbyConstants
         public static final double kGearBoxRatio = 4.0 * 4.0 * 5.0;
         public static final double kPulleyRatio = 2.0;
         public static final double gearRatio = kGearBoxRatio * kPulleyRatio;
-        public static final int kMotorID = 20;
+        public static final int kMotorID = 40; // TODO: verify actual CAN ID
         public static final int kSensorID = 2;
         public static final double slowSpeed = 1;
         public static final Distance maxHeight = Inches.of(20.5);

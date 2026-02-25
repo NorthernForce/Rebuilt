@@ -22,7 +22,7 @@ public class Climber extends SubsystemBase
 
     public Command runUp()
     {
-        return Commands.run(() -> climber.runUp());
+        return Commands.runOnce(() -> climber.runUp(), this);
     }
 
     public Command getHomingCommand()
@@ -63,7 +63,7 @@ public class Climber extends SubsystemBase
     {
         return Commands.sequence(IntStream.range(0, level).mapToObj(i -> Commands.sequence(
                 // Extend elevator to top
-                runOnce(() -> climber.runUp()),
+                runUp(),
                 // Wait until elevator reaches top
                 Commands.waitUntil(this::isAtTop),
                 // Retract elevator to bottom (pulls robot up, hooks latch)
