@@ -16,16 +16,12 @@ public class RunToPosition extends SequentialCommandGroup
 {
     public RunToPosition(LobbyContainer container, ClimbLevels level)
     {
-        // addCommands(
-        // Commands.parallel(
-        // container.driveToPreClimbPosition(),
-        // Commands.sequence(
-        // container.getIntake().getRunToStowAngleCommand(),
-        // container.getClimber().extendHooks(),
-        // container.getClimber().fullyExtend())),
-        // container.driveToClimbPost(),
-        // container.getClimber().runToPosition(level)
+        addCommands(
+                Commands.parallel(container.driveToPreClimbPosition(),
+                        Commands.sequence(container.getIntake().getRunToStowAngleCommand(),
+                                container.getClimber().extendHooks(), container.getClimber().runUp())),
+                container.driveToClimbPost(), container.getClimber().runToPosition(level)
 
-        // );
+        );
     }
 }

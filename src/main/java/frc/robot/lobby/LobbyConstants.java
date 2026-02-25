@@ -38,51 +38,61 @@ import edu.wpi.first.units.measure.Time;
 import frc.robot.lobby.generated.LobbyTunerConstants;
 import frc.robot.subsystems.climber.ClimberParameters;
 
-public class LobbyConstants {
-    public class DrivetrainConstants {
+public class LobbyConstants
+{
+    public class DrivetrainConstants
+    {
         public static final LinearVelocity kMaxSpeed = LobbyTunerConstants.kSpeedAt12Volts;
         public static final AngularVelocity kMaxAngularSpeed = RotationsPerSecond.of(3.0);
     }
 
-    public class AutoConstants {
+    public class AutoConstants
+    {
         public static final PIDController xPid = new PIDController(10.0, 0.0, 0.0);
         public static final PIDController yPid = new PIDController(10.0, 0.0, 0.0);
         public static final PIDController rPid = new PIDController(7.0, 0.0, 0.0);
-        static {
+        static
+        {
             rPid.enableContinuousInput(0, 2 * Math.PI);
         }
     }
 
-    public static class CameraConstants {
+    public static class CameraConstants
+    {
 
         public static final Transform3d kBackLeftCameraTransform = new Transform3d(
                 new Translation3d(Meters.of(-0.14605), Meters.of(-0.1397), Meters.of(0.1778)),
                 new Rotation3d(Degrees.zero(), Degrees.of(2.0), Degrees.of(78.5)));
     }
 
-    public class VisionConstants {
+    public class VisionConstants
+    {
         public static final Vector<N3> kStdDevs = VecBuilder.fill(0.9, 0.9, 999999);
 
-        public class LimeLightConstants {
+        public class LimeLightConstants
+        {
             public static final String kLimeLightName = "limelight-left";
-            public static final int[] kValidIds = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19,
-                    20, 21, 22, 23, 24, 25, 26, 27, 28, 29,
+            public static final int[] kValidIds =
+            { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29,
                     30, 31 };
 
         }
 
-        public class PhotonVisionConstants {
+        public class PhotonVisionConstants
+        {
             public static final Transform3d kRobotToCamera = new Transform3d(new Translation3d(0.0, 0.0, 0.0),
                     new Rotation3d(0.0, 0.0, 0.0));
         }
 
     }
 
-    public class Turret {
+    public class Turret
+    {
         public static Pose2d offset = new Pose2d(new Translation2d(Inches.of(6.264), Inches.of(6.300)),
                 new Rotation2d(Degrees.of(2.5)));
 
-        public class Suzie {
+        public class Suzie
+        {
             public static int kEncoderDIOPin = 9;
             public static int kMotorID = 10;
             public static int kEncoderID = 1;
@@ -104,7 +114,8 @@ public class LobbyConstants {
             public static MotorArrangementValue kMotorArrangement = MotorArrangementValue.Minion_JST;
         }
 
-        public class Hood {
+        public class Hood
+        {
             public static Distance kDangerZone = Feet.of(10);
             public static int kMotorID = 11;
             public static int kEncoderID = 2;
@@ -134,7 +145,8 @@ public class LobbyConstants {
             public static Angle kMechanismUpperAngle = Degrees.of(40);
         }
 
-        public class Shooter {
+        public class Shooter
+        {
             public static int kMotor1ID = 20;
             public static int kMotor2ID = 21;
             public static double kS = 0;
@@ -154,7 +166,8 @@ public class LobbyConstants {
         }
     }
 
-    public class ClimberConstants {
+    public class ClimberConstants
+    {
         public static final double kGearBoxRatio = 4.0 * 4.0 * 5.0;
         public static final double kPulleyRatio = 2.0;
         public static final double gearRatio = kGearBoxRatio * kPulleyRatio;
@@ -168,6 +181,7 @@ public class LobbyConstants {
         public static final double kV = 0.12;
         public static final double kG = 0.01;
         public static final double topRotations = 1000.0;
+        public static final int servoID = 9;
 
         public static final Pose2d kUpperRedPose = new Pose2d(Meters.of(14.841), Meters.of(4.745),
                 new Rotation2d(Degrees.of(0)));
@@ -178,38 +192,38 @@ public class LobbyConstants {
         public static final Pose2d kLowerBluePose = new Pose2d(Meters.of(1.591), Meters.of(3.889),
                 new Rotation2d(Degrees.of(0)));
 
-        public static enum ClimbLevels {
+        public static enum ClimbLevels
+        {
             BOTTOM(0, Inches.zero()), L1(1, Inches.of(22)), L2(2, Inches.of(40)), L3(3, Inches.of(75));
 
             private Distance height;
             private int level;
 
-            ClimbLevels(int level, Distance height) {
+            ClimbLevels(int level, Distance height)
+            {
                 this.level = level;
                 this.height = height;
             }
 
-            public Distance getHeight() {
+            public Distance getHeight()
+            {
                 return height;
             }
 
-            public int getLevel() {
+            public int getLevel()
+            {
                 return level;
             }
         }
 
-        public static final ClimberParameters kClimberParameters = new ClimberParameters(kMotorID,
-                kSensorID, ClimbLevels.BOTTOM,
-                ClimbLevels.L1, ClimbLevels.L2,
-                ClimbLevels.L3, gearRatio,
-                slowSpeed, maxHeight,
-                kP, kI,
-                kD, kV,
-                kG, topRotations, kUpperBluePose, kLowerBluePose, kUpperRedPose, kLowerRedPose);
+        public static final ClimberParameters kClimberParameters = new ClimberParameters(kMotorID, kSensorID,
+                ClimbLevels.BOTTOM, ClimbLevels.L1, ClimbLevels.L2, ClimbLevels.L3, gearRatio, slowSpeed, maxHeight, kP,
+                kI, kD, kV, kG, topRotations, kUpperBluePose, kLowerBluePose, kUpperRedPose, kLowerRedPose, servoID);
 
     }
 
-    public class FlickerConstants {
+    public class FlickerConstants
+    {
         public static final Current kJamCurrentThreshold = Amps.of(10);
         public static final Time kJamTimeout = Seconds.of(0.5);
         public static final double kDejamSpeed = 0.2;
@@ -233,7 +247,8 @@ public class LobbyConstants {
         public static final double kErrorTolerance = 0.25;
     }
 
-    public class IntakeConstants {
+    public class IntakeConstants
+    {
         public static final int kRollerMotorId = 17;
         public static final int kAngleMotorId = 16;
         public static final int kAngleEncoderId = 22;
@@ -244,7 +259,8 @@ public class LobbyConstants {
         public static final Angle kStowedAngle = Rotations.of(-0.370);
     }
 
-    public class CarouselConstants {
+    public class CarouselConstants
+    {
         public static final Current kJamCurrentThreshold = Amps.of(10);
         public static final Time kJamTimeout = Seconds.of(0.5);
         public static final double kDejamSpeed = 0.2;
@@ -263,11 +279,13 @@ public class LobbyConstants {
         public static final AngularVelocity kErrorTolerance = RotationsPerSecond.of(0.25);
     }
 
-    public class SpindexerConstants {
+    public class SpindexerConstants
+    {
         public static final Time kDeJamTimeout = Seconds.of(1);
     }
 
-    public class TalonFXConstants {
+    public class TalonFXConstants
+    {
         public static final Temperature kMaxTemperature = Celsius.of(60.0);
     }
 }

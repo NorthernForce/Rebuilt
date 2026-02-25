@@ -1,6 +1,7 @@
 package frc.robot.lobby;
 
 import static edu.wpi.first.units.Units.DegreesPerSecond;
+import static edu.wpi.first.units.Units.MetersPerSecond;
 import static edu.wpi.first.units.Units.Radians;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 
@@ -11,6 +12,7 @@ import org.northernforce.util.NFRRobotContainer;
 import org.photonvision.simulation.SimCameraProperties;
 
 import com.ctre.phoenix6.Utils;
+import com.ctre.phoenix6.swerve.SwerveRequest;
 
 import choreo.auto.AutoFactory;
 import choreo.auto.AutoRoutine;
@@ -18,6 +20,7 @@ import dev.doglog.DogLog;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.networktables.GenericEntry;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.RobotController;
@@ -28,9 +31,6 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import frc.robot.FieldConstants;
 import frc.robot.lobby.generated.LobbyTunerConstants;
 import frc.robot.lobby.subsystems.CommandSwerveDrivetrain;
-import frc.robot.lobby.subsystems.apriltagvision.AprilTagVisionIO;
-import frc.robot.lobby.subsystems.apriltagvision.AprilTagVisionIOLimelight;
-import frc.robot.lobby.subsystems.apriltagvision.AprilTagVisionIOPhotonVisionSim;
 import frc.robot.subsystems.climber.Climber;
 import frc.robot.subsystems.climber.ClimberIOTalonFX;
 import frc.robot.subsystems.climber.ClimberIOTalonFXSim;
@@ -280,6 +280,20 @@ public class LobbyContainer implements NFRRobotContainer
         return spindexer;
     }
 
+    public Command driveToPreClimbPosition()
+    {
+
+        DogLog.log("Auto/DrivingToPreClimbPosition", climber.getClosestClimbPose(drive.getState().Pose));
+        return driveToPose(climber.getClosestClimbPose(drive.getState().Pose));
+    }
+
+    public Command driveToClimbPost()
+    {
+        return Commands.deadline(Commands.waitSeconds(0.5),
+                drive.applyRequest(() -> new SwerveRequest.ApplyRobotSpeeds().withSpeeds(
+                        new ChassisSpeeds(MetersPerSecond.of(0), MetersPerSecond.of(0.05), DegreesPerSecond.of(0)))));
+    }
+
     @Override
     public void periodic()
     {
@@ -396,6 +410,7 @@ public class LobbyContainer implements NFRRobotContainer
 
     public Command driveToPose(Pose2d pose)
     {
+        DogLog.log("Auto/DrivingToPose", pose);
         return driveToPoseCommand.driveToPose(pose);
     }
 

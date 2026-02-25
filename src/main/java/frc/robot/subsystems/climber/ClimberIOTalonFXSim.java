@@ -7,9 +7,14 @@ import com.ctre.phoenix6.controls.PositionVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.sim.TalonFXSimState;
 
+import dev.doglog.DogLog;
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.system.plant.LinearSystemId;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.RobotController;
+import edu.wpi.first.wpilibj.Servo;
 import edu.wpi.first.wpilibj.simulation.ElevatorSim;
 import frc.robot.lobby.LobbyConstants.ClimberConstants.ClimbLevels;
 
@@ -30,6 +35,11 @@ public class ClimberIOTalonFXSim implements ClimberIO
     private double setRotations = 0;
     private final double topRotations;
     private static final double TOP_POSITION_TOLERANCE = 5.0; // rotations tolerance
+    private final Pose2d upperRedClimbPosition;
+    private final Pose2d lowerRedClimbPosition;
+    private final Pose2d upperBlueClimbPosition;
+    private final Pose2d lowerBlueClimbPosition;
+    private final Servo hookServo;
 
     public ClimberIOTalonFXSim(ClimberParameters params)
     {
@@ -58,6 +68,11 @@ public class ClimberIOTalonFXSim implements ClimberIO
         l2 = params.l2Height();
         l3 = params.l3Height();
         topRotations = params.topRotations();
+        upperRedClimbPosition = params.upperRedPrepPose();
+        lowerRedClimbPosition = params.lowerRedPrepPose();
+        upperBlueClimbPosition = params.upperBluePrepPose();
+        lowerBlueClimbPosition = params.lowerBluePrepPose();
+        hookServo = new Servo(params.servoID());
     }
 
     @Override
@@ -116,6 +131,34 @@ public class ClimberIOTalonFXSim implements ClimberIO
     public void stopMotor()
     {
         motor.stopMotor();
+    }
+
+    @Override
+    public Pose2d getNearestPreclimbPosition(Pose2d robotPose)
+    {
+        DogLog.log("Climber/RobotPose", robotPose);
+        if (DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Blue)
+        {
+            double distanceToUpperBlue = robotPose.getTranslation()
+                    .getDistance(upperBlueClimbPosition.getTranslation());
+            double distanceToLowerBlue = robotPose.getTranslation()
+                    .getDistance(lowerBlueClimbPosition.getTranslation());
+            return distanceToUpperBlue < distanceToLowerBlue ? upperBlueClimbPosition : lowerBlueClimbPosition;
+        } else if (DriverStation.getAlliance().get() == Alliance.Red)
+        {
+            double distanceToUpperRed = robotPose.getTranslation().getDistance(upperRedClimbPosition.getTranslation());
+            double distanceToLowerRed = robotPose.getTranslation().getDistance(lowerRedClimbPosition.getTranslation());
+            return distanceToUpperRed < distanceToLowerRed ? upperRedClimbPosition : lowerRedClimbPosition;
+        } else
+        {
+            return robotPose;
+        }
+    }
+
+    @Override
+    public void setHookPosition(double position)
+    {
+        hookServo.set(position);
     }
 
     @Override

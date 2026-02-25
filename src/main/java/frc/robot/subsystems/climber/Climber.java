@@ -3,6 +3,7 @@ package frc.robot.subsystems.climber;
 import static edu.wpi.first.units.Units.Inches;
 import java.util.stream.IntStream;
 import dev.doglog.DogLog;
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -17,6 +18,11 @@ public class Climber extends SubsystemBase
     public Climber(ClimberIO climber)
     {
         this.climber = climber;
+    }
+
+    public Command runUp()
+    {
+        return Commands.run(() -> climber.runUp());
     }
 
     public Command getHomingCommand()
@@ -37,6 +43,11 @@ public class Climber extends SubsystemBase
     public boolean isAtTop()
     {
         return climber.atTop();
+    }
+
+    public Pose2d getClosestClimbPose(Pose2d currentPose)
+    {
+        return climber.getNearestPreclimbPosition(currentPose);
     }
 
     public Command runToPosition(ClimbLevels level)
@@ -62,6 +73,16 @@ public class Climber extends SubsystemBase
     public void stopMotor()
     {
         climber.stopMotor();
+    }
+
+    public Command extendHooks()
+    {
+        return Commands.runOnce(() -> climber.setHookPosition(1.0));
+    }
+
+    public Command retractHooks()
+    {
+        return Commands.runOnce(() -> climber.setHookPosition(0.0));
     }
 
     @Override
