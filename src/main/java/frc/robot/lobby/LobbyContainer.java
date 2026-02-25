@@ -7,6 +7,8 @@ import static edu.wpi.first.units.Units.RotationsPerSecond;
 import java.util.List;
 
 import java.util.Optional;
+import java.util.function.Supplier;
+
 import org.northernforce.util.NFRRobotContainer;
 import org.photonvision.simulation.SimCameraProperties;
 
@@ -30,6 +32,7 @@ import frc.robot.FieldConstants;
 import frc.robot.lobby.generated.LobbyTunerConstants;
 import frc.robot.lobby.subsystems.CommandSwerveDrivetrain;
 import frc.robot.lobby.subsystems.apriltagvision.*;
+import frc.robot.lobby.subsystems.apriltagvision.commands.CloseDriveToPoseRequest;
 import frc.robot.lobby.subsystems.apriltagvision.commands.DriveToPoseWithVision;
 import frc.robot.lobby.subsystems.intake.Intake;
 import frc.robot.lobby.subsystems.intake.IntakeIOTalonFX;
@@ -378,9 +381,27 @@ public class LobbyContainer implements NFRRobotContainer
         return routine;
     }
 
-    public Command driveToPose(Pose2d pose)
+    public Command roughDriveToPose(Pose2d pose)
     {
         return driveToPoseCommand.driveToPose(pose);
+    }
+
+    public Command driveToPose(Pose2d pose)
+    {
+        return Commands.sequence(roughDriveToPose(pose), closeDriveToPose(pose));
+    }
+
+    public Command closeDriveToPose(Pose2d pose)
+    {
+        CloseDriveToPoseRequest request = new CloseDriveToPoseRequest(pose,
+                LobbyConstants.DrivetrainConstants.kCloseDriveTP, LobbyConstants.DrivetrainConstants.kCloseDriveTI,
+                LobbyConstants.DrivetrainConstants.kCloseDriveTD, LobbyConstants.DrivetrainConstants.kCloseDriveRP,
+                LobbyConstants.DrivetrainConstants.kCloseDriveRI, LobbyConstants.DrivetrainConstants.kCloseDriveRD,
+                LobbyConstants.DrivetrainConstants.kCloseDriveVP, LobbyConstants.DrivetrainConstants.kCloseDriveVI,
+                LobbyConstants.DrivetrainConstants.kCloseDriveVD, LobbyConstants.DrivetrainConstants.kPPMaxVelocity,
+                () -> drive.getPose());
+        return Commands.runOnce(() -> request.reset(drive.getPose()))
+                .andThen(drive.applyRequest(() -> request).until(request::isFinished));
     }
 
     public void resetOdometry(Pose2d pose)

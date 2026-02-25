@@ -67,6 +67,11 @@ public class LobbyOI
         manipulatorController.leftBumper().whileTrue(intake.intake(0.75)).onFalse(intake.stopIntake());
         manipulatorController.leftTrigger().whileTrue(new PrepTurretWithValues(container.getTurret()));
         manipulatorController.rightTrigger().whileTrue(new RunSpindexer(container.getSpindexer()));
+        driveController.leftTrigger().whileTrue(
+                container.roughDriveToPose(new Pose2d(Meters.of(3), Meters.of(3), new Rotation2d(Degrees.of(0)))));
+        driveController.rightTrigger().whileTrue(
+                container.driveToPose(new Pose2d(Meters.of(3), Meters.of(3), new Rotation2d(Degrees.of(0)))));
+
         driveController.a().onTrue(Commands.runOnce(() -> container
                 .resetOdometry(new Pose2d(Meters.of(0), Meters.of(0), new Rotation2d(Degrees.of(180))))));
     }
