@@ -13,15 +13,10 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
-<<<<<<< HEAD
 import frc.robot.subsystems.climber.commands.RunToPosition;
-import frc.robot.subsystems.turret.commands.PrepTurretCommand;
-import frc.robot.subsystems.turret.commands.PrepTurretWithValues;
-import frc.robot.lobby.LobbyConstants.ClimberConstants.ClimbLevels;
-=======
->>>>>>> origin/development
-import frc.robot.lobby.subsystems.spindexer.commands.RunSpindexer;
 import frc.robot.lobby.subsystems.turret.commands.PrepTurretCommand;
+import frc.robot.lobby.LobbyConstants.ClimberConstants.ClimbLevels;
+import frc.robot.lobby.subsystems.spindexer.commands.RunSpindexer;
 import frc.robot.lobby.subsystems.turret.commands.PrepTurretWithValues;
 
 public class LobbyOI

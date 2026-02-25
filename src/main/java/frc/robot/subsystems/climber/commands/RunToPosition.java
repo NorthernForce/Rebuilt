@@ -9,7 +9,6 @@ import frc.robot.lobby.LobbyConstants.ClimberConstants.ClimbLevels;
 import frc.robot.lobby.subsystems.CommandSwerveDrivetrain;
 import frc.robot.lobby.subsystems.apriltagvision.commands.DriveToPoseWithVision;
 import frc.robot.subsystems.climber.Climber;
-import frc.robot.subsystems.intake.Intake;
 import frc.robot.util.RepeatCommand;
 
 public class RunToPosition extends SequentialCommandGroup
