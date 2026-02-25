@@ -1,4 +1,4 @@
-package frc.robot.subsystems.turret.commands;
+package frc.robot.lobby.subsystems.turret.commands;
 
 import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.Radians;
@@ -7,11 +7,10 @@ import java.util.function.Supplier;
 
 import dev.doglog.DogLog;
 import edu.wpi.first.wpilibj2.command.Command;
+import frc.robot.lobby.subsystems.turret.Turret;
+import frc.robot.lobby.subsystems.turret.Turret.TurretPose;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Translation2d;
-
-import frc.robot.subsystems.turret.Turret;
-import frc.robot.subsystems.turret.Turret.TurretPose;
 
 public class PrepTurretCommand extends Command
 {

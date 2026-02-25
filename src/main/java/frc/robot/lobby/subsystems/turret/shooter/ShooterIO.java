@@ -1,4 +1,4 @@
-package frc.robot.subsystems.turret.shooter;
+package frc.robot.lobby.subsystems.turret.shooter;
 
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 

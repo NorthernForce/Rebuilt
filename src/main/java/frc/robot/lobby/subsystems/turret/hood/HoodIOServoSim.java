@@ -1,9 +1,9 @@
-package frc.robot.subsystems.turret.hood;
+package frc.robot.lobby.subsystems.turret.hood;
 
 import static edu.wpi.first.units.Units.Degrees;
 
 import edu.wpi.first.units.measure.Angle;
-import frc.robot.subsystems.turret.hood.HoodIO.HoodConstants;
+import frc.robot.lobby.subsystems.turret.hood.HoodIO.HoodConstants;
 
 public class HoodIOServoSim extends HoodIOServo
 {
