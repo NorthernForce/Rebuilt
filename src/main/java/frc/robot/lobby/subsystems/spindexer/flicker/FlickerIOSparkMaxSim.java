@@ -9,6 +9,7 @@ import com.revrobotics.spark.SparkMax;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Time;
+import edu.wpi.first.wpilibj.Timer;
 
 public class FlickerIOSparkMaxSim implements FlickerIO
 {
@@ -70,10 +71,10 @@ public class FlickerIOSparkMaxSim implements FlickerIO
     @Override
     public boolean getJammed()
     {
-        double currentTime = System.nanoTime();
+        double currentTime = Timer.getFPGATimestamp();
         if (m_motor.getMotorCurrent() > jamCurrentThreshold.in(Amps))
         {
-            if (currentTime - nanoTimeLastChecked > jamTimeout.in(Seconds) * Math.pow(10, 9))
+            if (currentTime - nanoTimeLastChecked > jamTimeout.in(Seconds))
             {
                 return true;
             } else
@@ -96,6 +97,6 @@ public class FlickerIOSparkMaxSim implements FlickerIO
     @Override
     public void resetJamDetection()
     {
-        nanoTimeLastChecked = System.nanoTime();
+        nanoTimeLastChecked = Timer.getFPGATimestamp();
     }
 }

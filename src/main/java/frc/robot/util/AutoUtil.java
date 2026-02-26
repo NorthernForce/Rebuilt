@@ -49,6 +49,11 @@ public class AutoUtil
         chooser.addOption(name, autoBuilder.apply(factory).cmd());
     }
 
+    public void bindAuto(String name, Command cmd)
+    {
+        chooser.addOption(name, cmd);
+    }
+
     public Command getSelected()
     {
         return chooser.getSelected();

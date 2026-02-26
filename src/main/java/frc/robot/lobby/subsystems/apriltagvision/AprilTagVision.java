@@ -1,8 +1,10 @@
 package frc.robot.lobby.subsystems.apriltagvision;
 
 import java.util.List;
+import java.util.Optional;
 
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.lobby.subsystems.CommandSwerveDrivetrain;
 

@@ -19,6 +19,10 @@ public interface ShooterIO
     {
     }
 
+    public default void setTargetDutyCycle(double value)
+    {
+    }
+
     public default AngularVelocity getTargetSpeed()
     {
         return RotationsPerSecond.of(0);
@@ -34,13 +38,7 @@ public interface ShooterIO
         return false;
     }
 
-    public void setPotentialSpeed(AngularVelocity speed);
-
-    public void setPotentialDutyCycle(double val);
-
     public void start();
 
     public void stop();
-
-    public void setPID(double kP, double kI, double kD, double kV, double kA);
 }
