@@ -13,6 +13,9 @@ import org.photonvision.simulation.SimCameraProperties;
 
 import com.ctre.phoenix6.Utils;
 import com.ctre.phoenix6.swerve.SwerveRequest;
+import com.pathplanner.lib.auto.NamedCommands;
+import com.pathplanner.lib.commands.PathPlannerAuto;
+import com.pathplanner.lib.util.PathPlannerLogging;
 
 import choreo.auto.AutoFactory;
 import choreo.auto.AutoRoutine;
@@ -35,6 +38,7 @@ import frc.robot.subsystems.climber.Climber;
 import frc.robot.subsystems.climber.ClimberIOTalonFX;
 import frc.robot.subsystems.climber.ClimberIOTalonFXSim;
 import frc.robot.subsystems.climber.ClimberParameters;
+import frc.robot.subsystems.climber.commands.AutoHang;
 import frc.robot.lobby.subsystems.CommandSwerveDrivetrain;
 import frc.robot.lobby.subsystems.apriltagvision.*;
 import frc.robot.lobby.subsystems.apriltagvision.commands.DriveToPoseWithVision;
@@ -232,7 +236,9 @@ public class LobbyContainer implements NFRRobotContainer
         driveToPoseCommand = new DriveToPoseWithVision(drive);
         autoUtil = new AutoUtil(drive, LobbyConstants.AutoConstants.xPid, LobbyConstants.AutoConstants.yPid,
                 LobbyConstants.AutoConstants.rPid);
+        NamedCommands.registerCommand("AutoHang", new AutoHang(this));
         autoUtil.bindAutoDefault("TestAuto", this::testAuto);
+        autoUtil.bindAuto("ClimbAuto", new PathPlannerAuto("ClimbAuto"));
         Shuffleboard.getTab("Developer").add(field);
         Shuffleboard.getTab("Developer").add("Reset Encoders", drive.resetEncoders());
         Shuffleboard.getTab("Developer").add("Reset Orientation", drive.resetOrientation());
@@ -282,9 +288,12 @@ public class LobbyContainer implements NFRRobotContainer
 
     public Command driveToPreClimbPosition()
     {
-
-        DogLog.log("Auto/DrivingToPreClimbPosition", climber.getClosestClimbPose(drive.getState().Pose));
-        return driveToPose(climber.getClosestClimbPose(drive.getState().Pose));
+        return Commands.defer(() ->
+        {
+            Pose2d target = climber.getClosestClimbPose(drive.getState().Pose);
+            DogLog.log("Auto/DrivingToPreClimbPosition", target);
+            return driveToPose(target);
+        }, java.util.Set.of(drive));
     }
 
     public Command driveToClimbPost()

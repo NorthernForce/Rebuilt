@@ -62,6 +62,8 @@ public class LobbyOI
         // driveController.leftTrigger().whileTrue(new
         // PrepTurretWithValues(container.getTurret()));
         driveController.povUp().whileTrue(new RunToPosition(container, ClimbLevels.L3));
+        // Temporary test: hold D-pad down to command elevator up, release to home
+        driveController.povDown().onTrue(container.getClimber().runUp());
         // manipulatorController.leftTrigger().whileTrue(intake.getRunToIntakeAngleCommand());
         // intake.setDefaultCommand(intake.getRunToStowAngleCommand());
         manipulatorController.leftBumper().whileTrue(intake.intake(0.75)).onFalse(intake.stopIntake());

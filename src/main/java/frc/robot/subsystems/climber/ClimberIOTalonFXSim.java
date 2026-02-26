@@ -5,6 +5,7 @@ import static edu.wpi.first.units.Units.Meters;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.PositionVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
+import com.ctre.phoenix6.signals.GravityTypeValue;
 import com.ctre.phoenix6.sim.TalonFXSimState;
 
 import dev.doglog.DogLog;
@@ -50,6 +51,7 @@ public class ClimberIOTalonFXSim implements ClimberIO
         config.Slot0.kD = params.kD();
         config.Slot0.kV = params.kV();
         config.Slot0.kG = params.kG();
+        config.Slot0.GravityType = GravityTypeValue.Elevator_Static;
         motor.getConfigurator().apply(config);
         simMotor = motor.getSimState();
         gearRatio = params.gearRatio();
@@ -92,6 +94,11 @@ public class ClimberIOTalonFXSim implements ClimberIO
 
         simMotor.setRawRotorPosition(motorRotations);
         simMotor.setRotorVelocity(motorRps);
+
+        DogLog.log("ClimberSim/MotorVoltage", motorVoltage);
+        DogLog.log("ClimberSim/PositionMeters", positionMeters);
+        DogLog.log("ClimberSim/MotorRotations", motorRotations);
+        DogLog.log("ClimberSim/VelocityMps", velocityMps);
     }
 
     @Override
