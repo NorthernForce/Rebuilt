@@ -1,7 +1,7 @@
 package frc.robot.lobby.subsystems.intake;
 
 import edu.wpi.first.units.measure.Angle;
-import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.units.measure.Voltage;
 
 public interface IntakeIO
 {
@@ -20,4 +20,12 @@ public interface IntakeIO
     public void runToMidAngle();
 
     public void runToIntakeAngle();
+
+    /** Apply a voltage to the arm angle motor (for SysId characterization). */
+    public void setArmVoltage(Voltage voltage);
+
+    /** Log arm position and velocity signals for SysId. */
+    public default void logArmSignals()
+    {
+    }
 }

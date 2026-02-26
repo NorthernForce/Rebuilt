@@ -25,6 +25,7 @@ import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.FieldConstants;
 import frc.robot.lobby.generated.LobbyTunerConstants;
 import frc.robot.lobby.subsystems.CommandSwerveDrivetrain;
@@ -225,6 +226,16 @@ public class LobbyContainer implements NFRRobotContainer
         Shuffleboard.getTab("Developer").add("Reset Orientation", drive.resetOrientation());
         Shuffleboard.getTab("Developer").add("Drive to Blue Reef",
                 drive.navigateToPose(new Pose2d(3, 4, new Rotation2d())));
+
+        // Intake Arm SysId buttons
+        Shuffleboard.getTab("SysId").add("Arm Quasistatic Fwd",
+                intake.sysIdArmQuasistatic(SysIdRoutine.Direction.kForward));
+        Shuffleboard.getTab("SysId").add("Arm Quasistatic Rev",
+                intake.sysIdArmQuasistatic(SysIdRoutine.Direction.kReverse));
+        Shuffleboard.getTab("SysId").add("Arm Dynamic Fwd",
+                intake.sysIdArmDynamic(SysIdRoutine.Direction.kForward));
+        Shuffleboard.getTab("SysId").add("Arm Dynamic Rev",
+                intake.sysIdArmDynamic(SysIdRoutine.Direction.kReverse));
         indexerSpeedEntry = Shuffleboard.getTab("Tuning")
                 .add("Indexer Speed", (double) spindexer.getCarousel().getTargetPower()).getEntry();
         flickerSpeedEntry = Shuffleboard.getTab("Tuning")
