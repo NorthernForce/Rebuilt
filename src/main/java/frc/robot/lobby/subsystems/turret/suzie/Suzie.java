@@ -28,18 +28,15 @@ public class Suzie extends SubsystemBase
                 {
                     setTargetAngle(Degrees.of(newAngle));
                 });
-        m_sysId = new SysIdRoutine(
-            new SysIdRoutine.Config(
-                null, // Use default ramp rate (1 V/s)
+        m_sysId = new SysIdRoutine(new SysIdRoutine.Config(null, // Use default ramp rate (1 V/s)
                 Volts.of(4), // Reduce dynamic step voltage to 4 V
                 null, // Use default timeout (10 s)
                 state -> SignalLogger.writeString("SysIdTurret", state.toString() // Log state with SignalLogger class
-            )),
-            new SysIdRoutine.Mechanism(
-                output -> io.setMotorControl(new VoltageOut(output)), // Apply voltage output to motor
-                null, // Do not log
-                this // Require this subsystem
-            ));
+                )), new SysIdRoutine.Mechanism(output -> io.setMotorControl(new VoltageOut(output)), // Apply voltage
+                                                                                                     // output to motor
+                        null, // Do not log
+                        this // Require this subsystem
+        ));
     }
 
     public Command setSpeed(double speed)
