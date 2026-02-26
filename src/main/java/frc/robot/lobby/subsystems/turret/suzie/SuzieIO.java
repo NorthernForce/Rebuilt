@@ -2,6 +2,7 @@ package frc.robot.lobby.subsystems.turret.suzie;
 
 import static edu.wpi.first.units.Units.Rotations;
 
+import com.ctre.phoenix6.controls.ControlRequest;
 import com.ctre.phoenix6.signals.MotorArrangementValue;
 
 import edu.wpi.first.units.measure.Angle;
@@ -16,6 +17,10 @@ public interface SuzieIO
     }
 
     public default void update()
+    {
+    }
+
+    public default void setMotorControl(ControlRequest request)
     {
     }
 

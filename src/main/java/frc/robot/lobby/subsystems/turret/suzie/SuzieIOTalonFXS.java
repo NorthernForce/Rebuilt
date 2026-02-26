@@ -8,6 +8,7 @@ import java.util.function.Supplier;
 
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.TalonFXSConfiguration;
+import com.ctre.phoenix6.controls.ControlRequest;
 import com.ctre.phoenix6.controls.DutyCycleOut;
 import com.ctre.phoenix6.controls.PositionVoltage;
 import com.ctre.phoenix6.hardware.TalonFXS;
@@ -118,6 +119,12 @@ public class SuzieIOTalonFXS implements SuzieIO
         {
             m_motor.setPosition(angle.get());
         }
+    }
+
+    @Override
+    public void setMotorControl(ControlRequest request)
+    {
+        m_motor.setControl(request);
     }
 
     @Override
