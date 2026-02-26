@@ -294,8 +294,7 @@ public class LobbyContainer implements NFRRobotContainer
                 LobbyConstants.DrivetrainConstants.kCloseDriveTP, LobbyConstants.DrivetrainConstants.kCloseDriveTI,
                 LobbyConstants.DrivetrainConstants.kCloseDriveTD, LobbyConstants.DrivetrainConstants.kCloseDriveRP,
                 LobbyConstants.DrivetrainConstants.kCloseDriveRI, LobbyConstants.DrivetrainConstants.kCloseDriveRD,
-                LobbyConstants.DrivetrainConstants.kCloseDriveVP, LobbyConstants.DrivetrainConstants.kCloseDriveVI,
-                LobbyConstants.DrivetrainConstants.kCloseDriveVD, LobbyConstants.DrivetrainConstants.kPPMaxVelocity);
+                LobbyConstants.DrivetrainConstants.kPPMaxVelocity);
         return Commands.runOnce(() -> request.reset(drive.getPose()))
                 .andThen(drive.applyRequest(() -> request).until(request::isFinished));
     }

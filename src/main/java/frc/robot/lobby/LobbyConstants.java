@@ -71,7 +71,9 @@ public class LobbyConstants
         public static final double kPPDriveRD = 0.0;
         public static final PIDConstants kPPDriveRPID = new PIDConstants(kPPDriveRP, kPPDriveRI, kPPDriveRD);
 
-        public static final Distance kDriveRadius = Meters.of(Math.sqrt(Math.pow(LobbyTunerConstants.FrontRight.LocationX, 2) + Math.pow(LobbyTunerConstants.FrontRight.LocationY, 2)));
+        public static final Distance kDriveRadius = Meters
+                .of(Math.sqrt(Math.pow(LobbyTunerConstants.FrontRight.LocationX, 2)
+                        + Math.pow(LobbyTunerConstants.FrontRight.LocationY, 2)));
 
         public static final AngularVelocity kMaxAngularVelocity = RadiansPerSecond
                 .of(LobbyTunerConstants.kSpeedAt12Volts.in(MetersPerSecond) / kDriveRadius.in(Meters));
