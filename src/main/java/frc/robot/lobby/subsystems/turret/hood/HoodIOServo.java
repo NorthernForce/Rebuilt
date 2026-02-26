@@ -13,15 +13,16 @@ import edu.wpi.first.wpilibj.Servo;
 
 public class HoodIOServo implements HoodIO
 {
-    protected final Servo m_motor;
-    protected final Angle m_lowerSoftLimit;
-    protected final Angle m_upperSoftLimit;
-    protected final Distance m_dangerZone;
-    protected final List<Translation2d> m_trenchPositions;
-    protected final Angle m_lowerMechanismAngle;
-    protected final Angle m_upperMechanismAngle;
 
-    protected Angle m_targetAngle;
+    private final Servo m_motor;
+    private final Angle m_lowerSoftLimit;
+    private final Angle m_upperSoftLimit;
+    private final Distance m_dangerZone;
+    private final List<Translation2d> m_trenchPositions;
+    private final Angle m_lowerMechanismAngle;
+    private final Angle m_upperMechanismAngle;
+
+    private Angle m_targetAngle;
 
     public HoodIOServo(HoodConstants constants)
     {
@@ -36,24 +37,20 @@ public class HoodIOServo implements HoodIO
 
     }
 
-    @Override
     public void setTargetAngle(Angle angle)
     {
-        if (angle.in(Degrees) != m_targetAngle.in(Degrees))
+        DogLog.log("Turret/Hood/MechanismAngle",
+                (m_lowerSoftLimit.minus(angle).div(m_lowerSoftLimit.minus(m_upperSoftLimit))
+                        .times(m_upperMechanismAngle.minus(m_lowerMechanismAngle)).plus(m_lowerMechanismAngle)));
+        DogLog.log("Turret/Hood/SetTargetAngle", angle.in(Radians));
+        if (angle.lt(m_lowerSoftLimit))
         {
-            DogLog.log("Turret/Hood/MechanismAngle",
-                    (m_lowerSoftLimit.minus(angle).div(m_lowerSoftLimit.minus(m_upperSoftLimit))
-                            .times(m_upperMechanismAngle.minus(m_lowerMechanismAngle)).plus(m_lowerMechanismAngle)));
-            DogLog.log("Turret/Hood/SetTargetAngle", angle.in(Radians));
-            if (angle.lt(m_lowerSoftLimit))
-            {
-                angle = m_lowerSoftLimit;
-            } else if (angle.gt(m_upperSoftLimit))
-            {
-                angle = m_upperSoftLimit;
-            }
-            m_targetAngle = angle;
+            angle = m_lowerSoftLimit;
+        } else if (angle.gt(m_upperSoftLimit))
+        {
+            angle = m_upperSoftLimit;
         }
+        m_targetAngle = angle;
     }
 
     @Override
@@ -90,6 +87,19 @@ public class HoodIOServo implements HoodIO
 
         m_targetAngle = targetServoAngle;
         m_motor.setAngle(m_targetAngle.in(Degrees));
+        DogLog.log("Turret/Hood/MechanismAngle",
+                (m_lowerSoftLimit.minus(angle).div(m_lowerSoftLimit.minus(m_upperSoftLimit))
+                        .times(m_upperMechanismAngle.minus(m_lowerMechanismAngle)).plus(m_lowerMechanismAngle)));
+        DogLog.log("Turret/Hood/SetTargetAngle", angle.in(Radians));
+        if (angle.lt(m_lowerSoftLimit))
+        {
+            angle = m_lowerSoftLimit;
+        } else if (angle.gt(m_upperSoftLimit))
+        {
+            angle = m_upperSoftLimit;
+        }
+        m_targetAngle = angle;
+        m_motor.setAngle(angle.in(Degrees));
     }
 
     @Override
