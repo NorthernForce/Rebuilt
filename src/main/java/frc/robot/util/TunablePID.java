@@ -18,22 +18,22 @@ public class TunablePID
 
         DogLog.tunable(key + "/kI", defaultConfig.Slot0.kI, newI ->
         {
-            motor.getConfigurator().apply(defaultConfig.Slot0.withKP(newI));
+            motor.getConfigurator().apply(defaultConfig.Slot0.withKI(newI));
         });
 
         DogLog.tunable(key + "/kD", defaultConfig.Slot0.kD, newD ->
         {
-            motor.getConfigurator().apply(defaultConfig.Slot0.withKP(newD));
+            motor.getConfigurator().apply(defaultConfig.Slot0.withKD(newD));
         });
 
         DogLog.tunable(key + "/kV", defaultConfig.Slot0.kV, newV ->
         {
-            motor.getConfigurator().apply(defaultConfig.Slot0.withKP(newV));
+            motor.getConfigurator().apply(defaultConfig.Slot0.withKV(newV));
         });
 
         DogLog.tunable(key + "/kA", defaultConfig.Slot0.kA, newA ->
         {
-            motor.getConfigurator().apply(defaultConfig.Slot0.withKP(newA));
+            motor.getConfigurator().apply(defaultConfig.Slot0.withKA(newA));
         });
     }
 
@@ -46,22 +46,22 @@ public class TunablePID
 
         DogLog.tunable(key + "/kI", defaultConfig.Slot0.kI, newI ->
         {
-            motor.getConfigurator().apply(defaultConfig.Slot0.withKP(newI));
+            motor.getConfigurator().apply(defaultConfig.Slot0.withKI(newI));
         });
 
         DogLog.tunable(key + "/kD", defaultConfig.Slot0.kD, newD ->
         {
-            motor.getConfigurator().apply(defaultConfig.Slot0.withKP(newD));
+            motor.getConfigurator().apply(defaultConfig.Slot0.withKD(newD));
         });
 
         DogLog.tunable(key + "/kV", defaultConfig.Slot0.kV, newV ->
         {
-            motor.getConfigurator().apply(defaultConfig.Slot0.withKP(newV));
+            motor.getConfigurator().apply(defaultConfig.Slot0.withKV(newV));
         });
 
         DogLog.tunable(key + "/kA", defaultConfig.Slot0.kA, newA ->
         {
-            motor.getConfigurator().apply(defaultConfig.Slot0.withKP(newA));
+            motor.getConfigurator().apply(defaultConfig.Slot0.withKA(newA));
         });
     }
 
