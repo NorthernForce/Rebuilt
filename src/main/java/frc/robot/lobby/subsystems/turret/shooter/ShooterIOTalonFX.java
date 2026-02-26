@@ -7,6 +7,7 @@ import java.util.function.Supplier;
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.MotorOutputConfigs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
+import com.ctre.phoenix6.controls.ControlRequest;
 import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
@@ -93,6 +94,13 @@ public class ShooterIOTalonFX implements ShooterIO
     public void update()
     {
         StatusSignal.refreshAll(m_temperature, m_voltage, m_current, m_velocity);
+    }
+
+    @Override
+    public void setMotorControl(ControlRequest request)
+    {
+        m_motor1.setControl(request);
+        m_motor2.setControl(request);
     }
 
     @Override

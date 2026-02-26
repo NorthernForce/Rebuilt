@@ -2,6 +2,8 @@ package frc.robot.lobby.subsystems.turret.shooter;
 
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 
+import com.ctre.phoenix6.controls.ControlRequest;
+
 import edu.wpi.first.units.measure.AngularVelocity;
 
 public interface ShooterIO
@@ -12,6 +14,10 @@ public interface ShooterIO
     }
 
     public default void update()
+    {
+    }
+
+    public default void setMotorControl(ControlRequest request)
     {
     }
 
