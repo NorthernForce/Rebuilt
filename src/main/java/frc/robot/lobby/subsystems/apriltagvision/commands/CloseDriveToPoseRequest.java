@@ -26,7 +26,7 @@ public class CloseDriveToPoseRequest implements SwerveRequest
     private final LinearVelocity maxVelocity;
 
     public CloseDriveToPoseRequest(Pose2d pose, double tP, double tI, double tD, double rP, double rI, double rD,
-            double vP, double vI, double vD, LinearVelocity maxVelocity, Supplier<Pose2d> poseGetter)
+            double vP, double vI, double vD, LinearVelocity maxVelocity)
     {
         this.xPID = new PIDController(tP, tI, tD);
         this.yPID = new PIDController(tP, tI, tD);
