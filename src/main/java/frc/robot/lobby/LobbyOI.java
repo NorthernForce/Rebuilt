@@ -15,6 +15,7 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.lobby.subsystems.spindexer.commands.RunSpindexer;
+import frc.robot.lobby.subsystems.spindexer.flicker.FlickerIO;
 import frc.robot.lobby.subsystems.turret.commands.PrepTurretCommand;
 import frc.robot.lobby.subsystems.turret.commands.PrepTurretWithValues;
 
@@ -31,10 +32,17 @@ public class LobbyOI {
                 var manipulatorController = new CommandXboxController(1);
                 var drive = container.getDrive();
                 var intake = container.getIntake();
-                if (DriverStation.isTest()) { // checks if we are in test mode
-                        driveController.rightTrigger().whileTrue(intake.intake(1));
+                if (DriverStation.isTest()) {
                         driveController.rightBumper().whileTrue(Commands.run(() -> container.getSpindexer().getCarousel().setPower(1), container.getSpindexer()));
                         container.getTurret().getShooter().start();
+                        driveController.rightTrigger().whileTrue(Commands.run(()->container.getSpindexer().getFlicker().setPower(1), container.getTurret()).alongWith(Commands.run(() -> container.getSpindexer().getCarousel().setPower(1), container.getSpindexer()), Commands.run(()->container.getTurret().getShooter().start(), container.getTurret()))).onFalse(Commands.run(()->container.getSpindexer().getFlicker().setPower(0), container.getTurret()).alongWith(Commands.run(() -> container.getSpindexer().getCarousel().setPower(0), container.getSpindexer()), Commands.run(()->container.getTurret().getShooter().stop(), container.getTurret())));
+                       drive.setDefaultCommand(drive.driveByJoystick(inputProc(driveController::getLeftY),
+                                        inputProc(driveController::getLeftX), inputProc(driveController::getRightX)));
+                        driveController.povUp().whileTrue(Commands.run(()->container.getTurret().getHood().setSpeed(0.2, false))).onFalse(Commands.runOnce(()->container.getTurret().getHood().setSpeed(0, false)));
+                        driveController.povDown().whileTrue(Commands.run(()->container.getTurret().getHood().setSpeed(-0.2, false))).onFalse(Commands.runOnce(()->container.getTurret().getHood().setSpeed(0, false)));
+                        driveController.leftBumper().whileTrue(container.getIntake().getRunToIntakeAngleCommand()).onFalse(container.getIntake().getRunToStowAngleCommand());
+                        
+                        
                 } else {
 
                         drive.setDefaultCommand(drive.driveByJoystick(inputProc(driveController::getLeftY),
