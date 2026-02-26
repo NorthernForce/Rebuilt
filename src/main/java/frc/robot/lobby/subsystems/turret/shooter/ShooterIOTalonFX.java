@@ -6,9 +6,7 @@ import java.util.function.Supplier;
 
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.MotorOutputConfigs;
-import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
-import com.ctre.phoenix6.controls.MotionMagicVelocityVoltage;
 import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
@@ -17,6 +15,7 @@ import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Temperature;
 import edu.wpi.first.units.measure.Voltage;
+import frc.robot.util.TunablePID;
 
 public class ShooterIOTalonFX implements ShooterIO
 {
@@ -85,20 +84,15 @@ public class ShooterIOTalonFX implements ShooterIO
 
         m_velocityVoltage = new VelocityVoltage(0).withEnableFOC(true);
         m_errorTolerance = kErrorTolerance;
+
+        TunablePID.create("Turret/Shooter/Motor1PID", m_motor1, config);
+        TunablePID.create("Turret/Shooter/Motor2PID", m_motor2, config);
     }
 
     @Override
     public void update()
     {
         StatusSignal.refreshAll(m_temperature, m_voltage, m_current, m_velocity);
-    }
-
-    @Override
-    public void setTargetSpeed(AngularVelocity speed)
-    {
-        m_targetSpeed = speed;
-        m_motor1.setControl(m_velocityVoltage.withVelocity(speed));
-        m_motor2.setControl(m_velocityVoltage.withVelocity(speed));
     }
 
     @Override
@@ -121,7 +115,7 @@ public class ShooterIOTalonFX implements ShooterIO
     }
 
     @Override
-    public void setPotentialSpeed(AngularVelocity speed)
+    public void setTargetSpeed(AngularVelocity speed)
     {
         if (m_targetSpeed != speed)
         {
@@ -131,23 +125,12 @@ public class ShooterIOTalonFX implements ShooterIO
     }
 
     @Override
-    public void setPotentialDutyCycle(double value)
+    public void setTargetDutyCycle(double value)
     {
         if (dutyCycle != value)
         {
             lastSetType = "dutyCycle";
             dutyCycle = value;
-        }
-    }
-
-    @Override
-    public void setPID(double kP, double kI, double kD, double kV, double kA)
-    {
-        if (kP != tempKP || kI != tempKI || kD != tempKD || kV != tempKV || kA != tempKA)
-        {
-            lastSetType = "velocity";
-            m_motor1.getConfigurator().apply(new Slot0Configs().withKP(kP).withKI(kI).withKD(kD).withKV(kV).withKA(kA));
-            m_motor2.getConfigurator().apply(new Slot0Configs().withKP(kP).withKI(kI).withKD(kD).withKV(kV).withKA(kA));
         }
     }
 

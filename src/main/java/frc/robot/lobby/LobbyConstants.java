@@ -32,10 +32,12 @@ import static edu.wpi.first.units.Units.MetersPerSecond;
 import static edu.wpi.first.units.Units.MetersPerSecondPerSecond;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static edu.wpi.first.units.Units.RadiansPerSecondPerSecond;
+import java.util.List;
+
 import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.Rotations;
-import static edu.wpi.first.units.Units.RotationsPerSecond;
-import static edu.wpi.first.units.Units.Seconds;
+
+import com.ctre.phoenix6.signals.MotorArrangementValue;
 
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
@@ -47,7 +49,11 @@ import edu.wpi.first.units.measure.Temperature;
 import edu.wpi.first.units.measure.Time;
 import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj.Preferences;
+import frc.robot.FieldConstants;
 import frc.robot.lobby.generated.LobbyTunerConstants;
+import frc.robot.lobby.subsystems.turret.hood.HoodIO.HoodConstants;
+import frc.robot.lobby.subsystems.turret.shooter.ShooterIO.ShooterConstants;
+import frc.robot.lobby.subsystems.turret.suzie.SuzieIO.SuzieConstants;
 
 public class LobbyConstants
 {
@@ -65,7 +71,8 @@ public class LobbyConstants
         public static final double kPPDriveRD = 0.0;
         public static final PIDConstants kPPDriveRPID = new PIDConstants(kPPDriveRP, kPPDriveRI, kPPDriveRD);
 
-        public static final Distance kDriveRadius = Inches.of(12.3645);
+        public static final Distance kDriveRadius = Meters
+                .of(Math.hypot(LobbyTunerConstants.FrontRight.LocationX, LobbyTunerConstants.FrontRight.LocationY));
 
         public static final AngularVelocity kMaxAngularVelocity = RadiansPerSecond
                 .of(LobbyTunerConstants.kSpeedAt12Volts.in(MetersPerSecond) / kDriveRadius.in(Meters));
@@ -85,19 +92,6 @@ public class LobbyConstants
         public static final double kCloseDriveRP = 5;
         public static final double kCloseDriveRI = 0.0;
         public static final double kCloseDriveRD = 0.0;
-
-        // TODO: maybe tune a bit
-        public static final double kCloseDriveVP = 2.5;
-        public static final double kCloseDriveVI = 0.0;
-        public static final double kCloseDriveVD = 0.1;
-        public static final Angle[] SWERVE_MODULE_OFFSETS =
-        { Rotations.of(Preferences.getDouble("kSwerveOffsetFrontLeft", LobbyTunerConstants.FrontLeft.EncoderOffset)),
-                Rotations.of(
-                        Preferences.getDouble("kSwerveOffsetFrontRight", LobbyTunerConstants.FrontRight.EncoderOffset)),
-                Rotations
-                        .of(Preferences.getDouble("kSwerveOffsetBackLeft", LobbyTunerConstants.BackLeft.EncoderOffset)),
-                Rotations.of(
-                        Preferences.getDouble("kSwerveOffsetBackRight", LobbyTunerConstants.BackRight.EncoderOffset)) };
     }
 
     public class AutoConstants
@@ -147,76 +141,101 @@ public class LobbyConstants
 
         public class Suzie
         {
-            public static int kEncoderDIOPin = 9;
-            public static int kMotorID = 10;
-            public static int kEncoderID = 1;
-            public static double kS = 0;
-            public static double kV = 0.116;
-            public static double kA = 0.110;
-            public static double kP = 10;
-            public static double kI = 0;
-            public static double kD = 0.6;
-            public static double kG = 0;
-            public static double kCruiseVelocity = 0;
-            public static double kAcceleration = 160;
-            public static double kJerk = 1600;
-            public static double kGearRatio = 3 * 3 * 5;
-            public static boolean kInverted = false;
-            public static Angle kLowerSoftLimit = Degrees.of(-180);
-            public static Angle kUpperSoftLimit = Degrees.of(180);
-            public static Angle kErrorTolerance = Degrees.of(1);
-            public static MotorArrangementValue kMotorArrangement = MotorArrangementValue.Minion_JST;
+            private static int kMotorID = 19;
+            private static int kDrivingEncoderID = 9;
+            private static int kSensingEncoderID = 8;
+            private static double kS = 0;
+            private static double kV = 0.116;
+            private static double kA = 0.110;
+            private static double kP = 10;
+            private static double kI = 0;
+            private static double kD = 0.6;
+            private static double kG = 0;
+            private static double kCruiseVelocity = 0;
+            private static double kAcceleration = 160;
+            private static double kJerk = 1600;
+            private static int kDrivingGearTeeth = 24;
+            private static int kSensingGearTeeth = 25;
+            private static int kTurntableGearTeeth = 120;
+            private static boolean kInverted = false;
+            private static Angle kLowerSoftLimit = Degrees.of(-180);
+            private static Angle kUpperSoftLimit = Degrees.of(180);
+            private static Angle kErrorTolerance = Degrees.of(1);
+            private static MotorArrangementValue kMotorArrangement = MotorArrangementValue.Minion_JST;
+
+            public static SuzieConstants kMinionConstants = new SuzieConstants(kMotorID, kDrivingEncoderID,
+                    kSensingEncoderID, kS, kV, kA, kP, kI, kD, kG, kCruiseVelocity, kAcceleration, kJerk,
+                    kDrivingGearTeeth, kSensingGearTeeth, kTurntableGearTeeth, kInverted, kLowerSoftLimit,
+                    kUpperSoftLimit, kErrorTolerance, kMotorArrangement);
         }
 
         public class Hood
         {
-            public static Distance kDangerZone = Feet.of(10);
-            public static int kMotorID = 11;
-            public static int kEncoderID = 2;
-            public static double kS = 0;
-            public static double kV = 0.12 * 10;
-            public static double kA = 0.8 / 10;
-            public static double kP = 10;
-            public static double kI = 0;
-            public static double kD = 0;
-            public static double kG = 0;
-            public static double kCruiseVelocity = 0;
-            public static double kAcceleration = 160;
-            public static double kJerk = 1600;
-            public static double kGearRatio = 10;
-            public static boolean kInverted = false;
-            public static Angle kLowerSoftLimit = Degrees.of(0);
-            public static Angle kUpperSoftLimit = Degrees.of(20);
-            public static Angle kErrorTolerance = Degrees.of(1);
-            public static MotorArrangementValue kMotorArrangement = MotorArrangementValue.Minion_JST;
+            private static Distance kDangerZone = Feet.of(10);
+            private static int kMotorID = 11;
+            private static int kEncoderID = 2;
+            private static double kS = 0;
+            private static double kV = 0.12 * 10;
+            private static double kA = 0.8 / 10;
+            private static double kP = 10;
+            private static double kI = 0;
+            private static double kD = 0;
+            private static double kG = 0;
+            private static double kCruiseVelocity = 0;
+            private static double kAcceleration = 160;
+            private static double kJerk = 1600;
+            private static double kGearRatio = 10;
+            private static boolean kInverted = false;
+            private static Angle kLowerSoftLimit = Degrees.of(0);
+            private static Angle kUpperSoftLimit = Degrees.of(20);
+            private static Angle kErrorTolerance = Degrees.of(1);
+            private static MotorArrangementValue kMotorArrangement = MotorArrangementValue.Minion_JST;
+
+            // Create list of all 4 trench positions
+            private static List<Translation2d> kAllTrenchPositions = List.of(FieldConstants.kBlueTrench1,
+                    FieldConstants.kBlueTrench2, FieldConstants.kRedTrench1, FieldConstants.kRedTrench2);
+
             public static String kTargetingDataFilepath = "src/main/java/frc/robot/subsystems/turret/targeting_data/HoodTargetingData.csv";
 
             // servo constants
-            public static int kServoID = 9;
-            public static Angle kLowerServoLimit = Degrees.of(145);
-            public static Angle kUpperServoLimit = Degrees.of(-20);
-            public static Angle kMechanismLowerAngle = Degrees.of(10);
-            public static Angle kMechanismUpperAngle = Degrees.of(40);
+            private static int kServoID = 9;
+            private static Angle kLowerServoLimit = Degrees.of(145);
+            private static Angle kUpperServoLimit = Degrees.of(-20);
+            private static Angle kMechanismLowerAngle = Degrees.of(20);
+            private static Angle kMechanismUpperAngle = Degrees.of(37);
+
+            public static HoodConstants kMinionConstants = new HoodConstants(kMotorID, kEncoderID, kS, kV, kA, kP, kI,
+                    kD, kG, kCruiseVelocity, kAcceleration, kJerk, kGearRatio, kInverted, kLowerSoftLimit,
+                    kUpperSoftLimit, kErrorTolerance, kMotorArrangement, kDangerZone, kAllTrenchPositions,
+                    kMechanismLowerAngle, kMechanismUpperAngle);
+            public static HoodConstants kServoConstants = new HoodConstants(kServoID, kEncoderID, kS, kV, kA, kP, kI,
+                    kD, kG, kCruiseVelocity, kAcceleration, kJerk, kGearRatio, kInverted, kLowerServoLimit,
+                    kUpperServoLimit, kErrorTolerance, kMotorArrangement, kDangerZone, kAllTrenchPositions,
+                    kMechanismLowerAngle, kMechanismUpperAngle);
         }
 
         public class Shooter
         {
-            public static int kMotor1ID = 20;
-            public static int kMotor2ID = 21;
-            public static double kS = 0;
-            public static double kV = 0.115;
-            public static double kA = 0.1;
-            public static double kP = 0.55;
-            public static double kI = 0;
-            public static double kD = 0;
-            public static double kG = 0;
-            public static double kCruiseVelocity = 100;
-            public static double kAcceleration = 100;
-            public static double kJerk = 0;
-            public static boolean kMotor1Inverted = false;
-            public static boolean kMotor2Inverted = true;
-            public static AngularVelocity kErrorTolerance = RotationsPerSecond.of(10);
+            private static int kMotor1ID = 20;
+            private static int kMotor2ID = 21;
+            private static double kS = 0;
+            private static double kV = 0.115;
+            private static double kA = 1;
+            private static double kP = 0.55;
+            private static double kI = 0;
+            private static double kD = 0;
+            private static double kG = 0;
+            private static double kCruiseVelocity = 100;
+            private static double kAcceleration = 100;
+            private static double kJerk = 0;
+            private static boolean kMotor1Inverted = false;
+            private static boolean kMotor2Inverted = true;
+            private static AngularVelocity kErrorTolerance = RotationsPerSecond.of(10);
             public static String kTargetingDataFilepath = "src/main/java/frc/robot/subsystems/turret/targeting_data/ShooterTargetingData.csv";
+
+            public static ShooterConstants kKrakenConstants = new ShooterConstants(kMotor1ID, kMotor2ID, kS, kV, kA, kP,
+                    kI, kD, kG, kCruiseVelocity, kAcceleration, kJerk, kMotor1Inverted, kMotor2Inverted,
+                    kErrorTolerance);
         }
     }
 
@@ -280,6 +299,7 @@ public class LobbyConstants
     public class SpindexerConstants
     {
         public static final Time kDeJamTimeout = Seconds.of(1);
+        public static final Time kDeJamTime = Seconds.of(0.3);
     }
 
     public class TalonFXConstants

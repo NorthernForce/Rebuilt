@@ -22,18 +22,15 @@ public class CloseDriveToPoseRequest implements SwerveRequest
     private final FieldCentricFacingAngle facingAngle;
     private final PIDController xPID;
     private final PIDController yPID;
-    private final PIDController viewerPID;
     private final LinearVelocity maxVelocity;
 
     public CloseDriveToPoseRequest(Pose2d pose, double tP, double tI, double tD, double rP, double rI, double rD,
-            double vP, double vI, double vD, LinearVelocity maxVelocity, Supplier<Pose2d> poseGetter)
+            LinearVelocity maxVelocity)
     {
         this.xPID = new PIDController(tP, tI, tD);
         this.yPID = new PIDController(tP, tI, tD);
-        this.viewerPID = new PIDController(vP, vI, vD);
         xPID.setTolerance(0.02, 0.1);
         yPID.setTolerance(0.02, 0.1);
-        viewerPID.setTolerance(0.02, 0.1);
         xPID.setSetpoint(pose.getX());
         yPID.setSetpoint(pose.getY());
         this.facingAngle = new FieldCentricFacingAngle();
@@ -49,7 +46,6 @@ public class CloseDriveToPoseRequest implements SwerveRequest
     {
         xPID.reset();
         yPID.reset();
-        viewerPID.reset();
         facingAngle.HeadingController.reset();
     }
 

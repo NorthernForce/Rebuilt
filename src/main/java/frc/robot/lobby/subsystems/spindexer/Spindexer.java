@@ -51,6 +51,12 @@ public class Spindexer extends SubsystemBase
 
     }
 
+    @Override
+    public void periodic()
+    {
+        m_carousel.update();
+    }
+
     public record SpindexerParameters(Time deJamTime) {
 
     }
