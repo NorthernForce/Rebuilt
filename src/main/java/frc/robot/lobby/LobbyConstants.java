@@ -72,8 +72,7 @@ public class LobbyConstants
         public static final PIDConstants kPPDriveRPID = new PIDConstants(kPPDriveRP, kPPDriveRI, kPPDriveRD);
 
         public static final Distance kDriveRadius = Meters
-                .of(Math.sqrt(Math.pow(LobbyTunerConstants.FrontRight.LocationX, 2)
-                        + Math.pow(LobbyTunerConstants.FrontRight.LocationY, 2)));
+                .of(Math.hypot(LobbyTunerConstants.FrontRight.LocationX, LobbyTunerConstants.FrontRight.LocationY));
 
         public static final AngularVelocity kMaxAngularVelocity = RadiansPerSecond
                 .of(LobbyTunerConstants.kSpeedAt12Volts.in(MetersPerSecond) / kDriveRadius.in(Meters));
@@ -93,19 +92,6 @@ public class LobbyConstants
         public static final double kCloseDriveRP = 5;
         public static final double kCloseDriveRI = 0.0;
         public static final double kCloseDriveRD = 0.0;
-
-        // TODO: maybe tune a bit
-        public static final double kCloseDriveVP = 2.5;
-        public static final double kCloseDriveVI = 0.0;
-        public static final double kCloseDriveVD = 0.1;
-        public static final Angle[] SWERVE_MODULE_OFFSETS =
-        { Rotations.of(Preferences.getDouble("kSwerveOffsetFrontLeft", LobbyTunerConstants.FrontLeft.EncoderOffset)),
-                Rotations.of(
-                        Preferences.getDouble("kSwerveOffsetFrontRight", LobbyTunerConstants.FrontRight.EncoderOffset)),
-                Rotations
-                        .of(Preferences.getDouble("kSwerveOffsetBackLeft", LobbyTunerConstants.BackLeft.EncoderOffset)),
-                Rotations.of(
-                        Preferences.getDouble("kSwerveOffsetBackRight", LobbyTunerConstants.BackRight.EncoderOffset)) };
     }
 
     public class AutoConstants
