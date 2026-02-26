@@ -3,8 +3,6 @@ package frc.robot.lobby.subsystems.spindexer.commands;
 import edu.wpi.first.units.measure.Time;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.Commands;
-import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import frc.robot.lobby.subsystems.spindexer.Spindexer;
 
 public class RunSpindexer extends Command

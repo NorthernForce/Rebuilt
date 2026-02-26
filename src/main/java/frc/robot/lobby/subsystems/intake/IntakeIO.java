@@ -1,7 +1,6 @@
 package frc.robot.lobby.subsystems.intake;
 
 import edu.wpi.first.units.measure.Angle;
-import edu.wpi.first.wpilibj2.command.Command;
 
 public interface IntakeIO
 {

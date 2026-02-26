@@ -2,20 +2,16 @@ package frc.robot.lobby.subsystems.apriltagvision.commands;
 
 import static edu.wpi.first.units.Units.MetersPerSecond;
 
-import java.util.function.Supplier;
-
 import com.ctre.phoenix6.StatusCode;
 import com.ctre.phoenix6.swerve.SwerveDrivetrain.SwerveControlParameters;
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
-
+import com.ctre.phoenix6.swerve.SwerveModule;
+import com.ctre.phoenix6.swerve.SwerveRequest;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.units.measure.LinearVelocity;
-
-import com.ctre.phoenix6.swerve.SwerveModule;
-import com.ctre.phoenix6.swerve.SwerveRequest;
 
 public class CloseDriveToPoseRequest implements SwerveRequest
 {

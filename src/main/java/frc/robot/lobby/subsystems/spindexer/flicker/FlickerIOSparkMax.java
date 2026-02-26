@@ -8,7 +8,6 @@ import com.revrobotics.spark.SparkLowLevel.MotorType;
 
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Time;
-import edu.wpi.first.wpilibj.motorcontrol.Spark;
 
 public class FlickerIOSparkMax implements FlickerIO
 {
