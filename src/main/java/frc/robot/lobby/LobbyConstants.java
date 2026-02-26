@@ -18,7 +18,20 @@ import static edu.wpi.first.units.Units.Feet;
 import static edu.wpi.first.units.Units.Inches;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 import static edu.wpi.first.units.Units.Seconds;
+import static edu.wpi.first.units.Units.Volts;
 
+import com.ctre.phoenix6.signals.MotorArrangementValue;
+import com.pathplanner.lib.config.PIDConstants;
+import com.pathplanner.lib.path.PathConstraints;
+
+import edu.wpi.first.units.measure.Angle;
+import edu.wpi.first.units.measure.AngularAcceleration;
+
+import static edu.wpi.first.units.Units.Meters;
+import static edu.wpi.first.units.Units.MetersPerSecond;
+import static edu.wpi.first.units.Units.MetersPerSecondPerSecond;
+import static edu.wpi.first.units.Units.RadiansPerSecond;
+import static edu.wpi.first.units.Units.RadiansPerSecondPerSecond;
 import java.util.List;
 
 import static edu.wpi.first.units.Units.Meters;
@@ -30,9 +43,12 @@ import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Distance;
+import edu.wpi.first.units.measure.LinearAcceleration;
 import edu.wpi.first.units.measure.LinearVelocity;
 import edu.wpi.first.units.measure.Temperature;
 import edu.wpi.first.units.measure.Time;
+import edu.wpi.first.units.measure.Voltage;
+import edu.wpi.first.wpilibj.Preferences;
 import frc.robot.FieldConstants;
 import frc.robot.lobby.generated.LobbyTunerConstants;
 import frc.robot.lobby.subsystems.turret.hood.HoodIO.HoodConstants;
@@ -45,6 +61,37 @@ public class LobbyConstants
     {
         public static final LinearVelocity kMaxSpeed = LobbyTunerConstants.kSpeedAt12Volts;
         public static final AngularVelocity kMaxAngularSpeed = RotationsPerSecond.of(3.0);
+        public static final double kPPDriveTP = 2.9;
+        public static final double kPPDriveTI = 0.0;
+        public static final double kPPDriveTD = 0.0;
+        public static final PIDConstants kPPDrivePID = new PIDConstants(kPPDriveTP, kPPDriveTI, kPPDriveTD);
+
+        public static final double kPPDriveRP = 5.0;
+        public static final double kPPDriveRI = 0.0;
+        public static final double kPPDriveRD = 0.0;
+        public static final PIDConstants kPPDriveRPID = new PIDConstants(kPPDriveRP, kPPDriveRI, kPPDriveRD);
+
+        public static final Distance kDriveRadius = Meters
+                .of(Math.hypot(LobbyTunerConstants.FrontRight.LocationX, LobbyTunerConstants.FrontRight.LocationY));
+
+        public static final AngularVelocity kMaxAngularVelocity = RadiansPerSecond
+                .of(LobbyTunerConstants.kSpeedAt12Volts.in(MetersPerSecond) / kDriveRadius.in(Meters));
+
+        public static final LinearVelocity kPPMaxVelocity = MetersPerSecond.of(3.5);
+        public static final LinearAcceleration kPPMaxAcceleration = MetersPerSecondPerSecond.of(3.0);
+        public static final AngularVelocity kPPMaxAngularVelocity = RadiansPerSecond.of(3.0);
+        public static final AngularAcceleration kPPMaxAngularAcceleration = RadiansPerSecondPerSecond.of(3.0);
+        public static final Voltage kNominalVoltage = Volts.of(12.0);
+        public static final PathConstraints kPPConstraints = new PathConstraints(kPPMaxVelocity, kPPMaxAcceleration,
+                kPPMaxAngularVelocity, kPPMaxAngularAcceleration);
+
+        public static final double kCloseDriveTP = 2.65;
+        public static final double kCloseDriveTI = 0.0;
+        public static final double kCloseDriveTD = 0.3;
+
+        public static final double kCloseDriveRP = 5;
+        public static final double kCloseDriveRI = 0.0;
+        public static final double kCloseDriveRD = 0.0;
     }
 
     public class AutoConstants

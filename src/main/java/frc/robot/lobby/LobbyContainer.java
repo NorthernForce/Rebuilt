@@ -3,10 +3,13 @@ package frc.robot.lobby;
 import static edu.wpi.first.units.Units.Radians;
 
 import java.util.Optional;
+import java.util.function.Supplier;
+
 import org.northernforce.util.NFRRobotContainer;
 import org.photonvision.simulation.SimCameraProperties;
 
 import com.ctre.phoenix6.Utils;
+import com.pathplanner.lib.commands.PathPlannerAuto;
 
 import choreo.auto.AutoFactory;
 import choreo.auto.AutoRoutine;
@@ -23,6 +26,7 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import frc.robot.lobby.generated.LobbyTunerConstants;
 import frc.robot.lobby.subsystems.CommandSwerveDrivetrain;
 import frc.robot.lobby.subsystems.apriltagvision.*;
+import frc.robot.lobby.subsystems.apriltagvision.commands.CloseDriveToPoseRequest;
 import frc.robot.lobby.subsystems.apriltagvision.commands.DriveToPoseWithVision;
 import frc.robot.lobby.subsystems.intake.Intake;
 import frc.robot.lobby.subsystems.intake.IntakeIOTalonFX;
@@ -154,6 +158,7 @@ public class LobbyContainer implements NFRRobotContainer
         autoUtil = new AutoUtil(drive, LobbyConstants.AutoConstants.xPid, LobbyConstants.AutoConstants.yPid,
                 LobbyConstants.AutoConstants.rPid);
         autoUtil.bindAutoDefault("TestAuto", this::testAuto);
+        autoUtil.bindAuto("ShmallAuto", new PathPlannerAuto("ShmallAuto"));
         Shuffleboard.getTab("Developer").add(field);
         Shuffleboard.getTab("Developer").add("Reset Encoders", drive.resetEncoders());
         Shuffleboard.getTab("Developer").add("Reset Orientation", drive.resetOrientation());
@@ -273,9 +278,25 @@ public class LobbyContainer implements NFRRobotContainer
         return routine;
     }
 
-    public Command driveToPose(Pose2d pose)
+    public Command roughDriveToPose(Pose2d pose)
     {
         return driveToPoseCommand.driveToPose(pose);
+    }
+
+    public Command driveToPose(Pose2d pose)
+    {
+        return Commands.sequence(roughDriveToPose(pose), closeDriveToPose(pose));
+    }
+
+    public Command closeDriveToPose(Pose2d pose)
+    {
+        CloseDriveToPoseRequest request = new CloseDriveToPoseRequest(pose,
+                LobbyConstants.DrivetrainConstants.kCloseDriveTP, LobbyConstants.DrivetrainConstants.kCloseDriveTI,
+                LobbyConstants.DrivetrainConstants.kCloseDriveTD, LobbyConstants.DrivetrainConstants.kCloseDriveRP,
+                LobbyConstants.DrivetrainConstants.kCloseDriveRI, LobbyConstants.DrivetrainConstants.kCloseDriveRD,
+                LobbyConstants.DrivetrainConstants.kPPMaxVelocity);
+        return Commands.runOnce(() -> request.reset(drive.getPose()))
+                .andThen(drive.applyRequest(() -> request).until(request::isFinished));
     }
 
     public void resetOdometry(Pose2d pose)
