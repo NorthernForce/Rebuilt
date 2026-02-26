@@ -14,7 +14,6 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.lobby.subsystems.spindexer.Spindexer;
-import frc.robot.lobby.subsystems.spindexer.commands.DejamSpindexer;
 import frc.robot.lobby.subsystems.spindexer.commands.RunSpindexer;
 import frc.robot.lobby.subsystems.turret.commands.PrepTurretCommand;
 import frc.robot.lobby.subsystems.turret.commands.PrepTurretWithValues;
@@ -57,7 +56,8 @@ public class LobbyOI
             DogLog.log("Turret/csvValue", container.getTurret().getHoodTargetingCalculator().getValueForDistance(5.0));
         }));
 
-        driveController.rightTrigger().whileTrue(new RunSpindexer(container.getSpindexer()));
+        driveController.rightTrigger()
+                .whileTrue(new RunSpindexer(container.getSpindexer(), LobbyConstants.SpindexerConstants.kDeJamTime));
         // driveController.leftTrigger().whileTrue(new
         // PrepTurretWithValues(container.getTurret()));
         // driveController.povUp()
@@ -68,8 +68,9 @@ public class LobbyOI
         // manipulatorController.leftTrigger().whileTrue(intake.getRunToIntakeAngleCommand());
         // intake.setDefaultCommand(intake.getRunToStowAngleCommand());
         manipulatorController.leftTrigger().whileTrue(intake.intake(0.75)).onFalse(intake.stopIntake());
-        manipulatorController.rightTrigger().whileTrue(
-                new RunSpindexer(container.getSpindexer()).alongWith(new PrepTurretWithValues(container.getTurret())));
+        manipulatorController.rightTrigger()
+                .whileTrue(new RunSpindexer(container.getSpindexer(), LobbyConstants.SpindexerConstants.kDeJamTime)
+                        .alongWith(new PrepTurretWithValues(container.getTurret())));
         container.getTurret().getShooter().setDefaultCommand(container.getTurret().getShooter().stop());
         // manipulatorController.rightTrigger().whileTrue(new
         // RunSpindexer(container.getSpindexer()));

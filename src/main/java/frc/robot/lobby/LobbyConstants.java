@@ -252,6 +252,7 @@ public class LobbyConstants
     public class SpindexerConstants
     {
         public static final Time kDeJamTimeout = Seconds.of(1);
+        public static final Time kDeJamTime = Seconds.of(0.3);
     }
 
     public class TalonFXConstants

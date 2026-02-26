@@ -1,5 +1,6 @@
 package frc.robot.lobby.subsystems.spindexer.commands;
 
+import edu.wpi.first.units.measure.Time;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -10,12 +11,14 @@ public class RunSpindexer extends Command
 {
     private final Spindexer spindexer;
     private final Timer timer;
+    private final Time dejamTime;
 
-    public RunSpindexer(Spindexer spindexer)
+    public RunSpindexer(Spindexer spindexer, Time dejamTime)
     {
         addRequirements(spindexer);
         this.spindexer = spindexer;
         timer = new Timer();
+        this.dejamTime = dejamTime;
     }
 
     @Override
@@ -32,7 +35,7 @@ public class RunSpindexer extends Command
         {
             timer.restart();
         }
-        if (timer.isRunning() && timer.hasElapsed(0.3) && !spindexer.getJammed())
+        if (timer.isRunning() && timer.hasElapsed(dejamTime) && !spindexer.getJammed())
         {
             timer.stop();
         }
