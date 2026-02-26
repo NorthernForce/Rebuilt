@@ -70,6 +70,7 @@ public class LobbyOI
         manipulatorController.leftTrigger().whileTrue(intake.intake(0.75)).onFalse(intake.stopIntake());
         manipulatorController.rightTrigger().whileTrue(
                 new RunSpindexer(container.getSpindexer()).alongWith(new PrepTurretWithValues(container.getTurret())));
+        container.getTurret().getShooter().setDefaultCommand(container.getTurret().getShooter().stop());
         // manipulatorController.rightTrigger().whileTrue(new
         // RunSpindexer(container.getSpindexer()));
         // manipulatorController.leftBumper().whileTrue(new
