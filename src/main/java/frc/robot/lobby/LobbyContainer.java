@@ -84,15 +84,15 @@ public class LobbyContainer implements NFRRobotContainer
     private final Spindexer spindexer;
     private final DriveToPoseWithVision driveToPoseCommand;
     private Optional<String> teamActivity = Optional.empty();
-private GenericEntry indexerSpeedEntry;
-private GenericEntry flickerSpeedEntry;
-private GenericEntry shooterSpeedEntry;
-private GenericEntry shooterDutyCycleEntry;
-private GenericEntry shooterKPEntry;
-private GenericEntry shooterKIEntry;
-private GenericEntry shooterKDEntry;
-private GenericEntry shooterKVEntry;
-private GenericEntry shooterKAEntry;
+    private GenericEntry indexerSpeedEntry;
+    private GenericEntry flickerSpeedEntry;
+    private GenericEntry shooterSpeedEntry;
+    private GenericEntry shooterDutyCycleEntry;
+    private GenericEntry shooterKPEntry;
+    private GenericEntry shooterKIEntry;
+    private GenericEntry shooterKDEntry;
+    private GenericEntry shooterKVEntry;
+    private GenericEntry shooterKAEntry;
 
     public LobbyContainer()
     {
@@ -164,7 +164,10 @@ private GenericEntry shooterKAEntry;
         intake = new Intake(new IntakeIOTalonFX(LobbyConstants.IntakeConstants.kRollerMotorId,
                 LobbyConstants.IntakeConstants.kAngleMotorId, LobbyConstants.IntakeConstants.kAngleEncoderId,
                 LobbyConstants.IntakeConstants.kDownAngle, LobbyConstants.IntakeConstants.kMiddleAngle,
-                LobbyConstants.IntakeConstants.kStowedAngle));
+                LobbyConstants.IntakeConstants.kStowedAngle, LobbyConstants.IntakeConstants.kP,
+                LobbyConstants.IntakeConstants.kI, LobbyConstants.IntakeConstants.kD, LobbyConstants.IntakeConstants.kS,
+                LobbyConstants.IntakeConstants.kV, LobbyConstants.IntakeConstants.kA,
+                LobbyConstants.IntakeConstants.kG));
 
         field = new Field2d();
         driveToPoseCommand = new DriveToPoseWithVision(drive);
@@ -183,10 +186,8 @@ private GenericEntry shooterKAEntry;
                 intake.sysIdArmQuasistatic(SysIdRoutine.Direction.kForward));
         Shuffleboard.getTab("SysId").add("Arm Quasistatic Rev",
                 intake.sysIdArmQuasistatic(SysIdRoutine.Direction.kReverse));
-        Shuffleboard.getTab("SysId").add("Arm Dynamic Fwd",
-                intake.sysIdArmDynamic(SysIdRoutine.Direction.kForward));
-        Shuffleboard.getTab("SysId").add("Arm Dynamic Rev",
-                intake.sysIdArmDynamic(SysIdRoutine.Direction.kReverse));
+        Shuffleboard.getTab("SysId").add("Arm Dynamic Fwd", intake.sysIdArmDynamic(SysIdRoutine.Direction.kForward));
+        Shuffleboard.getTab("SysId").add("Arm Dynamic Rev", intake.sysIdArmDynamic(SysIdRoutine.Direction.kReverse));
         indexerSpeedEntry = Shuffleboard.getTab("Tuning")
                 .add("Indexer Speed", (double) spindexer.getCarousel().getTargetPower()).getEntry();
         flickerSpeedEntry = Shuffleboard.getTab("Tuning")

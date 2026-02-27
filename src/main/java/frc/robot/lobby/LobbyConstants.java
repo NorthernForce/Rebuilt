@@ -271,9 +271,16 @@ public class LobbyConstants
         public static final int kAngleEncoderId = 22;
         public static final double kDriverIntakeSpeed = 0.6;
         public static final double kDriverPurgeSpeed = 1.0;
-        public static final Angle kDownAngle = Rotations.zero();
-        public static final Angle kMiddleAngle = Rotations.of(-0.154);
-        public static final Angle kStowedAngle = Rotations.of(-0.370);
+        public static final Angle kDownAngle = Rotations.of(0.1);
+        public static final Angle kMiddleAngle = Rotations.of(0.172);
+        public static final Angle kStowedAngle = Rotations.of(0.35);
+        public static final double kP = 23.745;
+        public static final double kI = 0;
+        public static final double kD = 2.6807;
+        public static final double kS = 0.24758;
+        public static final double kA = 0.85231;
+        public static final double kV = 9.1813;
+        public static final double kG = 1.898;
     }
 
     public class CarouselConstants

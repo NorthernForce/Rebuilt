@@ -39,6 +39,8 @@ public class LobbyOI
 
         drive.setDefaultCommand(drive.driveByJoystick(inputProc(driveController::getLeftY),
                 inputProc(driveController::getLeftX), inputProc(driveController::getRightX)));
+        intake.setDefaultCommand(intake.getRunToMidAngleCommand().andThen(intake.stopIntake()));
+
         driveController.back().onTrue(drive.resetOrientation());
 
         // Pass turret's hood constants for danger zone calculation
@@ -56,8 +58,6 @@ public class LobbyOI
             DogLog.log("Turret/csvValue", container.getTurret().getHoodTargetingCalculator().getValueForDistance(5.0));
         }));
 
-        driveController.rightTrigger()
-                .whileTrue(new RunSpindexer(container.getSpindexer(), LobbyConstants.SpindexerConstants.kDeJamTime));
         // driveController.leftTrigger().whileTrue(new
         // PrepTurretWithValues(container.getTurret()));
         // driveController.povUp()
@@ -67,8 +67,8 @@ public class LobbyOI
         // container.getTurret()));
         // manipulatorController.leftTrigger().whileTrue(intake.getRunToIntakeAngleCommand());
         // intake.setDefaultCommand(intake.getRunToStowAngleCommand());
-        manipulatorController.leftTrigger().whileTrue(intake.intake(0.75)).onFalse(intake.stopIntake());
-        manipulatorController.rightTrigger()
+        driveController.leftTrigger().whileTrue(intake.getRunToIntakeAngleCommand().andThen(intake.intake(0.75)));
+        driveController.rightTrigger()
                 .whileTrue(new RunSpindexer(container.getSpindexer(), LobbyConstants.SpindexerConstants.kDeJamTime)
                         .alongWith(new PrepTurretWithValues(container.getTurret())));
         container.getTurret().getShooter().setDefaultCommand(container.getTurret().getShooter().stop());

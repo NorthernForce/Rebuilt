@@ -1,10 +1,16 @@
 package frc.robot.lobby.subsystems.intake;
 
+import static edu.wpi.first.units.Units.Rotations;
+import static edu.wpi.first.units.Units.RotationsPerSecond;
+import static edu.wpi.first.units.Units.Second;
+import static edu.wpi.first.units.Units.Seconds;
 import static edu.wpi.first.units.Units.Volts;
 
-import com.ctre.phoenix6.SignalLogger;
+import java.util.function.DoubleSupplier;
 
+import dev.doglog.DogLog;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 
@@ -19,14 +25,12 @@ public class Intake extends SubsystemBase
         this.io = io;
 
         m_armSysIdRoutine = new SysIdRoutine(
-                new SysIdRoutine.Config(
-                        null, // Default ramp rate (1 V/s)
-                        Volts.of(4), // Dynamic step voltage — keep low for an arm to avoid damage
-                        null, // Default timeout (10 s)
-                        state -> SignalLogger.writeString("IntakeArm_SysId_State", state.toString())),
-                new SysIdRoutine.Mechanism(
-                        voltage -> io.setArmVoltage(voltage),
-                        null, // Using CTRE SignalLogger, no WPILib log consumer needed
+                new SysIdRoutine.Config(Volts.of(0.5).per(Second), Volts.of(6), Seconds.of(3),
+                        state -> DogLog.log("IntakeArm_SysId_State", state.toString())),
+                new SysIdRoutine.Mechanism(voltage -> io.setArmVoltage(voltage),
+                        log -> log.motor("IntakeArm").voltage(Volts.of(io.getArmVoltage()))
+                                .angularPosition(Rotations.of(io.getArmPosition()))
+                                .angularVelocity(RotationsPerSecond.of(io.getArmVelocity())),
                         this));
     }
 
@@ -60,22 +64,27 @@ public class Intake extends SubsystemBase
         return run(() -> io.stopIntake());
     }
 
-    /**
-     * Quasistatic SysId test — slowly ramps voltage on the intake arm.
-     * Use this to measure kS (static friction) and kV (velocity gain).
-     */
-    public Command sysIdArmQuasistatic(SysIdRoutine.Direction direction)
+    public Command driveByJoystick(DoubleSupplier positionSupplier)
     {
-        return m_armSysIdRoutine.quasistatic(direction);
+        return run(() -> io.setPower(positionSupplier.getAsDouble()));
     }
 
-    /**
-     * Dynamic SysId test — applies a step voltage to the intake arm.
-     * Use this to measure kA (acceleration gain).
-     */
+    public Command sysIdArmQuasistatic(SysIdRoutine.Direction direction)
+    {
+        return Commands.sequence(Commands.runOnce(() -> io.disableSoftLimits()),
+                m_armSysIdRoutine.quasistatic(direction).finallyDo(() -> io.enableSoftLimits()));
+    }
+
     public Command sysIdArmDynamic(SysIdRoutine.Direction direction)
     {
-        return m_armSysIdRoutine.dynamic(direction);
+        return Commands.sequence(Commands.runOnce(() -> io.disableSoftLimits()),
+                m_armSysIdRoutine.dynamic(direction).finallyDo(() -> io.enableSoftLimits()));
+    }
+
+    @Override
+    public void periodic()
+    {
+        io.logArmSignals();
     }
 
 }

@@ -1,6 +1,6 @@
 package frc.robot.lobby.subsystems.intake;
 
-import com.ctre.phoenix6.SignalLogger;
+import com.ctre.phoenix6.configs.SoftwareLimitSwitchConfigs;
 import com.ctre.phoenix6.configs.TalonFXSConfiguration;
 import com.ctre.phoenix6.controls.MotionMagicVoltage;
 import com.ctre.phoenix6.controls.VoltageOut;
@@ -9,10 +9,13 @@ import com.ctre.phoenix6.signals.ExternalFeedbackSensorSourceValue;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
+import dev.doglog.DogLog;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.Voltage;
 import static edu.wpi.first.units.Units.Radians;
+import static edu.wpi.first.units.Units.Rotations;
+
 import frc.robot.lobby.LobbyConstants;
 
 public class IntakeIOTalonFX implements IntakeIO
@@ -26,7 +29,7 @@ public class IntakeIOTalonFX implements IntakeIO
     private final Angle stowAngle;
 
     public IntakeIOTalonFX(int rollerMotorID, int angleMotorID, int encoderID, Angle downAngle, Angle midAngle,
-            Angle stowAngle)
+            Angle stowAngle, double kP, double kI, double kD, double kS, double kV, double kA, double kG)
     {
         this.rollerMotor = new TalonFXS(rollerMotorID);
         this.angleMotor = new TalonFXS(angleMotorID);
@@ -38,7 +41,20 @@ public class IntakeIOTalonFX implements IntakeIO
         config.ExternalFeedback.FeedbackRemoteSensorID = encoderID;
         config.ExternalFeedback.ExternalFeedbackSensorSource = ExternalFeedbackSensorSourceValue.RemoteCANcoder;
         config.MotorOutput.NeutralMode = NeutralModeValue.Brake;
-        config.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
+        config.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
+
+        config.SoftwareLimitSwitch.ForwardSoftLimitThreshold = stowAngle.in(Rotations);
+        config.SoftwareLimitSwitch.ReverseSoftLimitThreshold = downAngle.in(Rotations);
+        config.SoftwareLimitSwitch.ForwardSoftLimitEnable = true;
+        config.SoftwareLimitSwitch.ReverseSoftLimitEnable = true;
+        config.Slot0.kS = kS;
+        config.Slot0.kP = kP;
+        config.Slot0.kI = kI;
+        config.Slot0.kD = kD;
+        config.Slot0.kG = kG;
+        config.MotionMagic.MotionMagicExpo_kV = kV;
+        config.MotionMagic.MotionMagicExpo_kA = kA;
+
         angleMotor.getConfigurator().apply(config);
 
         // Optimize signal frequencies for SysId logging
@@ -68,17 +84,7 @@ public class IntakeIOTalonFX implements IntakeIO
     @Override
     public void setAngle(Angle angle)
     {
-        // Enforce software position limits defined in LobbyConstants.IntakeConstants
-        double min = LobbyConstants.IntakeConstants.kStowedAngle.in(Radians);
-        double max = LobbyConstants.IntakeConstants.kDownAngle.in(Radians);
-        double reqRad = angle.in(Radians);
-        double clamped = MathUtil.clamp(reqRad, min, max);
-        if (clamped != reqRad)
-        {
-            // Log when clamping occurs
-            SignalLogger.writeString("IntakeArm/Limit", "Clamped request from " + reqRad + " to " + clamped);
-        }
-        angleMotor.setControl(req.withPosition(Radians.of(clamped)));
+        angleMotor.setControl(req.withPosition(angle.in(Rotations)));
     }
 
     @Override
@@ -114,8 +120,52 @@ public class IntakeIOTalonFX implements IntakeIO
     @Override
     public void logArmSignals()
     {
-        SignalLogger.writeDouble("IntakeArm/Position", angleMotor.getPosition().getValueAsDouble());
-        SignalLogger.writeDouble("IntakeArm/Velocity", angleMotor.getVelocity().getValueAsDouble());
-        SignalLogger.writeDouble("IntakeArm/Voltage", angleMotor.getMotorVoltage().getValueAsDouble());
+        DogLog.log("IntakeArm/Position", angleMotor.getPosition().getValueAsDouble());
+        DogLog.log("IntakeArm/Velocity", angleMotor.getVelocity().getValueAsDouble());
+        DogLog.log("IntakeArm/Voltage", angleMotor.getMotorVoltage().getValueAsDouble());
+    }
+
+    @Override
+    public double getArmPosition()
+    {
+        return angleMotor.getPosition().getValueAsDouble();
+    }
+
+    @Override
+    public double getArmVelocity()
+    {
+        return angleMotor.getVelocity().getValueAsDouble();
+    }
+
+    @Override
+    public double getArmVoltage()
+    {
+        return angleMotor.getMotorVoltage().getValueAsDouble();
+    }
+
+    @Override
+    public void disableSoftLimits()
+    {
+        var config = new SoftwareLimitSwitchConfigs();
+        config.ForwardSoftLimitEnable = false;
+        config.ReverseSoftLimitEnable = false;
+        angleMotor.getConfigurator().apply(config);
+    }
+
+    @Override
+    public void enableSoftLimits()
+    {
+        var config = new SoftwareLimitSwitchConfigs();
+        config.ForwardSoftLimitThreshold = stowAngle.in(Rotations);
+        config.ReverseSoftLimitThreshold = downAngle.in(Rotations);
+        config.ForwardSoftLimitEnable = true;
+        config.ReverseSoftLimitEnable = true;
+        angleMotor.getConfigurator().apply(config);
+    }
+
+    @Override
+    public void setPower(double power)
+    {
+        angleMotor.set(power);
     }
 }
