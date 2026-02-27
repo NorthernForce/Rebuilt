@@ -14,6 +14,8 @@ import dev.doglog.DogLog;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.Voltage;
+
+import static edu.wpi.first.units.Units.Amps;
 import static edu.wpi.first.units.Units.Rotations;
 
 public class IntakeIOTalonFX implements IntakeIO
@@ -56,11 +58,15 @@ public class IntakeIOTalonFX implements IntakeIO
         config.MotionMagic.MotionMagicExpo_kA = intakeParams.kA();
         config.MotionMagic.MotionMagicAcceleration = intakeParams.acceleration();
         config.MotionMagic.MotionMagicCruiseVelocity = intakeParams.cruiseVelocity();
+        config.CurrentLimits.StatorCurrentLimit = intakeParams.currentLimit().in(Amps);
+        config.CurrentLimits.StatorCurrentLimitEnable = true;
 
         angleMotor.getConfigurator().apply(config);
 
         var rollerConfig = new TalonFXSConfiguration();
-        config.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
+        rollerConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
+        rollerConfig.CurrentLimits.StatorCurrentLimit = intakeParams.currentLimit().in(Amps);
+        rollerConfig.CurrentLimits.StatorCurrentLimitEnable = true;
         rollerMotor.getConfigurator().apply(rollerConfig);
 
         // Optimize signal frequencies for SysId logging

@@ -1,13 +1,14 @@
 package frc.robot.lobby.subsystems.intake;
 
 import edu.wpi.first.units.measure.Angle;
+import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Voltage;
 
 public interface IntakeIO
 {
     public record IntakeIOParameters(int rollerMotorID, int angleMotorID, int encoderID, double kP, double kI,
             double kD, double kS, double kV, double kA, double kG, double acceleration, double cruiseVelocity,
-            double forwardSoftLimit, double reverseSoftLimit) {
+            double forwardSoftLimit, double reverseSoftLimit, Current currentLimit) {
     }
 
     public void intake(double speed);
