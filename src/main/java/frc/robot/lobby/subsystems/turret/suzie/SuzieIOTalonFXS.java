@@ -107,7 +107,7 @@ public class SuzieIOTalonFXS implements SuzieIO
                         .withAbsoluteEncoder2Gearing(kSensingGearTeeth, kTurntableGearTeeth);
         m_crtCalculator = new EasyCRT(crtConfig);
 
-        TunablePID.create("Turret/Suzie/PID", m_motor, config);
+        TunablePID.createMotionMagic("Turret/Suzie/PID", m_motor, config);
     }
 
     @Override
