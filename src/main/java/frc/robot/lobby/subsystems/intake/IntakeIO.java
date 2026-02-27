@@ -5,6 +5,11 @@ import edu.wpi.first.units.measure.Voltage;
 
 public interface IntakeIO
 {
+    public record IntakeIOParameters(int rollerMotorID, int angleMotorID, int encoderID, double kP, double kI,
+            double kD, double kS, double kV, double kA, double kG, double acceleration, double cruiseVelocity,
+            double forwardSoftLimit, double reverseSoftLimit) {
+    }
+
     public void intake(double speed);
 
     public void purgeIntake(double speed);
@@ -14,12 +19,6 @@ public interface IntakeIO
     public void setAngle(Angle angle);
 
     public void resetAngle();
-
-    public void runToStowAngle();
-
-    public void runToMidAngle();
-
-    public void runToIntakeAngle();
 
     /** Apply a voltage to the arm angle motor (for SysId characterization). */
     public void setArmVoltage(Voltage voltage);

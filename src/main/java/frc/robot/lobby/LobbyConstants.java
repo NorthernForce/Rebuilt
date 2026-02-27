@@ -42,6 +42,8 @@ import edu.wpi.first.units.measure.Time;
 import edu.wpi.first.units.measure.Voltage;
 import frc.robot.FieldConstants;
 import frc.robot.lobby.generated.LobbyTunerConstants;
+import frc.robot.lobby.subsystems.intake.IntakeIO.IntakeIOParameters;
+import frc.robot.lobby.subsystems.intake.Intake.IntakeParameters;
 import frc.robot.lobby.subsystems.turret.hood.HoodIO.HoodConstants;
 import frc.robot.lobby.subsystems.turret.shooter.ShooterIO.ShooterConstants;
 import frc.robot.lobby.subsystems.turret.suzie.SuzieIO.SuzieConstants;
@@ -271,7 +273,17 @@ public class LobbyConstants
         public static final double kS = 0.24758;
         public static final double kA = 0.85231;
         public static final double kV = 9.1813;
-        public static final double kG = 1.898;
+        public static final double kG = 0.15;
+        public static final double kAcceleration = 4;
+        public static final double kCruiseVelocity = 1;
+        public static final double kForwardSoftLimit = 0.4;
+        public static final double kReverstSoftLimit = 0.05;
+
+        public static final IntakeIOParameters kIOParameters = new IntakeIOParameters(kRollerMotorId, kAngleMotorId,
+                kAngleEncoderId, kP, kI, kD, kS, kV, kA, kG, kAcceleration, kCruiseVelocity, kForwardSoftLimit,
+                kReverstSoftLimit);
+        public static final IntakeParameters kParameters = new IntakeParameters(kDownAngle, kMiddleAngle, kStowedAngle,
+                kDriverIntakeSpeed, kDriverPurgeSpeed);
     }
 
     public class CarouselConstants

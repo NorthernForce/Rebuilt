@@ -23,7 +23,13 @@ public class Intake extends SubsystemBase
 
     private final SysIdRoutine m_armSysIdRoutine;
 
-    public Intake(IntakeIO io)
+    private final Angle downAngle;
+    private final Angle midAngle;
+    private final Angle stowAngle;
+    private final double intakeSpeed;
+    private final double purgeSpeed;
+
+    public Intake(IntakeIO io, IntakeParameters params)
     {
         this.io = io;
 
@@ -35,16 +41,21 @@ public class Intake extends SubsystemBase
                                 .angularPosition(Rotations.of(io.getArmPosition()))
                                 .angularVelocity(RotationsPerSecond.of(io.getArmVelocity())),
                         this));
+        downAngle = params.downAngle();
+        midAngle = params.midAngle();
+        stowAngle = params.stowAngle();
+        intakeSpeed = params.intakeSpeed();
+        purgeSpeed = params.purgeSpeed();
     }
 
-    public Command purgeIntake(double speed)
+    public Command purgeIntake()
     {
-        return run(() -> io.intake(speed));
+        return run(() -> io.purgeIntake(purgeSpeed));
     }
 
-    public Command intake(double speed)
+    public Command intake()
     {
-        return run(() -> io.purgeIntake(speed));
+        return run(() -> io.intake(intakeSpeed));
     }
 
     public class RunToAngleCommand extends Command
@@ -81,14 +92,14 @@ public class Intake extends SubsystemBase
         @Override
         public void initialize()
         {
-            io.setAngle(LobbyConstants.IntakeConstants.kDownAngle);
-            io.purgeIntake(LobbyConstants.IntakeConstants.kDriverIntakeSpeed);
+            io.setAngle(downAngle);
+            io.intake(intakeSpeed);
         }
     }
 
     public Command getRunToIntakeAngleCommand()
     {
-        return new RunToAngleCommand(LobbyConstants.IntakeConstants.kDownAngle);
+        return new RunToAngleCommand(downAngle);
     }
 
     public Command intakeMoving()
@@ -99,13 +110,13 @@ public class Intake extends SubsystemBase
     public Command getRunToStowAngleCommand()
     {
 
-        return new RunToAngleCommand(LobbyConstants.IntakeConstants.kStowedAngle);
+        return new RunToAngleCommand(stowAngle);
     }
 
     public Command getRunToMidAngleCommand()
     {
 
-        return new RunToAngleCommand(LobbyConstants.IntakeConstants.kMiddleAngle);
+        return new RunToAngleCommand(midAngle);
     }
 
     public Command stopIntake()
@@ -136,4 +147,7 @@ public class Intake extends SubsystemBase
         io.logArmSignals();
     }
 
+    public record IntakeParameters(Angle downAngle, Angle midAngle, Angle stowAngle, double intakeSpeed,
+            double purgeSpeed) {
+    }
 }

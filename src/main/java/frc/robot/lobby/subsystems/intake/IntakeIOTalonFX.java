@@ -22,43 +22,46 @@ public class IntakeIOTalonFX implements IntakeIO
     private final TalonFXS angleMotor;
     private final MotionMagicVoltage req;
     private final VoltageOut voltageReq = new VoltageOut(0);
-    private final Angle downAngle;
-    private final Angle midAngle;
-    private final Angle stowAngle;
 
-    public IntakeIOTalonFX(int rollerMotorID, int angleMotorID, int encoderID, Angle downAngle, Angle midAngle,
-            Angle stowAngle, double kP, double kI, double kD, double kS, double kV, double kA, double kG)
+    private final double forwardSoftLimit;
+    private final double reverseSoftLimit;
+
+    public IntakeIOTalonFX(IntakeIOParameters intakeParams)
     {
-        this.rollerMotor = new TalonFXS(rollerMotorID);
-        this.angleMotor = new TalonFXS(angleMotorID);
+        this.rollerMotor = new TalonFXS(intakeParams.rollerMotorID());
+        this.angleMotor = new TalonFXS(intakeParams.angleMotorID());
         this.req = new MotionMagicVoltage(0);
-        this.downAngle = downAngle;
-        this.midAngle = midAngle;
-        this.stowAngle = stowAngle;
+
         var config = new TalonFXSConfiguration();
-        config.ExternalFeedback.FeedbackRemoteSensorID = encoderID;
+        config.ExternalFeedback.FeedbackRemoteSensorID = intakeParams.encoderID();
         config.ExternalFeedback.ExternalFeedbackSensorSource = ExternalFeedbackSensorSourceValue.RemoteCANcoder;
         config.MotorOutput.NeutralMode = NeutralModeValue.Brake;
         config.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
 
-        config.SoftwareLimitSwitch.ForwardSoftLimitThreshold = stowAngle.in(Rotations);
-        config.SoftwareLimitSwitch.ReverseSoftLimitThreshold = 0.05;
+        config.SoftwareLimitSwitch.ForwardSoftLimitThreshold = intakeParams.forwardSoftLimit();
+        config.SoftwareLimitSwitch.ReverseSoftLimitThreshold = intakeParams.reverseSoftLimit();
+        forwardSoftLimit = intakeParams.forwardSoftLimit();
+        reverseSoftLimit = intakeParams.reverseSoftLimit();
         config.SoftwareLimitSwitch.ForwardSoftLimitEnable = true;
         config.SoftwareLimitSwitch.ReverseSoftLimitEnable = true;
-        config.Slot0.kS = kS;
-        config.Slot0.kP = kP;
-        config.Slot0.kI = kI;
-        config.Slot0.kD = kD;
-        config.Slot0.kG = 0.15;
-        config.Slot0.kV = kV;
-        config.Slot0.kA = kA;
+        config.Slot0.kS = intakeParams.kS();
+        config.Slot0.kP = intakeParams.kP();
+        config.Slot0.kI = intakeParams.kI();
+        config.Slot0.kD = intakeParams.kD();
+        config.Slot0.kG = intakeParams.kG();
+        config.Slot0.kV = intakeParams.kV();
+        config.Slot0.kA = intakeParams.kA();
         config.Slot0.GravityType = GravityTypeValue.Arm_Cosine;
-        config.MotionMagic.MotionMagicExpo_kV = kV;
-        config.MotionMagic.MotionMagicExpo_kA = kA;
-        config.MotionMagic.MotionMagicAcceleration = 4;
-        config.MotionMagic.MotionMagicCruiseVelocity = 1;
+        config.MotionMagic.MotionMagicExpo_kV = intakeParams.kV();
+        config.MotionMagic.MotionMagicExpo_kA = intakeParams.kA();
+        config.MotionMagic.MotionMagicAcceleration = intakeParams.acceleration();
+        config.MotionMagic.MotionMagicCruiseVelocity = intakeParams.cruiseVelocity();
 
         angleMotor.getConfigurator().apply(config);
+
+        var rollerConfig = new TalonFXSConfiguration();
+        config.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
+        rollerMotor.getConfigurator().apply(rollerConfig);
 
         // Optimize signal frequencies for SysId logging
         angleMotor.getPosition().setUpdateFrequency(250);
@@ -88,24 +91,6 @@ public class IntakeIOTalonFX implements IntakeIO
     public void setAngle(Angle angle)
     {
         angleMotor.setControl(req.withPosition(angle.in(Rotations)));
-    }
-
-    @Override
-    public void runToStowAngle()
-    {
-        setAngle(stowAngle);
-    }
-
-    @Override
-    public void runToMidAngle()
-    {
-        setAngle(midAngle);
-    }
-
-    @Override
-    public void runToIntakeAngle()
-    {
-        setAngle(downAngle);
     }
 
     @Override
@@ -159,8 +144,8 @@ public class IntakeIOTalonFX implements IntakeIO
     public void enableSoftLimits()
     {
         var config = new SoftwareLimitSwitchConfigs();
-        config.ForwardSoftLimitThreshold = stowAngle.in(Rotations);
-        config.ReverseSoftLimitThreshold = downAngle.in(Rotations);
+        config.ForwardSoftLimitThreshold = forwardSoftLimit;
+        config.ReverseSoftLimitThreshold = reverseSoftLimit;
         config.ForwardSoftLimitEnable = true;
         config.ReverseSoftLimitEnable = true;
         angleMotor.getConfigurator().apply(config);
