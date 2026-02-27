@@ -1,5 +1,25 @@
 package frc.robot.lobby;
 
+import static edu.wpi.first.units.Units.Amps;
+import static edu.wpi.first.units.Units.Celsius;
+import static edu.wpi.first.units.Units.Degrees;
+import static edu.wpi.first.units.Units.Feet;
+import static edu.wpi.first.units.Units.Inches;
+import static edu.wpi.first.units.Units.Meters;
+import static edu.wpi.first.units.Units.MetersPerSecond;
+import static edu.wpi.first.units.Units.MetersPerSecondPerSecond;
+import static edu.wpi.first.units.Units.RadiansPerSecond;
+import static edu.wpi.first.units.Units.RadiansPerSecondPerSecond;
+import static edu.wpi.first.units.Units.Rotations;
+import static edu.wpi.first.units.Units.RotationsPerSecond;
+import static edu.wpi.first.units.Units.Seconds;
+import static edu.wpi.first.units.Units.Volts;
+
+import java.util.List;
+
+import com.ctre.phoenix6.signals.MotorArrangementValue;
+import com.pathplanner.lib.config.PIDConstants;
+import com.pathplanner.lib.path.PathConstraints;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.Vector;
 import edu.wpi.first.math.controller.PIDController;
@@ -10,36 +30,8 @@ import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.numbers.N3;
-
-import static edu.wpi.first.units.Units.Amps;
-import static edu.wpi.first.units.Units.Celsius;
-import static edu.wpi.first.units.Units.Degrees;
-import static edu.wpi.first.units.Units.Feet;
-import static edu.wpi.first.units.Units.Inches;
-import static edu.wpi.first.units.Units.RotationsPerSecond;
-import static edu.wpi.first.units.Units.Seconds;
-import static edu.wpi.first.units.Units.Volts;
-
-import com.ctre.phoenix6.signals.MotorArrangementValue;
-import com.pathplanner.lib.config.PIDConstants;
-import com.pathplanner.lib.path.PathConstraints;
-
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularAcceleration;
-
-import static edu.wpi.first.units.Units.Meters;
-import static edu.wpi.first.units.Units.MetersPerSecond;
-import static edu.wpi.first.units.Units.MetersPerSecondPerSecond;
-import static edu.wpi.first.units.Units.RadiansPerSecond;
-import static edu.wpi.first.units.Units.RadiansPerSecondPerSecond;
-import java.util.List;
-
-import static edu.wpi.first.units.Units.Meters;
-import static edu.wpi.first.units.Units.Rotations;
-
-import com.ctre.phoenix6.signals.MotorArrangementValue;
-
-import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Distance;
@@ -48,7 +40,6 @@ import edu.wpi.first.units.measure.LinearVelocity;
 import edu.wpi.first.units.measure.Temperature;
 import edu.wpi.first.units.measure.Time;
 import edu.wpi.first.units.measure.Voltage;
-import edu.wpi.first.wpilibj.Preferences;
 import frc.robot.FieldConstants;
 import frc.robot.lobby.generated.LobbyTunerConstants;
 import frc.robot.lobby.subsystems.turret.hood.HoodIO.HoodConstants;
@@ -269,11 +260,18 @@ public class LobbyConstants
         public static final int kRollerMotorId = 17;
         public static final int kAngleMotorId = 16;
         public static final int kAngleEncoderId = 22;
-        public static final double kDriverIntakeSpeed = 0.6;
+        public static final double kDriverIntakeSpeed = 0.53;
         public static final double kDriverPurgeSpeed = 1.0;
-        public static final Angle kDownAngle = Rotations.zero();
-        public static final Angle kMiddleAngle = Rotations.of(-0.154);
-        public static final Angle kStowedAngle = Rotations.of(-0.370);
+        public static final Angle kDownAngle = Rotations.of(0.05);
+        public static final Angle kMiddleAngle = Rotations.of(0.172);
+        public static final Angle kStowedAngle = Rotations.of(0.35);
+        public static final double kP = 23.745;
+        public static final double kI = 0;
+        public static final double kD = 2.6807;
+        public static final double kS = 0.24758;
+        public static final double kA = 0.85231;
+        public static final double kV = 9.1813;
+        public static final double kG = 1.898;
     }
 
     public class CarouselConstants
