@@ -107,7 +107,7 @@ public class HoodIOTalonFXS implements HoodIO
         m_lowerMechanismAngle = kLowerMechanismAngle;
         m_upperMechanismAngle = kUpperMechanismAngle;
 
-        TunablePID.create("Turret/Hood/PID", m_motor, config);
+        TunablePID.createBasic("Turret/Hood/PID", m_motor, config);
     }
 
     @Override

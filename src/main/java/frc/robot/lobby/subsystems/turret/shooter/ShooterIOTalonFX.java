@@ -85,8 +85,8 @@ public class ShooterIOTalonFX implements ShooterIO
         m_velocityVoltage = new VelocityVoltage(0).withEnableFOC(true);
         m_errorTolerance = kErrorTolerance;
 
-        TunablePID.create("Turret/Shooter/Motor1PID", m_motor1, config);
-        TunablePID.create("Turret/Shooter/Motor2PID", m_motor2, config);
+        TunablePID.createBasic("Turret/Shooter/Motor1PID", m_motor1, config);
+        TunablePID.createBasic("Turret/Shooter/Motor2PID", m_motor2, config);
     }
 
     @Override
