@@ -14,10 +14,7 @@ import dev.doglog.DogLog;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.Voltage;
-import static edu.wpi.first.units.Units.Radians;
 import static edu.wpi.first.units.Units.Rotations;
-
-import frc.robot.lobby.LobbyConstants;
 
 public class IntakeIOTalonFX implements IntakeIO
 {
