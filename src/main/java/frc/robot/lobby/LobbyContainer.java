@@ -3,16 +3,11 @@ package frc.robot.lobby;
 import static edu.wpi.first.units.Units.Radians;
 
 import java.util.Optional;
-import java.util.function.Supplier;
-
-import org.northernforce.util.NFRRobotContainer;
-import org.photonvision.simulation.SimCameraProperties;
-
-import com.ctre.phoenix6.Utils;
-import com.pathplanner.lib.commands.PathPlannerAuto;
 
 import choreo.auto.AutoFactory;
 import choreo.auto.AutoRoutine;
+import com.ctre.phoenix6.Utils;
+import com.pathplanner.lib.commands.PathPlannerAuto;
 import dev.doglog.DogLog;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -30,8 +25,6 @@ import frc.robot.lobby.subsystems.apriltagvision.commands.CloseDriveToPoseReques
 import frc.robot.lobby.subsystems.apriltagvision.commands.DriveToPoseWithVision;
 import frc.robot.lobby.subsystems.intake.Intake;
 import frc.robot.lobby.subsystems.intake.IntakeIOTalonFX;
-import frc.robot.lobby.subsystems.CommandSwerveDrivetrain;
-import frc.robot.lobby.subsystems.CommandSwerveDrivetrain;
 import frc.robot.lobby.subsystems.spindexer.Spindexer;
 import frc.robot.lobby.subsystems.spindexer.Spindexer.SpindexerParameters;
 import frc.robot.lobby.subsystems.spindexer.carousel.CarouselIO.CarouselConstants;
@@ -51,22 +44,12 @@ import frc.robot.lobby.subsystems.turret.shooter.ShooterIOTalonFXSim;
 import frc.robot.lobby.subsystems.turret.suzie.Suzie;
 import frc.robot.lobby.subsystems.turret.suzie.SuzieIOTalonFXS;
 import frc.robot.lobby.subsystems.turret.suzie.SuzieIOTalonFXSSim;
-import frc.robot.lobby.subsystems.turret.hood.HoodIOServo;
 import frc.robot.lobby.subsystems.turret.hood.HoodIOServoSim;
-import frc.robot.lobby.subsystems.turret.hood.HoodIO.HoodConstants;
-import frc.robot.lobby.subsystems.turret.shooter.ShooterIOTalonFX;
-import frc.robot.lobby.subsystems.turret.shooter.ShooterIOTalonFXSim;
-import frc.robot.lobby.subsystems.turret.shooter.ShooterIO.ShooterConstants;
-import frc.robot.lobby.subsystems.turret.suzie.SuzieIOTalonFXS;
-import frc.robot.lobby.subsystems.turret.suzie.SuzieIOTalonFXSSim;
-import frc.robot.lobby.subsystems.turret.suzie.SuzieIO.SuzieConstants;
-import frc.robot.lobby.subsystems.apriltagvision.*;
-import frc.robot.lobby.subsystems.CommandSwerveDrivetrain;
-import frc.robot.lobby.subsystems.apriltagvision.*;
-import frc.robot.lobby.subsystems.apriltagvision.commands.DriveToPoseWithVision;
 import frc.robot.util.AutoUtil;
 import frc.robot.util.InterpolatedTargetingCalculator;
 import frc.robot.util.TrigHoodTargetingCalculator;
+import org.northernforce.util.NFRRobotContainer;
+import org.photonvision.simulation.SimCameraProperties;
 
 public class LobbyContainer implements NFRRobotContainer
 {

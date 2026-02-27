@@ -1,7 +1,6 @@
 package frc.robot.lobby.subsystems.apriltagvision;
 
 import java.util.List;
-import java.util.Optional;
 
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform3d;
