@@ -35,6 +35,10 @@ public class LobbyOI
 
         drive.setDefaultCommand(drive.driveByJoystick(inputProc(driveController::getLeftY),
                 inputProc(driveController::getLeftX), inputProc(driveController::getRightX)));
+        intake.setDefaultCommand(intake.stopIntake().andThen(intake.getRunToMidAngleCommand()));
+
+        manipulatorController.leftStick().whileTrue(intake.driveByJoystick(() -> manipulatorController.getLeftY()));
+
         driveController.back().onTrue(drive.resetOrientation());
 
         // Pass turret's hood constants for danger zone calculation
@@ -52,8 +56,6 @@ public class LobbyOI
             DogLog.log("Turret/csvValue", container.getTurret().getHoodTargetingCalculator().getValueForDistance(5.0));
         }));
 
-        driveController.rightTrigger()
-                .whileTrue(new RunSpindexer(container.getSpindexer(), LobbyConstants.SpindexerConstants.kDeJamTime));
         // driveController.leftTrigger().whileTrue(new
         // PrepTurretWithValues(container.getTurret()));
         // driveController.povUp()
@@ -63,8 +65,8 @@ public class LobbyOI
         // container.getTurret()));
         // manipulatorController.leftTrigger().whileTrue(intake.getRunToIntakeAngleCommand());
         // intake.setDefaultCommand(intake.getRunToStowAngleCommand());
-        manipulatorController.leftTrigger().whileTrue(intake.intake(0.75)).onFalse(intake.stopIntake());
-        manipulatorController.rightTrigger()
+        driveController.leftTrigger().whileTrue(intake.intakeMoving());
+        driveController.rightTrigger()
                 .whileTrue(new RunSpindexer(container.getSpindexer(), LobbyConstants.SpindexerConstants.kDeJamTime)
                         .alongWith(new PrepTurretWithValues(container.getTurret())));
         container.getTurret().getShooter().setDefaultCommand(container.getTurret().getShooter().stop());
@@ -75,9 +77,9 @@ public class LobbyOI
         driveController.a().onTrue(Commands.runOnce(() -> container
                 .resetOdometry(new Pose2d(Meters.of(0), Meters.of(0), new Rotation2d(Degrees.of(180))))));
 
-        manipulatorController.povLeft().whileTrue(container.getTurret().getSuzie().setSpeed(0.05))
+        driveController.povLeft().whileTrue(container.getTurret().getSuzie().setSpeed(0.05))
                 .onFalse(container.getTurret().getSuzie().setSpeed(0));
-        manipulatorController.povRight().whileTrue(container.getTurret().getSuzie().setSpeed(-0.05))
+        driveController.povRight().whileTrue(container.getTurret().getSuzie().setSpeed(-0.05))
                 .onFalse(container.getTurret().getSuzie().setSpeed(0));
     }
 }
