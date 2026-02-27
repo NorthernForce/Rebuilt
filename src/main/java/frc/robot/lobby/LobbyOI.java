@@ -39,7 +39,9 @@ public class LobbyOI
 
         drive.setDefaultCommand(drive.driveByJoystick(inputProc(driveController::getLeftY),
                 inputProc(driveController::getLeftX), inputProc(driveController::getRightX)));
-        intake.setDefaultCommand(intake.getRunToMidAngleCommand().andThen(intake.stopIntake()));
+        intake.setDefaultCommand(intake.stopIntake().andThen(intake.getRunToMidAngleCommand()));
+
+        manipulatorController.leftStick().whileTrue(intake.driveByJoystick(() -> manipulatorController.getLeftY()));
 
         driveController.back().onTrue(drive.resetOrientation());
 
@@ -67,7 +69,7 @@ public class LobbyOI
         // container.getTurret()));
         // manipulatorController.leftTrigger().whileTrue(intake.getRunToIntakeAngleCommand());
         // intake.setDefaultCommand(intake.getRunToStowAngleCommand());
-        driveController.leftTrigger().whileTrue(intake.getRunToIntakeAngleCommand().andThen(intake.intake(0.75)));
+        driveController.leftTrigger().whileTrue(intake.intakeMoving());
         driveController.rightTrigger()
                 .whileTrue(new RunSpindexer(container.getSpindexer(), LobbyConstants.SpindexerConstants.kDeJamTime)
                         .alongWith(new PrepTurretWithValues(container.getTurret())));
@@ -79,9 +81,9 @@ public class LobbyOI
         driveController.a().onTrue(Commands.runOnce(() -> container
                 .resetOdometry(new Pose2d(Meters.of(0), Meters.of(0), new Rotation2d(Degrees.of(180))))));
 
-        manipulatorController.povLeft().whileTrue(container.getTurret().getSuzie().setSpeed(0.05))
+        driveController.povLeft().whileTrue(container.getTurret().getSuzie().setSpeed(0.05))
                 .onFalse(container.getTurret().getSuzie().setSpeed(0));
-        manipulatorController.povRight().whileTrue(container.getTurret().getSuzie().setSpeed(-0.05))
+        driveController.povRight().whileTrue(container.getTurret().getSuzie().setSpeed(-0.05))
                 .onFalse(container.getTurret().getSuzie().setSpeed(0));
     }
 }

@@ -6,6 +6,7 @@ import com.ctre.phoenix6.controls.MotionMagicVoltage;
 import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFXS;
 import com.ctre.phoenix6.signals.ExternalFeedbackSensorSourceValue;
+import com.ctre.phoenix6.signals.GravityTypeValue;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
@@ -44,16 +45,21 @@ public class IntakeIOTalonFX implements IntakeIO
         config.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
 
         config.SoftwareLimitSwitch.ForwardSoftLimitThreshold = stowAngle.in(Rotations);
-        config.SoftwareLimitSwitch.ReverseSoftLimitThreshold = downAngle.in(Rotations);
+        config.SoftwareLimitSwitch.ReverseSoftLimitThreshold = 0.05;
         config.SoftwareLimitSwitch.ForwardSoftLimitEnable = true;
         config.SoftwareLimitSwitch.ReverseSoftLimitEnable = true;
         config.Slot0.kS = kS;
         config.Slot0.kP = kP;
         config.Slot0.kI = kI;
         config.Slot0.kD = kD;
-        config.Slot0.kG = kG;
+        config.Slot0.kG = 0.15;
+        config.Slot0.kV = kV;
+        config.Slot0.kA = kA;
+        config.Slot0.GravityType = GravityTypeValue.Arm_Cosine;
         config.MotionMagic.MotionMagicExpo_kV = kV;
         config.MotionMagic.MotionMagicExpo_kA = kA;
+        config.MotionMagic.MotionMagicAcceleration = 4;
+        config.MotionMagic.MotionMagicCruiseVelocity = 1;
 
         angleMotor.getConfigurator().apply(config);
 

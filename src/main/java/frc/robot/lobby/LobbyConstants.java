@@ -269,9 +269,9 @@ public class LobbyConstants
         public static final int kRollerMotorId = 17;
         public static final int kAngleMotorId = 16;
         public static final int kAngleEncoderId = 22;
-        public static final double kDriverIntakeSpeed = 0.6;
+        public static final double kDriverIntakeSpeed = 0.53;
         public static final double kDriverPurgeSpeed = 1.0;
-        public static final Angle kDownAngle = Rotations.of(0.1);
+        public static final Angle kDownAngle = Rotations.of(0.05);
         public static final Angle kMiddleAngle = Rotations.of(0.172);
         public static final Angle kStowedAngle = Rotations.of(0.35);
         public static final double kP = 23.745;

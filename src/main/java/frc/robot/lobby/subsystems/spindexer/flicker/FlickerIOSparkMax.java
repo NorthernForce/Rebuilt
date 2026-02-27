@@ -8,6 +8,8 @@ import com.revrobotics.spark.SparkLowLevel.MotorType;
 
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Time;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.motorcontrol.Spark;
 
 public class FlickerIOSparkMax implements FlickerIO
@@ -65,10 +67,10 @@ public class FlickerIOSparkMax implements FlickerIO
     @Override
     public boolean getJammed()
     {
-        double currentTime = System.nanoTime();
+        double currentTime = Timer.getFPGATimestamp();
         if (m_motor.getOutputCurrent() > jamCurrentThreshold.in(Amps))
         {
-            if (currentTime - nanoTimeLastChecked > jamTimeout.in(Seconds) * Math.pow(10, 9))
+            if (currentTime - nanoTimeLastChecked > jamTimeout.in(Seconds))
             {
                 return true;
             } else
