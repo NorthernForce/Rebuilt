@@ -19,9 +19,6 @@ import frc.robot.FieldConstants;
 import frc.robot.lobby.subsystems.turret.hood.Hood;
 import frc.robot.lobby.subsystems.turret.shooter.Shooter;
 import frc.robot.lobby.subsystems.turret.suzie.Suzie;
-import frc.robot.lobby.subsystems.turret.hood.HoodIO;
-import frc.robot.lobby.subsystems.turret.shooter.ShooterIO;
-import frc.robot.lobby.subsystems.turret.suzie.SuzieIO;
 import frc.robot.util.TargetingCalculator;
 
 public class Turret extends SubsystemBase
