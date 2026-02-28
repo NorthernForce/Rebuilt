@@ -1,9 +1,9 @@
 package frc.robot.lobby.subsystems.turret.suzie;
 
 import static edu.wpi.first.units.Units.Degrees;
+import static edu.wpi.first.units.Units.Seconds;
 import static edu.wpi.first.units.Units.Volts;
 
-import com.ctre.phoenix6.SignalLogger;
 import com.ctre.phoenix6.controls.VoltageOut;
 
 import dev.doglog.DogLog;
@@ -11,6 +11,7 @@ import dev.doglog.DogLog;
 import edu.wpi.first.networktables.DoubleSubscriber;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 
@@ -30,12 +31,13 @@ public class Suzie extends SubsystemBase
                 });
         m_sysId = new SysIdRoutine(new SysIdRoutine.Config(null, // Use default ramp rate (1 V/s)
                 Volts.of(4), // Reduce dynamic step voltage to 4 V
-                null, // Use default timeout (10 s)
-                state -> SignalLogger.writeString("SysIdTurret", state.toString() // Log state with SignalLogger class
-                )), new SysIdRoutine.Mechanism(output -> io.setMotorControl(new VoltageOut(output)), // Apply voltage
-                                                                                                     // output to motor
-                        null, // Do not log
-                        this // Require this subsystem
+                Seconds.of(4), // Time out after 4 s
+                state -> DogLog.log("Turntable_SysId_State", state.toString()) // Log state with SignalLogger class
+        ), new SysIdRoutine.Mechanism(output -> io.setMotorControl(new VoltageOut(output)), // Apply voltage
+                                                                                            // output to motor
+                log -> log.motor("Turntable").voltage(io.getVoltage()).angularPosition(io.getAngle())
+                        .angularVelocity(io.getVelocity()), // Log motor voltage, position, and velocity
+                this // Require this subsystem
         ));
     }
 
@@ -81,22 +83,28 @@ public class Suzie extends SubsystemBase
 
     public Command getSysIdQuasistaticForward()
     {
-        return m_sysId.quasistatic(SysIdRoutine.Direction.kForward);
+        return constructFullSysIdCommand(m_sysId.quasistatic(SysIdRoutine.Direction.kForward));
     }
 
     public Command getSysIdQuasistaticReverse()
     {
-        return m_sysId.quasistatic(SysIdRoutine.Direction.kReverse);
+        return constructFullSysIdCommand(m_sysId.quasistatic(SysIdRoutine.Direction.kReverse));
     }
 
     public Command getSysIdDynamicForward()
     {
-        return m_sysId.dynamic(SysIdRoutine.Direction.kForward);
+        return constructFullSysIdCommand(m_sysId.dynamic(SysIdRoutine.Direction.kForward));
     }
 
     public Command getSysIdDynamicReverse()
     {
-        return m_sysId.dynamic(SysIdRoutine.Direction.kReverse);
+        return constructFullSysIdCommand(m_sysId.dynamic(SysIdRoutine.Direction.kReverse));
+    }
+
+    private Command constructFullSysIdCommand(Command sysId)
+    {
+        return Commands.run(() -> io.disableSoftLimits()).andThen(sysId)
+                .andThen(Commands.run(() -> io.enableSoftLimits()));
     }
 
     @Override

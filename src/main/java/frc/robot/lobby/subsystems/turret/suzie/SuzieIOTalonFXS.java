@@ -1,12 +1,14 @@
 package frc.robot.lobby.subsystems.turret.suzie;
 
 import static edu.wpi.first.units.Units.Degrees;
+import static edu.wpi.first.units.Units.DegreesPerSecond;
 import static edu.wpi.first.units.Units.Rotations;
 
 import java.util.Optional;
 import java.util.function.Supplier;
 
 import com.ctre.phoenix6.StatusSignal;
+import com.ctre.phoenix6.configs.SoftwareLimitSwitchConfigs;
 import com.ctre.phoenix6.configs.TalonFXSConfiguration;
 import com.ctre.phoenix6.controls.ControlRequest;
 import com.ctre.phoenix6.controls.DutyCycleOut;
@@ -17,6 +19,7 @@ import com.ctre.phoenix6.signals.MotorArrangementValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
 import edu.wpi.first.units.measure.Angle;
+import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Temperature;
 import edu.wpi.first.units.measure.Voltage;
@@ -31,13 +34,17 @@ public class SuzieIOTalonFXS implements SuzieIO
     protected final TalonFXS m_motor;
     protected final DutyCycleEncoder m_drivingEncoder;
     protected final DutyCycleEncoder m_sensingEncoder;
+    protected final StatusSignal<Angle> m_position;
     protected final StatusSignal<Temperature> m_temperature;
     protected final StatusSignal<Voltage> m_voltage;
     protected final StatusSignal<Current> m_current;
+    protected final StatusSignal<AngularVelocity> m_velocity;
     protected final Supplier<Boolean> m_isPresent;
     protected final PositionVoltage m_positionVoltage;
     protected final Angle m_errorTolerance;
     protected final EasyCRT m_crtCalculator;
+    protected final Angle m_lowerSoftLimit;
+    protected final Angle m_upperSoftLimit;
 
     private Angle m_targetAngle = Degrees.zero();
 
@@ -82,9 +89,9 @@ public class SuzieIOTalonFXS implements SuzieIO
         config.MotorOutput.NeutralMode = NeutralModeValue.Brake;
 
         config.SoftwareLimitSwitch.ForwardSoftLimitEnable = true;
-        config.SoftwareLimitSwitch.ForwardSoftLimitThreshold = kUpperSoftLimit.in(Degrees);
+        config.SoftwareLimitSwitch.ForwardSoftLimitThreshold = kUpperSoftLimit.in(Rotations);
         config.SoftwareLimitSwitch.ReverseSoftLimitEnable = true;
-        config.SoftwareLimitSwitch.ReverseSoftLimitThreshold = kLowerSoftLimit.in(Degrees);
+        config.SoftwareLimitSwitch.ReverseSoftLimitThreshold = kLowerSoftLimit.in(Rotations);
 
         config.Commutation.MotorArrangement = kMotorArrangement;
 
@@ -93,13 +100,18 @@ public class SuzieIOTalonFXS implements SuzieIO
         m_drivingEncoder = new DutyCycleEncoder(kDrivingEncoderID, 1.0, 0.02);
         m_sensingEncoder = new DutyCycleEncoder(kSensingEncoderID, 1.0, 0.075);
 
+        m_position = m_motor.getPosition();
         m_temperature = m_motor.getDeviceTemp();
         m_voltage = m_motor.getMotorVoltage();
         m_current = m_motor.getTorqueCurrent();
+        m_velocity = m_motor.getVelocity();
         m_isPresent = () -> m_motor.isConnected() && !m_motor.getFault_HallSensorMissing().getValue();
 
         m_positionVoltage = new PositionVoltage(0).withEnableFOC(true);
         m_errorTolerance = kErrorTolerance;
+
+        m_lowerSoftLimit = kLowerSoftLimit;
+        m_upperSoftLimit = kUpperSoftLimit;
 
         EasyCRTConfig crtConfig = new EasyCRTConfig(() -> Rotations.of(m_drivingEncoder.get()),
                 () -> Rotations.of(m_sensingEncoder.get()))
@@ -113,11 +125,14 @@ public class SuzieIOTalonFXS implements SuzieIO
     @Override
     public void update()
     {
-        StatusSignal.refreshAll(m_temperature, m_voltage, m_current);
-        Optional<Angle> angle = m_crtCalculator.getAngleOptional();
-        if (angle.isPresent())
+        StatusSignal.refreshAll(m_position, m_temperature, m_voltage, m_current, m_velocity);
+        if (m_velocity.getValue().lt(DegreesPerSecond.of(30)))
         {
-            m_motor.setPosition(angle.get());
+            Optional<Angle> angle = m_crtCalculator.getAngleOptional();
+            if (angle.isPresent())
+            {
+                m_motor.setPosition(angle.get());
+            }
         }
     }
 
@@ -173,6 +188,34 @@ public class SuzieIOTalonFXS implements SuzieIO
     public void resetAngle(Angle angle)
     {
         m_motor.setPosition(angle.in(Degrees));
+    }
+
+    @Override
+    public Voltage getVoltage()
+    {
+        return m_voltage.getValue();
+    }
+
+    @Override
+    public AngularVelocity getVelocity()
+    {
+        return m_velocity.getValue();
+    }
+
+    @Override
+    public void enableSoftLimits()
+    {
+        m_motor.getConfigurator().apply(
+                new SoftwareLimitSwitchConfigs().withForwardSoftLimitEnable(false).withReverseSoftLimitEnable(false));
+    }
+
+    @Override
+    public void disableSoftLimits()
+    {
+        m_motor.getConfigurator()
+                .apply(new SoftwareLimitSwitchConfigs().withForwardSoftLimitEnable(true)
+                        .withForwardSoftLimitThreshold(m_upperSoftLimit).withReverseSoftLimitEnable(true)
+                        .withForwardSoftLimitThreshold(m_lowerSoftLimit));
     }
 
     @Override

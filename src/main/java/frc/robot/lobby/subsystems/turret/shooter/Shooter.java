@@ -35,11 +35,12 @@ public class Shooter extends SubsystemBase
         m_sysId = new SysIdRoutine(new SysIdRoutine.Config(null, // Use default ramp rate (1 V/s)
                 Volts.of(4), // Reduce dynamic step voltage to 4 V
                 null, // Use default timeout (10 s)
-                state -> SignalLogger.writeString("SysIdShooter", state.toString() // Log state with SignalLogger class
-                )), new SysIdRoutine.Mechanism(output -> io.setMotorControl(new VoltageOut(output)), // Apply voltage
-                                                                                                     // output to motor
-                        null, // Do not log
-                        this // Require this subsystem
+                state -> DogLog.log("Shooter_SysId_State", state.toString()) // Log state with SignalLogger class
+        ), new SysIdRoutine.Mechanism(output -> io.setMotorControl(new VoltageOut(output)), // Apply voltage
+                                                                                            // output to motor
+                log -> log.motor("Shooter").voltage(io.getVoltage()).angularPosition(io.getPosition())
+                        .angularVelocity(io.getSpeed()), // Log motor voltage, position, and velocity
+                this // Require this subsystem
         ));
     }
 
