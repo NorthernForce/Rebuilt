@@ -250,10 +250,10 @@ public class LobbyContainer implements NFRRobotContainer
     {
         if (DriverStation.isTest())
         {
-            new LobbyOI().bind(this);
+            new LobbyOI().bindTest(this);
         } else
         {
-            new LobbyOI().bindTest(this);
+            new LobbyOI().bind(this);
         }
     }
 
