@@ -137,12 +137,12 @@ public class LobbyConstants
             private static int kMotorID = 19;
             private static int kDrivingEncoderID = 9;
             private static int kSensingEncoderID = 8;
-            private static double kS = 0;
-            private static double kV = 0.116;
-            private static double kA = 0.110;
-            private static double kP = 10;
+            private static double kS = 0.084993;
+            private static double kV = 0.094046;
+            private static double kA = 0.0012213;
+            private static double kP = 8.391;
             private static double kI = 0;
-            private static double kD = 0.6;
+            private static double kD = 0.088468;
             private static double kG = 0;
             private static double kCruiseVelocity = 0;
             private static double kAcceleration = 160;
@@ -150,7 +150,8 @@ public class LobbyConstants
             private static int kDrivingGearTeeth = 24;
             private static int kSensingGearTeeth = 25;
             private static int kTurntableGearTeeth = 120;
-            private static boolean kInverted = false;
+            private static double kRotorToTurntableRatio = 5.0 * 5.0 * (double) kTurntableGearTeeth / kDrivingGearTeeth;
+            private static boolean kInverted = true;
             private static Angle kLowerSoftLimit = Degrees.of(-180);
             private static Angle kUpperSoftLimit = Degrees.of(180);
             private static Angle kErrorTolerance = Degrees.of(1);
@@ -158,8 +159,8 @@ public class LobbyConstants
 
             public static SuzieConstants kMinionConstants = new SuzieConstants(kMotorID, kDrivingEncoderID,
                     kSensingEncoderID, kS, kV, kA, kP, kI, kD, kG, kCruiseVelocity, kAcceleration, kJerk,
-                    kDrivingGearTeeth, kSensingGearTeeth, kTurntableGearTeeth, kInverted, kLowerSoftLimit,
-                    kUpperSoftLimit, kErrorTolerance, kMotorArrangement);
+                    kRotorToTurntableRatio, kDrivingGearTeeth, kSensingGearTeeth, kTurntableGearTeeth, kInverted,
+                    kLowerSoftLimit, kUpperSoftLimit, kErrorTolerance, kMotorArrangement);
         }
 
         public class Hood

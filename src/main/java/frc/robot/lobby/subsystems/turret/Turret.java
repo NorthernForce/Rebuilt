@@ -14,6 +14,7 @@ import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.FieldConstants;
 import frc.robot.lobby.subsystems.turret.hood.Hood;
@@ -130,6 +131,11 @@ public class Turret extends SubsystemBase
         suzie.setTargetAngle(pose.suzieAngle);
         hood.setTargetAngle(pose.hoodAngle);
         shooter.setTargetSpeed(pose.shooterSpeed);
+    }
+
+    public Command start()
+    {
+        return Commands.parallel(suzie.start(), hood.start(), shooter.start());
     }
 
     public TurretPose calculateTargetPose(Pose2d robotPose)
