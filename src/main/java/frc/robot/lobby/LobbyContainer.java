@@ -1,7 +1,6 @@
 package frc.robot.lobby;
 
 import static edu.wpi.first.units.Units.Radians;
-
 import java.util.Optional;
 
 import choreo.auto.AutoFactory;
@@ -18,6 +17,7 @@ import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.lobby.generated.LobbyTunerConstants;
 import frc.robot.lobby.subsystems.CommandSwerveDrivetrain;
 import frc.robot.lobby.subsystems.apriltagvision.*;
@@ -131,10 +131,8 @@ public class LobbyContainer implements NFRRobotContainer
                     new SpindexerParameters(LobbyConstants.SpindexerConstants.kDeJamTimeout));
         }
 
-        intake = new Intake(new IntakeIOTalonFX(LobbyConstants.IntakeConstants.kRollerMotorId,
-                LobbyConstants.IntakeConstants.kAngleMotorId, LobbyConstants.IntakeConstants.kAngleEncoderId,
-                LobbyConstants.IntakeConstants.kDownAngle, LobbyConstants.IntakeConstants.kMiddleAngle,
-                LobbyConstants.IntakeConstants.kStowedAngle));
+        intake = new Intake(new IntakeIOTalonFX(LobbyConstants.IntakeConstants.kIOParameters),
+                LobbyConstants.IntakeConstants.kParameters);
 
         field = new Field2d();
         driveToPoseCommand = new DriveToPoseWithVision(drive);
@@ -152,6 +150,17 @@ public class LobbyContainer implements NFRRobotContainer
                 turret.getSuzie().getSysIdQuasistaticReverse());
         Shuffleboard.getTab("SysId").add("Turntable Dynamic Forward", turret.getSuzie().getSysIdDynamicForward());
         Shuffleboard.getTab("SysId").add("Turntable Dynamic Reverse", turret.getSuzie().getSysIdDynamicReverse());
+        Shuffleboard.getTab("Developer").add("Drive to Blue Reef",
+                drive.navigateToPose(new Pose2d(3, 4, new Rotation2d())));
+
+        // Intake Arm SysId buttons
+        Shuffleboard.getTab("SysId").add("Arm Quasistatic Fwd",
+                intake.sysIdArmQuasistatic(SysIdRoutine.Direction.kForward));
+        Shuffleboard.getTab("SysId").add("Arm Quasistatic Rev",
+                intake.sysIdArmQuasistatic(SysIdRoutine.Direction.kReverse));
+        Shuffleboard.getTab("SysId").add("Arm Dynamic Fwd", intake.sysIdArmDynamic(SysIdRoutine.Direction.kForward));
+        Shuffleboard.getTab("SysId").add("Arm Dynamic Rev", intake.sysIdArmDynamic(SysIdRoutine.Direction.kReverse));
+
     }
 
     /**

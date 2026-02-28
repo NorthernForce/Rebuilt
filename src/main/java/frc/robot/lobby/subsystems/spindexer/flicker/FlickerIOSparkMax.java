@@ -8,13 +8,13 @@ import com.revrobotics.spark.SparkLowLevel.MotorType;
 
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Time;
+import edu.wpi.first.wpilibj.Timer;
 
 public class FlickerIOSparkMax implements FlickerIO
 {
     private SparkMax m_motor;
     private int m_id;
     private double m_rampSpeed;
-    private double m_errorTolerance;
     private double nanoTimeLastChecked = 0.0;
     private final Current jamCurrentThreshold;
     private final Time jamTimeout;
@@ -25,7 +25,6 @@ public class FlickerIOSparkMax implements FlickerIO
         m_id = parameters.motorId();
         m_motor = new SparkMax(m_id, MotorType.kBrushless);
         m_rampSpeed = parameters.rampSpeed();
-        m_errorTolerance = parameters.errorTolerance();
         jamCurrentThreshold = parameters.jamCurrentThreshold();
         jamTimeout = parameters.jamTimeout();
         dejamSpeed = parameters.dejamSpeed();
@@ -64,10 +63,10 @@ public class FlickerIOSparkMax implements FlickerIO
     @Override
     public boolean getJammed()
     {
-        double currentTime = System.nanoTime();
+        double currentTime = Timer.getFPGATimestamp();
         if (m_motor.getOutputCurrent() > jamCurrentThreshold.in(Amps))
         {
-            if (currentTime - nanoTimeLastChecked > jamTimeout.in(Seconds) * Math.pow(10, 9))
+            if (currentTime - nanoTimeLastChecked > jamTimeout.in(Seconds))
             {
                 return true;
             } else

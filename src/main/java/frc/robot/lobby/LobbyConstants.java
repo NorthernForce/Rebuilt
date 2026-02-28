@@ -42,6 +42,8 @@ import edu.wpi.first.units.measure.Time;
 import edu.wpi.first.units.measure.Voltage;
 import frc.robot.FieldConstants;
 import frc.robot.lobby.generated.LobbyTunerConstants;
+import frc.robot.lobby.subsystems.intake.IntakeIO.IntakeIOParameters;
+import frc.robot.lobby.subsystems.intake.Intake.IntakeParameters;
 import frc.robot.lobby.subsystems.turret.hood.HoodIO.HoodConstants;
 import frc.robot.lobby.subsystems.turret.shooter.ShooterIO.ShooterConstants;
 import frc.robot.lobby.subsystems.turret.suzie.SuzieIO.SuzieConstants;
@@ -261,11 +263,30 @@ public class LobbyConstants
         public static final int kRollerMotorId = 17;
         public static final int kAngleMotorId = 16;
         public static final int kAngleEncoderId = 22;
-        public static final double kDriverIntakeSpeed = 0.6;
+        public static final double kDriverIntakeSpeed = 0.53;
         public static final double kDriverPurgeSpeed = 1.0;
-        public static final Angle kDownAngle = Rotations.zero();
-        public static final Angle kMiddleAngle = Rotations.of(-0.154);
-        public static final Angle kStowedAngle = Rotations.of(-0.370);
+        public static final Angle kDownAngle = Rotations.of(0.05);
+        public static final Angle kMiddleAngle = Rotations.of(0.172);
+        public static final Angle kStowedAngle = Rotations.of(0.35);
+        public static final double kP = 23.745;
+        public static final double kI = 0;
+        public static final double kD = 2.6807;
+        public static final double kS = 0.24758;
+        public static final double kA = 0.85231;
+        public static final double kV = 9.1813;
+        public static final double kG = 0.15;
+        public static final double kAcceleration = 4;
+        public static final double kCruiseVelocity = 1;
+        public static final double kForwardSoftLimit = 0.4;
+        public static final double kReverstSoftLimit = 0.05;
+        public static final Current kCurrentLimit = Amps.of(60);
+        public static final Angle kAngleTolerance = Degrees.of(5);
+
+        public static final IntakeIOParameters kIOParameters = new IntakeIOParameters(kRollerMotorId, kAngleMotorId,
+                kAngleEncoderId, kP, kI, kD, kS, kV, kA, kG, kAcceleration, kCruiseVelocity, kForwardSoftLimit,
+                kReverstSoftLimit, kCurrentLimit);
+        public static final IntakeParameters kParameters = new IntakeParameters(kDownAngle, kMiddleAngle, kStowedAngle,
+                kDriverIntakeSpeed, kDriverPurgeSpeed, kAngleTolerance);
     }
 
     public class CarouselConstants
