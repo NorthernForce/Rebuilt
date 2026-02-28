@@ -28,6 +28,7 @@ public class Intake extends SubsystemBase
     private final Angle stowAngle;
     private final double intakeSpeed;
     private final double purgeSpeed;
+    private final Angle angleTolerance;
 
     public Intake(IntakeIO io, IntakeParameters params)
     {
@@ -46,6 +47,7 @@ public class Intake extends SubsystemBase
         stowAngle = params.stowAngle();
         intakeSpeed = params.intakeSpeed();
         purgeSpeed = params.purgeSpeed();
+        this.angleTolerance = params.angleTolerance();
     }
 
     public Command purgeIntake()
@@ -78,7 +80,7 @@ public class Intake extends SubsystemBase
         @Override
         public boolean isFinished()
         {
-            return Rotations.of(io.getArmPosition()).isNear(angle, Degrees.of(5));
+            return Rotations.of(io.getArmPosition()).isNear(angle, angleTolerance);
         }
     }
 
@@ -148,6 +150,6 @@ public class Intake extends SubsystemBase
     }
 
     public record IntakeParameters(Angle downAngle, Angle midAngle, Angle stowAngle, double intakeSpeed,
-            double purgeSpeed) {
+            double purgeSpeed, Angle angleTolerance) {
     }
 }
