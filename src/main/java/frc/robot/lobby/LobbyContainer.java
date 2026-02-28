@@ -1,8 +1,6 @@
 package frc.robot.lobby;
 
 import static edu.wpi.first.units.Units.Radians;
-import static edu.wpi.first.units.Units.RotationsPerSecond;
-
 import java.util.Optional;
 
 import choreo.auto.AutoFactory;
@@ -13,7 +11,6 @@ import dev.doglog.DogLog;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
-import edu.wpi.first.networktables.GenericEntry;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
@@ -21,7 +18,6 @@ import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
-import frc.robot.FieldConstants;
 import frc.robot.lobby.generated.LobbyTunerConstants;
 import frc.robot.lobby.subsystems.CommandSwerveDrivetrain;
 import frc.robot.lobby.subsystems.apriltagvision.*;
@@ -67,15 +63,6 @@ public class LobbyContainer implements NFRRobotContainer
     private final Spindexer spindexer;
     private final DriveToPoseWithVision driveToPoseCommand;
     private Optional<String> teamActivity = Optional.empty();
-    private GenericEntry indexerSpeedEntry;
-    private GenericEntry flickerSpeedEntry;
-    private GenericEntry shooterSpeedEntry;
-    private GenericEntry shooterDutyCycleEntry;
-    private GenericEntry shooterKPEntry;
-    private GenericEntry shooterKIEntry;
-    private GenericEntry shooterKDEntry;
-    private GenericEntry shooterKVEntry;
-    private GenericEntry shooterKAEntry;
 
     public LobbyContainer()
     {
@@ -144,13 +131,8 @@ public class LobbyContainer implements NFRRobotContainer
                     new SpindexerParameters(LobbyConstants.SpindexerConstants.kDeJamTimeout));
         }
 
-        intake = new Intake(new IntakeIOTalonFX(LobbyConstants.IntakeConstants.kRollerMotorId,
-                LobbyConstants.IntakeConstants.kAngleMotorId, LobbyConstants.IntakeConstants.kAngleEncoderId,
-                LobbyConstants.IntakeConstants.kDownAngle, LobbyConstants.IntakeConstants.kMiddleAngle,
-                LobbyConstants.IntakeConstants.kStowedAngle, LobbyConstants.IntakeConstants.kP,
-                LobbyConstants.IntakeConstants.kI, LobbyConstants.IntakeConstants.kD, LobbyConstants.IntakeConstants.kS,
-                LobbyConstants.IntakeConstants.kV, LobbyConstants.IntakeConstants.kA,
-                LobbyConstants.IntakeConstants.kG));
+        intake = new Intake(new IntakeIOTalonFX(LobbyConstants.IntakeConstants.kIOParameters),
+                LobbyConstants.IntakeConstants.kParameters);
 
         field = new Field2d();
         driveToPoseCommand = new DriveToPoseWithVision(drive);
@@ -171,20 +153,6 @@ public class LobbyContainer implements NFRRobotContainer
                 intake.sysIdArmQuasistatic(SysIdRoutine.Direction.kReverse));
         Shuffleboard.getTab("SysId").add("Arm Dynamic Fwd", intake.sysIdArmDynamic(SysIdRoutine.Direction.kForward));
         Shuffleboard.getTab("SysId").add("Arm Dynamic Rev", intake.sysIdArmDynamic(SysIdRoutine.Direction.kReverse));
-        indexerSpeedEntry = Shuffleboard.getTab("Tuning")
-                .add("Indexer Speed", (double) spindexer.getCarousel().getTargetPower()).getEntry();
-        flickerSpeedEntry = Shuffleboard.getTab("Tuning")
-                .add("Flicker Speed", (double) spindexer.getFlicker().getTargetPower()).getEntry();
-        shooterSpeedEntry = Shuffleboard.getTab("Tuning")
-                .add("Shooter Velocity", (double) turret.getShooter().getTargetSpeed().in(RotationsPerSecond))
-                .getEntry();
-
-        shooterDutyCycleEntry = Shuffleboard.getTab("Tuning").add("Shooter Duty Cycle", 0).getEntry();
-        shooterKPEntry = Shuffleboard.getTab("Tuning").add("Shooter kP", 0).getEntry();
-        shooterKIEntry = Shuffleboard.getTab("Tuning").add("Shooter kI", 0).getEntry();
-        shooterKDEntry = Shuffleboard.getTab("Tuning").add("Shooter kD", 0).getEntry();
-        shooterKVEntry = Shuffleboard.getTab("Tuning").add("Shooter kV", 0).getEntry();
-        shooterKAEntry = Shuffleboard.getTab("Tuning").add("Shooter kA", 0).getEntry();
 
     }
 
