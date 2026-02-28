@@ -280,7 +280,13 @@ public class LobbyContainer implements NFRRobotContainer
     @Override
     public void bindOI()
     {
-        new LobbyOI().bind(this);
+        if (DriverStation.isTest())
+        {
+            new LobbyOI().bind(this);
+        } else
+        {
+            new LobbyOI().bindTest(this);
+        }
     }
 
     @Override
