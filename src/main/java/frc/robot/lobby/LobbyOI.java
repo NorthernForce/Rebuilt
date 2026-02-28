@@ -74,6 +74,7 @@ public class LobbyOI
         // PrepTurretWithValues(container.getTurret()));
         driveController.a().onTrue(Commands.runOnce(() -> container
                 .resetOdometry(new Pose2d(Meters.of(0), Meters.of(0), new Rotation2d(Degrees.of(180))))));
+        manipulatorController.a().onTrue(Commands.runOnce(() -> container.getTurret().getSuzie().resetAngle()));
 
         manipulatorController.povLeft().whileTrue(container.getTurret().getSuzie().setSpeed(0.05))
                 .onFalse(container.getTurret().getSuzie().setSpeed(0));

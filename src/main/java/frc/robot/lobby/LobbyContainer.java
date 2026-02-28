@@ -145,6 +145,13 @@ public class LobbyContainer implements NFRRobotContainer
         Shuffleboard.getTab("Developer").add(field);
         Shuffleboard.getTab("Developer").add("Reset Encoders", drive.resetEncoders());
         Shuffleboard.getTab("Developer").add("Reset Orientation", drive.resetOrientation());
+
+        Shuffleboard.getTab("SysId").add("Turntable Quasistatic Forward",
+                turret.getSuzie().getSysIdQuasistaticForward());
+        Shuffleboard.getTab("SysId").add("Turntable Quasistatic Reverse",
+                turret.getSuzie().getSysIdQuasistaticReverse());
+        Shuffleboard.getTab("SysId").add("Turntable Dynamic Forward", turret.getSuzie().getSysIdDynamicForward());
+        Shuffleboard.getTab("SysId").add("Turntable Dynamic Reverse", turret.getSuzie().getSysIdDynamicReverse());
     }
 
     /**

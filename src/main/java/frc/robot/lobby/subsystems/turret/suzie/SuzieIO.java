@@ -15,8 +15,9 @@ public interface SuzieIO
 {
     public static record SuzieConstants(int kMotorID, int kDrivingEncoderID, int kSensingEncoderID, double kS,
             double kV, double kA, double kP, double kI, double kD, double kG, double kCruiseVelocity,
-            double kAcceleration, double kJerk, int kDrivingGearTeeth, int kSensingGearTeeth, int kTurntableGearTeeth,
-            boolean kInverted, Angle kLowerSoftLimit, Angle kUpperSoftLimit, Angle kErrorTolerance,
+            double kAcceleration, double kJerk, double kRotorToTurntableRatio, int kDrivingGearTeeth,
+            int kSensingGearTeeth, int kTurntableGearTeeth, boolean kInverted, Angle kLowerSoftLimit,
+            Angle kUpperSoftLimit, Angle kErrorTolerance,
             MotorArrangementValue kMotorArrangement/* , EasyCRTConfig kCRTConfig */) {
     }
 
