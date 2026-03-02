@@ -413,9 +413,8 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
             {
                 return brakeRequest;
             }
-            
-            return request.withVelocityX(maxSpeed.times(x))
-                    .withVelocityY(maxSpeed.times(y))
+
+            return request.withVelocityX(maxSpeed.times(x)).withVelocityY(maxSpeed.times(y))
                     .withRotationalRate(maxAngularSpeed.times(omega));
         });
     }
