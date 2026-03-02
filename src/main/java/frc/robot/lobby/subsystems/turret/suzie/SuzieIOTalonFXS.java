@@ -91,6 +91,8 @@ public class SuzieIOTalonFXS implements SuzieIO
 
         config.ExternalFeedback.SensorToMechanismRatio = kRotorToTurntableRatio;
 
+        config.ExternalFeedback.SensorToMechanismRatio = kRotorToTurntableRatio;
+
         config.MotorOutput.Inverted = kInverted ? InvertedValue.CounterClockwise_Positive
                 : InvertedValue.Clockwise_Positive;
         config.MotorOutput.NeutralMode = NeutralModeValue.Brake;
