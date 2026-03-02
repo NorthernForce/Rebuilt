@@ -43,19 +43,19 @@ public class Suzie extends SubsystemBase
         ));
     }
 
-    public Command setSpeed(double speed)
+    public void setSpeed(double speed)
     {
-        return run(() -> io.setSpeed(speed));
+        io.setSpeed(speed);
     }
 
-    public Command start()
+    public void start()
     {
-        return run(() -> io.start());
+        io.start();
     }
 
-    public Command stop()
+    public void stop()
     {
-        return run(() -> io.stop());
+        io.stop();
     }
 
     public SuzieIO getIO()

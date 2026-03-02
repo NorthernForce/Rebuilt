@@ -2,6 +2,7 @@ package frc.robot.lobby.subsystems.turret.commands;
 
 import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.Radians;
+import static edu.wpi.first.units.Units.RotationsPerSecond;
 
 import java.util.function.Supplier;
 
@@ -20,7 +21,7 @@ public class PrepTurretCommand extends Command
 
     public PrepTurretCommand(Supplier<Pose2d> robotPoseSupplier, Turret turret)
     {
-        addRequirements(turret);
+        addRequirements(turret, turret.getSuzie(), turret.getHood(), turret.getShooter());
         this.robotPoseSupplier = robotPoseSupplier;
         this.turret = turret;
     }
@@ -57,10 +58,11 @@ public class PrepTurretCommand extends Command
             turret.setTargetPose(new TurretPose(targetPose.suzieAngle(), Degrees.of(0), targetPose.shooterSpeed()));
         } else
         {
-            turret.setTargetPose(targetPose);
+            DogLog.log("Turret/Suzie/Target Angle Set", targetPose.suzieAngle().in(Degrees));
+            turret.setTargetPose(new TurretPose(targetPose.suzieAngle(), Degrees.of(0), targetPose.shooterSpeed()));
         }
 
-        CommandScheduler.getInstance().schedule(turret.start());
+        turret.start();
     }
 
     @Override
@@ -68,5 +70,6 @@ public class PrepTurretCommand extends Command
     {
         turret.setTargetPose(TurretPose.kZero);
         DogLog.log("Turret/PrepCommand/Running", false);
+        turret.stop();
     }
 }
