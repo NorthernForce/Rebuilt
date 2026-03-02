@@ -1,8 +1,14 @@
 package frc.robot.lobby.subsystems.turret.shooter;
 
+import static edu.wpi.first.units.Units.Rotations;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
+import static edu.wpi.first.units.Units.Volts;
 
+import com.ctre.phoenix6.controls.ControlRequest;
+
+import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
+import edu.wpi.first.units.measure.Voltage;
 
 public interface ShooterIO
 {
@@ -15,7 +21,15 @@ public interface ShooterIO
     {
     }
 
+    public default void setMotorControl(ControlRequest request)
+    {
+    }
+
     public default void setTargetSpeed(AngularVelocity speed)
+    {
+    }
+
+    public default void setTargetDutyCycle(double value)
     {
     }
 
@@ -34,13 +48,17 @@ public interface ShooterIO
         return false;
     }
 
-    public void setPotentialSpeed(AngularVelocity speed);
+    public default Voltage getVoltage()
+    {
+        return Volts.zero();
+    }
 
-    public void setPotentialDutyCycle(double val);
+    public default Angle getPosition()
+    {
+        return Rotations.zero();
+    }
 
     public void start();
 
     public void stop();
-
-    public void setPID(double kP, double kI, double kD, double kV, double kA);
 }

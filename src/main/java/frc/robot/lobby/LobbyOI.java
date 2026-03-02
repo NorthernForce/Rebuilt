@@ -3,7 +3,6 @@ package frc.robot.lobby;
 import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.Meters;
 
-import java.util.Set;
 import java.util.function.DoubleSupplier;
 
 import dev.doglog.DogLog;
@@ -12,9 +11,7 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
-import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.subsystems.climber.commands.RunToPosition;
-import frc.robot.lobby.subsystems.turret.commands.PrepTurretCommand;
 import frc.robot.lobby.LobbyConstants.ClimberConstants.ClimbLevels;
 import frc.robot.lobby.subsystems.spindexer.commands.RunSpindexer;
 import frc.robot.lobby.subsystems.turret.commands.PrepTurretWithValues;
@@ -40,6 +37,10 @@ public class LobbyOI
 
         drive.setDefaultCommand(drive.driveByJoystick(inputProc(driveController::getLeftY),
                 inputProc(driveController::getLeftX), inputProc(driveController::getRightX)));
+        intake.setDefaultCommand(intake.stopIntake().andThen(intake.getRunToMidAngleCommand()));
+
+        manipulatorController.leftStick().whileTrue(intake.driveByJoystick(() -> manipulatorController.getLeftY()));
+
         driveController.back().onTrue(drive.resetOrientation());
         container.getClimber().setDefaultCommand(container.getClimber().getHomingCommand());
         // Pass turret's hood constants for danger zone calculation
@@ -56,9 +57,7 @@ public class LobbyOI
         {
             DogLog.log("Turret/csvValue", container.getTurret().getHoodTargetingCalculator().getValueForDistance(5.0));
         }));
-        (new Trigger(() -> container.getSpindexer().getJammed())).whileTrue(
-                Commands.defer(() -> container.getSpindexer().runBackwards(), Set.of(container.getSpindexer())));
-        driveController.rightTrigger().whileTrue(new RunSpindexer(container.getSpindexer()));
+
         // driveController.leftTrigger().whileTrue(new
         // PrepTurretWithValues(container.getTurret()));
         driveController.povUp().whileTrue(new RunToPosition(container, ClimbLevels.L3));
@@ -66,10 +65,22 @@ public class LobbyOI
         driveController.povDown().onTrue(container.getClimber().runUp());
         // manipulatorController.leftTrigger().whileTrue(intake.getRunToIntakeAngleCommand());
         // intake.setDefaultCommand(intake.getRunToStowAngleCommand());
-        manipulatorController.leftBumper().whileTrue(intake.intake(0.75)).onFalse(intake.stopIntake());
-        manipulatorController.leftTrigger().whileTrue(new PrepTurretWithValues(container.getTurret()));
-        manipulatorController.rightTrigger().whileTrue(new RunSpindexer(container.getSpindexer()));
+        driveController.leftTrigger().whileTrue(intake.intakeMoving());
+        driveController.rightTrigger()
+                .whileTrue(new RunSpindexer(container.getSpindexer(), LobbyConstants.SpindexerConstants.kDeJamTime)
+                        .alongWith(new PrepTurretWithValues(container.getTurret())));
+        container.getTurret().getShooter().setDefaultCommand(container.getTurret().getShooter().stop());
+        // manipulatorController.rightTrigger().whileTrue(new
+        // RunSpindexer(container.getSpindexer()));
+        // manipulatorController.leftBumper().whileTrue(new
+        // PrepTurretWithValues(container.getTurret()));
         driveController.a().onTrue(Commands.runOnce(() -> container
                 .resetOdometry(new Pose2d(Meters.of(0), Meters.of(0), new Rotation2d(Degrees.of(180))))));
+        manipulatorController.a().onTrue(Commands.runOnce(() -> container.getTurret().getSuzie().resetAngle()));
+
+        driveController.povLeft().whileTrue(container.getTurret().getSuzie().setSpeed(0.05))
+                .onFalse(container.getTurret().getSuzie().setSpeed(0));
+        driveController.povRight().whileTrue(container.getTurret().getSuzie().setSpeed(-0.05))
+                .onFalse(container.getTurret().getSuzie().setSpeed(0));
     }
 }

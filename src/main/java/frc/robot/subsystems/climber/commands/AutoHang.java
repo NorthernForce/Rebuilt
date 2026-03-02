@@ -14,20 +14,15 @@ public class AutoHang extends SequentialCommandGroup
     {
         Climber climber = container.getClimber();
         Intake intake = container.getIntake();
-        addCommands(
-                Commands.runOnce(() -> DogLog.log("AutoHang/Step", "DriveToPreClimb+Stow")),
+        addCommands(Commands.runOnce(() -> DogLog.log("AutoHang/Step", "DriveToPreClimb+Stow")),
                 Commands.parallel(container.driveToPreClimbPosition(), intake.getRunToStowAngleCommand()),
-                Commands.runOnce(() -> DogLog.log("AutoHang/Step", "ExtendHooks")),
-                climber.extendHooks(),
-                Commands.runOnce(() -> DogLog.log("AutoHang/Step", "RunUp")),
-                climber.runUp(),
-                Commands.runOnce(() -> DogLog.log("AutoHang/Step", "DriveToClimbPost")),
-                container.driveToClimbPost(),
+                Commands.runOnce(() -> DogLog.log("AutoHang/Step", "ExtendHooks")), climber.extendHooks(),
+                Commands.runOnce(() -> DogLog.log("AutoHang/Step", "RunUp")), climber.runUp(),
+                Commands.runOnce(() -> DogLog.log("AutoHang/Step", "DriveToClimbPost")), container.driveToClimbPost(),
                 Commands.runOnce(() -> DogLog.log("AutoHang/Step", "HomeDown")),
                 Commands.run(() -> climber.homeDown(), climber),
                 Commands.waitUntil(() -> !DriverStation.isAutonomous()),
-                Commands.runOnce(() -> DogLog.log("AutoHang/Step", "RunUp2")),
-                climber.runUp(),
+                Commands.runOnce(() -> DogLog.log("AutoHang/Step", "RunUp2")), climber.runUp(),
                 container.driveToPreClimbPosition());
     }
 }

@@ -4,6 +4,7 @@ import java.lang.reflect.Field;
 
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.TalonFX;
+import com.ctre.phoenix6.hardware.TalonFXS;
 import com.ctre.phoenix6.swerve.SwerveModule;
 import com.ctre.phoenix6.swerve.SwerveDrivetrain.SwerveDriveState;
 
@@ -51,6 +52,16 @@ public class NFRLog extends DogLog
     }
 
     public static void log(String key, TalonFX motor)
+    {
+        log(key + "/DeviceID", motor.getDeviceID());
+        log(key + "/Connected", motor.isConnected());
+        log(key + "/Description", motor.getDescription());
+        log(key + "/Rotations", motor.getPosition().getValueAsDouble());
+        log(key + "/RotationRate", motor.getVelocity().getValueAsDouble());
+        log(key + "/Current", motor.getStatorCurrent().getValueAsDouble());
+    }
+
+    public static void log(String key, TalonFXS motor)
     {
         log(key + "/DeviceID", motor.getDeviceID());
         log(key + "/Connected", motor.isConnected());

@@ -1,5 +1,25 @@
 package frc.robot.lobby;
 
+import static edu.wpi.first.units.Units.Amps;
+import static edu.wpi.first.units.Units.Celsius;
+import static edu.wpi.first.units.Units.Degrees;
+import static edu.wpi.first.units.Units.Feet;
+import static edu.wpi.first.units.Units.Inches;
+import static edu.wpi.first.units.Units.Meters;
+import static edu.wpi.first.units.Units.MetersPerSecond;
+import static edu.wpi.first.units.Units.MetersPerSecondPerSecond;
+import static edu.wpi.first.units.Units.RadiansPerSecond;
+import static edu.wpi.first.units.Units.RadiansPerSecondPerSecond;
+import static edu.wpi.first.units.Units.Rotations;
+import static edu.wpi.first.units.Units.RotationsPerSecond;
+import static edu.wpi.first.units.Units.Seconds;
+import static edu.wpi.first.units.Units.Volts;
+
+import java.util.List;
+
+import com.ctre.phoenix6.signals.MotorArrangementValue;
+import com.pathplanner.lib.config.PIDConstants;
+import com.pathplanner.lib.path.PathConstraints;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.Vector;
 import edu.wpi.first.math.controller.PIDController;
@@ -10,33 +30,24 @@ import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.numbers.N3;
-
-import static edu.wpi.first.units.Units.Amps;
-import static edu.wpi.first.units.Units.Celsius;
-import static edu.wpi.first.units.Units.Degrees;
-import static edu.wpi.first.units.Units.Feet;
-import static edu.wpi.first.units.Units.Inches;
-import static edu.wpi.first.units.Units.RotationsPerSecond;
-import static edu.wpi.first.units.Units.Seconds;
-
-import com.ctre.phoenix6.signals.MotorArrangementValue;
-
 import edu.wpi.first.units.measure.Angle;
-import static edu.wpi.first.units.Units.Meters;
-import static edu.wpi.first.units.Units.Meters;
-import static edu.wpi.first.units.Units.Rotations;
-import static edu.wpi.first.units.Units.RotationsPerSecond;
-import static edu.wpi.first.units.Units.Seconds;
-
-import edu.wpi.first.units.measure.Angle;
+import edu.wpi.first.units.measure.AngularAcceleration;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Distance;
+import edu.wpi.first.units.measure.LinearAcceleration;
 import edu.wpi.first.units.measure.LinearVelocity;
 import edu.wpi.first.units.measure.Temperature;
 import edu.wpi.first.units.measure.Time;
+import edu.wpi.first.units.measure.Voltage;
+import frc.robot.FieldConstants;
 import frc.robot.lobby.generated.LobbyTunerConstants;
 import frc.robot.subsystems.climber.ClimberParameters;
+import frc.robot.lobby.subsystems.intake.IntakeIO.IntakeIOParameters;
+import frc.robot.lobby.subsystems.intake.Intake.IntakeParameters;
+import frc.robot.lobby.subsystems.turret.hood.HoodIO.HoodConstants;
+import frc.robot.lobby.subsystems.turret.shooter.ShooterIO.ShooterConstants;
+import frc.robot.lobby.subsystems.turret.suzie.SuzieIO.SuzieConstants;
 
 public class LobbyConstants
 {
@@ -44,6 +55,37 @@ public class LobbyConstants
     {
         public static final LinearVelocity kMaxSpeed = LobbyTunerConstants.kSpeedAt12Volts;
         public static final AngularVelocity kMaxAngularSpeed = RotationsPerSecond.of(3.0);
+        public static final double kPPDriveTP = 2.9;
+        public static final double kPPDriveTI = 0.0;
+        public static final double kPPDriveTD = 0.0;
+        public static final PIDConstants kPPDrivePID = new PIDConstants(kPPDriveTP, kPPDriveTI, kPPDriveTD);
+
+        public static final double kPPDriveRP = 5.0;
+        public static final double kPPDriveRI = 0.0;
+        public static final double kPPDriveRD = 0.0;
+        public static final PIDConstants kPPDriveRPID = new PIDConstants(kPPDriveRP, kPPDriveRI, kPPDriveRD);
+
+        public static final Distance kDriveRadius = Meters
+                .of(Math.hypot(LobbyTunerConstants.FrontRight.LocationX, LobbyTunerConstants.FrontRight.LocationY));
+
+        public static final AngularVelocity kMaxAngularVelocity = RadiansPerSecond
+                .of(LobbyTunerConstants.kSpeedAt12Volts.in(MetersPerSecond) / kDriveRadius.in(Meters));
+
+        public static final LinearVelocity kPPMaxVelocity = MetersPerSecond.of(3.5);
+        public static final LinearAcceleration kPPMaxAcceleration = MetersPerSecondPerSecond.of(3.0);
+        public static final AngularVelocity kPPMaxAngularVelocity = RadiansPerSecond.of(3.0);
+        public static final AngularAcceleration kPPMaxAngularAcceleration = RadiansPerSecondPerSecond.of(3.0);
+        public static final Voltage kNominalVoltage = Volts.of(12.0);
+        public static final PathConstraints kPPConstraints = new PathConstraints(kPPMaxVelocity, kPPMaxAcceleration,
+                kPPMaxAngularVelocity, kPPMaxAngularAcceleration);
+
+        public static final double kCloseDriveTP = 2.65;
+        public static final double kCloseDriveTI = 0.0;
+        public static final double kCloseDriveTD = 0.3;
+
+        public static final double kCloseDriveRP = 5;
+        public static final double kCloseDriveRI = 0.0;
+        public static final double kCloseDriveRD = 0.0;
     }
 
     public class AutoConstants
@@ -93,76 +135,102 @@ public class LobbyConstants
 
         public class Suzie
         {
-            public static int kEncoderDIOPin = 9;
-            public static int kMotorID = 10;
-            public static int kEncoderID = 1;
-            public static double kS = 0;
-            public static double kV = 0.116;
-            public static double kA = 0.110;
-            public static double kP = 10;
-            public static double kI = 0;
-            public static double kD = 0.6;
-            public static double kG = 0;
-            public static double kCruiseVelocity = 0;
-            public static double kAcceleration = 160;
-            public static double kJerk = 1600;
-            public static double kGearRatio = 3 * 3 * 5;
-            public static boolean kInverted = false;
-            public static Angle kLowerSoftLimit = Degrees.of(-180);
-            public static Angle kUpperSoftLimit = Degrees.of(180);
-            public static Angle kErrorTolerance = Degrees.of(1);
-            public static MotorArrangementValue kMotorArrangement = MotorArrangementValue.Minion_JST;
+            private static int kMotorID = 19;
+            private static int kDrivingEncoderID = 9;
+            private static int kSensingEncoderID = 8;
+            private static double kS = 0.084993;
+            private static double kV = 0.094046;
+            private static double kA = 0.0012213;
+            private static double kP = 8.391;
+            private static double kI = 0;
+            private static double kD = 0.088468;
+            private static double kG = 0;
+            private static double kCruiseVelocity = 0;
+            private static double kAcceleration = 160;
+            private static double kJerk = 1600;
+            private static int kDrivingGearTeeth = 24;
+            private static int kSensingGearTeeth = 25;
+            private static int kTurntableGearTeeth = 120;
+            private static double kRotorToTurntableRatio = 5.0 * 5.0 * (double) kTurntableGearTeeth / kDrivingGearTeeth;
+            private static boolean kInverted = true;
+            private static Angle kLowerSoftLimit = Degrees.of(-180);
+            private static Angle kUpperSoftLimit = Degrees.of(180);
+            private static Angle kErrorTolerance = Degrees.of(1);
+            private static MotorArrangementValue kMotorArrangement = MotorArrangementValue.Minion_JST;
+
+            public static SuzieConstants kMinionConstants = new SuzieConstants(kMotorID, kDrivingEncoderID,
+                    kSensingEncoderID, kS, kV, kA, kP, kI, kD, kG, kCruiseVelocity, kAcceleration, kJerk,
+                    kRotorToTurntableRatio, kDrivingGearTeeth, kSensingGearTeeth, kTurntableGearTeeth, kInverted,
+                    kLowerSoftLimit, kUpperSoftLimit, kErrorTolerance, kMotorArrangement);
         }
 
         public class Hood
         {
-            public static Distance kDangerZone = Feet.of(10);
-            public static int kMotorID = 11;
-            public static int kEncoderID = 2;
-            public static double kS = 0;
-            public static double kV = 0.12 * 10;
-            public static double kA = 0.8 / 10;
-            public static double kP = 10;
-            public static double kI = 0;
-            public static double kD = 0;
-            public static double kG = 0;
-            public static double kCruiseVelocity = 0;
-            public static double kAcceleration = 160;
-            public static double kJerk = 1600;
-            public static double kGearRatio = 10;
-            public static boolean kInverted = false;
-            public static Angle kLowerSoftLimit = Degrees.of(0);
-            public static Angle kUpperSoftLimit = Degrees.of(20);
-            public static Angle kErrorTolerance = Degrees.of(1);
-            public static MotorArrangementValue kMotorArrangement = MotorArrangementValue.Minion_JST;
+            private static Distance kDangerZone = Feet.of(10);
+            private static int kMotorID = 11;
+            private static int kEncoderID = 2;
+            private static double kS = 0;
+            private static double kV = 0.12 * 10;
+            private static double kA = 0.8 / 10;
+            private static double kP = 10;
+            private static double kI = 0;
+            private static double kD = 0;
+            private static double kG = 0;
+            private static double kCruiseVelocity = 0;
+            private static double kAcceleration = 160;
+            private static double kJerk = 1600;
+            private static double kGearRatio = 10;
+            private static boolean kInverted = false;
+            private static Angle kLowerSoftLimit = Degrees.of(0);
+            private static Angle kUpperSoftLimit = Degrees.of(20);
+            private static Angle kErrorTolerance = Degrees.of(1);
+            private static MotorArrangementValue kMotorArrangement = MotorArrangementValue.Minion_JST;
+
+            // Create list of all 4 trench positions
+            private static List<Translation2d> kAllTrenchPositions = List.of(FieldConstants.kBlueTrench1,
+                    FieldConstants.kBlueTrench2, FieldConstants.kRedTrench1, FieldConstants.kRedTrench2);
+
             public static String kTargetingDataFilepath = "src/main/java/frc/robot/subsystems/turret/targeting_data/HoodTargetingData.csv";
 
             // servo constants
-            public static int kServoID = 9;
-            public static Angle kLowerServoLimit = Degrees.of(145);
-            public static Angle kUpperServoLimit = Degrees.of(-20);
-            public static Angle kMechanismLowerAngle = Degrees.of(10);
-            public static Angle kMechanismUpperAngle = Degrees.of(40);
+            private static int kServoID = 9;
+            private static Angle kLowerServoLimit = Degrees.of(145);
+            private static Angle kUpperServoLimit = Degrees.of(-20);
+            private static Angle kMechanismLowerAngle = Degrees.of(20);
+            private static Angle kMechanismUpperAngle = Degrees.of(37);
+
+            public static HoodConstants kMinionConstants = new HoodConstants(kMotorID, kEncoderID, kS, kV, kA, kP, kI,
+                    kD, kG, kCruiseVelocity, kAcceleration, kJerk, kGearRatio, kInverted, kLowerSoftLimit,
+                    kUpperSoftLimit, kErrorTolerance, kMotorArrangement, kDangerZone, kAllTrenchPositions,
+                    kMechanismLowerAngle, kMechanismUpperAngle);
+            public static HoodConstants kServoConstants = new HoodConstants(kServoID, kEncoderID, kS, kV, kA, kP, kI,
+                    kD, kG, kCruiseVelocity, kAcceleration, kJerk, kGearRatio, kInverted, kLowerServoLimit,
+                    kUpperServoLimit, kErrorTolerance, kMotorArrangement, kDangerZone, kAllTrenchPositions,
+                    kMechanismLowerAngle, kMechanismUpperAngle);
         }
 
         public class Shooter
         {
-            public static int kMotor1ID = 20;
-            public static int kMotor2ID = 21;
-            public static double kS = 0;
-            public static double kV = 0.115;
-            public static double kA = 0.1;
-            public static double kP = 0.55;
-            public static double kI = 0;
-            public static double kD = 0;
-            public static double kG = 0;
-            public static double kCruiseVelocity = 100;
-            public static double kAcceleration = 100;
-            public static double kJerk = 0;
-            public static boolean kMotor1Inverted = false;
-            public static boolean kMotor2Inverted = true;
-            public static AngularVelocity kErrorTolerance = RotationsPerSecond.of(10);
+            private static int kMotor1ID = 20;
+            private static int kMotor2ID = 21;
+            private static double kS = 0;
+            private static double kV = 0.115;
+            private static double kA = 1;
+            private static double kP = 0.55;
+            private static double kI = 0;
+            private static double kD = 0;
+            private static double kG = 0;
+            private static double kCruiseVelocity = 100;
+            private static double kAcceleration = 100;
+            private static double kJerk = 0;
+            private static boolean kMotor1Inverted = false;
+            private static boolean kMotor2Inverted = true;
+            private static AngularVelocity kErrorTolerance = RotationsPerSecond.of(10);
             public static String kTargetingDataFilepath = "src/main/java/frc/robot/subsystems/turret/targeting_data/ShooterTargetingData.csv";
+
+            public static ShooterConstants kKrakenConstants = new ShooterConstants(kMotor1ID, kMotor2ID, kS, kV, kA, kP,
+                    kI, kD, kG, kCruiseVelocity, kAcceleration, kJerk, kMotor1Inverted, kMotor2Inverted,
+                    kErrorTolerance);
         }
     }
 
@@ -252,11 +320,30 @@ public class LobbyConstants
         public static final int kRollerMotorId = 17;
         public static final int kAngleMotorId = 16;
         public static final int kAngleEncoderId = 22;
-        public static final double kDriverIntakeSpeed = 0.6;
+        public static final double kDriverIntakeSpeed = 0.53;
         public static final double kDriverPurgeSpeed = 1.0;
-        public static final Angle kDownAngle = Rotations.zero();
-        public static final Angle kMiddleAngle = Rotations.of(-0.154);
-        public static final Angle kStowedAngle = Rotations.of(-0.370);
+        public static final Angle kDownAngle = Rotations.of(0.05);
+        public static final Angle kMiddleAngle = Rotations.of(0.172);
+        public static final Angle kStowedAngle = Rotations.of(0.35);
+        public static final double kP = 23.745;
+        public static final double kI = 0;
+        public static final double kD = 2.6807;
+        public static final double kS = 0.24758;
+        public static final double kA = 0.85231;
+        public static final double kV = 9.1813;
+        public static final double kG = 0.15;
+        public static final double kAcceleration = 4;
+        public static final double kCruiseVelocity = 1;
+        public static final double kForwardSoftLimit = 0.4;
+        public static final double kReverstSoftLimit = 0.05;
+        public static final Current kCurrentLimit = Amps.of(60);
+        public static final Angle kAngleTolerance = Degrees.of(5);
+
+        public static final IntakeIOParameters kIOParameters = new IntakeIOParameters(kRollerMotorId, kAngleMotorId,
+                kAngleEncoderId, kP, kI, kD, kS, kV, kA, kG, kAcceleration, kCruiseVelocity, kForwardSoftLimit,
+                kReverstSoftLimit, kCurrentLimit);
+        public static final IntakeParameters kParameters = new IntakeParameters(kDownAngle, kMiddleAngle, kStowedAngle,
+                kDriverIntakeSpeed, kDriverPurgeSpeed, kAngleTolerance);
     }
 
     public class CarouselConstants
@@ -282,6 +369,7 @@ public class LobbyConstants
     public class SpindexerConstants
     {
         public static final Time kDeJamTimeout = Seconds.of(1);
+        public static final Time kDeJamTime = Seconds.of(0.3);
     }
 
     public class TalonFXConstants

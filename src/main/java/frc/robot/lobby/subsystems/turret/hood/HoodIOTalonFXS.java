@@ -1,7 +1,6 @@
 package frc.robot.lobby.subsystems.turret.hood;
 
 import static edu.wpi.first.units.Units.Degrees;
-import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.Rotations;
 
 import java.util.List;
@@ -15,18 +14,14 @@ import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.MotorArrangementValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
-import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Translation2d;
-import edu.wpi.first.units.DistanceUnit;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.units.measure.Temperature;
 import edu.wpi.first.units.measure.Voltage;
-import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.Commands;
-import edu.wpi.first.wpilibj2.command.InstantCommand;
+import frc.robot.util.TunablePID;
 
 public class HoodIOTalonFXS implements HoodIO
 {
@@ -42,6 +37,8 @@ public class HoodIOTalonFXS implements HoodIO
     protected final Angle m_errorTolerance;
     protected final Distance m_dangerZone;
     protected final List<Translation2d> m_trenchPositions;
+    protected final Angle m_lowerMechanismAngle;
+    protected final Angle m_upperMechanismAngle;
 
     private Angle m_targetAngle = Degrees.of(0);
 
@@ -51,13 +48,15 @@ public class HoodIOTalonFXS implements HoodIO
                 constants.kP(), constants.kI(), constants.kD(), constants.kG(), constants.kCruiseVelocity(),
                 constants.kAcceleration(), constants.kJerk(), constants.kGearRatio(), constants.kInverted(),
                 constants.kLowerSoftLimit(), constants.kUpperSoftLimit(), constants.kErrorTolerance(),
-                constants.kMotorArrangement(), constants.dangerZone(), constants.trenchPositions());
+                constants.kMotorArrangement(), constants.kDangerZone(), constants.trenchPositions(),
+                constants.kLowerMechanismAngle(), constants.kUpperMechanismAngle());
     }
 
     private HoodIOTalonFXS(int kMotorID, int kEncoderID, double kS, double kV, double kA, double kP, double kI,
             double kD, double kG, double kCruiseVelocity, double kAcceleration, double kJerk, double kGearRatio,
             boolean kInverted, Angle kLowerSoftLimit, Angle kUpperSoftLimit, Angle kErrorTolerance,
-            MotorArrangementValue kMotorArrangement, Distance kDangerZone, List<Translation2d> trenchPositions)
+            MotorArrangementValue kMotorArrangement, Distance kDangerZone, List<Translation2d> trenchPositions,
+            Angle kLowerMechanismAngle, Angle kUpperMechanismAngle)
     {
         m_motor = new TalonFXS(kMotorID);
         m_dangerZone = kDangerZone;
@@ -104,6 +103,11 @@ public class HoodIOTalonFXS implements HoodIO
 
         m_motionMagicVoltage = new MotionMagicExpoVoltage(0).withEnableFOC(true);
         m_errorTolerance = kErrorTolerance;
+
+        m_lowerMechanismAngle = kLowerMechanismAngle;
+        m_upperMechanismAngle = kUpperMechanismAngle;
+
+        TunablePID.createBasic("Turret/Hood/PID", m_motor, config);
     }
 
     @Override
@@ -116,7 +120,24 @@ public class HoodIOTalonFXS implements HoodIO
     public void setTargetAngle(Angle angle)
     {
         m_targetAngle = angle;
-        m_motor.setControl(m_motionMagicVoltage.withPosition(angle.in(Rotations)));
+    }
+
+    @Override
+    public Angle getLowerMechanismLimit()
+    {
+        return m_lowerMechanismAngle;
+    }
+
+    @Override
+    public void start()
+    {
+        m_motor.setControl(m_motionMagicVoltage.withPosition(m_targetAngle.in(Rotations)));
+    }
+
+    @Override
+    public void stop()
+    {
+        m_motor.stopMotor();
     }
 
     @Override
