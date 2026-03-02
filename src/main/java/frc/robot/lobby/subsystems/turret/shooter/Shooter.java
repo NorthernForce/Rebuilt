@@ -54,14 +54,14 @@ public class Shooter extends SubsystemBase
         return io.getTargetSpeed();
     }
 
-    public Command start()
+    public void start()
     {
-        return run(() -> io.start());
+        io.start();
     }
 
-    public Command stop()
+    public void stop()
     {
-        return run(() -> io.stop());
+        io.stop();
     }
 
     public void setTargetSpeed(AngularVelocity speed)

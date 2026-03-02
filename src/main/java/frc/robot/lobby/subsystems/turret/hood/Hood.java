@@ -29,17 +29,17 @@ public class Hood extends SubsystemBase
 
     public Command setTargetAngle(Angle angle)
     {
-        return run(() -> io.setTargetAngle(angle));
+        return runOnce(() -> io.setTargetAngle(angle));
     }
 
     public Command setTargetMechanismAngle(Angle angle)
     {
-        return run(() -> io.setTargetMechanismAngle(angle));
+        return runOnce(() -> io.setTargetMechanismAngle(angle));
     }
 
     public Command setSpeed(double speed, boolean overrideSoftLimit)
     {
-        return run(() -> io.setSpeed(speed, overrideSoftLimit));
+        return runOnce(() -> io.setSpeed(speed, overrideSoftLimit));
     }
 
     public List<Translation2d> getTrenchPositions()
@@ -57,14 +57,14 @@ public class Hood extends SubsystemBase
         return io.getTargetAngle();
     }
 
-    public Command start()
+    public void start()
     {
-        return run(() -> io.start());
+        io.start();
     }
 
-    public Command stop()
+    public void stop()
     {
-        return run(() -> io.stop());
+        io.stop();
     }
 
     public Angle getAngle()

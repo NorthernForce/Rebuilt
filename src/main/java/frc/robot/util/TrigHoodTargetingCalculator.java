@@ -23,9 +23,4 @@ public class TrigHoodTargetingCalculator implements TargetingCalculator
         }
         return FieldConstants.kBlueHubPosition.getZ();
     }
-
-    @Override
-    public void addData(double distance, double value)
-    {
-    }
 }

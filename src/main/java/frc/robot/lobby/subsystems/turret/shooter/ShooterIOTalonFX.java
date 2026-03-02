@@ -65,6 +65,8 @@ public class ShooterIOTalonFX implements ShooterIO
         slot0Configs.kI = kI;
         slot0Configs.kD = kD;
         slot0Configs.kG = kG;
+        config.CurrentLimits.StatorCurrentLimit = 60.0;
+        config.CurrentLimits.StatorCurrentLimitEnable = true;
 
         // var motionMagicConfigs = config.MotionMagic;
         // motionMagicConfigs.MotionMagicCruiseVelocity = kCruiseVelocity;

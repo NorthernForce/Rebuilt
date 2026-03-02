@@ -13,13 +13,14 @@ public class FieldConstants
     public static final double kFieldWidthMeters = 8.2296; // 27 feet
 
     // Hub positions (center of field, raised)
-    public static final Translation3d kBlueHubPosition = new Translation3d(Meters.of(kFieldLengthMeters / 4.0), // Blue
-                                                                                                                // side
+    public static final Translation3d kBlueHubPosition = new Translation3d(Inches.of(182.11), // Blue
+                                                                                              // side
             Meters.of(kFieldWidthMeters / 2.0), // Center width
             Meters.of(2.64)); // Hub height
 
-    public static final Translation3d kRedHubPosition = new Translation3d(Meters.of(kFieldLengthMeters * 3.0 / 4.0), // Red
-                                                                                                                     // side
+    public static final Translation3d kRedHubPosition = new Translation3d(
+            Meters.of(kFieldLengthMeters).minus(Inches.of(182.11)), // Red
+            // side
             Meters.of(kFieldWidthMeters / 2.0), // Center width
             Meters.of(2.64)); // Hub height
 
