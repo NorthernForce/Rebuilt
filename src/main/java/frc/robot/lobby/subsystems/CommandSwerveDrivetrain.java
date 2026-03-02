@@ -401,11 +401,22 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         SwerveRequest.FieldCentric request = new SwerveRequest.FieldCentric()
                 .withDriveRequestType(DriveRequestType.OpenLoopVoltage)
                 .withForwardPerspective(SwerveRequest.ForwardPerspectiveValue.OperatorPerspective);
+        SwerveRequest.SwerveDriveBrake brakeRequest = new SwerveRequest.SwerveDriveBrake();
+
         return applyRequest(() ->
         {
-            return request.withVelocityX(maxSpeed.times(xSupplier.getAsDouble()))
-                    .withVelocityY(maxSpeed.times(ySupplier.getAsDouble()))
-                    .withRotationalRate(maxAngularSpeed.times(omegaSupplier.getAsDouble()));
+            double x = xSupplier.getAsDouble();
+            double y = ySupplier.getAsDouble();
+            double omega = omegaSupplier.getAsDouble();
+
+            if (Math.abs(x) < 0.01 && Math.abs(y) < 0.01 && Math.abs(omega) < 0.01)
+            {
+                return brakeRequest;
+            }
+            
+            return request.withVelocityX(maxSpeed.times(x))
+                    .withVelocityY(maxSpeed.times(y))
+                    .withRotationalRate(maxAngularSpeed.times(omega));
         });
     }
 
