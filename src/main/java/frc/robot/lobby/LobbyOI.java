@@ -11,6 +11,7 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import frc.robot.lobby.subsystems.spindexer.commands.Agitate;
 import frc.robot.lobby.subsystems.spindexer.commands.RunSpindexer;
 import frc.robot.lobby.subsystems.turret.commands.PrepTurretCommand;
 import frc.robot.lobby.subsystems.turret.commands.PrepTurretWithValues;
@@ -34,6 +35,7 @@ public class LobbyOI
         var drive = container.getDrive();
         var intake = container.getIntake();
         var turret = container.getTurret();
+        var spindexer = container.getSpindexer();
         var suzie = container.getTurret().getSuzie();
         var hood = container.getTurret().getHood();
         var shooter = container.getTurret().getShooter();
@@ -41,6 +43,7 @@ public class LobbyOI
         drive.setDefaultCommand(drive.driveByJoystick(inputProc(driveController::getLeftY),
                 inputProc(driveController::getLeftX), inputProc(driveController::getRightX)));
         intake.setDefaultCommand(intake.stopIntake().andThen(intake.getRunToMidAngleCommand()));
+        spindexer.setDefaultCommand(new Agitate(spindexer));
         // turret.setDefaultCommand(container.getTurret().runBasedOnLocation(() ->
         // drive.getState().Pose,
         // hood.getDangerZone(), hood.getTrenchPositions()));

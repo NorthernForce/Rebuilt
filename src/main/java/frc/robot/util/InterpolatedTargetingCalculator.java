@@ -17,7 +17,6 @@ public class InterpolatedTargetingCalculator implements TargetingCalculator
     @Override
     public double getValueForDistance(double distance)
     {
-        distance = ((int) (distance * 100)) / 100.0;
         try
         {
             return treeMap.get(distance);
