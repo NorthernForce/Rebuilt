@@ -11,6 +11,7 @@ import dev.doglog.DogLog;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
@@ -64,6 +65,8 @@ public class LobbyContainer implements NFRRobotContainer
     private final Spindexer spindexer;
     private final DriveToPoseWithVision driveToPoseCommand;
     private Optional<String> teamActivity = Optional.empty();
+
+    private InterpolatingDoubleTreeMap treeMap;
 
     public LobbyContainer()
     {
@@ -143,6 +146,12 @@ public class LobbyContainer implements NFRRobotContainer
                 LobbyConstants.AutoConstants.rPid);
         autoUtil.bindAutoDefault("TestAuto", this::testAuto);
         autoUtil.bindAuto("ShmallAuto", new PathPlannerAuto("ShmallAuto"));
+
+        treeMap = new InterpolatingDoubleTreeMap();
+        treeMap.put(0.0, 0.0);
+        treeMap.put(1.0, 10.0);
+        treeMap.put(2.0, 30.0);
+
         Shuffleboard.getTab("Developer").add(field);
         Shuffleboard.getTab("Developer").add("Reset Encoders", drive.resetEncoders());
         Shuffleboard.getTab("Developer").add("Reset Orientation", drive.resetOrientation());
@@ -163,7 +172,6 @@ public class LobbyContainer implements NFRRobotContainer
                 intake.sysIdArmQuasistatic(SysIdRoutine.Direction.kReverse));
         Shuffleboard.getTab("SysId").add("Arm Dynamic Fwd", intake.sysIdArmDynamic(SysIdRoutine.Direction.kForward));
         Shuffleboard.getTab("SysId").add("Arm Dynamic Rev", intake.sysIdArmDynamic(SysIdRoutine.Direction.kReverse));
-
     }
 
     /**
@@ -211,7 +219,7 @@ public class LobbyContainer implements NFRRobotContainer
         DogLog.log("BatteryVoltage", RobotController.getBatteryVoltage());
         DogLog.log("Drive/Pose", drive.getState().Pose);
         DogLog.log("Turret/Position", new Pose2d(
-                turret.calculateFieldRelativeShooterPosition(getDrive().getState().Pose),
+                getTurret().calculateFieldRelativeShooterPosition(getDrive().getState().Pose),
                 new Rotation2d(turret.getSuzieAngleRobotRelative().plus(drive.getPose().getRotation().getMeasure()))));
         DogLog.log("Turret/Target Direction",
                 getTurret().calculateFieldRelativeShooterPosition(drive.getPose())

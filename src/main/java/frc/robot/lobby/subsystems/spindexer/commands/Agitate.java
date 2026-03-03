@@ -4,7 +4,8 @@ import edu.wpi.first.wpilibj2.command.Command;
 
 import frc.robot.lobby.subsystems.spindexer.Spindexer;
 
-public class Agitate extends Command {
+public class Agitate extends Command
+{
     private final Spindexer spindexer;
     private final double speed;
 
@@ -24,6 +25,7 @@ public class Agitate extends Command {
     public void initialize()
     {
         spindexer.getCarousel().setPower(speed);
+        spindexer.getCarousel().startCarousel();
         spindexer.getFlicker().stopFlicker();
     }
 }
