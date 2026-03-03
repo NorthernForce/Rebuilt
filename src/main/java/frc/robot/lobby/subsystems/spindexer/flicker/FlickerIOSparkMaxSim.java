@@ -9,6 +9,7 @@ import com.revrobotics.spark.SparkMax;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Time;
+import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj.Timer;
 
 public class FlickerIOSparkMaxSim implements FlickerIO
@@ -98,5 +99,11 @@ public class FlickerIOSparkMaxSim implements FlickerIO
     public void resetJamDetection()
     {
         nanoTimeLastChecked = Timer.getFPGATimestamp();
+    }
+
+    @Override
+    public double getCurrent()
+    {
+        return m_motor.getMotorCurrent();
     }
 }

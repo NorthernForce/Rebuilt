@@ -14,6 +14,7 @@ import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.system.plant.LinearSystemId;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Time;
+import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.simulation.FlywheelSim;
 
@@ -153,5 +154,11 @@ public class FlickerIOTalonFXSSim implements FlickerIO
     public void resetJamDetection()
     {
         nanoTimeLastChecked = System.nanoTime();
+    }
+
+    @Override
+    public double getCurrent()
+    {
+        return m_motorController.getSupplyCurrent().getValueAsDouble();
     }
 }

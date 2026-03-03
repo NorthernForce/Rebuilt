@@ -41,6 +41,7 @@ import edu.wpi.first.units.measure.Temperature;
 import edu.wpi.first.units.measure.Time;
 import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj.Filesystem;
+import edu.wpi.first.wpilibj.PowerDistribution.ModuleType;
 import frc.robot.FieldConstants;
 import frc.robot.lobby.generated.LobbyTunerConstants;
 import frc.robot.lobby.subsystems.intake.IntakeIO.IntakeIOParameters;
@@ -51,6 +52,12 @@ import frc.robot.lobby.subsystems.turret.suzie.SuzieIO.SuzieConstants;
 
 public class LobbyConstants
 {
+    public class PDHConstants
+    {
+        public static final int kPDHPort = 40;
+        public static final ModuleType kModuleType = ModuleType.kRev;
+    }
+
     public class DrivetrainConstants
     {
         public static final LinearVelocity kMaxSpeed = LobbyTunerConstants.kSpeedAt12Volts;

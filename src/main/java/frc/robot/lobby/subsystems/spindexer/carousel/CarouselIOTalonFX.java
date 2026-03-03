@@ -18,6 +18,7 @@ import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Temperature;
 import edu.wpi.first.units.measure.Time;
 import edu.wpi.first.units.measure.Voltage;
+import edu.wpi.first.wpilibj.PowerDistribution;
 
 public class CarouselIOTalonFX implements CarouselIO
 {
@@ -34,6 +35,7 @@ public class CarouselIOTalonFX implements CarouselIO
     private final Time jamTimeout;
     private double nanoTimeLastChecked = 0.0;
     private final double dejamSpeed;
+    private final StatusSignal<Current> motorCurrent;
 
     public CarouselIOTalonFX(CarouselConstants constants)
     {
@@ -68,6 +70,7 @@ public class CarouselIOTalonFX implements CarouselIO
 
         m_velocityVoltage = new VelocityVoltage(0);
         dejamSpeed = kDejamSpeed;
+        motorCurrent = m_motor.getSupplyCurrent();
 
     }
 
@@ -143,5 +146,12 @@ public class CarouselIOTalonFX implements CarouselIO
     public void resetJamDetection()
     {
         nanoTimeLastChecked = System.nanoTime();
+    }
+
+    @Override
+    public double getCurrent()
+    {
+        motorCurrent.refresh();
+        return motorCurrent.getValueAsDouble();
     }
 }
