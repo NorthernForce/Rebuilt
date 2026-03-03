@@ -68,7 +68,7 @@ public class HoodIOServo implements HoodIO
     @Override
     public void stop()
     {
-        m_motor.setSpeed(0);
+
     }
 
     @Override

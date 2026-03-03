@@ -40,6 +40,7 @@ import edu.wpi.first.units.measure.LinearVelocity;
 import edu.wpi.first.units.measure.Temperature;
 import edu.wpi.first.units.measure.Time;
 import edu.wpi.first.units.measure.Voltage;
+import edu.wpi.first.wpilibj.Filesystem;
 import frc.robot.FieldConstants;
 import frc.robot.lobby.generated.LobbyTunerConstants;
 import frc.robot.lobby.subsystems.intake.IntakeIO.IntakeIOParameters;
@@ -101,9 +102,12 @@ public class LobbyConstants
     public static class CameraConstants
     {
 
-        public static final Transform3d kBackLeftCameraTransform = new Transform3d(
-                new Translation3d(Meters.of(-0.14605), Meters.of(-0.1397), Meters.of(0.1778)),
-                new Rotation3d(Degrees.zero(), Degrees.of(2.0), Degrees.of(78.5)));
+        public static final Transform3d kLeftCameraTransform = new Transform3d(
+                new Translation3d(Meters.of(-0.227), Meters.of(0.314), Meters.of(0.210)),
+                new Rotation3d(Degrees.of(180), Degrees.of(30), Degrees.of(105)));
+        public static final Transform3d kFrontCameraTransform = new Transform3d(
+                new Translation3d(Meters.of(-0.314), Meters.of(0.227), Meters.of(0.210)),
+                new Rotation3d(Degrees.of(180), Degrees.of(30), Degrees.of(-15)));
     }
 
     public class VisionConstants
@@ -112,7 +116,8 @@ public class LobbyConstants
 
         public class LimeLightConstants
         {
-            public static final String kLimeLightName = "limelight-left";
+            public static final String kLeftLimeLightName = "limelight-left";
+            public static final String kFrontLimeLightName = "limelight-front";
             public static final int[] kValidIds =
             { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29,
                     30, 31 };
@@ -129,27 +134,30 @@ public class LobbyConstants
 
     public class Turret
     {
-        public static Pose2d offset = new Pose2d(new Translation2d(Inches.of(6.264), Inches.of(6.300)),
-                new Rotation2d(Degrees.of(2.5)));
+        public static Pose2d offset = new Pose2d(new Translation2d(Inches.of(-6.264), Inches.of(6.300)),
+                new Rotation2d(Degrees.of(43.309)));
 
         public class Suzie
         {
             private static int kMotorID = 19;
             private static int kDrivingEncoderID = 9;
             private static int kSensingEncoderID = 8;
-            private static double kS = 0;
-            private static double kV = 0.116;
-            private static double kA = 0.110;
-            private static double kP = 10;
+            private static double kS = 0.07483;
+            private static double kV = 11.819;
+            private static double kA = 0.26826;
+            private static double kP = 100;
             private static double kI = 0;
-            private static double kD = 0.6;
+            private static double kD = 0;
             private static double kG = 0;
             private static double kCruiseVelocity = 0;
             private static double kAcceleration = 160;
             private static double kJerk = 1600;
+            private static double kExpoV = 12;
+            private static double kExpoA = 0.1;
             private static int kDrivingGearTeeth = 24;
             private static int kSensingGearTeeth = 25;
             private static int kTurntableGearTeeth = 120;
+            private static double kRotorToTurntableRatio = 5.0 * 5.0 * (double) kTurntableGearTeeth / kDrivingGearTeeth;
             private static boolean kInverted = false;
             private static Angle kLowerSoftLimit = Degrees.of(-180);
             private static Angle kUpperSoftLimit = Degrees.of(180);
@@ -157,9 +165,9 @@ public class LobbyConstants
             private static MotorArrangementValue kMotorArrangement = MotorArrangementValue.Minion_JST;
 
             public static SuzieConstants kMinionConstants = new SuzieConstants(kMotorID, kDrivingEncoderID,
-                    kSensingEncoderID, kS, kV, kA, kP, kI, kD, kG, kCruiseVelocity, kAcceleration, kJerk,
-                    kDrivingGearTeeth, kSensingGearTeeth, kTurntableGearTeeth, kInverted, kLowerSoftLimit,
-                    kUpperSoftLimit, kErrorTolerance, kMotorArrangement);
+                    kSensingEncoderID, kS, kV, kA, kP, kI, kD, kG, kCruiseVelocity, kAcceleration, kJerk, kExpoV,
+                    kExpoA, kRotorToTurntableRatio, kDrivingGearTeeth, kSensingGearTeeth, kTurntableGearTeeth,
+                    kInverted, kLowerSoftLimit, kUpperSoftLimit, kErrorTolerance, kMotorArrangement);
         }
 
         public class Hood
@@ -187,8 +195,6 @@ public class LobbyConstants
             // Create list of all 4 trench positions
             private static List<Translation2d> kAllTrenchPositions = List.of(FieldConstants.kBlueTrench1,
                     FieldConstants.kBlueTrench2, FieldConstants.kRedTrench1, FieldConstants.kRedTrench2);
-
-            public static String kTargetingDataFilepath = "src/main/java/frc/robot/subsystems/turret/targeting_data/HoodTargetingData.csv";
 
             // servo constants
             private static int kServoID = 9;
@@ -224,7 +230,6 @@ public class LobbyConstants
             private static boolean kMotor1Inverted = false;
             private static boolean kMotor2Inverted = true;
             private static AngularVelocity kErrorTolerance = RotationsPerSecond.of(10);
-            public static String kTargetingDataFilepath = "src/main/java/frc/robot/subsystems/turret/targeting_data/ShooterTargetingData.csv";
 
             public static ShooterConstants kKrakenConstants = new ShooterConstants(kMotor1ID, kMotor2ID, kS, kV, kA, kP,
                     kI, kD, kG, kCruiseVelocity, kAcceleration, kJerk, kMotor1Inverted, kMotor2Inverted,

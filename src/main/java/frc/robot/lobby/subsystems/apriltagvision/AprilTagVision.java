@@ -1,7 +1,9 @@
 package frc.robot.lobby.subsystems.apriltagvision;
 
+import java.util.ArrayList;
 import java.util.List;
 
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.lobby.subsystems.CommandSwerveDrivetrain;
@@ -13,22 +15,34 @@ import frc.robot.lobby.subsystems.CommandSwerveDrivetrain;
 public class AprilTagVision extends SubsystemBase
 {
     private final CommandSwerveDrivetrain drive;
-    private final AprilTagVisionIO vision;
+    private final AprilTagVisionIO[] visions;
 
-    public AprilTagVision(CommandSwerveDrivetrain drive, AprilTagVisionIO vision)
+    public AprilTagVision(CommandSwerveDrivetrain drive, AprilTagVisionIO... visions)
     {
         this.drive = drive;
-        this.vision = vision;
+        this.visions = visions;
     }
 
     public void setHeading(Rotation2d heading, Rotation2d yawRate)
     {
-        vision.setHeading(heading, yawRate);
+        for (AprilTagVisionIO vision : visions)
+        {
+            vision.setHeading(heading, yawRate);
+        }
     }
 
     public List<Pose2dWithTimestamp> getPoses()
     {
-        return vision.getPoses();
+        List<Pose2dWithTimestamp> poses = new ArrayList<Pose2dWithTimestamp>();
+        for (AprilTagVisionIO vision : visions)
+        {
+            for (Pose2dWithTimestamp pose : vision.getPoses())
+            {
+                poses.add(pose);
+            }
+        }
+
+        return poses;
     }
 
     @Override
@@ -38,11 +52,9 @@ public class AprilTagVision extends SubsystemBase
         Rotation2d currentHeading = state.Pose.getRotation();
         Rotation2d yawRate = Rotation2d.fromRadians(state.Speeds.omegaRadiansPerSecond);
 
-        vision.setHeading(currentHeading, yawRate);
-
-        vision.getPoses().forEach(poseWithTimestamp ->
+        for (AprilTagVisionIO vision : visions)
         {
-            drive.addVisionMeasurement(poseWithTimestamp.pose(), poseWithTimestamp.timestamp());
-        });
+            vision.setHeading(currentHeading, yawRate);
+        }
     }
 }

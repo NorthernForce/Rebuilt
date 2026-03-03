@@ -4,6 +4,7 @@ import static edu.wpi.first.units.Units.Amps;
 import static edu.wpi.first.units.Units.Seconds;
 
 import com.ctre.phoenix6.configs.CommutationConfigs;
+import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
 import com.ctre.phoenix6.configs.MotorOutputConfigs;
 import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.hardware.TalonFXS;
@@ -36,6 +37,8 @@ public class FlickerIOTalonFXS implements FlickerIO
         jamTimeout = parameters.jamTimeout();
         m_motor.getConfigurator()
                 .apply(new CommutationConfigs().withMotorArrangement(MotorArrangementValue.Minion_JST));
+        m_motor.getConfigurator().apply(
+                new CurrentLimitsConfigs().withStatorCurrentLimit(Amps.of(60.0)).withStatorCurrentLimitEnable(true));
         m_motor.getConfigurator().apply(new MotorOutputConfigs().withNeutralMode(NeutralModeValue.Brake)
                 .withInverted(InvertedValue.Clockwise_Positive));
         dejamSpeed = parameters.dejamSpeed();

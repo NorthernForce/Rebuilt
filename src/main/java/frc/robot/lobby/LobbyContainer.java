@@ -49,6 +49,7 @@ import frc.robot.lobby.subsystems.turret.suzie.SuzieIOTalonFXSSim;
 import frc.robot.lobby.subsystems.turret.hood.HoodIOServoSim;
 import frc.robot.util.AutoUtil;
 import frc.robot.util.InterpolatedTargetingCalculator;
+import frc.robot.util.TestTargetingCalculator;
 import frc.robot.util.TrigHoodTargetingCalculator;
 import org.northernforce.util.NFRRobotContainer;
 import org.photonvision.simulation.SimCameraProperties;
@@ -81,8 +82,8 @@ public class LobbyContainer implements NFRRobotContainer
             // TODO: get camera json config for sim
             vision = new AprilTagVision(drive,
                     new AprilTagVisionIOPhotonVisionSim(
-                            LobbyConstants.VisionConstants.LimeLightConstants.kLimeLightName, new SimCameraProperties(),
-                            LobbyConstants.CameraConstants.kBackLeftCameraTransform));
+                            LobbyConstants.VisionConstants.LimeLightConstants.kLeftLimeLightName,
+                            new SimCameraProperties(), LobbyConstants.CameraConstants.kLeftCameraTransform));
             turret = new Turret(new TurretConstants(LobbyConstants.Turret.offset),
                     new Suzie(new SuzieIOTalonFXSSim(LobbyConstants.Turret.Suzie.kMinionConstants)),
                     new Hood(new HoodIOServoSim(LobbyConstants.Turret.Hood.kServoConstants)),
@@ -107,15 +108,17 @@ public class LobbyContainer implements NFRRobotContainer
         } else
         {
             vision = new AprilTagVision(drive,
-                    new AprilTagVisionIOLimelight(LobbyConstants.VisionConstants.LimeLightConstants.kLimeLightName,
-                            LobbyConstants.CameraConstants.kBackLeftCameraTransform,
+                    new AprilTagVisionIOLimelight(LobbyConstants.VisionConstants.LimeLightConstants.kLeftLimeLightName,
+                            LobbyConstants.CameraConstants.kLeftCameraTransform,
+                            LobbyConstants.VisionConstants.LimeLightConstants.kValidIds),
+                    new AprilTagVisionIOLimelight(LobbyConstants.VisionConstants.LimeLightConstants.kFrontLimeLightName,
+                            LobbyConstants.CameraConstants.kFrontCameraTransform,
                             LobbyConstants.VisionConstants.LimeLightConstants.kValidIds));
             turret = new Turret(new TurretConstants(LobbyConstants.Turret.offset),
                     new Suzie(new SuzieIOTalonFXS(LobbyConstants.Turret.Suzie.kMinionConstants)),
                     new Hood(new HoodIOServo(LobbyConstants.Turret.Hood.kServoConstants)),
                     new Shooter(new ShooterIOTalonFX(LobbyConstants.Turret.Shooter.kKrakenConstants)),
-                    new InterpolatedTargetingCalculator(LobbyConstants.Turret.Hood.kTargetingDataFilepath),
-                    new InterpolatedTargetingCalculator(LobbyConstants.Turret.Hood.kTargetingDataFilepath));
+                    new TestTargetingCalculator(), new InterpolatedTargetingCalculator(TargetingData.SHOOTER_DATA));
             spindexer = new Spindexer(
                     new CarouselIOTalonFX(new CarouselConstants(LobbyConstants.CarouselConstants.kMotorID,
                             LobbyConstants.CarouselConstants.kSpeed, LobbyConstants.CarouselConstants.kGearRatio,
@@ -145,6 +148,13 @@ public class LobbyContainer implements NFRRobotContainer
         Shuffleboard.getTab("Developer").add(field);
         Shuffleboard.getTab("Developer").add("Reset Encoders", drive.resetEncoders());
         Shuffleboard.getTab("Developer").add("Reset Orientation", drive.resetOrientation());
+
+        Shuffleboard.getTab("SysId").add("Turntable Quasistatic Forward",
+                turret.getSuzie().getSysIdQuasistaticForward());
+        Shuffleboard.getTab("SysId").add("Turntable Quasistatic Reverse",
+                turret.getSuzie().getSysIdQuasistaticReverse());
+        Shuffleboard.getTab("SysId").add("Turntable Dynamic Forward", turret.getSuzie().getSysIdDynamicForward());
+        Shuffleboard.getTab("SysId").add("Turntable Dynamic Reverse", turret.getSuzie().getSysIdDynamicReverse());
         Shuffleboard.getTab("Developer").add("Drive to Blue Reef",
                 drive.navigateToPose(new Pose2d(3, 4, new Rotation2d())));
 
@@ -202,15 +212,24 @@ public class LobbyContainer implements NFRRobotContainer
         field.setRobotPose(drive.getState().Pose);
         DogLog.log("BatteryVoltage", RobotController.getBatteryVoltage());
         DogLog.log("Drive/Pose", drive.getState().Pose);
-        DogLog.log("Turret/Position",
-                new Pose2d(turret.calculateFieldRelativeShooterPosition(getDrive().getState().Pose), new Rotation2d()));
+        DogLog.log("Turret/Position", new Pose2d(
+                turret.calculateFieldRelativeShooterPosition(getDrive().getState().Pose),
+                new Rotation2d(turret.getSuzieAngleRobotRelative().plus(drive.getPose().getRotation().getMeasure()))));
+        DogLog.log("Turret/Target Direction",
+                getTurret().calculateFieldRelativeShooterPosition(drive.getPose())
+                        .plus(new Translation2d(
+                                Math.cos(getTurret().getSuzie().getTargetAngle().in(Radians)
+                                        + getDrive().getState().Pose.getRotation().getRadians()),
+                                Math.sin(getTurret().getSuzie().getTargetAngle().in(Radians)
+                                        + getDrive().getState().Pose.getRotation().getRadians()))));
         DogLog.log("Turret/Direction",
                 getTurret().calculateFieldRelativeShooterPosition(drive.getState().Pose)
                         .plus(new Translation2d(
-                                Math.cos(getTurret().getSuzie().getAngle().in(Radians)
+                                Math.cos(getTurret().getSuzieAngleRobotRelative().in(Radians)
                                         + getDrive().getState().Pose.getRotation().getRadians()),
-                                Math.sin(getTurret().getSuzie().getAngle().in(Radians)
+                                Math.sin(getTurret().getSuzieAngleRobotRelative().in(Radians)
                                         + getDrive().getState().Pose.getRotation().getRadians()))));
+        DogLog.log("Turret/Distance", getTurret().calculateShooterDistanceToHub(drive.getPose()));
 
         if (DriverStation.getGameSpecificMessage().equals("R"))
         {
