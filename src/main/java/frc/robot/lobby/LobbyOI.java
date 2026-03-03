@@ -3,12 +3,14 @@ package frc.robot.lobby;
 import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.Meters;
 
+import java.util.Optional;
 import java.util.function.DoubleSupplier;
 
 import dev.doglog.DogLog;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.lobby.subsystems.spindexer.commands.RunSpindexer;
@@ -81,5 +83,22 @@ public class LobbyOI
                 .onFalse(container.getTurret().getSuzie().setSpeed(0));
         driveController.povRight().whileTrue(container.getTurret().getSuzie().setSpeed(-0.05))
                 .onFalse(container.getTurret().getSuzie().setSpeed(0));
+
+        driveController.y().whileTrue(
+
+                Commands.run(() ->
+                {
+                        Optional<Rotation2d> velAngle = container.getMovementDirectionRobotRelative();
+                        if (velAngle.isEmpty()) {
+                                DogLog.log("VelDir", "NaN");
+                        }
+                        else
+                        {
+                                DogLog.log("VelDir", velAngle.get().getDegrees());
+                                container.getTurret().getSuzie().setTargetAngle(Degrees.of(velAngle.get().getDegrees()-180.0));
+                                CommandScheduler.getInstance().schedule(container.getTurret().getSuzie().start());
+                        }
+
+                })).onFalse(container.getTurret().getSuzie().stop());
     }
 }

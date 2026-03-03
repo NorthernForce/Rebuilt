@@ -2,6 +2,7 @@ package frc.robot.lobby;
 
 import static edu.wpi.first.units.Units.Radians;
 import static edu.wpi.first.units.Units.Degrees;
+import edu.wpi.first.units.measure.Angle;
 import java.util.Optional;
 
 import choreo.auto.AutoFactory;
@@ -222,7 +223,7 @@ public class LobbyContainer implements NFRRobotContainer
         }
 
         DogLog.log("VelDir", getMovementDirectionRobotRelative().map(Rotation2d::getDegrees).orElse(Double.NaN));
-        DogLog.log("Turret/Suzie/CurrentAngle", turret.getSuzie().getAngle().in(Degrees));
+        DogLog.log("VelAng", turret.getSuzie().getAngle().in(Degrees));
 
         DogLog.log("GameData/StartingActivity", teamActivity.orElse("unknown"));
         if (!teamActivity.orElse("unknown").equals("unknown"))
