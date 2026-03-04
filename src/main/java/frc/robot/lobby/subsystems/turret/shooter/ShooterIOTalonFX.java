@@ -2,6 +2,7 @@ package frc.robot.lobby.subsystems.turret.shooter;
 
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 
+import java.io.ObjectInputFilter.Status;
 import java.util.function.Supplier;
 
 import com.ctre.phoenix6.StatusSignal;
@@ -17,6 +18,7 @@ import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Temperature;
 import edu.wpi.first.units.measure.Voltage;
+import edu.wpi.first.wpilibj.PowerDistribution;
 import frc.robot.util.TunablePID;
 
 public class ShooterIOTalonFX implements ShooterIO
@@ -38,6 +40,8 @@ public class ShooterIOTalonFX implements ShooterIO
     protected double tempKD = 0;
     protected double tempKV = 0;
     protected double tempKA = 0;
+    protected StatusSignal<Current> currentMotor1;
+    protected StatusSignal<Current> currentMotor2;
 
     private AngularVelocity m_targetSpeed = RotationsPerSecond.of(0);
 
@@ -93,6 +97,8 @@ public class ShooterIOTalonFX implements ShooterIO
 
         TunablePID.createBasic("Turret/Shooter/Motor1PID", m_motor1, config);
         TunablePID.createBasic("Turret/Shooter/Motor2PID", m_motor2, config);
+        currentMotor1 = m_motor1.getSupplyCurrent();
+        currentMotor2 = m_motor2.getSupplyCurrent();
     }
 
     @Override
@@ -178,5 +184,19 @@ public class ShooterIOTalonFX implements ShooterIO
     {
         m_motor1.stopMotor();
         m_motor2.stopMotor();
+    }
+
+    @Override
+    public double getMotor1Current()
+    {
+        currentMotor1.refresh();
+        return currentMotor1.getValueAsDouble();
+    }
+
+    @Override
+    public double getMotor2Current()
+    {
+        currentMotor2.refresh();
+        return currentMotor2.getValueAsDouble();
     }
 }

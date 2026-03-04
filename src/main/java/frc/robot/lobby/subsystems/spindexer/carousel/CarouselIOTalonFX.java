@@ -7,6 +7,7 @@ import static edu.wpi.first.units.Units.Seconds;
 import java.util.function.Supplier;
 
 import com.ctre.phoenix6.StatusSignal;
+import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
@@ -18,6 +19,7 @@ import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Temperature;
 import edu.wpi.first.units.measure.Time;
 import edu.wpi.first.units.measure.Voltage;
+import edu.wpi.first.wpilibj.PowerDistribution;
 
 public class CarouselIOTalonFX implements CarouselIO
 {
@@ -34,6 +36,7 @@ public class CarouselIOTalonFX implements CarouselIO
     private final Time jamTimeout;
     private double nanoTimeLastChecked = 0.0;
     private final double dejamSpeed;
+    private final StatusSignal<Current> motorCurrent;
 
     public CarouselIOTalonFX(CarouselConstants constants)
     {
@@ -54,6 +57,8 @@ public class CarouselIOTalonFX implements CarouselIO
         config.Feedback.SensorToMechanismRatio = kGearRatio;
 
         m_motor.getConfigurator().apply(config);
+        m_motor.getConfigurator().apply(
+                new CurrentLimitsConfigs().withStatorCurrentLimit(Amps.of(60.0)).withStatorCurrentLimitEnable(true));
 
         m_speed = kSpeed;
 
@@ -68,6 +73,7 @@ public class CarouselIOTalonFX implements CarouselIO
 
         m_velocityVoltage = new VelocityVoltage(0);
         dejamSpeed = kDejamSpeed;
+        motorCurrent = m_motor.getSupplyCurrent();
 
     }
 
@@ -143,5 +149,12 @@ public class CarouselIOTalonFX implements CarouselIO
     public void resetJamDetection()
     {
         nanoTimeLastChecked = System.nanoTime();
+    }
+
+    @Override
+    public double getCurrent()
+    {
+        motorCurrent.refresh();
+        return motorCurrent.getValueAsDouble();
     }
 }

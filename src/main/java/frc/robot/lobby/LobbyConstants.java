@@ -41,6 +41,7 @@ import edu.wpi.first.units.measure.Temperature;
 import edu.wpi.first.units.measure.Time;
 import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj.Filesystem;
+import edu.wpi.first.wpilibj.PowerDistribution.ModuleType;
 import frc.robot.FieldConstants;
 import frc.robot.lobby.generated.LobbyTunerConstants;
 import frc.robot.lobby.subsystems.intake.IntakeIO.IntakeIOParameters;
@@ -51,6 +52,12 @@ import frc.robot.lobby.subsystems.turret.suzie.SuzieIO.SuzieConstants;
 
 public class LobbyConstants
 {
+    public class PDHConstants
+    {
+        public static final int kPDHPort = 40;
+        public static final ModuleType kModuleType = ModuleType.kRev;
+    }
+
     public class DrivetrainConstants
     {
         public static final LinearVelocity kMaxSpeed = LobbyTunerConstants.kSpeedAt12Volts;
@@ -188,7 +195,7 @@ public class LobbyConstants
             private static double kGearRatio = 10;
             private static boolean kInverted = false;
             private static Angle kLowerSoftLimit = Degrees.of(0);
-            private static Angle kUpperSoftLimit = Degrees.of(20);
+            private static Angle kUpperSoftLimit = Degrees.of(180);
             private static Angle kErrorTolerance = Degrees.of(1);
             private static MotorArrangementValue kMotorArrangement = MotorArrangementValue.Minion_JST;
 
@@ -198,8 +205,8 @@ public class LobbyConstants
 
             // servo constants
             private static int kServoID = 9;
-            private static Angle kLowerServoLimit = Degrees.of(145);
-            private static Angle kUpperServoLimit = Degrees.of(-20);
+            private static Angle kLowerServoLimit = Degrees.of(0);
+            private static Angle kUpperServoLimit = Degrees.of(180);
             private static Angle kMechanismLowerAngle = Degrees.of(20);
             private static Angle kMechanismUpperAngle = Degrees.of(37);
 
@@ -229,7 +236,7 @@ public class LobbyConstants
             private static double kJerk = 0;
             private static boolean kMotor1Inverted = false;
             private static boolean kMotor2Inverted = true;
-            private static AngularVelocity kErrorTolerance = RotationsPerSecond.of(10);
+            private static AngularVelocity kErrorTolerance = RotationsPerSecond.of(5);
 
             public static ShooterConstants kKrakenConstants = new ShooterConstants(kMotor1ID, kMotor2ID, kS, kV, kA, kP,
                     kI, kD, kG, kCruiseVelocity, kAcceleration, kJerk, kMotor1Inverted, kMotor2Inverted,

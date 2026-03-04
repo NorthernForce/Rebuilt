@@ -3,6 +3,7 @@ package frc.robot.lobby.subsystems.spindexer.flicker;
 import static edu.wpi.first.units.Units.Amps;
 import static edu.wpi.first.units.Units.Seconds;
 
+import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.CommutationConfigs;
 import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
 import com.ctre.phoenix6.configs.MotorOutputConfigs;
@@ -12,8 +13,11 @@ import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.MotorArrangementValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
+import edu.wpi.first.hal.PowerDistributionStickyFaults;
 import edu.wpi.first.units.measure.Current;
+import edu.wpi.first.units.measure.Power;
 import edu.wpi.first.units.measure.Time;
+import edu.wpi.first.wpilibj.PowerDistribution;
 
 public class FlickerIOTalonFXS implements FlickerIO
 {
@@ -26,6 +30,7 @@ public class FlickerIOTalonFXS implements FlickerIO
     private final Current jamCurrentThreshold;
     private final Time jamTimeout;
     private final double dejamSpeed;
+    private final StatusSignal<Current> current;
 
     public FlickerIOTalonFXS(FlickerParameters parameters)
     {
@@ -42,6 +47,7 @@ public class FlickerIOTalonFXS implements FlickerIO
         m_motor.getConfigurator().apply(new MotorOutputConfigs().withNeutralMode(NeutralModeValue.Brake)
                 .withInverted(InvertedValue.Clockwise_Positive));
         dejamSpeed = parameters.dejamSpeed();
+        current = m_motor.getSupplyCurrent();
 
     }
 
@@ -105,5 +111,12 @@ public class FlickerIOTalonFXS implements FlickerIO
     public void resetJamDetection()
     {
         nanoTimeLastChecked = System.nanoTime();
+    }
+
+    @Override
+    public double getCurrent()
+    {
+        current.refresh();
+        return current.getValueAsDouble();
     }
 }
