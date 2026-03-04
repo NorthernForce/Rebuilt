@@ -43,7 +43,7 @@ public class LobbyOI
         drive.setDefaultCommand(drive.driveByJoystick(inputProc(driveController::getLeftY),
                 inputProc(driveController::getLeftX), inputProc(driveController::getRightX)));
         intake.setDefaultCommand(intake.stopIntake().andThen(intake.getRunToMidAngleCommand()));
-        spindexer.setDefaultCommand(new Agitate(spindexer));
+        // spindexer.setDefaultCommand(new Agitate(spindexer));
         // turret.setDefaultCommand(container.getTurret().runBasedOnLocation(() ->
         // drive.getState().Pose,
         // hood.getDangerZone(), hood.getTrenchPositions()));

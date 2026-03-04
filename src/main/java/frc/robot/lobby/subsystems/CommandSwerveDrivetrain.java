@@ -30,6 +30,8 @@ import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Transform2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
@@ -38,10 +40,12 @@ import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.LinearAcceleration;
 import edu.wpi.first.units.measure.LinearVelocity;
+import edu.wpi.first.units.measure.Time;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.Notifier;
 import edu.wpi.first.wpilibj.Preferences;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.Subsystem;
@@ -70,6 +74,11 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
     private static final Rotation2d kRedAlliancePerspectiveRotation = Rotation2d.k180deg;
     /* Keep track if we've ever applied the operator perspective before or not */
     private boolean m_hasAppliedOperatorPerspective = false;
+    private Time fgpaSeconds = Seconds.of(0);
+    private Pose2d lastPose = Pose2d.kZero;
+    private LinearVelocity velocity = MetersPerSecond.of(0);
+    private LinearVelocity xVelocity = MetersPerSecond.of(0);
+    private LinearVelocity yVelocity = MetersPerSecond.of(0);
 
     /** Swerve request to apply during robot-centric path following */
     private final SwerveRequest.ApplyRobotSpeeds m_pathApplyRobotSpeeds = new SwerveRequest.ApplyRobotSpeeds();
@@ -193,6 +202,41 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
     public Pose2d getPose()
     {
         return getState().Pose;
+    }
+
+    public LinearVelocity getVelocity()
+    {
+        return velocity;
+    }
+
+    public LinearVelocity getXVelocity()
+    {
+        return xVelocity;
+    }
+
+    public LinearVelocity getYVelocity()
+    {
+        return yVelocity;
+    }
+
+    /**
+     * Used to predict the future pose
+     * 
+     * @param amtTimeIntoTheFuture amount of time to predict
+     * @return the predicted pose
+     */
+
+    public Pose2d predictPose(Time amtTimeIntoTheFuture)
+    {
+        Pose2d currentPose = getPose();
+        Translation2d changeTranslation = (new Translation2d(
+                Meters.of(xVelocity.in(MetersPerSecond) * amtTimeIntoTheFuture.in(Seconds)),
+                Meters.of(yVelocity.in(MetersPerSecond) * amtTimeIntoTheFuture.in(Seconds))));
+        Pose2d newPose = new Pose2d(
+                Meters.of(currentPose.getMeasureX().in(Meters) + changeTranslation.getMeasureX().in(Meters)),
+                Meters.of(changeTranslation.getMeasureY().in(Meters) + currentPose.getMeasureY().in(Meters)),
+                currentPose.getRotation());
+        return newPose;
     }
 
     /**
@@ -338,6 +382,16 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
          * is disabled. This ensures driving behavior doesn't change until an explicit
          * disable event occurs during testing.
          */
+        Pose2d pose = getPose();
+        Time fgpa = Seconds.of(Timer.getFPGATimestamp());
+        Time deltaTime = fgpa.minus(fgpaSeconds);
+        xVelocity = MetersPerSecond
+                .of((pose.getMeasureX().in(Meters) - lastPose.getMeasureX().in(Meters)) / (deltaTime.in(Seconds)));
+        yVelocity = MetersPerSecond
+                .of((pose.getMeasureY().in(Meters) - lastPose.getMeasureY().in(Meters)) / (deltaTime.in(Seconds)));
+        velocity = MetersPerSecond.of(Math.hypot(xVelocity.in(MetersPerSecond), yVelocity.in(MetersPerSecond)));
+        lastPose = pose;
+        fgpaSeconds = fgpa;
         if (!m_hasAppliedOperatorPerspective || DriverStation.isDisabled())
         {
             DriverStation.getAlliance().ifPresent(allianceColor ->
