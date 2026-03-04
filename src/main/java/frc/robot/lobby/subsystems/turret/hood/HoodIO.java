@@ -88,4 +88,6 @@ public interface HoodIO
         }
         return false;
     }
+
+    public void setZeroLatch();
 }

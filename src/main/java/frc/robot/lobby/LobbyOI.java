@@ -52,7 +52,8 @@ public class LobbyOI
         driveController.back().onTrue(drive.resetOrientation());
 
         driveController.leftTrigger().whileTrue(intake.intakeMoving()).onFalse(intake.stopIntake());
-        driveController.rightTrigger().whileTrue(Commands.waitSeconds(0.25)
+        driveController.rightTrigger().whileTrue(Commands
+                .waitUntil(() -> turret.getSuzie().isAtTargetAngle() && turret.getShooter().isAtTargetSpeed())
                 .andThen(new RunSpindexer(container.getSpindexer(), LobbyConstants.SpindexerConstants.kDeJamTime))
                 .alongWith(new PrepTurretCommand(() -> drive.getPose(), turret)));
 
@@ -71,15 +72,12 @@ public class LobbyOI
 
         // driveController.leftTrigger().whileTrue(new
         // PrepTurretWithValues(turret));
-        // driveController.povUp().onTrue(Commands.runOnce(() ->
-        // {
-        // hood.setTargetAngle(Degrees.of(180));
-        // hood.start();
-        // }, hood)).onFalse(Commands.runOnce(() ->
-        // {
-        // hood.setTargetAngle(Degrees.zero());
-        // hood.start();
-        // }, hood));
+        driveController.povUp()
+                .onTrue(hood.setTargetMechanismAngle(Degrees.of(28.5))
+                        .andThen(Commands.runOnce(() -> hood.start(), turret.getHood())))
+                .onFalse(hood.setTargetMechanismAngle(Degrees.of(20))
+                        .andThen(Commands.runOnce(() -> hood.start(), turret.getHood())));
+        driveController.povDown().onTrue(Commands.runOnce(() -> hood.setZeroLatch()));
         // manipulatorController.leftTrigger().whileTrue(intake.getRunToIntakeAngleCommand());
         // intake.setDefaultCommand(intake.getRunToStowAngleCommand());
 

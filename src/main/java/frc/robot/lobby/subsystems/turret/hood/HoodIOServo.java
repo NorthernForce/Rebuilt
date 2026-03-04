@@ -72,34 +72,29 @@ public class HoodIOServo implements HoodIO
     }
 
     @Override
-    public void setTargetMechanismAngle(Angle angle)
+    public void setTargetMechanismAngle(Angle rawAngle)
     {
+        Angle angle;
+        if (rawAngle.gt(m_upperMechanismAngle))
+        {
+            angle = m_upperMechanismAngle;
+        } else if (rawAngle.lt(m_lowerMechanismAngle))
+        {
+            angle = m_lowerMechanismAngle;
+        } else
+        {
+            angle = rawAngle;
+        }
         Angle targetServoAngle = angle.minus(m_lowerMechanismAngle)
                 .div(m_upperMechanismAngle.minus(m_lowerMechanismAngle)).times(m_lowerSoftLimit.minus(m_upperSoftLimit))
-                .plus(m_lowerSoftLimit);
-        if (targetServoAngle.gt(m_lowerSoftLimit))
-        {
-            targetServoAngle = m_lowerSoftLimit;
-        } else if (targetServoAngle.lt(m_upperSoftLimit))
-        {
-            targetServoAngle = m_upperSoftLimit;
-        }
+                .plus(m_upperSoftLimit);
 
         m_targetAngle = targetServoAngle;
-        m_motor.setAngle(m_targetAngle.in(Degrees));
         DogLog.log("Turret/Hood/MechanismAngle",
                 (m_lowerSoftLimit.minus(angle).div(m_lowerSoftLimit.minus(m_upperSoftLimit))
                         .times(m_upperMechanismAngle.minus(m_lowerMechanismAngle)).plus(m_lowerMechanismAngle)));
         DogLog.log("Turret/Hood/SetTargetAngle", angle.in(Radians));
-        if (angle.lt(m_lowerSoftLimit))
-        {
-            angle = m_lowerSoftLimit;
-        } else if (angle.gt(m_upperSoftLimit))
-        {
-            angle = m_upperSoftLimit;
-        }
-        m_targetAngle = angle;
-        m_motor.setAngle(angle.in(Degrees));
+
     }
 
     @Override
@@ -130,5 +125,11 @@ public class HoodIOServo implements HoodIO
     public boolean isAtTargetAngle()
     {
         return true;
+    }
+
+    @Override
+    public void setZeroLatch()
+    {
+        m_motor.setZeroLatch();
     }
 }

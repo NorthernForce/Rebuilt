@@ -87,4 +87,9 @@ public class Hood extends SubsystemBase
     {
         io.update();
     }
+
+    public void setZeroLatch()
+    {
+        io.setZeroLatch();
+    }
 }
