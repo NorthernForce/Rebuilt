@@ -7,6 +7,7 @@ import static edu.wpi.first.units.Units.Seconds;
 import java.util.function.Supplier;
 
 import com.ctre.phoenix6.StatusSignal;
+import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
@@ -56,6 +57,8 @@ public class CarouselIOTalonFX implements CarouselIO
         config.Feedback.SensorToMechanismRatio = kGearRatio;
 
         m_motor.getConfigurator().apply(config);
+        m_motor.getConfigurator().apply(
+                new CurrentLimitsConfigs().withStatorCurrentLimit(Amps.of(60.0)).withStatorCurrentLimitEnable(true));
 
         m_speed = kSpeed;
 

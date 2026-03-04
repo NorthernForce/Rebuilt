@@ -80,6 +80,11 @@ public class Shooter extends SubsystemBase
         return io.getSpeed();
     }
 
+    public boolean isAtTargetSpeed()
+    {
+        return io.isAtTargetSpeed();
+    }
+
     public Command getSysIdQuasistaticForward()
     {
         return m_sysId.quasistatic(SysIdRoutine.Direction.kForward);

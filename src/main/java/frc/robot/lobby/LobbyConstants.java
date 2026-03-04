@@ -195,7 +195,7 @@ public class LobbyConstants
             private static double kGearRatio = 10;
             private static boolean kInverted = false;
             private static Angle kLowerSoftLimit = Degrees.of(0);
-            private static Angle kUpperSoftLimit = Degrees.of(20);
+            private static Angle kUpperSoftLimit = Degrees.of(180);
             private static Angle kErrorTolerance = Degrees.of(1);
             private static MotorArrangementValue kMotorArrangement = MotorArrangementValue.Minion_JST;
 
@@ -205,8 +205,8 @@ public class LobbyConstants
 
             // servo constants
             private static int kServoID = 9;
-            private static Angle kLowerServoLimit = Degrees.of(145);
-            private static Angle kUpperServoLimit = Degrees.of(-20);
+            private static Angle kLowerServoLimit = Degrees.of(0);
+            private static Angle kUpperServoLimit = Degrees.of(180);
             private static Angle kMechanismLowerAngle = Degrees.of(20);
             private static Angle kMechanismUpperAngle = Degrees.of(37);
 
@@ -236,7 +236,7 @@ public class LobbyConstants
             private static double kJerk = 0;
             private static boolean kMotor1Inverted = false;
             private static boolean kMotor2Inverted = true;
-            private static AngularVelocity kErrorTolerance = RotationsPerSecond.of(10);
+            private static AngularVelocity kErrorTolerance = RotationsPerSecond.of(5);
 
             public static ShooterConstants kKrakenConstants = new ShooterConstants(kMotor1ID, kMotor2ID, kS, kV, kA, kP,
                     kI, kD, kG, kCruiseVelocity, kAcceleration, kJerk, kMotor1Inverted, kMotor2Inverted,

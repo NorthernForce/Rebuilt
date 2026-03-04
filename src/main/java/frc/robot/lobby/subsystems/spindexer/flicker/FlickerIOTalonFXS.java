@@ -30,7 +30,7 @@ public class FlickerIOTalonFXS implements FlickerIO
     private final Current jamCurrentThreshold;
     private final Time jamTimeout;
     private final double dejamSpeed;
-    private final StatusSignal<Current> current; 
+    private final StatusSignal<Current> current;
 
     public FlickerIOTalonFXS(FlickerParameters parameters)
     {

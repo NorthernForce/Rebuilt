@@ -72,14 +72,14 @@ public class LobbyContainer implements NFRRobotContainer
     private Optional<String> teamActivity = Optional.empty();
     private final PowerDistribution powerDistributionHub = new PowerDistribution(LobbyConstants.PDHConstants.kPDHPort,
             LobbyConstants.PDHConstants.kModuleType);
-        private final StatusSignal<Current> flDriveCurrent;
-        private final StatusSignal<Current> flSteerCurrent;
-        private final StatusSignal<Current> frDriveCurrent;
-        private final StatusSignal<Current> frSteerCurrent;
-        private final StatusSignal<Current> blDriveCurrent;
-        private final StatusSignal<Current> blSteerCurrent;
-        private final StatusSignal<Current> brDriveCurrent;
-        private final StatusSignal<Current> brSteerCurrent;
+    private final StatusSignal<Current> flDriveCurrent;
+    private final StatusSignal<Current> flSteerCurrent;
+    private final StatusSignal<Current> frDriveCurrent;
+    private final StatusSignal<Current> frSteerCurrent;
+    private final StatusSignal<Current> blDriveCurrent;
+    private final StatusSignal<Current> blSteerCurrent;
+    private final StatusSignal<Current> brDriveCurrent;
+    private final StatusSignal<Current> brSteerCurrent;
 
     private InterpolatingDoubleTreeMap treeMap;
 
@@ -142,7 +142,8 @@ public class LobbyContainer implements NFRRobotContainer
                     new Suzie(new SuzieIOTalonFXS(LobbyConstants.Turret.Suzie.kMinionConstants)),
                     new Hood(new HoodIOServo(LobbyConstants.Turret.Hood.kServoConstants)),
                     new Shooter(new ShooterIOTalonFX(LobbyConstants.Turret.Shooter.kKrakenConstants)),
-                    new TestTargetingCalculator(), new InterpolatedTargetingCalculator(TargetingData.SHOOTER_DATA));
+                    new InterpolatedTargetingCalculator(TargetingData.HOOD_DATA),
+                    new InterpolatedTargetingCalculator(TargetingData.SHOOTER_DATA));
             spindexer = new Spindexer(
                     new CarouselIOTalonFX(new CarouselConstants(LobbyConstants.CarouselConstants.kMotorID,
                             LobbyConstants.CarouselConstants.kSpeed, LobbyConstants.CarouselConstants.kGearRatio,
@@ -225,7 +226,8 @@ public class LobbyContainer implements NFRRobotContainer
     @Override
     public void periodic()
     {
-        StatusSignal.refreshAll(flDriveCurrent, flSteerCurrent, frDriveCurrent, frSteerCurrent, blDriveCurrent, blSteerCurrent, brDriveCurrent, brSteerCurrent);
+        StatusSignal.refreshAll(flDriveCurrent, flSteerCurrent, frDriveCurrent, frSteerCurrent, blDriveCurrent,
+                blSteerCurrent, brDriveCurrent, brSteerCurrent);
         var state = drive.getState();
         Rotation2d currentHeading = state.Pose.getRotation();
         Rotation2d yawRate = Rotation2d.fromRadians(state.Speeds.omegaRadiansPerSecond);
@@ -297,16 +299,15 @@ public class LobbyContainer implements NFRRobotContainer
         DogLog.log("CurrentDraw/General/Voltage", powerDistributionHub.getVoltage());
         DogLog.log("CurrentDraw/General/TotalCurrent", powerDistributionHub.getTotalCurrent());
         int i = 0;
-        for (double current : powerDistributionHub.getAllCurrents())
-        {
-            DogLog.log("CurrentDraw/General/Channel" + i, current);
-            i++;
-        }
-        // NOTE: Per-subsystem current logging below uses CAN IDs as PDH channel numbers.
-        // These will only be correct if the motor's CAN ID matches its PDH port wiring.
-        // Use the generic channel logs above for accurate per-channel current data.
+        DogLog.log("CurrentDraw/PDH/Feeder", powerDistributionHub.getCurrent(8));
+        DogLog.log("CurrentDraw/PDH/Suzie", powerDistributionHub.getCurrent(9));
+        DogLog.log("CurrentDraw/PDH/LeftShooterMotor", powerDistributionHub.getCurrent(7));
+        DogLog.log("CurrentDraw/PDH/RightShooterMotor", powerDistributionHub.getCurrent(6));
+        DogLog.log("CurrentDraw/PDH/Suzie", powerDistributionHub.getCurrent(9));
+        DogLog.log("CurrentDraw/PDH/Carousel", powerDistributionHub.getCurrent(4));
         DogLog.log("CurrentDraw/Turret/Shooter/LeftMotor", turret.getShooter().getMotor1Current());
         DogLog.log("CurrentDraw/Turret/Shooter/RightMotor", turret.getShooter().getMotor2Current());
+        DogLog.log("Turret/Shooter/Speed", turret.getShooter().getSpeed());
 
         DogLog.log("CurrentDraw/Turret/Suzie", turret.getSuzie().getCurrent());
         DogLog.log("CurrentDraw/Intake/Rollers", intake.getRollerCurrent());
@@ -315,7 +316,7 @@ public class LobbyContainer implements NFRRobotContainer
         // turret.getHood().getCurrent(powerDistributionHub));
         DogLog.log("CurrentDraw/Spindexer/Feeder", spindexer.getFlicker().getCurrent());
         DogLog.log("CurrentDraw/Spindexer/Carousel", spindexer.getCarousel().getCurrent());
-        
+
         DogLog.log("CurrentDraw/DriveTrain/FrontLeft/Drive", flDriveCurrent.getValue().in(Amps));
         DogLog.log("CurrentDraw/DriveTrain/FrontLeft/Steer", flSteerCurrent.getValue().in(Amps));
         DogLog.log("CurrentDraw/DriveTrain/FrontRight/Drive", frDriveCurrent.getValue().in(Amps));

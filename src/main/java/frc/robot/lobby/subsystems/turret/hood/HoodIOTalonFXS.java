@@ -169,4 +169,10 @@ public class HoodIOTalonFXS implements HoodIO
     {
         return Math.abs(getTargetAngle().in(Degrees) - getAngle().in(Degrees)) < m_errorTolerance.in(Degrees);
     }
+
+    @Override
+    public void setZeroLatch()
+    {
+        m_motor.setPosition(Degrees.of(0));
+    }
 }
