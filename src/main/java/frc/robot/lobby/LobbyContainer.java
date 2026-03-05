@@ -5,12 +5,14 @@ import static edu.wpi.first.units.Units.Radians;
 import static edu.wpi.first.units.Units.Seconds;
 
 import java.util.Optional;
+import java.util.jar.Attributes.Name;
 
 import choreo.auto.AutoFactory;
 import choreo.auto.AutoRoutine;
 
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.Utils;
+import com.pathplanner.lib.auto.NamedCommands;
 import com.pathplanner.lib.commands.PathPlannerAuto;
 import dev.doglog.DogLog;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -39,12 +41,14 @@ import frc.robot.lobby.subsystems.spindexer.Spindexer.SpindexerParameters;
 import frc.robot.lobby.subsystems.spindexer.carousel.CarouselIO.CarouselConstants;
 import frc.robot.lobby.subsystems.spindexer.carousel.CarouselIOTalonFX;
 import frc.robot.lobby.subsystems.spindexer.carousel.CarouselIOTalonFXSim;
+import frc.robot.lobby.subsystems.spindexer.commands.RunSpindexer;
 import frc.robot.lobby.subsystems.spindexer.flicker.FlickerIOTalonFXS;
 import frc.robot.lobby.subsystems.spindexer.flicker.FlickerIOTalonFXSSim;
 import frc.robot.lobby.subsystems.spindexer.flicker.FlickerParameters;
 import frc.robot.lobby.subsystems.spindexer.flicker.FlickerSimParameters;
 import frc.robot.lobby.subsystems.turret.Turret;
 import frc.robot.lobby.subsystems.turret.Turret.TurretConstants;
+import frc.robot.lobby.subsystems.turret.commands.PrepTurretCommand;
 import frc.robot.lobby.subsystems.turret.hood.Hood;
 import frc.robot.lobby.subsystems.turret.hood.HoodIOServo;
 import frc.robot.lobby.subsystems.turret.shooter.Shooter;
@@ -172,7 +176,7 @@ public class LobbyContainer implements NFRRobotContainer
         autoUtil = new AutoUtil(drive, LobbyConstants.AutoConstants.xPid, LobbyConstants.AutoConstants.yPid,
                 LobbyConstants.AutoConstants.rPid);
         autoUtil.bindAutoDefault("TestAuto", this::testAuto);
-        autoUtil.bindAuto("ShmallAuto", new PathPlannerAuto("ShmallAuto"));
+        autoUtil.bindAuto("S1-DEPOT", new PathPlannerAuto("S1-DEPOT"));
 
         Shuffleboard.getTab("Developer").add(field);
         Shuffleboard.getTab("Developer").add("Reset Encoders", drive.resetEncoders());
@@ -326,6 +330,15 @@ public class LobbyContainer implements NFRRobotContainer
         DogLog.log("CurrentDraw/DriveTrain/BackLeft/Steer", blSteerCurrent.getValue().in(Amps));
         DogLog.log("CurrentDraw/DriveTrain/BackRight/Drive", brDriveCurrent.getValue().in(Amps));
         DogLog.log("CurrentDraw/DriveTrain/BackRight/Steer", brSteerCurrent.getValue().in(Amps));
+        NamedCommands.registerCommand("Shoot",
+                Commands.waitUntil(() -> turret.getSuzie().isAtTargetAngle() && turret.getShooter().isAtTargetSpeed())
+                        .andThen(new RunSpindexer(spindexer, LobbyConstants.SpindexerConstants.kDeJamTime))
+                        .alongWith(new PrepTurretCommand(() -> predictPose(), turret)));
+        NamedCommands.registerCommand("Intake", intake.intakeMoving());
+        NamedCommands.registerCommand("StopShoot",
+                Commands.runOnce(() -> turret.getShooter().stop(), turret.getShooter()));
+        NamedCommands.registerCommand("StopIntake", intake.stopIntake().andThen(intake.getRunToMidAngleCommand()));
+
     }
 
     @Override
