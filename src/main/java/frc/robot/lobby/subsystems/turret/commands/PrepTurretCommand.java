@@ -59,7 +59,8 @@ public class PrepTurretCommand extends Command
         } else
         {
             DogLog.log("Turret/Suzie/Target Angle Set", targetPose.suzieAngle().in(Degrees));
-            turret.setTargetPose(new TurretPose(targetPose.suzieAngle(), Degrees.of(0), targetPose.shooterSpeed()));
+            turret.setTargetPose(
+                    new TurretPose(targetPose.suzieAngle(), targetPose.hoodAngle(), targetPose.shooterSpeed()));
         }
 
         turret.start();

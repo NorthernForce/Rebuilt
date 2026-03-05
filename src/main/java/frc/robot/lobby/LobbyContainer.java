@@ -2,6 +2,8 @@ package frc.robot.lobby;
 
 import static edu.wpi.first.units.Units.Amps;
 import static edu.wpi.first.units.Units.Radians;
+import static edu.wpi.first.units.Units.Seconds;
+
 import java.util.Optional;
 
 import choreo.auto.AutoFactory;
@@ -16,6 +18,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
+import edu.wpi.first.networktables.DoubleSubscriber;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj.RobotController;
@@ -81,7 +84,7 @@ public class LobbyContainer implements NFRRobotContainer
     private final StatusSignal<Current> brDriveCurrent;
     private final StatusSignal<Current> brSteerCurrent;
 
-    private InterpolatingDoubleTreeMap treeMap;
+    private DoubleSubscriber predictionSeconds = DogLog.tunable("PredictionSeconds", 0.1);
 
     public LobbyContainer()
     {
@@ -170,11 +173,6 @@ public class LobbyContainer implements NFRRobotContainer
                 LobbyConstants.AutoConstants.rPid);
         autoUtil.bindAutoDefault("TestAuto", this::testAuto);
         autoUtil.bindAuto("ShmallAuto", new PathPlannerAuto("ShmallAuto"));
-
-        treeMap = new InterpolatingDoubleTreeMap();
-        treeMap.put(0.0, 0.0);
-        treeMap.put(1.0, 10.0);
-        treeMap.put(2.0, 30.0);
 
         Shuffleboard.getTab("Developer").add(field);
         Shuffleboard.getTab("Developer").add("Reset Encoders", drive.resetEncoders());
@@ -296,6 +294,9 @@ public class LobbyContainer implements NFRRobotContainer
             {
                 DogLog.log("GameData/GameShift", teamActivity.get().equals("inactive") ? "inactive" : "active");
             }
+        DogLog.log("PredictedPose", drive.predictPose(Seconds.of(predictionSeconds.get())));
+
+        DogLog.log("Velocity", drive.getVelocity());
         DogLog.log("CurrentDraw/General/Voltage", powerDistributionHub.getVoltage());
         DogLog.log("CurrentDraw/General/TotalCurrent", powerDistributionHub.getTotalCurrent());
         int i = 0;
@@ -331,6 +332,11 @@ public class LobbyContainer implements NFRRobotContainer
     public void bindOI()
     {
         new LobbyOI().bind(this);
+    }
+
+    public Pose2d predictPose()
+    {
+        return drive.predictPose(Seconds.of(predictionSeconds.get()));
     }
 
     @Override
