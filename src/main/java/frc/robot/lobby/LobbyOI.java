@@ -5,16 +5,19 @@ import static edu.wpi.first.units.Units.Meters;
 
 import java.util.function.DoubleSupplier;
 
-import dev.doglog.DogLog;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import frc.robot.lobby.subsystems.CommandSwerveDrivetrain;
+import frc.robot.lobby.subsystems.intake.Intake;
 import frc.robot.lobby.subsystems.spindexer.commands.Agitate;
 import frc.robot.lobby.subsystems.spindexer.commands.RunSpindexer;
 import frc.robot.lobby.subsystems.turret.commands.PrepTurretCommand;
 import frc.robot.lobby.subsystems.turret.commands.PrepTurretWithValues;
+import frc.robot.lobby.subsystems.turret.suzie.Suzie;
 
 public class LobbyOI
 {
@@ -31,26 +34,18 @@ public class LobbyOI
     {
         var driveController = new CommandXboxController(0);
         var manipulatorController = new CommandXboxController(1);
-
         var drive = container.getDrive();
         var intake = container.getIntake();
+
         var turret = container.getTurret();
         var spindexer = container.getSpindexer();
         var suzie = container.getTurret().getSuzie();
         var hood = container.getTurret().getHood();
         var shooter = container.getTurret().getShooter();
-
-        drive.setDefaultCommand(drive.driveByJoystick(inputProc(driveController::getLeftY),
-                inputProc(driveController::getLeftX), inputProc(driveController::getRightX)));
-        intake.setDefaultCommand(intake.stopIntake().andThen(intake.getRunToMidAngleCommand()));
-        // spindexer.setDefaultCommand(new Agitate(spindexer));
-        // turret.setDefaultCommand(container.getTurret().runBasedOnLocation(() ->
-        // drive.getState().Pose,
-        // hood.getDangerZone(), hood.getTrenchPositions()));
-        shooter.setDefaultCommand(Commands.run(() -> shooter.stop(), shooter));
-
-        driveController.back().onTrue(drive.resetOrientation());
-
+        manipulatorController.povLeft().whileTrue(Commands.runOnce(() -> suzie.setSpeed(0.05), suzie))
+                .onFalse(Commands.runOnce(() -> suzie.setSpeed(0), suzie));
+        manipulatorController.povRight().whileTrue(Commands.runOnce(() -> suzie.setSpeed(-0.05), suzie))
+                .onFalse(Commands.runOnce(() -> suzie.setSpeed(0), suzie));
         driveController.leftTrigger().whileTrue(intake.intakeMoving()).onFalse(intake.stopIntake());
         driveController.rightTrigger().whileTrue(Commands
                 .waitUntil(() -> turret.getSuzie().isAtTargetAngle() && turret.getShooter().isAtTargetSpeed())
@@ -68,34 +63,50 @@ public class LobbyOI
                 .andThen(new RunSpindexer(container.getSpindexer(), LobbyConstants.SpindexerConstants.kDeJamTime))
                 .alongWith(new PrepTurretCommand(() -> container.predictPose(), turret)));
 
-        // manipulatorController.b().onTrue(Commands.runOnce(() ->
-        // {
-        // DogLog.log("Turret/csvValue",
-        // turret.getHoodTargetingCalculator().getValueForDistance(5.0));
-        // }));
+        drive.setDefaultCommand(drive.driveByJoystick(inputProc(driveController::getLeftY),
+                inputProc(driveController::getLeftX), inputProc(driveController::getRightX)));
+        intake.setDefaultCommand(intake.stopIntake().andThen(intake.getRunToMidAngleCommand()));
+        // spindexer.setDefaultCommand(new Agitate(spindexer));
+        // turret.setDefaultCommand(container.getTurret().runBasedOnLocation(() ->
+        // drive.getState().Pose,
+        // hood.getDangerZone(), hood.getTrenchPositions()));
+        shooter.setDefaultCommand(Commands.run(() -> shooter.stop(), shooter));
 
-        // driveController.leftTrigger().whileTrue(new
-        // PrepTurretWithValues(turret));
-        // driveController.povUp()
-        // .onTrue(hood.setTargetMechanismAngle(Degrees.of(28.5))
-        // .andThen(Commands.runOnce(() -> hood.start(), turret.getHood())))
-        // .onFalse(hood.setTargetMechanismAngle(Degrees.of(20))
-        // .andThen(Commands.runOnce(() -> hood.start(), turret.getHood())));
-        // driveController.povDown().onTrue(Commands.runOnce(() ->
-        // hood.setZeroLatch()));
-        // manipulatorController.leftTrigger().whileTrue(intake.getRunToIntakeAngleCommand());
-        // intake.setDefaultCommand(intake.getRunToStowAngleCommand());
+        driveController.leftTrigger().whileTrue(intake.intakeMoving());
+        driveController.rightTrigger()
+                .whileTrue(new RunSpindexer(container.getSpindexer(), LobbyConstants.SpindexerConstants.kDeJamTime)
+                        .alongWith(new PrepTurretWithValues(container.getTurret())));
 
-        // manipulatorController.rightTrigger().whileTrue(new
-        // RunSpindexer(container.getSpindexer()));
-        // manipulatorController.leftBumper().whileTrue(new
-        // PrepTurretWithValues(turret));
+    }
 
-        // manipulatorController.a().onTrue(Commands.runOnce(() -> suzie.resetAngle()));
+    public void bindTest(LobbyContainer container)
+    {
+        CommandXboxController driveController = new CommandXboxController(0);
+        CommandXboxController manipulatorController = new CommandXboxController(1);
+        CommandSwerveDrivetrain drive = container.getDrive();
+        Intake intake = container.getIntake();
+        Suzie suzie = container.getTurret().getSuzie();
+        driveController.back().onTrue(drive.resetOrientation());
 
+        driveController.rightTrigger()
+                .whileTrue(new RunSpindexer(container.getSpindexer(), LobbyConstants.SpindexerConstants.kDeJamTime)
+                        .alongWith(new PrepTurretWithValues(container.getTurret())));
+        drive.setDefaultCommand(drive.driveByJoystick(inputProc(driveController::getLeftY),
+                inputProc(driveController::getLeftX), inputProc(driveController::getRightX)));
+
+        driveController.leftBumper()
+                .whileTrue(Commands.run(() -> container.getTurret().getHood().setSpeed(0.2, false)));
+
+        driveController.rightBumper()
+                .whileTrue(Commands.run(() -> container.getTurret().getHood().setSpeed(-0.2, false)));
+
+        driveController.leftTrigger().whileTrue(intake.intakeMoving());
+        intake.setDefaultCommand(intake.stopIntake());
         driveController.povLeft().whileTrue(Commands.runOnce(() -> suzie.setSpeed(0.05), suzie))
                 .onFalse(Commands.runOnce(() -> suzie.setSpeed(0), suzie));
         driveController.povRight().whileTrue(Commands.runOnce(() -> suzie.setSpeed(-0.05), suzie))
                 .onFalse(Commands.runOnce(() -> suzie.setSpeed(0), suzie));
+        driveController.a().onTrue(Commands.runOnce(() -> container
+                .resetOdometry(new Pose2d(Meters.of(0), Meters.of(0), new Rotation2d(Degrees.of(180))))));
     }
 }

@@ -331,7 +331,13 @@ public class LobbyContainer implements NFRRobotContainer
     @Override
     public void bindOI()
     {
-        new LobbyOI().bind(this);
+        if (DriverStation.isTest())
+        {
+            new LobbyOI().bindTest(this);
+        } else
+        {
+            new LobbyOI().bind(this);
+        }
     }
 
     public Pose2d predictPose()
