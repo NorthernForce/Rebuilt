@@ -31,7 +31,6 @@ import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
-import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
@@ -229,13 +228,15 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
     public Pose2d predictPose(Time amtTimeIntoTheFuture)
     {
         Pose2d currentPose = getPose();
-        Translation2d changeTranslation = (new Translation2d(
-                Meters.of(xVelocity.in(MetersPerSecond) * amtTimeIntoTheFuture.in(Seconds)),
-                Meters.of(yVelocity.in(MetersPerSecond) * amtTimeIntoTheFuture.in(Seconds))));
-        Pose2d newPose = new Pose2d(
-                Meters.of(currentPose.getMeasureX().in(Meters) + changeTranslation.getMeasureX().in(Meters)),
-                Meters.of(changeTranslation.getMeasureY().in(Meters) + currentPose.getMeasureY().in(Meters)),
-                currentPose.getRotation());
+        var speeds = getState().Speeds;
+        double dt = amtTimeIntoTheFuture.in(Seconds);
+        double cos = currentPose.getRotation().getCos();
+        double sin = currentPose.getRotation().getSin();
+        // Convert robot-relative ChassisSpeeds to field-relative velocities
+        double fieldVx = speeds.vxMetersPerSecond * cos - speeds.vyMetersPerSecond * sin;
+        double fieldVy = speeds.vxMetersPerSecond * sin + speeds.vyMetersPerSecond * cos;
+        Pose2d newPose = new Pose2d(currentPose.getX() + fieldVx * dt, currentPose.getY() + fieldVy * dt,
+                currentPose.getRotation().plus(Rotation2d.fromRadians(speeds.omegaRadiansPerSecond * dt)));
         return newPose;
     }
 
@@ -311,7 +312,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
 
             var config = RobotConfig.fromGUISettings();
             AutoBuilder.configure(() -> getState().Pose, // Supplier of current robot pose
-                    this::resetPose, // Consumer for seeding pose against auto
+                    pose -> resetTranslation(pose.getTranslation()), // Consumer for seeding pose against auto
                     () -> getState().Speeds, // Supplier of current robot speeds
                     // Consumer of ChassisSpeeds and feedforwards to drive the robot
                     (speeds, feedforwards) -> setControl(m_pathApplyRobotSpeeds.withSpeeds(speeds)
