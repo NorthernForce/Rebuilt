@@ -386,7 +386,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         Pose2d pose = getPose();
         Time fgpa = Seconds.of(Timer.getFPGATimestamp());
         Time deltaTime = fgpa.minus(fgpaSeconds);
-        if (deltaTime.in(Seconds) < 0.03)
+        if (deltaTime.in(Seconds) > 0.03)
         {
             xVelocity = MetersPerSecond
                     .of((pose.getMeasureX().in(Meters) - lastPose.getMeasureX().in(Meters)) / (deltaTime.in(Seconds)));
