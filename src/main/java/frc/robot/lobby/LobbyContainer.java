@@ -5,6 +5,7 @@ import static edu.wpi.first.units.Units.Radians;
 import static edu.wpi.first.units.Units.Seconds;
 
 import java.util.Optional;
+import java.util.jar.Attributes.Name;
 
 import choreo.auto.AutoFactory;
 import choreo.auto.AutoRoutine;
@@ -175,7 +176,7 @@ public class LobbyContainer implements NFRRobotContainer
         autoUtil = new AutoUtil(drive, LobbyConstants.AutoConstants.xPid, LobbyConstants.AutoConstants.yPid,
                 LobbyConstants.AutoConstants.rPid);
         autoUtil.bindAutoDefault("TestAuto", this::testAuto);
-        autoUtil.bindAuto("ShmallAuto", new PathPlannerAuto("ShmallAuto"));
+        autoUtil.bindAuto("S1-DEPOT", new PathPlannerAuto("S1-DEPOT"));
 
         Shuffleboard.getTab("Developer").add(field);
         Shuffleboard.getTab("Developer").add("Reset Encoders", drive.resetEncoders());
@@ -330,10 +331,13 @@ public class LobbyContainer implements NFRRobotContainer
         DogLog.log("CurrentDraw/DriveTrain/BackRight/Drive", brDriveCurrent.getValue().in(Amps));
         DogLog.log("CurrentDraw/DriveTrain/BackRight/Steer", brSteerCurrent.getValue().in(Amps));
         NamedCommands.registerCommand("Shoot",
-                Commands.waitSeconds(0.25)
-                        .andThen(new RunSpindexer(getSpindexer(), LobbyConstants.SpindexerConstants.kDeJamTime))
+                Commands.waitUntil(() -> turret.getSuzie().isAtTargetAngle() && turret.getShooter().isAtTargetSpeed())
+                        .andThen(new RunSpindexer(spindexer, LobbyConstants.SpindexerConstants.kDeJamTime))
                         .alongWith(new PrepTurretCommand(() -> predictPose(), turret)));
         NamedCommands.registerCommand("Intake", intake.intakeMoving());
+        NamedCommands.registerCommand("StopShoot",
+                Commands.runOnce(() -> turret.getShooter().stop(), turret.getShooter()));
+        NamedCommands.registerCommand("StopIntake", intake.stopIntake().andThen(intake.getRunToMidAngleCommand()));
 
     }
 
