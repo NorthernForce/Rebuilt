@@ -382,16 +382,20 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
          * is disabled. This ensures driving behavior doesn't change until an explicit
          * disable event occurs during testing.
          */
+
         Pose2d pose = getPose();
         Time fgpa = Seconds.of(Timer.getFPGATimestamp());
         Time deltaTime = fgpa.minus(fgpaSeconds);
-        xVelocity = MetersPerSecond
-                .of((pose.getMeasureX().in(Meters) - lastPose.getMeasureX().in(Meters)) / (deltaTime.in(Seconds)));
-        yVelocity = MetersPerSecond
-                .of((pose.getMeasureY().in(Meters) - lastPose.getMeasureY().in(Meters)) / (deltaTime.in(Seconds)));
-        velocity = MetersPerSecond.of(Math.hypot(xVelocity.in(MetersPerSecond), yVelocity.in(MetersPerSecond)));
-        lastPose = pose;
-        fgpaSeconds = fgpa;
+        if (deltaTime.in(Seconds) < 0.03)
+        {
+            xVelocity = MetersPerSecond
+                    .of((pose.getMeasureX().in(Meters) - lastPose.getMeasureX().in(Meters)) / (deltaTime.in(Seconds)));
+            yVelocity = MetersPerSecond
+                    .of((pose.getMeasureY().in(Meters) - lastPose.getMeasureY().in(Meters)) / (deltaTime.in(Seconds)));
+            velocity = MetersPerSecond.of(Math.hypot(xVelocity.in(MetersPerSecond), yVelocity.in(MetersPerSecond)));
+            lastPose = pose;
+            fgpaSeconds = fgpa;
+        }
         if (!m_hasAppliedOperatorPerspective || DriverStation.isDisabled())
         {
             DriverStation.getAlliance().ifPresent(allianceColor ->

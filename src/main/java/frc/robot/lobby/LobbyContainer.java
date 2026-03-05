@@ -295,7 +295,7 @@ public class LobbyContainer implements NFRRobotContainer
                 DogLog.log("GameData/GameShift", teamActivity.get().equals("inactive") ? "inactive" : "active");
             }
         DogLog.log("PredictedPose", drive.predictPose(Seconds.of(predictionSeconds.get())));
-        
+
         DogLog.log("Velocity", drive.getVelocity());
         DogLog.log("CurrentDraw/General/Voltage", powerDistributionHub.getVoltage());
         DogLog.log("CurrentDraw/General/TotalCurrent", powerDistributionHub.getTotalCurrent());
@@ -332,6 +332,11 @@ public class LobbyContainer implements NFRRobotContainer
     public void bindOI()
     {
         new LobbyOI().bind(this);
+    }
+
+    public Pose2d predictPose()
+    {
+        return drive.predictPose(Seconds.of(predictionSeconds.get()));
     }
 
     @Override

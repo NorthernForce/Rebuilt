@@ -137,8 +137,9 @@ public class Turret extends SubsystemBase
 
     public void setTargetPose(TurretPose pose)
     {
+        DogLog.log("Target Angle Being Set", pose.hoodAngle);
         suzie.setTargetAngle(pose.suzieAngle);
-        hood.setTargetAngle(pose.hoodAngle);
+        hood.setTargetMechanismAngle(pose.hoodAngle);
         shooter.setTargetSpeed(pose.shooterSpeed);
     }
 
@@ -179,7 +180,7 @@ public class Turret extends SubsystemBase
     {
         Distance shooterDistanceToHub = calculateShooterDistanceToHub(robotPose);
         Angle suzieAngle = calculateSuzieTargetAngle(robotPose, getHubPosition());
-        Angle hoodAngle = Radians.of(hoodCalculator.getValueForDistance(shooterDistanceToHub.in(Meters)));
+        Angle hoodAngle = Degrees.of(hoodCalculator.getValueForDistance(shooterDistanceToHub.in(Meters)));
         AngularVelocity shooterSpeed = RotationsPerSecond
                 .of(shooterCalculator.getValueForDistance(shooterDistanceToHub.in(Meters)));
 
