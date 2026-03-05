@@ -1,18 +1,25 @@
 package frc.robot.lobby.subsystems.turret.shooter;
 
 import static edu.wpi.first.units.Units.RotationsPerSecond;
+import static edu.wpi.first.units.Units.Volts;
+
+import com.ctre.phoenix6.SignalLogger;
+import com.ctre.phoenix6.controls.VoltageOut;
 
 import dev.doglog.DogLog;
 import edu.wpi.first.networktables.DoubleSubscriber;
 import edu.wpi.first.units.measure.AngularVelocity;
+import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 
 public class Shooter extends SubsystemBase
 {
     protected final ShooterIO io;
     protected final DoubleSubscriber m_targetVelocityOverride;
     protected final DoubleSubscriber m_targetDutyCycleOverride;
+    protected final SysIdRoutine m_sysId;
 
     public Shooter(ShooterIO io)
     {
@@ -26,6 +33,16 @@ public class Shooter extends SubsystemBase
         {
             setTargetDutyCycle(newDutyCycle);
         });
+        m_sysId = new SysIdRoutine(new SysIdRoutine.Config(null, // Use default ramp rate (1 V/s)
+                Volts.of(4), // Reduce dynamic step voltage to 4 V
+                null, // Use default timeout (10 s)
+                state -> DogLog.log("Shooter_SysId_State", state.toString()) // Log state with SignalLogger class
+        ), new SysIdRoutine.Mechanism(output -> io.setMotorControl(new VoltageOut(output)), // Apply voltage
+                                                                                            // output to motor
+                log -> log.motor("Shooter").voltage(io.getVoltage()).angularPosition(io.getPosition())
+                        .angularVelocity(io.getSpeed()), // Log motor voltage, position, and velocity
+                this // Require this subsystem
+        ));
     }
 
     public ShooterIO getIO()
@@ -38,14 +55,14 @@ public class Shooter extends SubsystemBase
         return io.getTargetSpeed();
     }
 
-    public Command start()
+    public void start()
     {
-        return run(() -> io.start());
+        io.start();
     }
 
-    public Command stop()
+    public void stop()
     {
-        return run(() -> io.stop());
+        io.stop();
     }
 
     public void setTargetSpeed(AngularVelocity speed)
@@ -61,6 +78,41 @@ public class Shooter extends SubsystemBase
     public AngularVelocity getSpeed()
     {
         return io.getSpeed();
+    }
+
+    public boolean isAtTargetSpeed()
+    {
+        return io.isAtTargetSpeed();
+    }
+
+    public Command getSysIdQuasistaticForward()
+    {
+        return m_sysId.quasistatic(SysIdRoutine.Direction.kForward);
+    }
+
+    public Command getSysIdQuasistaticReverse()
+    {
+        return m_sysId.quasistatic(SysIdRoutine.Direction.kReverse);
+    }
+
+    public Command getSysIdDynamicForward()
+    {
+        return m_sysId.dynamic(SysIdRoutine.Direction.kForward);
+    }
+
+    public Command getSysIdDynamicReverse()
+    {
+        return m_sysId.dynamic(SysIdRoutine.Direction.kReverse);
+    }
+
+    public double getMotor1Current()
+    {
+        return io.getMotor1Current();
+    }
+
+    public double getMotor2Current()
+    {
+        return io.getMotor2Current();
     }
 
     @Override

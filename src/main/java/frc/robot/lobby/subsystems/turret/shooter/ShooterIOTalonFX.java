@@ -2,25 +2,30 @@ package frc.robot.lobby.subsystems.turret.shooter;
 
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 
+import java.io.ObjectInputFilter.Status;
 import java.util.function.Supplier;
 
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.MotorOutputConfigs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
+import com.ctre.phoenix6.controls.ControlRequest;
 import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
 
+import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Temperature;
 import edu.wpi.first.units.measure.Voltage;
+import edu.wpi.first.wpilibj.PowerDistribution;
 import frc.robot.util.TunablePID;
 
 public class ShooterIOTalonFX implements ShooterIO
 {
     protected final TalonFX m_motor1;
     protected final TalonFX m_motor2;
+    protected final StatusSignal<Angle> m_position;
     protected final StatusSignal<Temperature> m_temperature;
     protected final StatusSignal<Voltage> m_voltage;
     protected final StatusSignal<Current> m_current;
@@ -35,6 +40,8 @@ public class ShooterIOTalonFX implements ShooterIO
     protected double tempKD = 0;
     protected double tempKV = 0;
     protected double tempKA = 0;
+    protected StatusSignal<Current> currentMotor1;
+    protected StatusSignal<Current> currentMotor2;
 
     private AngularVelocity m_targetSpeed = RotationsPerSecond.of(0);
 
@@ -62,6 +69,8 @@ public class ShooterIOTalonFX implements ShooterIO
         slot0Configs.kI = kI;
         slot0Configs.kD = kD;
         slot0Configs.kG = kG;
+        config.CurrentLimits.StatorCurrentLimit = 60.0;
+        config.CurrentLimits.StatorCurrentLimitEnable = true;
 
         // var motionMagicConfigs = config.MotionMagic;
         // motionMagicConfigs.MotionMagicCruiseVelocity = kCruiseVelocity;
@@ -76,6 +85,7 @@ public class ShooterIOTalonFX implements ShooterIO
         m_motor2.getConfigurator().apply(new MotorOutputConfigs().withInverted(
                 kMotor2Inverted ? InvertedValue.CounterClockwise_Positive : InvertedValue.Clockwise_Positive));
 
+        m_position = m_motor1.getPosition();
         m_temperature = m_motor1.getDeviceTemp();
         m_voltage = m_motor1.getMotorVoltage();
         m_current = m_motor1.getTorqueCurrent();
@@ -87,12 +97,21 @@ public class ShooterIOTalonFX implements ShooterIO
 
         TunablePID.createBasic("Turret/Shooter/Motor1PID", m_motor1, config);
         TunablePID.createBasic("Turret/Shooter/Motor2PID", m_motor2, config);
+        currentMotor1 = m_motor1.getSupplyCurrent();
+        currentMotor2 = m_motor2.getSupplyCurrent();
     }
 
     @Override
     public void update()
     {
-        StatusSignal.refreshAll(m_temperature, m_voltage, m_current, m_velocity);
+        StatusSignal.refreshAll(m_position, m_temperature, m_voltage, m_current, m_velocity);
+    }
+
+    @Override
+    public void setMotorControl(ControlRequest request)
+    {
+        m_motor1.setControl(request);
+        m_motor2.setControl(request);
     }
 
     @Override
@@ -135,6 +154,18 @@ public class ShooterIOTalonFX implements ShooterIO
     }
 
     @Override
+    public Voltage getVoltage()
+    {
+        return m_voltage.getValue();
+    }
+
+    @Override
+    public Angle getPosition()
+    {
+        return m_position.getValue();
+    }
+
+    @Override
     public void start()
     {
         if (lastSetType.equals("dutyCycle"))
@@ -153,5 +184,19 @@ public class ShooterIOTalonFX implements ShooterIO
     {
         m_motor1.stopMotor();
         m_motor2.stopMotor();
+    }
+
+    @Override
+    public double getMotor1Current()
+    {
+        currentMotor1.refresh();
+        return currentMotor1.getValueAsDouble();
+    }
+
+    @Override
+    public double getMotor2Current()
+    {
+        currentMotor2.refresh();
+        return currentMotor2.getValueAsDouble();
     }
 }
