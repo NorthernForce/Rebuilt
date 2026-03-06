@@ -65,6 +65,10 @@ public interface SuzieIO
     {
     }
 
+    public default void resetCRT()
+    {
+    }
+
     public default Voltage getVoltage()
     {
         return Volts.of(0);

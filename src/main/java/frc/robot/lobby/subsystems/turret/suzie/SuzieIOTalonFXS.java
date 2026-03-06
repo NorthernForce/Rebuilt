@@ -168,6 +168,12 @@ public class SuzieIOTalonFXS implements SuzieIO
     }
 
     @Override
+    public void resetCRT()
+    {
+        crtUsed = false;
+    }
+
+    @Override
     public void setTargetAngle(Angle angle)
     {
         m_targetAngle = angle;

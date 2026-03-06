@@ -173,6 +173,15 @@ public class LobbyContainer implements NFRRobotContainer
 
         field = new Field2d();
         driveToPoseCommand = new DriveToPoseWithVision(drive);
+        NamedCommands.registerCommand("Shoot",
+                Commands.waitUntil(() -> turret.getSuzie().isAtTargetAngle() && turret.getShooter().isAtTargetSpeed())
+                        .andThen(new RunSpindexer(spindexer, LobbyConstants.SpindexerConstants.kDeJamTime))
+                        .alongWith(new PrepTurretCommand(() -> predictPose(), turret)));
+        NamedCommands.registerCommand("Intake", intake.intakeMoving());
+        NamedCommands.registerCommand("StopShoot",
+                Commands.runOnce(() -> turret.getShooter().stop(), turret.getShooter()));
+        NamedCommands.registerCommand("StopIntake", intake.stopIntake().andThen(intake.getRunToMidAngleCommand()));
+
         autoUtil = new AutoUtil(drive, LobbyConstants.AutoConstants.xPid, LobbyConstants.AutoConstants.yPid,
                 LobbyConstants.AutoConstants.rPid);
         autoUtil.bindAutoDefault("TestAuto", this::testAuto);
@@ -198,6 +207,7 @@ public class LobbyContainer implements NFRRobotContainer
                 intake.sysIdArmQuasistatic(SysIdRoutine.Direction.kReverse));
         Shuffleboard.getTab("SysId").add("Arm Dynamic Fwd", intake.sysIdArmDynamic(SysIdRoutine.Direction.kForward));
         Shuffleboard.getTab("SysId").add("Arm Dynamic Rev", intake.sysIdArmDynamic(SysIdRoutine.Direction.kReverse));
+
     }
 
     /**
@@ -330,15 +340,6 @@ public class LobbyContainer implements NFRRobotContainer
         DogLog.log("CurrentDraw/DriveTrain/BackLeft/Steer", blSteerCurrent.getValue().in(Amps));
         DogLog.log("CurrentDraw/DriveTrain/BackRight/Drive", brDriveCurrent.getValue().in(Amps));
         DogLog.log("CurrentDraw/DriveTrain/BackRight/Steer", brSteerCurrent.getValue().in(Amps));
-        NamedCommands.registerCommand("Shoot",
-                Commands.waitUntil(() -> turret.getSuzie().isAtTargetAngle() && turret.getShooter().isAtTargetSpeed())
-                        .andThen(new RunSpindexer(spindexer, LobbyConstants.SpindexerConstants.kDeJamTime))
-                        .alongWith(new PrepTurretCommand(() -> predictPose(), turret)));
-        NamedCommands.registerCommand("Intake", intake.intakeMoving());
-        NamedCommands.registerCommand("StopShoot",
-                Commands.runOnce(() -> turret.getShooter().stop(), turret.getShooter()));
-        NamedCommands.registerCommand("StopIntake", intake.stopIntake().andThen(intake.getRunToMidAngleCommand()));
-
     }
 
     @Override

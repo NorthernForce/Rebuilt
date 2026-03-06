@@ -57,6 +57,8 @@ public class LobbyOI
                 .andThen(new RunSpindexer(container.getSpindexer(), LobbyConstants.SpindexerConstants.kDeJamTime))
                 .alongWith(new PrepTurretCommand(() -> container.predictPose(), turret)));
 
+        driveController.start().onTrue(Commands.runOnce(() -> suzie.resetCRT()));
+
         manipulatorController.leftStick().whileTrue(intake.driveByJoystick(() -> manipulatorController.getLeftY()));
 
         manipulatorController.leftBumper().whileTrue(new PrepTurretWithValues(turret));
