@@ -1,6 +1,7 @@
 package frc.robot.lobby;
 
 import static edu.wpi.first.units.Units.Amps;
+import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.Radians;
 import static edu.wpi.first.units.Units.Seconds;
 
@@ -11,13 +12,13 @@ import choreo.auto.AutoRoutine;
 
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.Utils;
+import com.pathplanner.lib.auto.NamedCommands;
 import com.pathplanner.lib.commands.PathPlannerAuto;
 import dev.doglog.DogLog;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.units.measure.Current;
-import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
 import edu.wpi.first.networktables.DoubleSubscriber;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.PowerDistribution;
@@ -27,6 +28,7 @@ import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
+import frc.robot.lobby.autos.SimpleAuto;
 import frc.robot.lobby.generated.LobbyTunerConstants;
 import frc.robot.lobby.subsystems.CommandSwerveDrivetrain;
 import frc.robot.lobby.subsystems.apriltagvision.*;
@@ -39,12 +41,14 @@ import frc.robot.lobby.subsystems.spindexer.Spindexer.SpindexerParameters;
 import frc.robot.lobby.subsystems.spindexer.carousel.CarouselIO.CarouselConstants;
 import frc.robot.lobby.subsystems.spindexer.carousel.CarouselIOTalonFX;
 import frc.robot.lobby.subsystems.spindexer.carousel.CarouselIOTalonFXSim;
+import frc.robot.lobby.subsystems.spindexer.commands.RunSpindexer;
 import frc.robot.lobby.subsystems.spindexer.flicker.FlickerIOTalonFXS;
 import frc.robot.lobby.subsystems.spindexer.flicker.FlickerIOTalonFXSSim;
 import frc.robot.lobby.subsystems.spindexer.flicker.FlickerParameters;
 import frc.robot.lobby.subsystems.spindexer.flicker.FlickerSimParameters;
 import frc.robot.lobby.subsystems.turret.Turret;
 import frc.robot.lobby.subsystems.turret.Turret.TurretConstants;
+import frc.robot.lobby.subsystems.turret.commands.PrepTurretCommand;
 import frc.robot.lobby.subsystems.turret.hood.Hood;
 import frc.robot.lobby.subsystems.turret.hood.HoodIOServo;
 import frc.robot.lobby.subsystems.turret.shooter.Shooter;
@@ -56,7 +60,6 @@ import frc.robot.lobby.subsystems.turret.suzie.SuzieIOTalonFXSSim;
 import frc.robot.lobby.subsystems.turret.hood.HoodIOServoSim;
 import frc.robot.util.AutoUtil;
 import frc.robot.util.InterpolatedTargetingCalculator;
-import frc.robot.util.TestTargetingCalculator;
 import frc.robot.util.TrigHoodTargetingCalculator;
 import org.northernforce.util.NFRRobotContainer;
 import org.photonvision.simulation.SimCameraProperties;
@@ -84,7 +87,7 @@ public class LobbyContainer implements NFRRobotContainer
     private final StatusSignal<Current> brDriveCurrent;
     private final StatusSignal<Current> brSteerCurrent;
 
-    private DoubleSubscriber predictionSeconds = DogLog.tunable("PredictionSeconds", 0.1);
+    private DoubleSubscriber predictionSeconds = DogLog.tunable("PredictionSeconds", 1.0);
 
     public LobbyContainer()
     {
@@ -169,10 +172,26 @@ public class LobbyContainer implements NFRRobotContainer
 
         field = new Field2d();
         driveToPoseCommand = new DriveToPoseWithVision(drive);
+        NamedCommands.registerCommand("Shoot",
+                Commands.waitUntil(() -> turret.getSuzie().isAtTargetAngle() && turret.getShooter().isAtTargetSpeed())
+                        .andThen(new RunSpindexer(getSpindexer(), LobbyConstants.SpindexerConstants.kDeJamTime))
+                        .alongWith(new PrepTurretCommand(() -> predictPose(), turret)));
+        NamedCommands.registerCommand("Intake", intake.intakeMoving());
+        NamedCommands.registerCommand("StopShoot",
+                Commands.runOnce(() -> turret.getShooter().stop(), turret.getShooter()));
+        NamedCommands.registerCommand("StopIntake", intake.stopIntake().andThen(intake.getRunToMidAngleCommand()));
+
         autoUtil = new AutoUtil(drive, LobbyConstants.AutoConstants.xPid, LobbyConstants.AutoConstants.yPid,
                 LobbyConstants.AutoConstants.rPid);
-        autoUtil.bindAutoDefault("TestAuto", this::testAuto);
-        autoUtil.bindAuto("ShmallAuto", new PathPlannerAuto("ShmallAuto"));
+        autoUtil.bindAutoDefault("DO NOTHING", Commands.runOnce(
+                () -> resetOdometry(new Pose2d(drive.getPose().getTranslation(), new Rotation2d(Degrees.of(0))))));
+        autoUtil.bindAuto("S1-DEPOT", new PathPlannerAuto("S1-DEPOT"));
+        autoUtil.bindAuto("S2-DEPOT", new PathPlannerAuto("S2-DEPOT"));
+        autoUtil.bindAuto("S1-SHOOT", new PathPlannerAuto("S1-SHOOT"));
+        autoUtil.bindAuto("S3-SHOOT", new PathPlannerAuto("S3-SHOOT"));
+        autoUtil.bindAuto("S1-SHOOT-DEPOT", new PathPlannerAuto("S1-SHOOT-DEPOT"));
+        autoUtil.bindAuto("S1-SIMPLE", new SimpleAuto(this, new PathPlannerAuto("S1-SHOOT").getStartingPose()));
+        autoUtil.bindAuto("S3-SIMPLE", new SimpleAuto(this, new PathPlannerAuto("S3-SHOOT").getStartingPose()));
 
         Shuffleboard.getTab("Developer").add(field);
         Shuffleboard.getTab("Developer").add("Reset Encoders", drive.resetEncoders());
@@ -194,6 +213,7 @@ public class LobbyContainer implements NFRRobotContainer
                 intake.sysIdArmQuasistatic(SysIdRoutine.Direction.kReverse));
         Shuffleboard.getTab("SysId").add("Arm Dynamic Fwd", intake.sysIdArmDynamic(SysIdRoutine.Direction.kForward));
         Shuffleboard.getTab("SysId").add("Arm Dynamic Rev", intake.sysIdArmDynamic(SysIdRoutine.Direction.kReverse));
+
     }
 
     /**
@@ -299,7 +319,6 @@ public class LobbyContainer implements NFRRobotContainer
         DogLog.log("Velocity", drive.getVelocity());
         DogLog.log("CurrentDraw/General/Voltage", powerDistributionHub.getVoltage());
         DogLog.log("CurrentDraw/General/TotalCurrent", powerDistributionHub.getTotalCurrent());
-        int i = 0;
         DogLog.log("CurrentDraw/PDH/Feeder", powerDistributionHub.getCurrent(8));
         DogLog.log("CurrentDraw/PDH/Suzie", powerDistributionHub.getCurrent(9));
         DogLog.log("CurrentDraw/PDH/LeftShooterMotor", powerDistributionHub.getCurrent(7));

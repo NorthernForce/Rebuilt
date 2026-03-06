@@ -40,7 +40,6 @@ import edu.wpi.first.units.measure.LinearVelocity;
 import edu.wpi.first.units.measure.Temperature;
 import edu.wpi.first.units.measure.Time;
 import edu.wpi.first.units.measure.Voltage;
-import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.PowerDistribution.ModuleType;
 import frc.robot.FieldConstants;
 import frc.robot.lobby.generated.LobbyTunerConstants;
@@ -104,6 +103,13 @@ public class LobbyConstants
         {
             rPid.enableContinuousInput(0, 2 * Math.PI);
         }
+
+        public static final Pose2d S1 = new Pose2d(new Translation2d(Meters.of(3.625), Meters.of(7.200)),
+                new Rotation2d(Degrees.of(0)));
+        public static final Pose2d S2 = new Pose2d(new Translation2d(Meters.of(3.625), Meters.of(4.025)),
+                new Rotation2d(Degrees.of(0)));
+        public static final Pose2d S3 = new Pose2d(new Translation2d(Meters.of(3.625), Meters.of(0.840)),
+                new Rotation2d(Degrees.of(0)));
     }
 
     public static class CameraConstants
@@ -225,9 +231,9 @@ public class LobbyConstants
             private static int kMotor1ID = 20;
             private static int kMotor2ID = 21;
             private static double kS = 0;
-            private static double kV = 0.115;
-            private static double kA = 1;
-            private static double kP = 0.55;
+            private static double kV = 0.13;
+            private static double kA = 0;
+            private static double kP = 0;
             private static double kI = 0;
             private static double kD = 0;
             private static double kG = 0;

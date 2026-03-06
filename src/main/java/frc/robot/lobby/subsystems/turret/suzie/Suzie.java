@@ -89,6 +89,11 @@ public class Suzie extends SubsystemBase
         io.setTargetAngle(angle);
     }
 
+    public void resetCRT()
+    {
+        io.resetCRT();
+    }
+
     public Command getSysIdQuasistaticForward()
     {
         return constructFullSysIdCommand(m_sysId.quasistatic(SysIdRoutine.Direction.kForward));
