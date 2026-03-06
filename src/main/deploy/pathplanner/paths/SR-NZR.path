@@ -3,32 +3,16 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 2.5,
-        "y": 2.0
-      },
-      "prevControl": null,
-      "nextControl": {
-        "x": 2.5,
-        "y": 1.0
-      },
-      "isLocked": false,
-      "linkedName": "SR"
-    },
-    {
-      "anchor": {
         "x": 3.625,
         "y": 0.625
       },
-      "prevControl": {
-        "x": 2.875,
-        "y": 0.6250000000000001
-      },
+      "prevControl": null,
       "nextControl": {
         "x": 5.625,
         "y": 0.625
       },
       "isLocked": false,
-      "linkedName": "R-TRENCH"
+      "linkedName": "SR"
     },
     {
       "anchor": {
@@ -37,7 +21,7 @@
       },
       "prevControl": {
         "x": 7.75,
-        "y": 1.0000000000000002
+        "y": 0.75
       },
       "nextControl": null,
       "isLocked": false,
@@ -46,15 +30,11 @@
   ],
   "rotationTargets": [
     {
+      "waypointRelativePos": 0.3,
+      "rotationDegrees": 90.0
+    },
+    {
       "waypointRelativePos": 1.0,
-      "rotationDegrees": 90.0
-    },
-    {
-      "waypointRelativePos": 1.25,
-      "rotationDegrees": 90.0
-    },
-    {
-      "waypointRelativePos": 2.0,
       "rotationDegrees": 180.0
     }
   ],

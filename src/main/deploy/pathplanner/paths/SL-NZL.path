@@ -3,32 +3,16 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 2.5,
-        "y": 6.0
-      },
-      "prevControl": null,
-      "nextControl": {
-        "x": 2.5,
-        "y": 7.0
-      },
-      "isLocked": false,
-      "linkedName": "SL"
-    },
-    {
-      "anchor": {
         "x": 3.625,
         "y": 7.375
       },
-      "prevControl": {
-        "x": 2.875,
-        "y": 7.375
-      },
+      "prevControl": null,
       "nextControl": {
         "x": 5.625,
         "y": 7.375
       },
       "isLocked": false,
-      "linkedName": "L-TRENCH"
+      "linkedName": "SL"
     },
     {
       "anchor": {
@@ -37,7 +21,7 @@
       },
       "prevControl": {
         "x": 7.75,
-        "y": 6.999999999999999
+        "y": 7.25
       },
       "nextControl": null,
       "isLocked": false,
@@ -46,15 +30,11 @@
   ],
   "rotationTargets": [
     {
+      "waypointRelativePos": 0.3,
+      "rotationDegrees": 90.0
+    },
+    {
       "waypointRelativePos": 1.0,
-      "rotationDegrees": 90.0
-    },
-    {
-      "waypointRelativePos": 1.25,
-      "rotationDegrees": 90.0
-    },
-    {
-      "waypointRelativePos": 2.0,
       "rotationDegrees": 0.0
     }
   ],

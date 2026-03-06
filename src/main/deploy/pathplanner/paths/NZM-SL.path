@@ -24,8 +24,8 @@
         "y": 6.5732233047033635
       },
       "nextControl": {
-        "x": 7.573223304703365,
-        "y": 6.926776695296635
+        "x": 7.2196699141100895,
+        "y": 7.2803300858899105
       },
       "isLocked": false,
       "linkedName": "NZL"
@@ -39,22 +39,6 @@
         "x": 5.625,
         "y": 7.375
       },
-      "nextControl": {
-        "x": 2.875,
-        "y": 7.375
-      },
-      "isLocked": false,
-      "linkedName": "L-TRENCH"
-    },
-    {
-      "anchor": {
-        "x": 2.5,
-        "y": 6.0
-      },
-      "prevControl": {
-        "x": 2.5,
-        "y": 6.5
-      },
       "nextControl": null,
       "isLocked": false,
       "linkedName": "SL"
@@ -62,11 +46,7 @@
   ],
   "rotationTargets": [
     {
-      "waypointRelativePos": 1.75,
-      "rotationDegrees": 90.0
-    },
-    {
-      "waypointRelativePos": 2.0,
+      "waypointRelativePos": 1.6,
       "rotationDegrees": 90.0
     }
   ],

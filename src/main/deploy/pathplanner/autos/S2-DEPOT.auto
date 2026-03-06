@@ -5,24 +5,6 @@
     "data": {
       "commands": [
         {
-          "type": "named",
-          "data": {
-            "name": "Shoot"
-          }
-        },
-        {
-          "type": "wait",
-          "data": {
-            "waitTime": 1.25
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "StopShoot"
-          }
-        },
-        {
           "type": "deadline",
           "data": {
             "commands": [
@@ -44,25 +26,7 @@
         {
           "type": "named",
           "data": {
-            "name": "StopIntake"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
             "name": "Shoot"
-          }
-        },
-        {
-          "type": "wait",
-          "data": {
-            "waitTime": 2.0
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "StopShoot"
           }
         }
       ]

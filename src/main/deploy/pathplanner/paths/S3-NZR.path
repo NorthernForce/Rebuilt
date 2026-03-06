@@ -4,12 +4,12 @@
     {
       "anchor": {
         "x": 3.625,
-        "y": 0.42
+        "y": 0.84
       },
       "prevControl": null,
       "nextControl": {
-        "x": 4.624999999999999,
-        "y": 0.42
+        "x": 4.4910254037844375,
+        "y": 0.3400000000000007
       },
       "isLocked": false,
       "linkedName": "S3"

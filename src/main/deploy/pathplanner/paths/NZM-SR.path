@@ -24,8 +24,8 @@
         "y": 1.426776695296637
       },
       "nextControl": {
-        "x": 7.5732233047033635,
-        "y": 1.073223304703363
+        "x": 7.042893218813454,
+        "y": 0.5428932188134514
       },
       "isLocked": false,
       "linkedName": "NZR"
@@ -39,22 +39,6 @@
         "x": 5.625,
         "y": 0.6249999999999998
       },
-      "nextControl": {
-        "x": 2.875,
-        "y": 0.6250000000000001
-      },
-      "isLocked": false,
-      "linkedName": "R-TRENCH"
-    },
-    {
-      "anchor": {
-        "x": 2.5,
-        "y": 2.0
-      },
-      "prevControl": {
-        "x": 2.5,
-        "y": 1.0
-      },
       "nextControl": null,
       "isLocked": false,
       "linkedName": "SR"
@@ -62,11 +46,7 @@
   ],
   "rotationTargets": [
     {
-      "waypointRelativePos": 1.75,
-      "rotationDegrees": 90.0
-    },
-    {
-      "waypointRelativePos": 2.0,
+      "waypointRelativePos": 1.6,
       "rotationDegrees": 90.0
     }
   ],
