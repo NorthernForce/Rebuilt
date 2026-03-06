@@ -8,14 +8,14 @@ import frc.robot.lobby.LobbyContainer;
 import frc.robot.lobby.subsystems.spindexer.commands.RunSpindexer;
 import frc.robot.lobby.subsystems.turret.commands.PrepTurretCommand;
 
-public class SimpleAuto extends SequentialCommandGroup {
+public class SimpleAuto extends SequentialCommandGroup
+{
     public SimpleAuto(LobbyContainer container, Pose2d startingPose)
     {
-        addCommands(
-            Commands.runOnce(() -> container.getDrive().resetPose(startingPose)),
-            Commands.waitSeconds(0.25)
+        addCommands(Commands.runOnce(() -> container.getDrive().resetPose(startingPose)), Commands
+                .waitUntil(() -> container.getTurret().getSuzie().isAtTargetAngle()
+                        && container.getTurret().getShooter().isAtTargetSpeed())
                 .andThen(new RunSpindexer(container.getSpindexer(), LobbyConstants.SpindexerConstants.kDeJamTime))
-                .alongWith(new PrepTurretCommand(() -> container.predictPose(), container.getTurret()))
-        );
+                .alongWith(new PrepTurretCommand(() -> container.predictPose(), container.getTurret())));
     }
 }

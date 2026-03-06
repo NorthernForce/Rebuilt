@@ -172,15 +172,10 @@ public class LobbyContainer implements NFRRobotContainer
 
         field = new Field2d();
         driveToPoseCommand = new DriveToPoseWithVision(drive);
-        NamedCommands
-                .registerCommand(
-                        "Shoot", Commands
-                                .either(Commands.none(),
-                                        new RunSpindexer(spindexer, LobbyConstants.SpindexerConstants.kDeJamTime),
-                                        () -> turret.getSuzie().isAtTargetAngle()
-                                                && turret.getShooter().isAtTargetSpeed())
-
-                                .alongWith(new PrepTurretCommand(() -> predictPose(), turret)));
+        NamedCommands.registerCommand("Shoot",
+                Commands.waitUntil(() -> turret.getSuzie().isAtTargetAngle() && turret.getShooter().isAtTargetSpeed())
+                        .andThen(new RunSpindexer(getSpindexer(), LobbyConstants.SpindexerConstants.kDeJamTime))
+                        .alongWith(new PrepTurretCommand(() -> predictPose(), turret)));
         NamedCommands.registerCommand("Intake", intake.intakeMoving());
         NamedCommands.registerCommand("StopShoot",
                 Commands.runOnce(() -> turret.getShooter().stop(), turret.getShooter()));
@@ -188,7 +183,8 @@ public class LobbyContainer implements NFRRobotContainer
 
         autoUtil = new AutoUtil(drive, LobbyConstants.AutoConstants.xPid, LobbyConstants.AutoConstants.yPid,
                 LobbyConstants.AutoConstants.rPid);
-        autoUtil.bindAutoDefault("DO NOTHING", Commands.runOnce(() -> resetOdometry(new Pose2d(drive.getPose().getTranslation(), new Rotation2d(Degrees.of(0))))));
+        autoUtil.bindAutoDefault("DO NOTHING", Commands.runOnce(
+                () -> resetOdometry(new Pose2d(drive.getPose().getTranslation(), new Rotation2d(Degrees.of(0))))));
         autoUtil.bindAuto("S1-DEPOT", new PathPlannerAuto("S1-DEPOT"));
         autoUtil.bindAuto("S2-DEPOT", new PathPlannerAuto("S2-DEPOT"));
         autoUtil.bindAuto("S1-SHOOT", new PathPlannerAuto("S1-SHOOT"));
