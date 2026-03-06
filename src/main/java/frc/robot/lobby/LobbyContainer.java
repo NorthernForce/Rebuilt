@@ -1,11 +1,11 @@
 package frc.robot.lobby;
 
 import static edu.wpi.first.units.Units.Amps;
+import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.Radians;
 import static edu.wpi.first.units.Units.Seconds;
 
 import java.util.Optional;
-import java.util.jar.Attributes.Name;
 
 import choreo.auto.AutoFactory;
 import choreo.auto.AutoRoutine;
@@ -19,7 +19,6 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.units.measure.Current;
-import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
 import edu.wpi.first.networktables.DoubleSubscriber;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.PowerDistribution;
@@ -29,6 +28,7 @@ import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
+import frc.robot.lobby.autos.SimpleAuto;
 import frc.robot.lobby.generated.LobbyTunerConstants;
 import frc.robot.lobby.subsystems.CommandSwerveDrivetrain;
 import frc.robot.lobby.subsystems.apriltagvision.*;
@@ -60,7 +60,6 @@ import frc.robot.lobby.subsystems.turret.suzie.SuzieIOTalonFXSSim;
 import frc.robot.lobby.subsystems.turret.hood.HoodIOServoSim;
 import frc.robot.util.AutoUtil;
 import frc.robot.util.InterpolatedTargetingCalculator;
-import frc.robot.util.TestTargetingCalculator;
 import frc.robot.util.TrigHoodTargetingCalculator;
 import org.northernforce.util.NFRRobotContainer;
 import org.photonvision.simulation.SimCameraProperties;
@@ -189,8 +188,14 @@ public class LobbyContainer implements NFRRobotContainer
 
         autoUtil = new AutoUtil(drive, LobbyConstants.AutoConstants.xPid, LobbyConstants.AutoConstants.yPid,
                 LobbyConstants.AutoConstants.rPid);
-        autoUtil.bindAutoDefault("TestAuto", this::testAuto);
+        autoUtil.bindAutoDefault("DO NOTHING", Commands.runOnce(() -> resetOdometry(new Pose2d(drive.getPose().getTranslation(), new Rotation2d(Degrees.of(0))))));
         autoUtil.bindAuto("S1-DEPOT", new PathPlannerAuto("S1-DEPOT"));
+        autoUtil.bindAuto("S2-DEPOT", new PathPlannerAuto("S2-DEPOT"));
+        autoUtil.bindAuto("S1-SHOOT", new PathPlannerAuto("S1-SHOOT"));
+        autoUtil.bindAuto("S3-SHOOT", new PathPlannerAuto("S3-SHOOT"));
+        autoUtil.bindAuto("S1-SHOOT-DEPOT", new PathPlannerAuto("S1-SHOOT-DEPOT"));
+        autoUtil.bindAuto("S1-SIMPLE", new SimpleAuto(this, new PathPlannerAuto("S1-SHOOT").getStartingPose()));
+        autoUtil.bindAuto("S3-SIMPLE", new SimpleAuto(this, new PathPlannerAuto("S3-SHOOT").getStartingPose()));
 
         Shuffleboard.getTab("Developer").add(field);
         Shuffleboard.getTab("Developer").add("Reset Encoders", drive.resetEncoders());
@@ -318,7 +323,6 @@ public class LobbyContainer implements NFRRobotContainer
         DogLog.log("Velocity", drive.getVelocity());
         DogLog.log("CurrentDraw/General/Voltage", powerDistributionHub.getVoltage());
         DogLog.log("CurrentDraw/General/TotalCurrent", powerDistributionHub.getTotalCurrent());
-        int i = 0;
         DogLog.log("CurrentDraw/PDH/Feeder", powerDistributionHub.getCurrent(8));
         DogLog.log("CurrentDraw/PDH/Suzie", powerDistributionHub.getCurrent(9));
         DogLog.log("CurrentDraw/PDH/LeftShooterMotor", powerDistributionHub.getCurrent(7));
