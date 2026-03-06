@@ -88,7 +88,7 @@ public class LobbyContainer implements NFRRobotContainer
     private final StatusSignal<Current> brDriveCurrent;
     private final StatusSignal<Current> brSteerCurrent;
 
-    private DoubleSubscriber predictionSeconds = DogLog.tunable("PredictionSeconds", 0.1);
+    private DoubleSubscriber predictionSeconds = DogLog.tunable("PredictionSeconds", 1.0);
 
     public LobbyContainer()
     {
@@ -173,10 +173,15 @@ public class LobbyContainer implements NFRRobotContainer
 
         field = new Field2d();
         driveToPoseCommand = new DriveToPoseWithVision(drive);
-        NamedCommands.registerCommand("Shoot",
-                Commands.waitUntil(() -> turret.getSuzie().isAtTargetAngle() && turret.getShooter().isAtTargetSpeed())
-                        .andThen(new RunSpindexer(spindexer, LobbyConstants.SpindexerConstants.kDeJamTime))
-                        .alongWith(new PrepTurretCommand(() -> predictPose(), turret)));
+        NamedCommands
+                .registerCommand(
+                        "Shoot", Commands
+                                .either(Commands.none(),
+                                        new RunSpindexer(spindexer, LobbyConstants.SpindexerConstants.kDeJamTime),
+                                        () -> turret.getSuzie().isAtTargetAngle()
+                                                && turret.getShooter().isAtTargetSpeed())
+
+                                .alongWith(new PrepTurretCommand(() -> predictPose(), turret)));
         NamedCommands.registerCommand("Intake", intake.intakeMoving());
         NamedCommands.registerCommand("StopShoot",
                 Commands.runOnce(() -> turret.getShooter().stop(), turret.getShooter()));
