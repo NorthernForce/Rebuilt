@@ -9,6 +9,7 @@ import com.ctre.phoenix6.controls.VoltageOut;
 import dev.doglog.DogLog;
 import edu.wpi.first.networktables.DoubleSubscriber;
 import edu.wpi.first.units.measure.AngularVelocity;
+import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
@@ -54,14 +55,14 @@ public class Shooter extends SubsystemBase
         return io.getTargetSpeed();
     }
 
-    public Command start()
+    public void start()
     {
-        return run(() -> io.start());
+        io.start();
     }
 
-    public Command stop()
+    public void stop()
     {
-        return run(() -> io.stop());
+        io.stop();
     }
 
     public void setTargetSpeed(AngularVelocity speed)
@@ -77,6 +78,11 @@ public class Shooter extends SubsystemBase
     public AngularVelocity getSpeed()
     {
         return io.getSpeed();
+    }
+
+    public boolean isAtTargetSpeed()
+    {
+        return io.isAtTargetSpeed();
     }
 
     public Command getSysIdQuasistaticForward()
@@ -97,6 +103,16 @@ public class Shooter extends SubsystemBase
     public Command getSysIdDynamicReverse()
     {
         return m_sysId.dynamic(SysIdRoutine.Direction.kReverse);
+    }
+
+    public double getMotor1Current()
+    {
+        return io.getMotor1Current();
+    }
+
+    public double getMotor2Current()
+    {
+        return io.getMotor2Current();
     }
 
     @Override

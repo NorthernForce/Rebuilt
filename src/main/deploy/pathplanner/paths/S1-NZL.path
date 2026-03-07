@@ -3,29 +3,29 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 0.9093461538461551,
-        "y": 7.128102564102565
+        "x": 3.625,
+        "y": 7.2
       },
       "prevControl": null,
       "nextControl": {
-        "x": 1.7814615384615395,
-        "y": 7.09321794871795
+        "x": 4.491025403784438,
+        "y": 7.7
       },
       "isLocked": false,
-      "linkedName": null
+      "linkedName": "S1"
     },
     {
       "anchor": {
-        "x": 2.3279871794871805,
-        "y": 7.128102564102565
+        "x": 7.75,
+        "y": 6.75
       },
       "prevControl": {
-        "x": 1.7465769230769244,
-        "y": 7.128102564102565
+        "x": 7.75,
+        "y": 7.25
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": null
+      "linkedName": "NZL"
     }
   ],
   "rotationTargets": [],
@@ -41,7 +41,7 @@
     "unlimited": false
   },
   "goalEndState": {
-    "velocity": 0,
+    "velocity": 4.0,
     "rotation": 0.0
   },
   "reversed": false,

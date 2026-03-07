@@ -2,6 +2,7 @@ package frc.robot.lobby.subsystems.turret.commands;
 
 import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.Radians;
+import static edu.wpi.first.units.Units.RotationsPerSecond;
 
 import java.util.function.Supplier;
 
@@ -20,7 +21,7 @@ public class PrepTurretCommand extends Command
 
     public PrepTurretCommand(Supplier<Pose2d> robotPoseSupplier, Turret turret)
     {
-        addRequirements(turret);
+        addRequirements(turret, turret.getSuzie(), turret.getHood(), turret.getShooter());
         this.robotPoseSupplier = robotPoseSupplier;
         this.turret = turret;
     }
@@ -50,17 +51,10 @@ public class PrepTurretCommand extends Command
         DogLog.log("Turret/PrepCommand/CalculatedSuzieAngle", targetPose.suzieAngle().in(Radians));
         DogLog.log("Turret/PrepCommand/CalculatedHoodAngle", targetPose.hoodAngle().in(Degrees));
         DogLog.log("Turret/PrepCommand/DistanceToHub", turret.getDistanceToHub(currentPose));
+        turret.setTargetPose(
+                new TurretPose(targetPose.suzieAngle(), targetPose.hoodAngle(), targetPose.shooterSpeed()));
 
-        if (inDanger)
-        {
-            // Keep suzie and shooter targeting, but force hood down
-            turret.setTargetPose(new TurretPose(targetPose.suzieAngle(), Degrees.of(0), targetPose.shooterSpeed()));
-        } else
-        {
-            turret.setTargetPose(targetPose);
-        }
-
-        CommandScheduler.getInstance().schedule(turret.start());
+        turret.start();
     }
 
     @Override
@@ -68,5 +62,6 @@ public class PrepTurretCommand extends Command
     {
         turret.setTargetPose(TurretPose.kZero);
         DogLog.log("Turret/PrepCommand/Running", false);
+        turret.stop();
     }
 }

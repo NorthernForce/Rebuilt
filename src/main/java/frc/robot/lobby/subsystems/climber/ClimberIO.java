@@ -14,6 +14,7 @@ public interface ClimberIO
     public double getRotations();
 
     public boolean atTop();
+
     public boolean atBottom();
 
     public default Pose2d getNearestPreclimbPosition(Pose2d robotPose)

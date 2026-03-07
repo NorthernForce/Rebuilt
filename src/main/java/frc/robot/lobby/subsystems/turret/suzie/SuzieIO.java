@@ -10,14 +10,15 @@ import com.ctre.phoenix6.signals.MotorArrangementValue;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Voltage;
+import edu.wpi.first.wpilibj.PowerDistribution;
 
 public interface SuzieIO
 {
     public static record SuzieConstants(int kMotorID, int kDrivingEncoderID, int kSensingEncoderID, double kS,
             double kV, double kA, double kP, double kI, double kD, double kG, double kCruiseVelocity,
-            double kAcceleration, double kJerk, double kRotorToTurntableRatio, int kDrivingGearTeeth,
-            int kSensingGearTeeth, int kTurntableGearTeeth, boolean kInverted, Angle kLowerSoftLimit,
-            Angle kUpperSoftLimit, Angle kErrorTolerance,
+            double kAcceleration, double kJerk, double kExpoV, double kExpoA, double kRotorToTurntableRatio,
+            int kDrivingGearTeeth, int kSensingGearTeeth, int kTurntableGearTeeth, boolean kInverted,
+            Angle kLowerSoftLimit, Angle kUpperSoftLimit, Angle kErrorTolerance,
             MotorArrangementValue kMotorArrangement/* , EasyCRTConfig kCRTConfig */) {
     }
 
@@ -64,6 +65,10 @@ public interface SuzieIO
     {
     }
 
+    public default void resetCRT()
+    {
+    }
+
     public default Voltage getVoltage()
     {
         return Volts.of(0);
@@ -86,5 +91,7 @@ public interface SuzieIO
     {
         return "";
     }
+
+    public double getCurrent();
 
 }

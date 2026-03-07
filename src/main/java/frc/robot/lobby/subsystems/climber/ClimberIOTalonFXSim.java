@@ -48,7 +48,8 @@ public class ClimberIOTalonFXSim implements ClimberIO
         TalonFXConfiguration config = new TalonFXConfiguration();
         config.SoftwareLimitSwitch.ForwardSoftLimitThreshold = params.topSoftRotations().in(Rotations);
         config.SoftwareLimitSwitch.ForwardSoftLimitThreshold = params.topSoftRotations().in(Rotations);
-        config.MotorOutput.Inverted = params.inverted() ? InvertedValue.Clockwise_Positive : InvertedValue.CounterClockwise_Positive;
+        config.MotorOutput.Inverted = params.inverted() ? InvertedValue.Clockwise_Positive
+                : InvertedValue.CounterClockwise_Positive;
 
         config.Slot0.GravityType = GravityTypeValue.Elevator_Static;
         motor.getConfigurator().apply(config);
@@ -147,7 +148,6 @@ public class ClimberIOTalonFXSim implements ClimberIO
             return robotPose;
         }
     }
-
 
     @Override
     public double getRotations()

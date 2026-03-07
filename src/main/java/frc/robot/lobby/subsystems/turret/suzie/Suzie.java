@@ -11,6 +11,7 @@ import dev.doglog.DogLog;
 
 import edu.wpi.first.networktables.DoubleSubscriber;
 import edu.wpi.first.units.measure.Angle;
+import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -43,19 +44,19 @@ public class Suzie extends SubsystemBase
         ));
     }
 
-    public Command setSpeed(double speed)
+    public void setSpeed(double speed)
     {
-        return run(() -> io.setSpeed(speed));
+        io.setSpeed(speed);
     }
 
-    public Command start()
+    public void start()
     {
-        return run(() -> io.start());
+        io.start();
     }
 
-    public Command stop()
+    public void stop()
     {
-        return run(() -> io.stop());
+        io.stop();
     }
 
     public SuzieIO getIO()
@@ -88,6 +89,11 @@ public class Suzie extends SubsystemBase
         io.setTargetAngle(angle);
     }
 
+    public void resetCRT()
+    {
+        io.resetCRT();
+    }
+
     public Command getSysIdQuasistaticForward()
     {
         return constructFullSysIdCommand(m_sysId.quasistatic(SysIdRoutine.Direction.kForward));
@@ -117,5 +123,10 @@ public class Suzie extends SubsystemBase
     public void periodic()
     {
         io.update();
+    }
+
+    public double getCurrent()
+    {
+        return io.getCurrent();
     }
 }

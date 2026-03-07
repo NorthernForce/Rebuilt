@@ -12,6 +12,8 @@ public class AutoHang extends SequentialCommandGroup
     {
         Climber climber = container.getClimber();
         Intake intake = container.getIntake();
-        addCommands(container.driveToPreClimbPosition().alongWith(climber.runUp()).alongWith(intake.getRunToStowAngleCommand()).andThen(container.driveToClimbPost()).andThen(climber.runDown()));
+        addCommands(container.driveToPreClimbPosition().alongWith(climber.runUp())
+                .alongWith(intake.getRunToStowAngleCommand()).andThen(container.driveToClimbPost())
+                .andThen(climber.runDown()));
     }
 }

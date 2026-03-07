@@ -3,50 +3,50 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 4.061722123444247,
-        "y": 5.039
+        "x": 7.75,
+        "y": 4.025
       },
       "prevControl": null,
       "nextControl": {
-        "x": 4.267799739805012,
-        "y": 4.6820630981604685
+        "x": 7.75,
+        "y": 5.025000000000002
       },
       "isLocked": false,
-      "linkedName": null
+      "linkedName": "NZM-FORWARD"
     },
     {
       "anchor": {
-        "x": 5.292790014151457,
-        "y": 4.494829275372837
+        "x": 7.75,
+        "y": 6.75
       },
       "prevControl": {
-        "x": 4.519661364176327,
-        "y": 4.494829275372837
+        "x": 7.9267766952966365,
+        "y": 6.5732233047033635
       },
       "nextControl": {
-        "x": 5.980046769810262,
-        "y": 4.494829275372837
+        "x": 7.2196699141100895,
+        "y": 7.2803300858899105
       },
       "isLocked": false,
-      "linkedName": null
+      "linkedName": "NZL"
     },
     {
       "anchor": {
-        "x": 6.152,
-        "y": 5.296
+        "x": 3.625,
+        "y": 7.375
       },
       "prevControl": {
-        "x": 6.066179328079686,
-        "y": 4.809286783590948
+        "x": 5.625,
+        "y": 7.375
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": null
+      "linkedName": "SL"
     }
   ],
   "rotationTargets": [
     {
-      "waypointRelativePos": 1.0,
+      "waypointRelativePos": 1.6,
       "rotationDegrees": 90.0
     }
   ],
@@ -54,16 +54,16 @@
   "pointTowardsZones": [],
   "eventMarkers": [],
   "globalConstraints": {
-    "maxVelocity": 3,
-    "maxAcceleration": 3,
-    "maxAngularVelocity": 540,
-    "maxAngularAcceleration": 720,
+    "maxVelocity": 3.0,
+    "maxAcceleration": 3.0,
+    "maxAngularVelocity": 540.0,
+    "maxAngularAcceleration": 720.0,
     "nominalVoltage": 12.0,
     "unlimited": false
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 0.0
+    "rotation": 90.0
   },
   "reversed": false,
   "folder": null,
@@ -71,5 +71,5 @@
     "velocity": 0,
     "rotation": 0.0
   },
-  "useDefaultConstraints": false
+  "useDefaultConstraints": true
 }
