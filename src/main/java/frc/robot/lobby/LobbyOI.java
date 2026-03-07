@@ -7,6 +7,7 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.lobby.subsystems.spindexer.commands.RunSpindexer;
 import frc.robot.lobby.subsystems.turret.commands.PrepTurretCommand;
+import frc.robot.lobby.subsystems.turret.commands.PrepTurretStupid;
 import frc.robot.lobby.subsystems.turret.commands.PrepTurretWithValues;
 
 public class LobbyOI
@@ -55,8 +56,10 @@ public class LobbyOI
         manipulatorController.leftStick().whileTrue(intake.driveByJoystick(() -> manipulatorController.getLeftY()));
 
         manipulatorController.leftBumper().whileTrue(new PrepTurretWithValues(turret));
-        manipulatorController.rightBumper()
-                .whileTrue(new RunSpindexer(spindexer, LobbyConstants.SpindexerConstants.kDeJamTime));
+
+        driveController.rightBumper().whileTrue(Commands.waitSeconds(0.25)
+                .andThen(new RunSpindexer(container.getSpindexer(), LobbyConstants.SpindexerConstants.kDeJamTime))
+                .alongWith(new PrepTurretStupid(() -> container.predictPose(), turret)));
 
         manipulatorController.leftTrigger().whileTrue(intake.intakeMoving()).onFalse(intake.stopIntake());
         manipulatorController.rightTrigger().whileTrue(Commands.waitSeconds(0.25)
