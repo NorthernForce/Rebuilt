@@ -74,9 +74,11 @@ public class LobbyOI
 
         // driveController.leftTrigger().whileTrue(new
         // PrepTurretWithValues(container.getTurret()));
-        driveController.povUp().whileTrue(container.getClimber().runUp()).onFalse(Commands.runOnce(() -> container.getClimber().stopMotor(), container.getClimber()));
+        driveController.povUp().whileTrue(container.getClimber().runUp())
+                .onFalse(Commands.runOnce(() -> container.getClimber().stopMotor(), container.getClimber()));
         // Temporary test: hold D-pad down to command elevator up, release to home
-        driveController.povDown().whileTrue(container.getClimber().runDown()).onFalse(Commands.runOnce(() -> container.getClimber().stopMotor(), container.getClimber()));
+        driveController.povDown().whileTrue(container.getClimber().runDown())
+                .onFalse(Commands.runOnce(() -> container.getClimber().stopMotor(), container.getClimber()));
         // manipulatorController.leftTrigger().whileTrue(intake.getRunToIntakeAngleCommand());
         // intake.setDefaultCommand(intake.getRunToStowAngleCommand());
 
