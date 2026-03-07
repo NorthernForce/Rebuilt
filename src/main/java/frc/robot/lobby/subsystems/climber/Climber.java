@@ -1,4 +1,4 @@
-package frc.robot.subsystems.climber;
+package frc.robot.lobby.subsystems.climber;
 
 import static edu.wpi.first.units.Units.Inches;
 import java.util.stream.IntStream;
@@ -9,7 +9,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.lobby.LobbyConstants.ClimberConstants.ClimbLevels;
-import frc.robot.subsystems.climber.commands.HomeCommand;
+import frc.robot.lobby.subsystems.climber.commands.HomeCommand;
 
 public class Climber extends SubsystemBase
 {
@@ -22,7 +22,12 @@ public class Climber extends SubsystemBase
 
     public Command runUp()
     {
-        return Commands.run(() -> climber.runUp(), this).until(this::isAtTop);
+        return run(() -> climber.runUp()).until(this::isAtTop);
+    }
+
+    public Command runDown()
+    {
+        return run(() -> climber.homeDown()).until(this::isAtTop);
     }
 
     public Command getHomingCommand()
@@ -73,15 +78,6 @@ public class Climber extends SubsystemBase
         climber.stopMotor();
     }
 
-    public Command extendHooks()
-    {
-        return Commands.runOnce(() -> climber.setHookPosition(1.0));
-    }
-
-    public Command retractHooks()
-    {
-        return Commands.runOnce(() -> climber.setHookPosition(0.0));
-    }
 
     @Override
     public void simulationPeriodic()

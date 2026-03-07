@@ -1,7 +1,7 @@
-package frc.robot.subsystems.climber.commands;
+package frc.robot.lobby.subsystems.climber.commands;
 
 import edu.wpi.first.wpilibj2.command.Command;
-import frc.robot.subsystems.climber.Climber;
+import frc.robot.lobby.subsystems.climber.Climber;
 
 public class HomeCommand extends Command
 {

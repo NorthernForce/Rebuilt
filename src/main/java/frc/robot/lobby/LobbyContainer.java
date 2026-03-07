@@ -27,13 +27,13 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.lobby.generated.LobbyTunerConstants;
 import frc.robot.lobby.subsystems.CommandSwerveDrivetrain;
-import frc.robot.subsystems.climber.Climber;
-import frc.robot.subsystems.climber.ClimberIOTalonFX;
-import frc.robot.subsystems.climber.ClimberIOTalonFXSim;
-import frc.robot.subsystems.climber.commands.AutoHang;
 import frc.robot.lobby.subsystems.apriltagvision.*;
 import frc.robot.lobby.subsystems.apriltagvision.commands.CloseDriveToPoseRequest;
 import frc.robot.lobby.subsystems.apriltagvision.commands.DriveToPoseWithVision;
+import frc.robot.lobby.subsystems.climber.Climber;
+import frc.robot.lobby.subsystems.climber.ClimberIOTalonFX;
+import frc.robot.lobby.subsystems.climber.ClimberIOTalonFXSim;
+import frc.robot.lobby.subsystems.climber.commands.AutoHang;
 import frc.robot.lobby.subsystems.intake.Intake;
 import frc.robot.lobby.subsystems.intake.IntakeIOTalonFX;
 import frc.robot.lobby.subsystems.spindexer.Spindexer;
@@ -152,7 +152,8 @@ public class LobbyContainer implements NFRRobotContainer
         driveToPoseCommand = new DriveToPoseWithVision(drive);
         autoUtil = new AutoUtil(drive, LobbyConstants.AutoConstants.xPid, LobbyConstants.AutoConstants.yPid,
                 LobbyConstants.AutoConstants.rPid);
-        NamedCommands.registerCommand("AutoHang", new AutoHang(this));
+        NamedCommands.registerCommand("RunUpClimber", climber.runUp());
+        NamedCommands.registerCommand("RunDownClimber", climber.runDown());
         autoUtil.bindAutoDefault("TestAuto", this::testAuto);
         autoUtil.bindAuto("ClimbAuto", new PathPlannerAuto("ClimbAuto"));
         autoUtil.bindAuto("ShmallAuto", new PathPlannerAuto("ShmallAuto"));

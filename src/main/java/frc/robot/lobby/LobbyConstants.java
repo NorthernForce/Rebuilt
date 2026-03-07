@@ -42,8 +42,8 @@ import edu.wpi.first.units.measure.Time;
 import edu.wpi.first.units.measure.Voltage;
 import frc.robot.FieldConstants;
 import frc.robot.lobby.generated.LobbyTunerConstants;
-import frc.robot.subsystems.climber.ClimberParameters;
 import frc.robot.lobby.subsystems.intake.IntakeIO.IntakeIOParameters;
+import frc.robot.lobby.subsystems.climber.ClimberParameters;
 import frc.robot.lobby.subsystems.intake.Intake.IntakeParameters;
 import frc.robot.lobby.subsystems.turret.hood.HoodIO.HoodConstants;
 import frc.robot.lobby.subsystems.turret.shooter.ShooterIO.ShooterConstants;
@@ -248,7 +248,12 @@ public class LobbyConstants
         public static final double kD = 0;
         public static final double kV = 0.12;
         public static final double kG = 0.01;
-        public static final double topRotations = 1000.0;
+        public static final double kTopRotations = 1000.0; // TODO: TUNE THESE
+        public static final double kBottomRotations = 40;
+        public static final double kTolerance = 5;
+        public static final double kDutyCyclePower = 0.4;
+        public static final boolean kInverted = false;
+
         public static final int servoID = 9;
 
         public static final Pose2d kUpperRedPose = new Pose2d(Meters.of(14.841), Meters.of(4.745),
@@ -284,9 +289,7 @@ public class LobbyConstants
             }
         }
 
-        public static final ClimberParameters kClimberParameters = new ClimberParameters(kMotorID, kSensorID,
-                ClimbLevels.BOTTOM, ClimbLevels.L1, ClimbLevels.L2, ClimbLevels.L3, gearRatio, slowSpeed, maxHeight, kP,
-                kI, kD, kV, kG, topRotations, kUpperBluePose, kLowerBluePose, kUpperRedPose, kLowerRedPose, servoID);
+        public static final ClimberParameters kClimberParameters = new ClimberParameters(kMotorID, Rotations.of(kTopRotations), Rotations.of(kBottomRotations), Rotations.of(kTolerance), kInverted, kUpperBluePose, kLowerBluePose, kUpperRedPose, kLowerRedPose,kDutyCyclePower, gearRatio, maxHeight);
 
     }
 

@@ -11,8 +11,6 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
-import frc.robot.subsystems.climber.commands.RunToPosition;
-import frc.robot.lobby.LobbyConstants.ClimberConstants.ClimbLevels;
 import frc.robot.lobby.subsystems.spindexer.commands.RunSpindexer;
 import frc.robot.lobby.subsystems.turret.commands.PrepTurretWithValues;
 
@@ -42,9 +40,9 @@ public class LobbyOI
         manipulatorController.leftStick().whileTrue(intake.driveByJoystick(() -> manipulatorController.getLeftY()));
 
         driveController.back().onTrue(drive.resetOrientation());
-        container.getClimber().setDefaultCommand(container.getClimber().getHomingCommand());
+        // container.getClimber().setDefaultCommand(container.getClimber().getHomingCommand());
         // Pass turret's hood constants for danger zone calculation
-        var hood = container.getTurret().getHood();
+        // var hood = container.getTurret().getHood();
         // container.getTurret().setDefaultCommand(container.getTurret().runBasedOnLocation(()
         // -> drive.getState().Pose,
         // hood.getDangerZone(), hood.getTrenchPositions()));
@@ -60,9 +58,9 @@ public class LobbyOI
 
         // driveController.leftTrigger().whileTrue(new
         // PrepTurretWithValues(container.getTurret()));
-        driveController.povUp().whileTrue(new RunToPosition(container, ClimbLevels.L3));
+        driveController.povUp().whileTrue(container.getClimber().runUp());
         // Temporary test: hold D-pad down to command elevator up, release to home
-        driveController.povDown().onTrue(container.getClimber().runUp());
+        driveController.povDown().whileTrue(container.getClimber().runDown());
         // manipulatorController.leftTrigger().whileTrue(intake.getRunToIntakeAngleCommand());
         // intake.setDefaultCommand(intake.getRunToStowAngleCommand());
         driveController.leftTrigger().whileTrue(intake.intakeMoving());
