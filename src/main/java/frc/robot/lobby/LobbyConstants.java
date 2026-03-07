@@ -233,7 +233,7 @@ public class LobbyConstants
             private static int kMotor2ID = 21;
             private static double kS = 0;
             private static double kV = 0.13;
-            private static double kA = 0;
+            private static double kA = 0.1;
             private static double kP = 0;
             private static double kI = 0;
             private static double kD = 0;
@@ -345,7 +345,7 @@ public class LobbyConstants
         public static final double kDriverIntakeSpeed = 0.65;
         public static final double kDriverPurgeSpeed = 1.0;
         public static final Angle kDownAngle = Rotations.of(0.005);
-        public static final Angle kMiddleAngle = Rotations.of(0.172);
+        public static final Angle kMiddleAngle = Rotations.of(0.122);
         public static final Angle kStowedAngle = Rotations.of(0.35);
         public static final double kP = 23.745;
         public static final double kI = 0;

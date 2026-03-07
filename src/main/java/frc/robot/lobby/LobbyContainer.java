@@ -27,6 +27,7 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.networktables.DoubleSubscriber;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
@@ -95,7 +96,7 @@ public class LobbyContainer implements NFRRobotContainer
     private final StatusSignal<Current> brDriveCurrent;
     private final StatusSignal<Current> brSteerCurrent;
 
-    private DoubleSubscriber predictionSeconds = DogLog.tunable("PredictionSeconds", 1.0);
+    private DoubleSubscriber predictionSeconds = DogLog.tunable("PredictionSeconds", 0.0);
 
     public LobbyContainer()
     {
@@ -196,8 +197,11 @@ public class LobbyContainer implements NFRRobotContainer
         NamedCommands.registerCommand("RunDownClimber", climber.runDown());
         autoUtil = new AutoUtil(drive, LobbyConstants.AutoConstants.xPid, LobbyConstants.AutoConstants.yPid,
                 LobbyConstants.AutoConstants.rPid);
-        autoUtil.bindAutoDefault("DO NOTHING", Commands.runOnce(
-                () -> resetOdometry(new Pose2d(drive.getPose().getTranslation(), new Rotation2d(Degrees.of(0))))));
+        autoUtil.bindAutoDefault("DO NOTHING",
+                Commands.runOnce(() -> resetOdometry(new Pose2d(drive.getPose().getTranslation(),
+                        DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Blue
+                                ? new Rotation2d(Degrees.of(0))
+                                : new Rotation2d(Degrees.of(180))))));
         autoUtil.bindAuto("S1-DEPOT", new PathPlannerAuto("S1-DEPOT"));
         autoUtil.bindAuto("S2-DEPOT", new PathPlannerAuto("S2-DEPOT"));
         autoUtil.bindAuto("S1-SHOOT", new PathPlannerAuto("S1-SHOOT"));
