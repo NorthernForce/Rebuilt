@@ -282,7 +282,7 @@ public class LobbyConstants
         public static final int kAngleEncoderId = 22;
         public static final double kDriverIntakeSpeed = 0.65;
         public static final double kDriverPurgeSpeed = 1.0;
-        public static final Angle kDownAngle = Rotations.of(0.05);
+        public static final Angle kDownAngle = Rotations.of(0.005);
         public static final Angle kMiddleAngle = Rotations.of(0.172);
         public static final Angle kStowedAngle = Rotations.of(0.35);
         public static final double kP = 23.745;
@@ -295,7 +295,7 @@ public class LobbyConstants
         public static final double kAcceleration = 4;
         public static final double kCruiseVelocity = 1;
         public static final double kForwardSoftLimit = 0.4;
-        public static final double kReverstSoftLimit = 0.05;
+        public static final double kReverstSoftLimit = 0.005;
         public static final Current kCurrentLimit = Amps.of(60);
         public static final Angle kAngleTolerance = Degrees.of(5);
 
