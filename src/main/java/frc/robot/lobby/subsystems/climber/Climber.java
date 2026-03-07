@@ -27,7 +27,7 @@ public class Climber extends SubsystemBase
 
     public Command runDown()
     {
-        return run(() -> climber.homeDown()).until(this::isAtTop);
+        return run(() -> climber.homeDown()).until(this::isAtBottom);
     }
 
     public Command getHomingCommand()
