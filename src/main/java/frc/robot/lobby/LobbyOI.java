@@ -7,6 +7,7 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.lobby.subsystems.spindexer.commands.RunSpindexer;
 import frc.robot.lobby.subsystems.turret.commands.PrepTurretCommand;
+import frc.robot.lobby.subsystems.turret.commands.PrepTurretStupid;
 import frc.robot.lobby.subsystems.turret.commands.PrepTurretWithValues;
 
 public class LobbyOI
@@ -55,8 +56,10 @@ public class LobbyOI
         manipulatorController.leftStick().whileTrue(intake.driveByJoystick(() -> manipulatorController.getLeftY()));
 
         manipulatorController.leftBumper().whileTrue(new PrepTurretWithValues(turret));
-        manipulatorController.rightBumper()
-                .whileTrue(new RunSpindexer(spindexer, LobbyConstants.SpindexerConstants.kDeJamTime));
+
+        driveController.rightBumper().whileTrue(Commands.waitSeconds(0.25)
+                .andThen(new RunSpindexer(container.getSpindexer(), LobbyConstants.SpindexerConstants.kDeJamTime))
+                .alongWith(new PrepTurretStupid(() -> container.predictPose(), turret)));
 
         manipulatorController.leftTrigger().whileTrue(intake.intakeMoving()).onFalse(intake.stopIntake());
         manipulatorController.rightTrigger().whileTrue(Commands.waitSeconds(0.25)
@@ -71,9 +74,11 @@ public class LobbyOI
 
         // driveController.leftTrigger().whileTrue(new
         // PrepTurretWithValues(container.getTurret()));
-        driveController.povUp().whileTrue(container.getClimber().runUp());
+        driveController.povUp().whileTrue(container.getClimber().runUp())
+                .onFalse(Commands.runOnce(() -> container.getClimber().stopMotor(), container.getClimber()));
         // Temporary test: hold D-pad down to command elevator up, release to home
-        driveController.povDown().whileTrue(container.getClimber().runDown());
+        driveController.povDown().whileTrue(container.getClimber().runDown())
+                .onFalse(Commands.runOnce(() -> container.getClimber().stopMotor(), container.getClimber()));
         // manipulatorController.leftTrigger().whileTrue(intake.getRunToIntakeAngleCommand());
         // intake.setDefaultCommand(intake.getRunToStowAngleCommand());
 
@@ -84,9 +89,9 @@ public class LobbyOI
 
         // manipulatorController.a().onTrue(Commands.runOnce(() -> suzie.resetAngle()));
 
-        driveController.povLeft().whileTrue(Commands.runOnce(() -> suzie.setSpeed(0.05), suzie))
+        driveController.povLeft().whileTrue(Commands.runOnce(() -> suzie.setSpeed(0.2), suzie))
                 .onFalse(Commands.runOnce(() -> suzie.setSpeed(0), suzie));
-        driveController.povRight().whileTrue(Commands.runOnce(() -> suzie.setSpeed(-0.05), suzie))
+        driveController.povRight().whileTrue(Commands.runOnce(() -> suzie.setSpeed(-0.2), suzie))
                 .onFalse(Commands.runOnce(() -> suzie.setSpeed(0), suzie));
     }
 }

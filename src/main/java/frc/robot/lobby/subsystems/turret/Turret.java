@@ -143,6 +143,13 @@ public class Turret extends SubsystemBase
         shooter.setTargetSpeed(pose.shooterSpeed);
     }
 
+    public void setTargetPoseStupid(TurretPose pose)
+    {
+        DogLog.log("Target Angle Being Set", pose.hoodAngle);
+        hood.setTargetMechanismAngle(pose.hoodAngle);
+        shooter.setTargetSpeed(pose.shooterSpeed);
+    }
+
     public void start()
     {
         suzie.start();
