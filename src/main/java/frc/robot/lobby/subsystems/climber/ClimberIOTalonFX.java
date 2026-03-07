@@ -41,7 +41,9 @@ public class ClimberIOTalonFX implements ClimberIO
         motor = new TalonFX(motorID);
         TalonFXConfiguration config = new TalonFXConfiguration();
         config.SoftwareLimitSwitch.ForwardSoftLimitThreshold = params.topSoftRotations().in(Rotations);
-        config.SoftwareLimitSwitch.ForwardSoftLimitThreshold = params.topSoftRotations().in(Rotations);
+        config.SoftwareLimitSwitch.ForwardSoftLimitEnable = true;
+        config.SoftwareLimitSwitch.ReverseSoftLimitThreshold = params.startRotations().in(Rotations);
+        config.SoftwareLimitSwitch.ReverseSoftLimitEnable = true;
         config.MotorOutput.Inverted = params.inverted() ? InvertedValue.Clockwise_Positive
                 : InvertedValue.CounterClockwise_Positive;
         motor.getConfigurator().apply(config);

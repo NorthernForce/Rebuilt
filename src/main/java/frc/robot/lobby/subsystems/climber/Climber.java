@@ -22,12 +22,12 @@ public class Climber extends SubsystemBase
 
     public Command runUp()
     {
-        return run(() -> climber.runUp()).until(this::isAtTop);
+        return run(() -> climber.runUp());
     }
 
     public Command runDown()
     {
-        return run(() -> climber.homeDown()).until(this::isAtBottom);
+        return run(() -> climber.homeDown());
     }
 
     public Command getHomingCommand()

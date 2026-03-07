@@ -212,7 +212,7 @@ public class Turret extends SubsystemBase
 
         Angle hoodAngle = Degrees.of(hoodCalculator.getValueForDistance(distanceToTarget));
         AngularVelocity shooterSpeed = RotationsPerSecond.of(shooterCalculator.getValueForDistance(distanceToTarget));
-        
+
         DogLog.log("Turret/TargetMode", "Passing");
         DogLog.log("Turret/TargetPosition", passingTarget);
         DogLog.log("Turret/DistanceToPassingTarget", distanceToTarget);

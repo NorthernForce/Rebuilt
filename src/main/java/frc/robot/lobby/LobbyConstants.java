@@ -265,8 +265,9 @@ public class LobbyConstants
         public static final double kD = 0;
         public static final double kV = 0.12;
         public static final double kG = 0.01;
-        public static final double kTopRotations = 1000.0; // TODO: TUNE THESE
-        public static final double kBottomRotations = 40;
+        public static final double kTopRotations = 194.5;
+        public static final double kBottomRotations = 62.0;
+        public static final double kStartRotations = 0;
         public static final double kTolerance = 5;
         public static final double kDutyCyclePower = 0.4;
         public static final boolean kInverted = false;
@@ -307,7 +308,7 @@ public class LobbyConstants
         }
 
         public static final ClimberParameters kClimberParameters = new ClimberParameters(kMotorID,
-                Rotations.of(kTopRotations), Rotations.of(kBottomRotations), Rotations.of(kTolerance), kInverted,
+                Rotations.of(kTopRotations), Rotations.of(kBottomRotations), Rotations.of(kStartRotations), Rotations.of(kTolerance), kInverted,
                 kUpperBluePose, kLowerBluePose, kUpperRedPose, kLowerRedPose, kDutyCyclePower, gearRatio, maxHeight);
 
     }
