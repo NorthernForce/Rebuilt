@@ -149,7 +149,7 @@ public class LobbyConstants
     public class Turret
     {
         public static Pose2d offset = new Pose2d(new Translation2d(Inches.of(-6.264), Inches.of(6.300)),
-                new Rotation2d(Degrees.of(43.309)));
+                new Rotation2d(Degrees.of(45)));
 
         public class Suzie
         {
@@ -171,7 +171,8 @@ public class LobbyConstants
             private static int kDrivingGearTeeth = 24;
             private static int kSensingGearTeeth = 25;
             private static int kTurntableGearTeeth = 120;
-            private static double kRotorToTurntableRatio = 5.0 * 5.0 * (double) kTurntableGearTeeth / kDrivingGearTeeth;
+            private static double kRotorToTurntableRatio = 10.0 * 5.0 * (double) kTurntableGearTeeth
+                    / kDrivingGearTeeth;
             private static boolean kInverted = false;
             private static Angle kLowerSoftLimit = Degrees.of(-180);
             private static Angle kUpperSoftLimit = Degrees.of(180);
@@ -232,8 +233,8 @@ public class LobbyConstants
             private static int kMotor1ID = 20;
             private static int kMotor2ID = 21;
             private static double kS = 0;
-            private static double kV = 0.13;
-            private static double kA = 0.1;
+            private static double kV = 0.115;
+            private static double kA = 0;
             private static double kP = 0;
             private static double kI = 0;
             private static double kD = 0;
@@ -256,7 +257,7 @@ public class LobbyConstants
         public static final double kGearBoxRatio = 4.0 * 4.0 * 5.0;
         public static final double kPulleyRatio = 2.0;
         public static final double gearRatio = kGearBoxRatio * kPulleyRatio;
-        public static final int kMotorID = 40; // TODO: verify actual CAN ID
+        public static final int kMotorID = 14;
         public static final int kSensorID = 2;
         public static final double slowSpeed = 1;
         public static final Distance maxHeight = Inches.of(20.5);
@@ -308,8 +309,9 @@ public class LobbyConstants
         }
 
         public static final ClimberParameters kClimberParameters = new ClimberParameters(kMotorID,
-                Rotations.of(kTopRotations), Rotations.of(kBottomRotations), Rotations.of(kStartRotations), Rotations.of(kTolerance), kInverted,
-                kUpperBluePose, kLowerBluePose, kUpperRedPose, kLowerRedPose, kDutyCyclePower, gearRatio, maxHeight);
+                Rotations.of(kTopRotations), Rotations.of(kBottomRotations), Rotations.of(kStartRotations),
+                Rotations.of(kTolerance), kInverted, kUpperBluePose, kLowerBluePose, kUpperRedPose, kLowerRedPose,
+                kDutyCyclePower, gearRatio, maxHeight);
 
     }
 

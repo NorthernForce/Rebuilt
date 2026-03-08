@@ -21,7 +21,7 @@ public class PrepTurretStupid extends Command
 
     public PrepTurretStupid(Supplier<Pose2d> robotPoseSupplier, Turret turret)
     {
-        addRequirements(turret, turret.getHood(), turret.getShooter());
+        addRequirements(turret, turret.getSuzie(), turret.getHood(), turret.getShooter());
         this.robotPoseSupplier = robotPoseSupplier;
         this.turret = turret;
     }
@@ -51,10 +51,12 @@ public class PrepTurretStupid extends Command
         DogLog.log("Turret/PrepCommand/CalculatedSuzieAngle", targetPose.suzieAngle().in(Radians));
         DogLog.log("Turret/PrepCommand/CalculatedHoodAngle", targetPose.hoodAngle().in(Degrees));
         DogLog.log("Turret/PrepCommand/DistanceToHub", turret.getDistanceToHub(currentPose));
+        turret.getSuzie().stop();
         turret.setTargetPoseStupid(
                 new TurretPose(targetPose.suzieAngle(), targetPose.hoodAngle(), targetPose.shooterSpeed()));
 
-        turret.start();
+        turret.getHood().start();
+        turret.getShooter().start();
     }
 
     @Override

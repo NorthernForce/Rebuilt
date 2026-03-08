@@ -1,10 +1,18 @@
 package frc.robot.lobby;
 
+import static edu.wpi.first.units.Units.Degrees;
+import static edu.wpi.first.units.Units.Inches;
+
 import java.util.function.DoubleSupplier;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.geometry.Translation3d;
+import frc.robot.FieldConstants;
 import frc.robot.lobby.subsystems.spindexer.commands.RunSpindexer;
 import frc.robot.lobby.subsystems.turret.commands.PrepTurretCommand;
 import frc.robot.lobby.subsystems.turret.commands.PrepTurretStupid;
@@ -44,6 +52,7 @@ public class LobbyOI
         shooter.setDefaultCommand(Commands.run(() -> shooter.stop(), shooter));
 
         driveController.back().onTrue(drive.resetOrientation());
+        driveController.x().toggleOnTrue(intake.stopIntake().andThen(intake.getRunToStowAngleCommand()).repeatedly());
 
         driveController.leftTrigger().whileTrue(intake.intakeMoving()).onFalse(intake.stopIntake());
         driveController.rightTrigger().whileTrue(Commands
@@ -62,9 +71,15 @@ public class LobbyOI
                 .alongWith(new PrepTurretStupid(() -> container.predictPose(), turret)));
 
         manipulatorController.leftTrigger().whileTrue(intake.intakeMoving()).onFalse(intake.stopIntake());
-        manipulatorController.rightTrigger().whileTrue(Commands.waitSeconds(0.25)
-                .andThen(new RunSpindexer(container.getSpindexer(), LobbyConstants.SpindexerConstants.kDeJamTime))
-                .alongWith(new PrepTurretCommand(() -> container.predictPose(), turret)));
+        manipulatorController.rightTrigger()
+                .whileTrue(
+                        Commands.waitSeconds(0.25)
+                                .andThen(new RunSpindexer(container.getSpindexer(),
+                                        LobbyConstants.SpindexerConstants.kDeJamTime))
+                                .alongWith(new PrepTurretStupid(() -> new Pose2d(
+                                        FieldConstants.kRedHubPosition.toTranslation2d()
+                                                .plus(new Translation2d(Inches.of(108), Inches.zero())),
+                                        new Rotation2d(Degrees.zero())), turret)));
 
         // manipulatorController.b().onTrue(Commands.runOnce(() ->
         // {

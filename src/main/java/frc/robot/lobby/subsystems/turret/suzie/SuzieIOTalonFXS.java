@@ -148,7 +148,7 @@ public class SuzieIOTalonFXS implements SuzieIO
         var angle = m_crtCalculator.getAngleOptional();
         if (angle.isPresent())
         {
-            if ((crtUsed && Math.abs(angle.get().minus(m_position.getValue()).in(Degrees)) < 5.0) || !crtUsed)
+            if ((crtUsed && angle.get().isNear(m_motor.getPosition().getValue(), Degrees.of(10))) || !crtUsed)
             {
                 m_motor.setPosition(angle.get());
                 crtUsed = true;
