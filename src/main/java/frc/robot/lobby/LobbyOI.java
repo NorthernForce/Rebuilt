@@ -49,7 +49,7 @@ public class LobbyOI
         // turret.setDefaultCommand(container.getTurret().runBasedOnLocation(() ->
         // drive.getState().Pose,
         // hood.getDangerZone(), hood.getTrenchPositions()));
-        shooter.setDefaultCommand(Commands.run(() -> shooter.stop(), shooter));
+        // shooter.setDefaultCommand(Commands.run(() -> shooter.stop(), shooter));
 
         driveController.back().onTrue(drive.resetOrientation());
         driveController.x().toggleOnTrue(intake.stopIntake().andThen(intake.getRunToStowAngleCommand()).repeatedly());

@@ -32,7 +32,7 @@
         {
           "type": "named",
           "data": {
-            "name": "StopIntake"
+            "name": "Intake"
           }
         },
         {
@@ -105,9 +105,22 @@
           }
         },
         {
-          "type": "path",
+          "type": "deadline",
           "data": {
-            "pathName": "SL-NZL"
+            "commands": [
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "SL-NZL"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "Intake"
+                }
+              }
+            ]
           }
         },
         {
