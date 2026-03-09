@@ -262,6 +262,9 @@ public class LobbyContainer implements NFRRobotContainer
         field.setRobotPose(drive.getState().Pose);
         DogLog.log("BatteryVoltage", RobotController.getBatteryVoltage());
         DogLog.log("Drive/Pose", drive.getState().Pose);
+        DogLog.log("Drive/PoseX", drive.getState().Pose.getX());
+        DogLog.log("Drive/PoseY", drive.getState().Pose.getY());
+        DogLog.log("Drive/PoseHeading", drive.getState().Pose.getRotation().getDegrees());
         DogLog.log("Turret/Position", new Pose2d(
                 getTurret().calculateFieldRelativeShooterPosition(getDrive().getState().Pose),
                 new Rotation2d(turret.getSuzieAngleRobotRelative().plus(drive.getPose().getRotation().getMeasure()))));
