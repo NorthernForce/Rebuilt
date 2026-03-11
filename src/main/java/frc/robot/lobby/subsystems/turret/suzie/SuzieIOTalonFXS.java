@@ -130,10 +130,10 @@ public class SuzieIOTalonFXS implements SuzieIO
 
         EasyCRTConfig crtConfig = new EasyCRTConfig(() -> Rotations.of(m_drivingEncoder.get()),
                 () -> Rotations.of(m_sensingEncoder.get()))
-                        .withAbsoluteEncoder1Gearing(kTurntableGearTeeth, kDrivingGearTeeth)
-                        .withAbsoluteEncoder2Gearing(kTurntableGearTeeth, kSensingGearTeeth)
-                        .withMechanismRange(Rotations.of(-0.55), Rotations.of(0.55)).withMatchTolerance(Degrees.of(5))
-                        .withAbsoluteEncoder1Inverted(true).withAbsoluteEncoder2Inverted(true);
+                .withAbsoluteEncoder1Gearing(kTurntableGearTeeth, kDrivingGearTeeth)
+                .withAbsoluteEncoder2Gearing(kTurntableGearTeeth, kSensingGearTeeth)
+                .withMechanismRange(Rotations.of(-0.55), Rotations.of(0.55)).withMatchTolerance(Degrees.of(5))
+                .withAbsoluteEncoder1Inverted(true).withAbsoluteEncoder2Inverted(true);
         m_crtCalculator = new EasyCRT(crtConfig);
 
         TunablePID.createMotionMagic("Turret/Suzie/PID", m_motor, config);
