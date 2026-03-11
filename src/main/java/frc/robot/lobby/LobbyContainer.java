@@ -1,26 +1,33 @@
 package frc.robot.lobby;
 
+import static edu.wpi.first.units.Units.DegreesPerSecond;
+import static edu.wpi.first.units.Units.MetersPerSecond;
 import static edu.wpi.first.units.Units.Amps;
 import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.Radians;
 import static edu.wpi.first.units.Units.Seconds;
 
 import java.util.Optional;
+import org.northernforce.util.NFRRobotContainer;
+import org.photonvision.simulation.SimCameraProperties;
 
+import com.ctre.phoenix6.Utils;
+import com.ctre.phoenix6.swerve.SwerveRequest;
+import com.pathplanner.lib.auto.NamedCommands;
+import com.pathplanner.lib.commands.PathPlannerAuto;
 import choreo.auto.AutoFactory;
 import choreo.auto.AutoRoutine;
 
 import com.ctre.phoenix6.StatusSignal;
-import com.ctre.phoenix6.Utils;
-import com.pathplanner.lib.auto.NamedCommands;
-import com.pathplanner.lib.commands.PathPlannerAuto;
 import dev.doglog.DogLog;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.networktables.DoubleSubscriber;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
@@ -34,6 +41,9 @@ import frc.robot.lobby.subsystems.CommandSwerveDrivetrain;
 import frc.robot.lobby.subsystems.apriltagvision.*;
 import frc.robot.lobby.subsystems.apriltagvision.commands.CloseDriveToPoseRequest;
 import frc.robot.lobby.subsystems.apriltagvision.commands.DriveToPoseWithVision;
+import frc.robot.lobby.subsystems.climber.Climber;
+import frc.robot.lobby.subsystems.climber.ClimberIOTalonFX;
+import frc.robot.lobby.subsystems.climber.ClimberIOTalonFXSim;
 import frc.robot.lobby.subsystems.intake.Intake;
 import frc.robot.lobby.subsystems.intake.IntakeIOTalonFX;
 import frc.robot.lobby.subsystems.spindexer.Spindexer;
@@ -61,8 +71,6 @@ import frc.robot.lobby.subsystems.turret.hood.HoodIOServoSim;
 import frc.robot.util.AutoUtil;
 import frc.robot.util.InterpolatedTargetingCalculator;
 import frc.robot.util.TrigHoodTargetingCalculator;
-import org.northernforce.util.NFRRobotContainer;
-import org.photonvision.simulation.SimCameraProperties;
 
 public class LobbyContainer implements NFRRobotContainer
 {
@@ -72,6 +80,7 @@ public class LobbyContainer implements NFRRobotContainer
     private final AprilTagVision vision;
     private final AutoUtil autoUtil;
     private final Field2d field;
+    private final Climber climber;
     private final Turret turret;
     private final Spindexer spindexer;
     private final DriveToPoseWithVision driveToPoseCommand;
@@ -87,7 +96,7 @@ public class LobbyContainer implements NFRRobotContainer
     private final StatusSignal<Current> brDriveCurrent;
     private final StatusSignal<Current> brSteerCurrent;
 
-    private DoubleSubscriber predictionSeconds = DogLog.tunable("PredictionSeconds", 1.0);
+    private DoubleSubscriber predictionSeconds = DogLog.tunable("PredictionSeconds", 0.0);
 
     public LobbyContainer()
     {
@@ -109,6 +118,8 @@ public class LobbyContainer implements NFRRobotContainer
         drive.setVisionMeasurementStdDevs(LobbyConstants.VisionConstants.kStdDevs);
         if (Utils.isSimulation())
         {
+            climber = new Climber(new ClimberIOTalonFXSim(LobbyConstants.ClimberConstants.kClimberParameters));
+
             // TODO: get camera json config for sim
             vision = new AprilTagVision(drive,
                     new AprilTagVisionIOPhotonVisionSim(
@@ -137,6 +148,8 @@ public class LobbyContainer implements NFRRobotContainer
                     new SpindexerParameters(LobbyConstants.SpindexerConstants.kDeJamTimeout));
         } else
         {
+            climber = new Climber(new ClimberIOTalonFX(LobbyConstants.ClimberConstants.kClimberParameters));
+
             vision = new AprilTagVision(drive,
                     new AprilTagVisionIOLimelight(LobbyConstants.VisionConstants.LimeLightConstants.kLeftLimeLightName,
                             LobbyConstants.CameraConstants.kLeftCameraTransform,
@@ -180,11 +193,15 @@ public class LobbyContainer implements NFRRobotContainer
         NamedCommands.registerCommand("StopShoot",
                 Commands.runOnce(() -> turret.getShooter().stop(), turret.getShooter()));
         NamedCommands.registerCommand("StopIntake", intake.stopIntake().andThen(intake.getRunToMidAngleCommand()));
-
+        NamedCommands.registerCommand("RunUpClimber", climber.runUp());
+        NamedCommands.registerCommand("RunDownClimber", climber.runDown());
         autoUtil = new AutoUtil(drive, LobbyConstants.AutoConstants.xPid, LobbyConstants.AutoConstants.yPid,
                 LobbyConstants.AutoConstants.rPid);
-        autoUtil.bindAutoDefault("DO NOTHING", Commands.runOnce(
-                () -> resetOdometry(new Pose2d(drive.getPose().getTranslation(), new Rotation2d(Degrees.of(0))))));
+        autoUtil.bindAutoDefault("DO NOTHING",
+                Commands.runOnce(() -> resetOdometry(new Pose2d(drive.getPose().getTranslation(),
+                        DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Blue
+                                ? new Rotation2d(Degrees.of(0))
+                                : new Rotation2d(Degrees.of(180))))));
         autoUtil.bindAuto("S1-DEPOT", new PathPlannerAuto("S1-DEPOT"));
         autoUtil.bindAuto("S2-DEPOT", new PathPlannerAuto("S2-DEPOT"));
         autoUtil.bindAuto("S1-SHOOT", new PathPlannerAuto("S1-SHOOT"));
@@ -239,6 +256,23 @@ public class LobbyContainer implements NFRRobotContainer
     public Spindexer getSpindexer()
     {
         return spindexer;
+    }
+
+    public Command driveToPreClimbPosition()
+    {
+        return Commands.defer(() ->
+        {
+            Pose2d target = climber.getClosestClimbPose(drive.getState().Pose);
+            DogLog.log("Auto/DrivingToPreClimbPosition", target);
+            return driveToPose(target);
+        }, java.util.Set.of(drive));
+    }
+
+    public Command driveToClimbPost()
+    {
+        return Commands.deadline(Commands.waitSeconds(0.5),
+                drive.applyRequest(() -> new SwerveRequest.ApplyRobotSpeeds().withSpeeds(
+                        new ChassisSpeeds(MetersPerSecond.of(0), MetersPerSecond.of(0.05), DegreesPerSecond.of(0)))));
     }
 
     @Override
@@ -364,6 +398,11 @@ public class LobbyContainer implements NFRRobotContainer
         return autoUtil.getSelected();
     }
 
+    public Climber getClimber()
+    {
+        return climber;
+    }
+
     public AutoRoutine testAuto(AutoFactory factory)
     {
         var routine = factory.newRoutine("TestAuto");
@@ -379,6 +418,7 @@ public class LobbyContainer implements NFRRobotContainer
 
     public Command roughDriveToPose(Pose2d pose)
     {
+        DogLog.log("Auto/DrivingToPose", pose);
         return driveToPoseCommand.driveToPose(pose);
     }
 

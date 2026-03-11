@@ -30,6 +30,12 @@
           }
         },
         {
+          "type": "named",
+          "data": {
+            "name": "Intake"
+          }
+        },
+        {
           "type": "path",
           "data": {
             "pathName": "S1-NZL"
@@ -99,9 +105,22 @@
           }
         },
         {
-          "type": "path",
+          "type": "deadline",
           "data": {
-            "pathName": "SL-NZL"
+            "commands": [
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "SL-NZL"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "Intake"
+                }
+              }
+            ]
           }
         },
         {

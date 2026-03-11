@@ -143,6 +143,13 @@ public class Turret extends SubsystemBase
         shooter.setTargetSpeed(pose.shooterSpeed);
     }
 
+    public void setTargetPoseStupid(TurretPose pose)
+    {
+        DogLog.log("Target Angle Being Set", pose.hoodAngle);
+        hood.setTargetMechanismAngle(pose.hoodAngle);
+        shooter.setTargetSpeed(pose.shooterSpeed);
+    }
+
     public void start()
     {
         suzie.start();
@@ -203,9 +210,8 @@ public class Turret extends SubsystemBase
         Angle suzieAngle = calculateSuzieTargetAngle(robotPose,
                 new Translation3d(passingTarget.getX(), passingTarget.getY(), 0));
 
-        // Use a lower, flatter trajectory for passing
-        Angle hoodAngle = Degrees.of(5); // Low angle for passing
-        AngularVelocity shooterSpeed = RotationsPerSecond.of(50); // Medium speed for passing
+        Angle hoodAngle = Degrees.of(hoodCalculator.getValueForDistance(distanceToTarget));
+        AngularVelocity shooterSpeed = RotationsPerSecond.of(shooterCalculator.getValueForDistance(distanceToTarget));
 
         DogLog.log("Turret/TargetMode", "Passing");
         DogLog.log("Turret/TargetPosition", passingTarget);
