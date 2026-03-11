@@ -149,7 +149,7 @@ public class LobbyConstants
     public class Turret
     {
         public static Pose2d offset = new Pose2d(new Translation2d(Inches.of(-6.264), Inches.of(6.300)),
-                new Rotation2d(Degrees.of(45)));
+                new Rotation2d(Degrees.of(50)));
 
         public class Suzie
         {
@@ -234,7 +234,8 @@ public class LobbyConstants
             private static int kMotor2ID = 21;
             private static double kS = 0;
             private static double kV = 0.115;
-            private static double kA = 0.1;
+            private static double kA = 0;
+            private static double kSimA = 0.1;
             private static double kP = 0;
             private static double kI = 0;
             private static double kD = 0;
@@ -248,6 +249,9 @@ public class LobbyConstants
 
             public static ShooterConstants kKrakenConstants = new ShooterConstants(kMotor1ID, kMotor2ID, kS, kV, kA, kP,
                     kI, kD, kG, kCruiseVelocity, kAcceleration, kJerk, kMotor1Inverted, kMotor2Inverted,
+                    kErrorTolerance);
+            public static ShooterConstants kKrakenSimConstants = new ShooterConstants(kMotor1ID, kMotor2ID, kS, kV,
+                    kSimA, kP, kI, kD, kG, kCruiseVelocity, kAcceleration, kJerk, kMotor1Inverted, kMotor2Inverted,
                     kErrorTolerance);
         }
     }

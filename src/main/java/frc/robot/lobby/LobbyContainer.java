@@ -97,8 +97,6 @@ public class LobbyContainer implements NFRRobotContainer
     private final StatusSignal<Current> brDriveCurrent;
     private final StatusSignal<Current> brSteerCurrent;
 
-    private DoubleSubscriber predictionSeconds = DogLog.tunable("PredictionSeconds", 0.0);
-
     public LobbyContainer()
     {
 
@@ -129,7 +127,7 @@ public class LobbyContainer implements NFRRobotContainer
             turret = new Turret(new TurretConstants(LobbyConstants.Turret.offset),
                     new Suzie(new SuzieIOTalonFXSSim(LobbyConstants.Turret.Suzie.kMinionConstants)),
                     new Hood(new HoodIOServoSim(LobbyConstants.Turret.Hood.kServoConstants)),
-                    new Shooter(new ShooterIOTalonFXSim(LobbyConstants.Turret.Shooter.kKrakenConstants)),
+                    new Shooter(new ShooterIOTalonFXSim(LobbyConstants.Turret.Shooter.kKrakenSimConstants)),
                     new TrigHoodTargetingCalculator(), new TrigHoodTargetingCalculator());
             spindexer = new Spindexer(
                     new CarouselIOTalonFXSim(new CarouselConstants(LobbyConstants.CarouselConstants.kMotorID,
@@ -351,6 +349,7 @@ public class LobbyContainer implements NFRRobotContainer
             }
 
         DogLog.log("Velocity", drive.getVelocity());
+        DogLog.log("Drive/Predicted Pose", predictPose());
         DogLog.log("CurrentDraw/General/Voltage", powerDistributionHub.getVoltage());
         DogLog.log("CurrentDraw/General/TotalCurrent", powerDistributionHub.getTotalCurrent());
         DogLog.log("CurrentDraw/PDH/Feeder", powerDistributionHub.getCurrent(8));

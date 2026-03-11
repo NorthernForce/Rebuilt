@@ -79,9 +79,29 @@ public class Turret extends SubsystemBase
     /**
      * Get the passing target for the current alliance
      */
-    public Translation2d getPassingTarget()
+    public Translation2d getPassingTarget(Pose2d robotPose)
     {
-        return getAlliance() == Alliance.Red ? FieldConstants.kRedPassingTarget : FieldConstants.kBluePassingTarget;
+        Translation2d shooterPosition = calculateFieldRelativeShooterPosition(robotPose);
+        boolean right = shooterPosition.getMeasureY().lt(Meters.of(FieldConstants.kFieldWidthMeters / 2.0));
+        if (getAlliance() == Alliance.Blue)
+        {
+            if (right)
+            {
+                return FieldConstants.kBlueRightPassingTarget;
+            } else
+            {
+                return FieldConstants.kBlueLeftPassingTarget;
+            }
+        } else
+        {
+            if (right)
+            {
+                return FieldConstants.kRedRightPassingTarget;
+            } else
+            {
+                return FieldConstants.kRedLeftPassingTarget;
+            }
+        }
     }
 
     /**
@@ -202,7 +222,7 @@ public class Turret extends SubsystemBase
      */
     private TurretPose calculatePassingPose(Pose2d robotPose)
     {
-        Translation2d passingTarget = getPassingTarget();
+        Translation2d passingTarget = getPassingTarget(robotPose);
         Translation2d shooterPosition = calculateFieldRelativeShooterPosition(robotPose);
         double distanceToTarget = shooterPosition.getDistance(passingTarget);
 
