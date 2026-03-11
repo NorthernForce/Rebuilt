@@ -389,7 +389,9 @@ public class LobbyContainer implements NFRRobotContainer
 
     public Pose2d predictPose()
     {
-        return drive.getVirtualRobotPose(FieldConstants.kBlueHubPosition.toTranslation2d(), turret);
+        Pose2d pose = drive.getVirtualRobotPose(FieldConstants.kBlueHubPosition.toTranslation2d(), turret);
+        DogLog.log("PredictedPose", pose);
+        return pose;
     }
 
     @Override

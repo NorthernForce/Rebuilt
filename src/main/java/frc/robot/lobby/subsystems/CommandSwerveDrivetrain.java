@@ -244,9 +244,10 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         Pose2d currentPose = getPose();
         double distance = currentPose.getTranslation().getDistance(realHubLocation);
         double timeOfFlight = distance / ballExitVelocity;
+        DogLog.log("TimeOfFlight", timeOfFlight);
         double xVirtualOffset = xVelocity.in(MetersPerSecond) * timeOfFlight;
         double yVirtualOffset = yVelocity.in(MetersPerSecond) * timeOfFlight;
-        return new Pose2d(currentPose.getX() + xVirtualOffset, currentPose.getY() + yVirtualOffset,
+        return new Pose2d(Meters.of(currentPose.getMeasureX().in(Meters) + xVirtualOffset), Meters.of(currentPose.getMeasureY().in(Meters) + yVirtualOffset),
                 currentPose.getRotation());
     }
 
