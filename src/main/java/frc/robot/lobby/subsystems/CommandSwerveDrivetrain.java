@@ -633,7 +633,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
      */
     public Command resetOrientation()
     {
-        return Commands.runOnce(() -> resetRotation(getOperatorForwardDirection()), this);
+        return Commands.runOnce(() -> resetRotation(getOperatorForwardDirection()), this).ignoringDisable(true);
     }
 
     /**
