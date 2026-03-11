@@ -31,6 +31,7 @@ import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
@@ -51,6 +52,7 @@ import edu.wpi.first.wpilibj2.command.Subsystem;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.lobby.generated.LobbyTunerConstants;
 import frc.robot.lobby.generated.LobbyTunerConstants.TunerSwerveDrivetrain;
+import frc.robot.lobby.subsystems.turret.Turret;
 import frc.robot.util.CTREUtil;
 import frc.robot.util.NFRLog;
 import frc.robot.util.Status;
@@ -219,25 +221,33 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
     }
 
     /**
-     * Used to predict the future pose
-     * 
-     * @param amtTimeIntoTheFuture amount of time to predict
-     * @return the predicted pose
+     * Calculates a "Virtual Pose" for the turret to aim at.
      */
-
-    public Pose2d predictPose(Time amtTimeIntoTheFuture)
+    public Pose2d getShotCompensatedPose(Translation2d hubLocation, double ballExitVelocity)
     {
         Pose2d currentPose = getPose();
-        var speeds = getState().Speeds;
-        double dt = amtTimeIntoTheFuture.in(Seconds);
-        double cos = currentPose.getRotation().getCos();
-        double sin = currentPose.getRotation().getSin();
-        // Convert robot-relative ChassisSpeeds to field-relative velocities
-        double fieldVx = speeds.vxMetersPerSecond * cos - speeds.vyMetersPerSecond * sin;
-        double fieldVy = speeds.vxMetersPerSecond * sin + speeds.vyMetersPerSecond * cos;
-        Pose2d newPose = new Pose2d(currentPose.getX() + fieldVx * dt, currentPose.getY() + fieldVy * dt,
-                currentPose.getRotation().plus(Rotation2d.fromRadians(speeds.omegaRadiansPerSecond * dt)));
-        return newPose;
+        double distance = currentPose.getTranslation().getDistance(hubLocation);
+        double timeOfFlight = distance / ballExitVelocity;
+        double xCorrection = -xVelocity.in(MetersPerSecond) * timeOfFlight;
+        double yCorrection = -yVelocity.in(MetersPerSecond) * timeOfFlight;
+        return new Pose2d(currentPose.getX() + xCorrection, currentPose.getY() + yCorrection,
+                currentPose.getRotation());
+    }
+
+    /**
+     * Generates a "Virtual Pose" for the turret. Aiming from this pose at the REAL
+     * hub location will counteract robot velocity.
+     */
+    public Pose2d getVirtualRobotPose(Translation2d realHubLocation, Turret turret)
+    {
+        double ballExitVelocity = turret.calculateTargetPose(getPose()).shooterSpeed().in(RotationsPerSecond);
+        Pose2d currentPose = getPose();
+        double distance = currentPose.getTranslation().getDistance(realHubLocation);
+        double timeOfFlight = distance / ballExitVelocity;
+        double xVirtualOffset = xVelocity.in(MetersPerSecond) * timeOfFlight;
+        double yVirtualOffset = yVelocity.in(MetersPerSecond) * timeOfFlight;
+        return new Pose2d(currentPose.getX() + xVirtualOffset, currentPose.getY() + yVirtualOffset,
+                currentPose.getRotation());
     }
 
     /**

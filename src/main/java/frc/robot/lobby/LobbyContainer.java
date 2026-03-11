@@ -29,6 +29,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.lobby.autos.SimpleAuto;
+import frc.robot.FieldConstants;
 import frc.robot.lobby.generated.LobbyTunerConstants;
 import frc.robot.lobby.subsystems.CommandSwerveDrivetrain;
 import frc.robot.lobby.subsystems.apriltagvision.*;
@@ -314,7 +315,6 @@ public class LobbyContainer implements NFRRobotContainer
             {
                 DogLog.log("GameData/GameShift", teamActivity.get().equals("inactive") ? "inactive" : "active");
             }
-        DogLog.log("PredictedPose", drive.predictPose(Seconds.of(predictionSeconds.get())));
 
         DogLog.log("Velocity", drive.getVelocity());
         DogLog.log("CurrentDraw/General/Voltage", powerDistributionHub.getVoltage());
@@ -355,7 +355,7 @@ public class LobbyContainer implements NFRRobotContainer
 
     public Pose2d predictPose()
     {
-        return drive.predictPose(Seconds.of(predictionSeconds.get()));
+        return drive.getVirtualRobotPose(FieldConstants.kBlueHubPosition.toTranslation2d(), turret);
     }
 
     @Override
