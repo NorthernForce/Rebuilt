@@ -38,6 +38,7 @@ import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
+import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.units.measure.LinearAcceleration;
 import edu.wpi.first.units.measure.LinearVelocity;
 import edu.wpi.first.units.measure.Time;
@@ -240,15 +241,16 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
      */
     public Pose2d getVirtualRobotPose(Translation2d realHubLocation, Turret turret)
     {
-        double ballExitVelocity = turret.calculateTargetPose(getPose()).shooterSpeed().in(RotationsPerSecond);
+        LinearVelocity ballExitVelocity = MetersPerSecond
+                .of(turret.calculateTargetPose(getPose()).shooterSpeed().in(RotationsPerSecond) * 3.0 * Math.PI);
         Pose2d currentPose = getPose();
-        double distance = currentPose.getTranslation().getDistance(realHubLocation);
-        double timeOfFlight = distance / ballExitVelocity;
+        Distance distance = Meters.of(currentPose.getTranslation().getDistance(realHubLocation));
+        Time timeOfFlight = distance.div(ballExitVelocity);
         DogLog.log("TimeOfFlight", timeOfFlight);
-        double xVirtualOffset = xVelocity.in(MetersPerSecond) * timeOfFlight;
-        double yVirtualOffset = yVelocity.in(MetersPerSecond) * timeOfFlight;
-        return new Pose2d(Meters.of(currentPose.getMeasureX().in(Meters) + xVirtualOffset), Meters.of(currentPose.getMeasureY().in(Meters) + yVirtualOffset),
-                currentPose.getRotation());
+        Distance xVirtualOffset = xVelocity.times(timeOfFlight);
+        Distance yVirtualOffset = yVelocity.times(timeOfFlight);
+        return new Pose2d(Meters.of(currentPose.getMeasureX().in(Meters) + xVirtualOffset.in(Meters)),
+                Meters.of(currentPose.getMeasureY().in(Meters) + yVirtualOffset.in(Meters)), currentPose.getRotation());
     }
 
     /**
