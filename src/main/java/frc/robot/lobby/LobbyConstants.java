@@ -58,6 +58,18 @@ public class LobbyConstants
         public static final ModuleType kModuleType = ModuleType.kRev;
     }
 
+    public class PhysicsConstants
+    {
+        public static final double G = 9.8;
+        public static final double RHO = 1.225;
+        public static final double CD = 0.47;
+        public static final double A = 0.0177;
+        public static final double M = 0.2268;
+        public static final double K = (RHO * CD * A) / (2.0 * M);
+        public static final double DT = 0.01;
+
+    }
+
     public class DrivetrainConstants
     {
         public static final LinearVelocity kMaxSpeed = LobbyTunerConstants.kSpeedAt12Volts;

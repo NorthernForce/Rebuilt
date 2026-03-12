@@ -77,7 +77,8 @@ public class LobbyContainer implements NFRRobotContainer
 {
     private final CommandSwerveDrivetrain drive;
     private final Intake intake;
-
+    private final DoubleSubscriber timePredict;
+    private final DoubleSubscriber amtPoseCaptureFrames;
     private final AprilTagVision vision;
     private final AutoUtil autoUtil;
     private final Field2d field;
@@ -99,7 +100,8 @@ public class LobbyContainer implements NFRRobotContainer
 
     public LobbyContainer()
     {
-
+        timePredict = DogLog.tunable("RunNGun/Predict", 1.0);
+        amtPoseCaptureFrames = DogLog.tunable("RunNGun/CaptureFrames", 10.0);
         drive = new CommandSwerveDrivetrain(LobbyTunerConstants.DrivetrainConstants,
                 LobbyConstants.DrivetrainConstants.kMaxSpeed, LobbyConstants.DrivetrainConstants.kMaxAngularSpeed,
                 LobbyTunerConstants.FrontLeft, LobbyTunerConstants.FrontRight, LobbyTunerConstants.BackLeft,
@@ -388,7 +390,7 @@ public class LobbyContainer implements NFRRobotContainer
 
     public Pose2d predictPose()
     {
-        Pose2d pose = drive.getVirtualRobotPose(FieldConstants.kBlueHubPosition.toTranslation2d(), turret);
+        Pose2d pose = drive.predictSeconds(Seconds.of(timePredict.getAsDouble()), amtPoseCaptureFrames.getAsDouble());
         DogLog.log("PredictedPose", pose);
         return pose;
     }
