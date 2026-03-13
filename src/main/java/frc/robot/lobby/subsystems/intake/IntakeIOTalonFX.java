@@ -14,6 +14,7 @@ import dev.doglog.DogLog;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.Voltage;
+import edu.wpi.first.wpilibj.PowerDistribution;
 
 import static edu.wpi.first.units.Units.Amps;
 import static edu.wpi.first.units.Units.Rotations;
@@ -161,5 +162,17 @@ public class IntakeIOTalonFX implements IntakeIO
     public void setPower(double power)
     {
         angleMotor.set(power);
+    }
+
+    @Override
+    public double getRollerCurrent()
+    {
+        return rollerMotor.getSupplyCurrent().getValueAsDouble();
+    }
+
+    @Override
+    public double getAnglingCurrent()
+    {
+        return angleMotor.getSupplyCurrent().getValueAsDouble();
     }
 }

@@ -9,6 +9,7 @@ import com.ctre.phoenix6.controls.ControlRequest;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Voltage;
+import edu.wpi.first.wpilibj.PowerDistribution;
 
 public interface ShooterIO
 {
@@ -61,4 +62,8 @@ public interface ShooterIO
     public void start();
 
     public void stop();
+
+    public double getMotor1Current();
+
+    public double getMotor2Current();
 }

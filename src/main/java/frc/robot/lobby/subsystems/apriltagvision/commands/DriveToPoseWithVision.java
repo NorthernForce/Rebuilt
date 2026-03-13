@@ -1,5 +1,9 @@
 package frc.robot.lobby.subsystems.apriltagvision.commands;
 
+import static edu.wpi.first.units.Units.Degrees;
+import static edu.wpi.first.units.Units.DegreesPerSecond;
+import static edu.wpi.first.units.Units.MetersPerSecond;
+
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -32,7 +36,7 @@ public class DriveToPoseWithVision
      */
     public Command driveToPose(Pose2d targetPose)
     {
-        return drive.navigateToPose(targetPose);
+        return drive.navigateToPose(targetPose, MetersPerSecond.of(10), DegreesPerSecond.of(180));
     }
 
     /**

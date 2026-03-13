@@ -7,7 +7,13 @@
         {
           "type": "path",
           "data": {
-            "pathName": "ShminyAuto"
+            "pathName": "New Path"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "AutoHang"
           }
         }
       ]

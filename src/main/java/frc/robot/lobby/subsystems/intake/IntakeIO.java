@@ -3,6 +3,7 @@ package frc.robot.lobby.subsystems.intake;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Voltage;
+import edu.wpi.first.wpilibj.PowerDistribution;
 
 public interface IntakeIO
 {
@@ -58,5 +59,9 @@ public interface IntakeIO
     public default void enableSoftLimits()
     {
     }
+
+    public double getRollerCurrent();
+
+    public double getAnglingCurrent();
 
 }

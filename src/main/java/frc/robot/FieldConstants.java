@@ -50,14 +50,14 @@ public class FieldConstants
     public static final double kRedAllianceStationX = kFieldLengthMeters;
 
     // Alliance station corners for passing (when out of shooting range)
-    public static final Translation2d kBluePassingTarget = new Translation2d(Meters.of(1.0), // Near blue alliance wall
-            Meters.of(kFieldWidthMeters - 1.0)); // Left corner (from driver perspective)
+    public static final Translation2d kBluePassingTarget = new Translation2d(Meters.of(2.0), // Near blue alliance wall
+            Meters.of(kFieldWidthMeters - 2.0)); // Left corner (from driver perspective)
 
-    public static final Translation2d kRedPassingTarget = new Translation2d(Meters.of(kFieldLengthMeters - 1.0), // Near
+    public static final Translation2d kRedPassingTarget = new Translation2d(Meters.of(kFieldLengthMeters - 2.0), // Near
                                                                                                                  // red
                                                                                                                  // alliance
                                                                                                                  // wall
-            Meters.of(1.0)); // Left corner (from driver perspective)
+            Meters.of(2.0)); // Left corner (from driver perspective)
 
     // Maximum shooting distance (meters)
     public static final double kMaxShootingDistance = 8.0;

@@ -51,16 +51,8 @@ public class PrepTurretCommand extends Command
         DogLog.log("Turret/PrepCommand/CalculatedSuzieAngle", targetPose.suzieAngle().in(Radians));
         DogLog.log("Turret/PrepCommand/CalculatedHoodAngle", targetPose.hoodAngle().in(Degrees));
         DogLog.log("Turret/PrepCommand/DistanceToHub", turret.getDistanceToHub(currentPose));
-
-        if (inDanger)
-        {
-            // Keep suzie and shooter targeting, but force hood down
-            turret.setTargetPose(new TurretPose(targetPose.suzieAngle(), Degrees.of(0), targetPose.shooterSpeed()));
-        } else
-        {
-            DogLog.log("Turret/Suzie/Target Angle Set", targetPose.suzieAngle().in(Degrees));
-            turret.setTargetPose(new TurretPose(targetPose.suzieAngle(), Degrees.of(0), targetPose.shooterSpeed()));
-        }
+        turret.setTargetPose(
+                new TurretPose(targetPose.suzieAngle(), targetPose.hoodAngle(), targetPose.shooterSpeed()));
 
         turret.start();
     }

@@ -5,6 +5,7 @@ import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.DegreesPerSecond;
 import static edu.wpi.first.units.Units.Rotations;
 
+import java.io.ObjectInputFilter.Status;
 import java.util.Optional;
 import java.util.function.Supplier;
 
@@ -27,6 +28,7 @@ import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Temperature;
 import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj.DutyCycleEncoder;
+import edu.wpi.first.wpilibj.PowerDistribution;
 import frc.robot.util.TunablePID;
 import yams.units.EasyCRT;
 import yams.units.EasyCRTConfig;
@@ -48,6 +50,7 @@ public class SuzieIOTalonFXS implements SuzieIO
     protected final EasyCRT m_crtCalculator;
     protected final Angle m_lowerSoftLimit;
     protected final Angle m_upperSoftLimit;
+    protected final StatusSignal<Current> motorCurrent;
 
     public boolean crtUsed = false;
     private Angle m_targetAngle = Degrees.zero();
@@ -109,8 +112,8 @@ public class SuzieIOTalonFXS implements SuzieIO
 
         m_motor.getConfigurator().apply(config);
 
-        m_drivingEncoder = new DutyCycleEncoder(kDrivingEncoderID, 1.0, 0.002);
-        m_sensingEncoder = new DutyCycleEncoder(kSensingEncoderID, 1.0, 0.915);
+        m_drivingEncoder = new DutyCycleEncoder(kDrivingEncoderID, 1.0, 0.234);
+        m_sensingEncoder = new DutyCycleEncoder(kSensingEncoderID, 1.0, 0.804);
 
         m_position = m_motor.getPosition();
         m_temperature = m_motor.getDeviceTemp();
@@ -127,13 +130,14 @@ public class SuzieIOTalonFXS implements SuzieIO
 
         EasyCRTConfig crtConfig = new EasyCRTConfig(() -> Rotations.of(m_drivingEncoder.get()),
                 () -> Rotations.of(m_sensingEncoder.get()))
-                        .withAbsoluteEncoder1Gearing(kTurntableGearTeeth, kDrivingGearTeeth)
-                        .withAbsoluteEncoder2Gearing(kTurntableGearTeeth, kSensingGearTeeth)
-                        .withMechanismRange(Rotations.of(-0.55), Rotations.of(0.55)).withMatchTolerance(Degrees.of(5))
-                        .withAbsoluteEncoder1Inverted(true).withAbsoluteEncoder2Inverted(true);
+                .withAbsoluteEncoder1Gearing(kTurntableGearTeeth, kDrivingGearTeeth)
+                .withAbsoluteEncoder2Gearing(kTurntableGearTeeth, kSensingGearTeeth)
+                .withMechanismRange(Rotations.of(-0.55), Rotations.of(0.55)).withMatchTolerance(Degrees.of(5))
+                .withAbsoluteEncoder1Inverted(true).withAbsoluteEncoder2Inverted(true);
         m_crtCalculator = new EasyCRT(crtConfig);
 
         TunablePID.createMotionMagic("Turret/Suzie/PID", m_motor, config);
+        motorCurrent = m_motor.getSupplyCurrent();
     }
 
     @Override
@@ -144,7 +148,7 @@ public class SuzieIOTalonFXS implements SuzieIO
         var angle = m_crtCalculator.getAngleOptional();
         if (angle.isPresent())
         {
-            if ((crtUsed && Math.abs(angle.get().minus(m_position.getValue()).in(Degrees)) < 5.0) || !crtUsed)
+            if ((crtUsed && angle.get().isNear(m_motor.getPosition().getValue(), Degrees.of(10))) || !crtUsed)
             {
                 m_motor.setPosition(angle.get());
                 crtUsed = true;
@@ -161,6 +165,12 @@ public class SuzieIOTalonFXS implements SuzieIO
     public void setMotorControl(ControlRequest request)
     {
         m_motor.setControl(request);
+    }
+
+    @Override
+    public void resetCRT()
+    {
+        crtUsed = false;
     }
 
     @Override
@@ -243,5 +253,12 @@ public class SuzieIOTalonFXS implements SuzieIO
     public String getAppliedControlName()
     {
         return m_motor.getAppliedControl().getName();
+    }
+
+    @Override
+    public double getCurrent()
+    {
+        motorCurrent.refresh();
+        return motorCurrent.getValueAsDouble();
     }
 }
