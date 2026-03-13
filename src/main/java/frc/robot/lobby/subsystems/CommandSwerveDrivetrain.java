@@ -331,7 +331,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
     public Pose2d predictSeconds(Time time, double amtPoseCaptureFrames)
     {
         Pose2d pose = getPose();
-        ChassisSpeeds velocities = getAverageVelocity(amtPoseCaptureFrames);
+        ChassisSpeeds velocities = new ChassisSpeeds(xVelocity, yVelocity, thetaVelocity);// getAverageVelocity(amtPoseCaptureFrames);
         Distance xOffset = Meters.of(
                 MathUtil.applyDeadband(MetersPerSecond.of(velocities.vxMetersPerSecond).times(time).in(Meters), 0.1));
         Distance yOffset = Meters.of(
@@ -489,7 +489,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         Pose2d pose = getPose();
         Time fgpa = Seconds.of(Timer.getFPGATimestamp());
         Time deltaTime = fgpa.minus(fgpaSeconds);
-        if (deltaTime.in(Seconds) > 0.05)
+        if (deltaTime.in(Seconds) > 0.03)
         {
             xVelocity = MetersPerSecond
                     .of((pose.getMeasureX().in(Meters) - lastPose.getMeasureX().in(Meters)) / (deltaTime.in(Seconds)));

@@ -34,7 +34,7 @@ public class Shooter extends SubsystemBase
             setTargetDutyCycle(newDutyCycle);
         });
         m_sysId = new SysIdRoutine(new SysIdRoutine.Config(null, // Use default ramp rate (1 V/s)
-                Volts.of(4), // Reduce dynamic step voltage to 4 V
+                Volts.of(7), // Reduce dynamic step voltage to 4 V
                 null, // Use default timeout (10 s)
                 state -> DogLog.log("Shooter_SysId_State", state.toString()) // Log state with SignalLogger class
         ), new SysIdRoutine.Mechanism(output -> io.setMotorControl(new VoltageOut(output)), // Apply voltage

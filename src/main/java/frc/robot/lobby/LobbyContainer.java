@@ -101,7 +101,7 @@ public class LobbyContainer implements NFRRobotContainer
     public LobbyContainer()
     {
         timePredict = DogLog.tunable("RunNGun/Predict", 1.0);
-        amtPoseCaptureFrames = DogLog.tunable("RunNGun/CaptureFrames", 10.0);
+        amtPoseCaptureFrames = DogLog.tunable("RunNGun/CaptureFrames", 1.0);
         drive = new CommandSwerveDrivetrain(LobbyTunerConstants.DrivetrainConstants,
                 LobbyConstants.DrivetrainConstants.kMaxSpeed, LobbyConstants.DrivetrainConstants.kMaxAngularSpeed,
                 LobbyTunerConstants.FrontLeft, LobbyTunerConstants.FrontRight, LobbyTunerConstants.BackLeft,
@@ -221,6 +221,14 @@ public class LobbyContainer implements NFRRobotContainer
                 turret.getSuzie().getSysIdQuasistaticReverse());
         Shuffleboard.getTab("SysId").add("Turntable Dynamic Forward", turret.getSuzie().getSysIdDynamicForward());
         Shuffleboard.getTab("SysId").add("Turntable Dynamic Reverse", turret.getSuzie().getSysIdDynamicReverse());
+
+        Shuffleboard.getTab("SysId").add("Shooter Quasistatic Forward",
+                turret.getShooter().getSysIdQuasistaticForward());
+        Shuffleboard.getTab("SysId").add("Shooter Quasistatic Reverse",
+                turret.getShooter().getSysIdQuasistaticReverse());
+        Shuffleboard.getTab("SysId").add("Shooter Dynamic Forward", turret.getShooter().getSysIdDynamicForward());
+        Shuffleboard.getTab("SysId").add("Shooter Dynamic Reverse", turret.getShooter().getSysIdDynamicReverse());
+
         Shuffleboard.getTab("Developer").add("Drive to Blue Reef",
                 drive.navigateToPose(new Pose2d(3, 4, new Rotation2d())));
 

@@ -14,6 +14,7 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
 import frc.robot.FieldConstants;
 import frc.robot.lobby.subsystems.spindexer.commands.RunSpindexer;
+import frc.robot.lobby.subsystems.turret.Turret.TurretPose;
 import frc.robot.lobby.subsystems.turret.commands.AimTurretCommand;
 import frc.robot.lobby.subsystems.turret.commands.PrepTurretCommand;
 import frc.robot.lobby.subsystems.turret.commands.PrepTurretStupid;
@@ -46,7 +47,8 @@ public class LobbyOI
         drive.setDefaultCommand(drive.driveByJoystick(inputProc(driveController::getLeftY),
                 inputProc(driveController::getLeftX), inputProc(driveController::getRightX)));
         intake.setDefaultCommand(intake.stopIntake().andThen(intake.getRunToIntakeAngleCommand()));
-        turret.setDefaultCommand(new AimTurretCommand(() -> container.predictPose(), turret));
+        // turret.setDefaultCommand(new AimTurretCommand(() -> container.predictPose(),
+        // turret));
         // spindexer.setDefaultCommand(new Agitate(spindexer));
         // turret.setDefaultCommand(container.getTurret().runBasedOnLocation(() ->
         // drive.getState().Pose,
@@ -57,10 +59,10 @@ public class LobbyOI
         driveController.x().toggleOnTrue(intake.stopIntake().andThen(intake.getRunToStowAngleCommand()).repeatedly());
 
         driveController.leftTrigger().whileTrue(intake.intakeMoving()).onFalse(intake.stopIntake());
-        driveController.rightTrigger().whileTrue(Commands
+        driveController.rightTrigger().whileTrue((Commands
                 .waitUntil(() -> turret.getSuzie().isAtTargetAngle() && turret.getShooter().isAtTargetSpeed())
                 .andThen(new RunSpindexer(container.getSpindexer(), LobbyConstants.SpindexerConstants.kDeJamTime))
-                .alongWith(new PrepTurretCommand(() -> container.predictPose(), turret)));
+                .alongWith(new PrepTurretCommand(() -> container.predictPose(), turret))));
 
         driveController.start().onTrue(Commands.runOnce(() -> suzie.resetCRT()));
 
