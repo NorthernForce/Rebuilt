@@ -451,7 +451,7 @@ public class LobbyContainer implements NFRRobotContainer
 
     public Optional<Rotation2d> getMovementDirectionRobotRelative()
     {
-        var speeds = drive.getState().Speeds; // ChassisSpeeds-like object
+        var speeds = drive.getState().Speeds;
         double vx = speeds.vxMetersPerSecond;
         double vy = speeds.vyMetersPerSecond;
         double mag = Math.hypot(vx, vy);
