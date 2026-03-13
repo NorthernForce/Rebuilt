@@ -401,4 +401,14 @@ public class LobbyConstants
     {
         public static final Temperature kMaxTemperature = Celsius.of(60.0);
     }
+
+    public class AutoTrenchConstants
+    {
+        public static final double kTriggerRadius = 1.8;
+        public static final double kTriggerOffset = 0.1;
+        // Distance (meters) to position before the trench center to begin the auto pass
+        public static final double kApproachDistance = 1.5;
+        // Distance (meters) beyond the trench center to drive to (exit point)
+        public static final double kThroughDistance = 1.7;
+    }
 }
