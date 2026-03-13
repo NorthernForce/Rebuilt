@@ -10,6 +10,7 @@ import com.ctre.phoenix6.signals.MotorArrangementValue;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Voltage;
+import edu.wpi.first.wpilibj.PowerDistribution;
 
 public interface SuzieIO
 {
@@ -64,6 +65,10 @@ public interface SuzieIO
     {
     }
 
+    public default void resetCRT()
+    {
+    }
+
     public default Voltage getVoltage()
     {
         return Volts.of(0);
@@ -86,5 +91,7 @@ public interface SuzieIO
     {
         return "";
     }
+
+    public double getCurrent();
 
 }

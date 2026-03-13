@@ -1,19 +1,37 @@
 package frc.robot.lobby;
 
+import static edu.wpi.first.units.Units.DegreesPerSecond;
+import static edu.wpi.first.units.Units.MetersPerSecond;
+import static edu.wpi.first.units.Units.Amps;
+import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.Radians;
 import static edu.wpi.first.units.Units.Degrees;
 import edu.wpi.first.units.measure.Angle;
 import java.util.Optional;
+import static edu.wpi.first.units.Units.Seconds;
 
+import java.util.Optional;
+import org.northernforce.util.NFRRobotContainer;
+import org.photonvision.simulation.SimCameraProperties;
+
+import com.ctre.phoenix6.Utils;
+import com.ctre.phoenix6.swerve.SwerveRequest;
+import com.pathplanner.lib.auto.NamedCommands;
+import com.pathplanner.lib.commands.PathPlannerAuto;
 import choreo.auto.AutoFactory;
 import choreo.auto.AutoRoutine;
-import com.ctre.phoenix6.Utils;
-import com.pathplanner.lib.commands.PathPlannerAuto;
+
+import com.ctre.phoenix6.StatusSignal;
 import dev.doglog.DogLog;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.units.measure.Current;
+import edu.wpi.first.networktables.DoubleSubscriber;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
+import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
@@ -21,11 +39,15 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
+import frc.robot.lobby.autos.SimpleAuto;
 import frc.robot.lobby.generated.LobbyTunerConstants;
 import frc.robot.lobby.subsystems.CommandSwerveDrivetrain;
 import frc.robot.lobby.subsystems.apriltagvision.*;
 import frc.robot.lobby.subsystems.apriltagvision.commands.CloseDriveToPoseRequest;
 import frc.robot.lobby.subsystems.apriltagvision.commands.DriveToPoseWithVision;
+import frc.robot.lobby.subsystems.climber.Climber;
+import frc.robot.lobby.subsystems.climber.ClimberIOTalonFX;
+import frc.robot.lobby.subsystems.climber.ClimberIOTalonFXSim;
 import frc.robot.lobby.subsystems.intake.Intake;
 import frc.robot.lobby.subsystems.intake.IntakeIOTalonFX;
 import frc.robot.lobby.subsystems.spindexer.Spindexer;
@@ -33,12 +55,14 @@ import frc.robot.lobby.subsystems.spindexer.Spindexer.SpindexerParameters;
 import frc.robot.lobby.subsystems.spindexer.carousel.CarouselIO.CarouselConstants;
 import frc.robot.lobby.subsystems.spindexer.carousel.CarouselIOTalonFX;
 import frc.robot.lobby.subsystems.spindexer.carousel.CarouselIOTalonFXSim;
+import frc.robot.lobby.subsystems.spindexer.commands.RunSpindexer;
 import frc.robot.lobby.subsystems.spindexer.flicker.FlickerIOTalonFXS;
 import frc.robot.lobby.subsystems.spindexer.flicker.FlickerIOTalonFXSSim;
 import frc.robot.lobby.subsystems.spindexer.flicker.FlickerParameters;
 import frc.robot.lobby.subsystems.spindexer.flicker.FlickerSimParameters;
 import frc.robot.lobby.subsystems.turret.Turret;
 import frc.robot.lobby.subsystems.turret.Turret.TurretConstants;
+import frc.robot.lobby.subsystems.turret.commands.PrepTurretCommand;
 import frc.robot.lobby.subsystems.turret.hood.Hood;
 import frc.robot.lobby.subsystems.turret.hood.HoodIOServo;
 import frc.robot.lobby.subsystems.turret.shooter.Shooter;
@@ -50,10 +74,7 @@ import frc.robot.lobby.subsystems.turret.suzie.SuzieIOTalonFXSSim;
 import frc.robot.lobby.subsystems.turret.hood.HoodIOServoSim;
 import frc.robot.util.AutoUtil;
 import frc.robot.util.InterpolatedTargetingCalculator;
-import frc.robot.util.TestTargetingCalculator;
 import frc.robot.util.TrigHoodTargetingCalculator;
-import org.northernforce.util.NFRRobotContainer;
-import org.photonvision.simulation.SimCameraProperties;
 
 public class LobbyContainer implements NFRRobotContainer
 {
@@ -63,10 +84,23 @@ public class LobbyContainer implements NFRRobotContainer
     private final AprilTagVision vision;
     private final AutoUtil autoUtil;
     private final Field2d field;
+    private final Climber climber;
     private final Turret turret;
     private final Spindexer spindexer;
     private final DriveToPoseWithVision driveToPoseCommand;
     private Optional<String> teamActivity = Optional.empty();
+    private final PowerDistribution powerDistributionHub = new PowerDistribution(LobbyConstants.PDHConstants.kPDHPort,
+            LobbyConstants.PDHConstants.kModuleType);
+    private final StatusSignal<Current> flDriveCurrent;
+    private final StatusSignal<Current> flSteerCurrent;
+    private final StatusSignal<Current> frDriveCurrent;
+    private final StatusSignal<Current> frSteerCurrent;
+    private final StatusSignal<Current> blDriveCurrent;
+    private final StatusSignal<Current> blSteerCurrent;
+    private final StatusSignal<Current> brDriveCurrent;
+    private final StatusSignal<Current> brSteerCurrent;
+
+    private DoubleSubscriber predictionSeconds = DogLog.tunable("PredictionSeconds", 0.0);
 
     public LobbyContainer()
     {
@@ -75,11 +109,21 @@ public class LobbyContainer implements NFRRobotContainer
                 LobbyConstants.DrivetrainConstants.kMaxSpeed, LobbyConstants.DrivetrainConstants.kMaxAngularSpeed,
                 LobbyTunerConstants.FrontLeft, LobbyTunerConstants.FrontRight, LobbyTunerConstants.BackLeft,
                 LobbyTunerConstants.BackRight);
+        flDriveCurrent = drive.getModules()[0].getDriveMotor().getSupplyCurrent();
+        flSteerCurrent = drive.getModules()[0].getSteerMotor().getSupplyCurrent();
+        frDriveCurrent = drive.getModules()[1].getDriveMotor().getSupplyCurrent();
+        frSteerCurrent = drive.getModules()[1].getSteerMotor().getSupplyCurrent();
+        blDriveCurrent = drive.getModules()[2].getDriveMotor().getSupplyCurrent();
+        blSteerCurrent = drive.getModules()[2].getSteerMotor().getSupplyCurrent();
+        brDriveCurrent = drive.getModules()[3].getDriveMotor().getSupplyCurrent();
+        brSteerCurrent = drive.getModules()[3].getSteerMotor().getSupplyCurrent();
         drive.resetPose(new Pose2d(3, 3, new Rotation2d()));
 
         drive.setVisionMeasurementStdDevs(LobbyConstants.VisionConstants.kStdDevs);
         if (Utils.isSimulation())
         {
+            climber = new Climber(new ClimberIOTalonFXSim(LobbyConstants.ClimberConstants.kClimberParameters));
+
             // TODO: get camera json config for sim
             vision = new AprilTagVision(drive,
                     new AprilTagVisionIOPhotonVisionSim(
@@ -108,6 +152,8 @@ public class LobbyContainer implements NFRRobotContainer
                     new SpindexerParameters(LobbyConstants.SpindexerConstants.kDeJamTimeout));
         } else
         {
+            climber = new Climber(new ClimberIOTalonFX(LobbyConstants.ClimberConstants.kClimberParameters));
+
             vision = new AprilTagVision(drive,
                     new AprilTagVisionIOLimelight(LobbyConstants.VisionConstants.LimeLightConstants.kLeftLimeLightName,
                             LobbyConstants.CameraConstants.kLeftCameraTransform,
@@ -119,7 +165,8 @@ public class LobbyContainer implements NFRRobotContainer
                     new Suzie(new SuzieIOTalonFXS(LobbyConstants.Turret.Suzie.kMinionConstants)),
                     new Hood(new HoodIOServo(LobbyConstants.Turret.Hood.kServoConstants)),
                     new Shooter(new ShooterIOTalonFX(LobbyConstants.Turret.Shooter.kKrakenConstants)),
-                    new TestTargetingCalculator(), new InterpolatedTargetingCalculator(TargetingData.SHOOTER_DATA));
+                    new InterpolatedTargetingCalculator(TargetingData.HOOD_DATA),
+                    new InterpolatedTargetingCalculator(TargetingData.SHOOTER_DATA));
             spindexer = new Spindexer(
                     new CarouselIOTalonFX(new CarouselConstants(LobbyConstants.CarouselConstants.kMotorID,
                             LobbyConstants.CarouselConstants.kSpeed, LobbyConstants.CarouselConstants.kGearRatio,
@@ -142,10 +189,31 @@ public class LobbyContainer implements NFRRobotContainer
 
         field = new Field2d();
         driveToPoseCommand = new DriveToPoseWithVision(drive);
+        NamedCommands.registerCommand("Shoot",
+                Commands.waitUntil(() -> turret.getSuzie().isAtTargetAngle() && turret.getShooter().isAtTargetSpeed())
+                        .andThen(new RunSpindexer(getSpindexer(), LobbyConstants.SpindexerConstants.kDeJamTime))
+                        .alongWith(new PrepTurretCommand(() -> predictPose(), turret)));
+        NamedCommands.registerCommand("Intake", intake.intakeMoving());
+        NamedCommands.registerCommand("StopShoot",
+                Commands.runOnce(() -> turret.getShooter().stop(), turret.getShooter()));
+        NamedCommands.registerCommand("StopIntake", intake.stopIntake().andThen(intake.getRunToMidAngleCommand()));
+        NamedCommands.registerCommand("RunUpClimber", climber.runUp());
+        NamedCommands.registerCommand("RunDownClimber", climber.runDown());
         autoUtil = new AutoUtil(drive, LobbyConstants.AutoConstants.xPid, LobbyConstants.AutoConstants.yPid,
                 LobbyConstants.AutoConstants.rPid);
-        autoUtil.bindAutoDefault("TestAuto", this::testAuto);
-        autoUtil.bindAuto("ShmallAuto", new PathPlannerAuto("ShmallAuto"));
+        autoUtil.bindAutoDefault("DO NOTHING",
+                Commands.runOnce(() -> resetOdometry(new Pose2d(drive.getPose().getTranslation(),
+                        DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Blue
+                                ? new Rotation2d(Degrees.of(0))
+                                : new Rotation2d(Degrees.of(180))))));
+        autoUtil.bindAuto("S1-DEPOT", new PathPlannerAuto("S1-DEPOT"));
+        autoUtil.bindAuto("S2-DEPOT", new PathPlannerAuto("S2-DEPOT"));
+        autoUtil.bindAuto("S1-SHOOT", new PathPlannerAuto("S1-SHOOT"));
+        autoUtil.bindAuto("S3-SHOOT", new PathPlannerAuto("S3-SHOOT"));
+        autoUtil.bindAuto("S1-SHOOT-DEPOT", new PathPlannerAuto("S1-SHOOT-DEPOT"));
+        autoUtil.bindAuto("S1-SIMPLE", new SimpleAuto(this, new PathPlannerAuto("S1-SHOOT").getStartingPose()));
+        autoUtil.bindAuto("S3-SIMPLE", new SimpleAuto(this, new PathPlannerAuto("S3-SHOOT").getStartingPose()));
+
         Shuffleboard.getTab("Developer").add(field);
         Shuffleboard.getTab("Developer").add("Reset Encoders", drive.resetEncoders());
         Shuffleboard.getTab("Developer").add("Reset Orientation", drive.resetOrientation());
@@ -194,9 +262,28 @@ public class LobbyContainer implements NFRRobotContainer
         return spindexer;
     }
 
+    public Command driveToPreClimbPosition()
+    {
+        return Commands.defer(() ->
+        {
+            Pose2d target = climber.getClosestClimbPose(drive.getState().Pose);
+            DogLog.log("Auto/DrivingToPreClimbPosition", target);
+            return driveToPose(target);
+        }, java.util.Set.of(drive));
+    }
+
+    public Command driveToClimbPost()
+    {
+        return Commands.deadline(Commands.waitSeconds(0.5),
+                drive.applyRequest(() -> new SwerveRequest.ApplyRobotSpeeds().withSpeeds(
+                        new ChassisSpeeds(MetersPerSecond.of(0), MetersPerSecond.of(0.05), DegreesPerSecond.of(0)))));
+    }
+
     @Override
     public void periodic()
     {
+        StatusSignal.refreshAll(flDriveCurrent, flSteerCurrent, frDriveCurrent, frSteerCurrent, blDriveCurrent,
+                blSteerCurrent, brDriveCurrent, brSteerCurrent);
         var state = drive.getState();
         Rotation2d currentHeading = state.Pose.getRotation();
         Rotation2d yawRate = Rotation2d.fromRadians(state.Speeds.omegaRadiansPerSecond);
@@ -214,7 +301,7 @@ public class LobbyContainer implements NFRRobotContainer
         DogLog.log("BatteryVoltage", RobotController.getBatteryVoltage());
         DogLog.log("Drive/Pose", drive.getState().Pose);
         DogLog.log("Turret/Position", new Pose2d(
-                turret.calculateFieldRelativeShooterPosition(getDrive().getState().Pose),
+                getTurret().calculateFieldRelativeShooterPosition(getDrive().getState().Pose),
                 new Rotation2d(turret.getSuzieAngleRobotRelative().plus(drive.getPose().getRotation().getMeasure()))));
         DogLog.log("Turret/Target Direction",
                 getTurret().calculateFieldRelativeShooterPosition(drive.getPose())
@@ -268,6 +355,37 @@ public class LobbyContainer implements NFRRobotContainer
             {
                 DogLog.log("GameData/GameShift", teamActivity.get().equals("inactive") ? "inactive" : "active");
             }
+        DogLog.log("PredictedPose", drive.predictPose(Seconds.of(predictionSeconds.get())));
+
+        DogLog.log("Velocity", drive.getVelocity());
+        DogLog.log("CurrentDraw/General/Voltage", powerDistributionHub.getVoltage());
+        DogLog.log("CurrentDraw/General/TotalCurrent", powerDistributionHub.getTotalCurrent());
+        DogLog.log("CurrentDraw/PDH/Feeder", powerDistributionHub.getCurrent(8));
+        DogLog.log("CurrentDraw/PDH/Suzie", powerDistributionHub.getCurrent(9));
+        DogLog.log("CurrentDraw/PDH/LeftShooterMotor", powerDistributionHub.getCurrent(7));
+        DogLog.log("CurrentDraw/PDH/RightShooterMotor", powerDistributionHub.getCurrent(6));
+        DogLog.log("CurrentDraw/PDH/Suzie", powerDistributionHub.getCurrent(9));
+        DogLog.log("CurrentDraw/PDH/Carousel", powerDistributionHub.getCurrent(4));
+        DogLog.log("CurrentDraw/Turret/Shooter/LeftMotor", turret.getShooter().getMotor1Current());
+        DogLog.log("CurrentDraw/Turret/Shooter/RightMotor", turret.getShooter().getMotor2Current());
+        DogLog.log("Turret/Shooter/Speed", turret.getShooter().getSpeed());
+
+        DogLog.log("CurrentDraw/Turret/Suzie", turret.getSuzie().getCurrent());
+        DogLog.log("CurrentDraw/Intake/Rollers", intake.getRollerCurrent());
+        DogLog.log("CurrentDraw/Intake/Angling", intake.getAnglingCurrent());
+        // DogLog.log("CurrentDraw/Turret/Hood",
+        // turret.getHood().getCurrent(powerDistributionHub));
+        DogLog.log("CurrentDraw/Spindexer/Feeder", spindexer.getFlicker().getCurrent());
+        DogLog.log("CurrentDraw/Spindexer/Carousel", spindexer.getCarousel().getCurrent());
+
+        DogLog.log("CurrentDraw/DriveTrain/FrontLeft/Drive", flDriveCurrent.getValue().in(Amps));
+        DogLog.log("CurrentDraw/DriveTrain/FrontLeft/Steer", flSteerCurrent.getValue().in(Amps));
+        DogLog.log("CurrentDraw/DriveTrain/FrontRight/Drive", frDriveCurrent.getValue().in(Amps));
+        DogLog.log("CurrentDraw/DriveTrain/FrontRight/Steer", frSteerCurrent.getValue().in(Amps));
+        DogLog.log("CurrentDraw/DriveTrain/BackLeft/Drive", blDriveCurrent.getValue().in(Amps));
+        DogLog.log("CurrentDraw/DriveTrain/BackLeft/Steer", blSteerCurrent.getValue().in(Amps));
+        DogLog.log("CurrentDraw/DriveTrain/BackRight/Drive", brDriveCurrent.getValue().in(Amps));
+        DogLog.log("CurrentDraw/DriveTrain/BackRight/Steer", brSteerCurrent.getValue().in(Amps));
     }
 
     @Override
@@ -276,10 +394,20 @@ public class LobbyContainer implements NFRRobotContainer
         new LobbyOI().bind(this);
     }
 
+    public Pose2d predictPose()
+    {
+        return drive.predictPose(Seconds.of(predictionSeconds.get()));
+    }
+
     @Override
     public Command getAutonomousCommand()
     {
         return autoUtil.getSelected();
+    }
+
+    public Climber getClimber()
+    {
+        return climber;
     }
 
     public AutoRoutine testAuto(AutoFactory factory)
@@ -297,6 +425,7 @@ public class LobbyContainer implements NFRRobotContainer
 
     public Command roughDriveToPose(Pose2d pose)
     {
+        DogLog.log("Auto/DrivingToPose", pose);
         return driveToPoseCommand.driveToPose(pose);
     }
 

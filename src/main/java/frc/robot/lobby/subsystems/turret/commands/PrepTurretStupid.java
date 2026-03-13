@@ -1,0 +1,69 @@
+package frc.robot.lobby.subsystems.turret.commands;
+
+import static edu.wpi.first.units.Units.Degrees;
+import static edu.wpi.first.units.Units.Radians;
+import static edu.wpi.first.units.Units.RotationsPerSecond;
+
+import java.util.function.Supplier;
+
+import dev.doglog.DogLog;
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import frc.robot.lobby.subsystems.turret.Turret;
+import frc.robot.lobby.subsystems.turret.Turret.TurretPose;
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Translation2d;
+
+public class PrepTurretStupid extends Command
+{
+    private Supplier<Pose2d> robotPoseSupplier;
+    private Turret turret;
+
+    public PrepTurretStupid(Supplier<Pose2d> robotPoseSupplier, Turret turret)
+    {
+        addRequirements(turret, turret.getSuzie(), turret.getHood(), turret.getShooter());
+        this.robotPoseSupplier = robotPoseSupplier;
+        this.turret = turret;
+    }
+
+    @Override
+    public void initialize()
+    {
+        DogLog.log("Turret/PrepCommand/Running", true);
+    }
+
+    @Override
+    public void execute()
+    {
+        Pose2d currentPose = robotPoseSupplier.get();
+        DogLog.log("Turret/PrepCommand/RobotPose", currentPose);
+
+        // Calculate turret position and use it for danger check
+        Translation2d turretPosition = turret.calculateFieldRelativeShooterPosition(currentPose);
+        DogLog.log("Turret/PrepCommand/TurretPosition", turretPosition);
+
+        var hood = turret.getHood();
+        boolean inDanger = turret.isInDangerProximity(turretPosition, hood.getDangerZone(), hood.getTrenchPositions());
+        DogLog.log("Turret/PrepCommand/InDanger", inDanger);
+
+        // Calculate the target pose
+        TurretPose targetPose = turret.calculateTargetPose(currentPose);
+        DogLog.log("Turret/PrepCommand/CalculatedSuzieAngle", targetPose.suzieAngle().in(Radians));
+        DogLog.log("Turret/PrepCommand/CalculatedHoodAngle", targetPose.hoodAngle().in(Degrees));
+        DogLog.log("Turret/PrepCommand/DistanceToHub", turret.getDistanceToHub(currentPose));
+        turret.getSuzie().stop();
+        turret.setTargetPoseStupid(
+                new TurretPose(targetPose.suzieAngle(), targetPose.hoodAngle(), targetPose.shooterSpeed()));
+
+        turret.getHood().start();
+        turret.getShooter().start();
+    }
+
+    @Override
+    public void end(boolean interrupted)
+    {
+        turret.setTargetPose(TurretPose.kZero);
+        DogLog.log("Turret/PrepCommand/Running", false);
+        turret.stop();
+    }
+}

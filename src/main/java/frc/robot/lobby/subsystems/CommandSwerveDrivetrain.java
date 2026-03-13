@@ -30,6 +30,7 @@ import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
@@ -38,10 +39,12 @@ import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.LinearAcceleration;
 import edu.wpi.first.units.measure.LinearVelocity;
+import edu.wpi.first.units.measure.Time;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.Notifier;
 import edu.wpi.first.wpilibj.Preferences;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.Subsystem;
@@ -70,6 +73,11 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
     private static final Rotation2d kRedAlliancePerspectiveRotation = Rotation2d.k180deg;
     /* Keep track if we've ever applied the operator perspective before or not */
     private boolean m_hasAppliedOperatorPerspective = false;
+    private Time fgpaSeconds = Seconds.of(0);
+    private Pose2d lastPose = Pose2d.kZero;
+    private LinearVelocity velocity = MetersPerSecond.of(0);
+    private LinearVelocity xVelocity = MetersPerSecond.of(0);
+    private LinearVelocity yVelocity = MetersPerSecond.of(0);
 
     /** Swerve request to apply during robot-centric path following */
     private final SwerveRequest.ApplyRobotSpeeds m_pathApplyRobotSpeeds = new SwerveRequest.ApplyRobotSpeeds();
@@ -195,6 +203,43 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         return getState().Pose;
     }
 
+    public LinearVelocity getVelocity()
+    {
+        return velocity;
+    }
+
+    public LinearVelocity getXVelocity()
+    {
+        return xVelocity;
+    }
+
+    public LinearVelocity getYVelocity()
+    {
+        return yVelocity;
+    }
+
+    /**
+     * Used to predict the future pose
+     * 
+     * @param amtTimeIntoTheFuture amount of time to predict
+     * @return the predicted pose
+     */
+
+    public Pose2d predictPose(Time amtTimeIntoTheFuture)
+    {
+        Pose2d currentPose = getPose();
+        var speeds = getState().Speeds;
+        double dt = amtTimeIntoTheFuture.in(Seconds);
+        double cos = currentPose.getRotation().getCos();
+        double sin = currentPose.getRotation().getSin();
+        // Convert robot-relative ChassisSpeeds to field-relative velocities
+        double fieldVx = speeds.vxMetersPerSecond * cos - speeds.vyMetersPerSecond * sin;
+        double fieldVy = speeds.vxMetersPerSecond * sin + speeds.vyMetersPerSecond * cos;
+        Pose2d newPose = new Pose2d(currentPose.getX() + fieldVx * dt, currentPose.getY() + fieldVy * dt,
+                currentPose.getRotation().plus(Rotation2d.fromRadians(speeds.omegaRadiansPerSecond * dt)));
+        return newPose;
+    }
+
     /**
      * Constructs a CTRE SwerveDrivetrain using the specified constants.
      * <p>
@@ -267,7 +312,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
 
             var config = RobotConfig.fromGUISettings();
             AutoBuilder.configure(() -> getState().Pose, // Supplier of current robot pose
-                    this::resetPose, // Consumer for seeding pose against auto
+                    pose -> resetTranslation(pose.getTranslation()), // Consumer for seeding pose against auto
                     () -> getState().Speeds, // Supplier of current robot speeds
                     // Consumer of ChassisSpeeds and feedforwards to drive the robot
                     (speeds, feedforwards) -> setControl(m_pathApplyRobotSpeeds.withSpeeds(speeds)
@@ -338,6 +383,20 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
          * is disabled. This ensures driving behavior doesn't change until an explicit
          * disable event occurs during testing.
          */
+
+        Pose2d pose = getPose();
+        Time fgpa = Seconds.of(Timer.getFPGATimestamp());
+        Time deltaTime = fgpa.minus(fgpaSeconds);
+        if (deltaTime.in(Seconds) > 0.03)
+        {
+            xVelocity = MetersPerSecond
+                    .of((pose.getMeasureX().in(Meters) - lastPose.getMeasureX().in(Meters)) / (deltaTime.in(Seconds)));
+            yVelocity = MetersPerSecond
+                    .of((pose.getMeasureY().in(Meters) - lastPose.getMeasureY().in(Meters)) / (deltaTime.in(Seconds)));
+            velocity = MetersPerSecond.of(Math.hypot(xVelocity.in(MetersPerSecond), yVelocity.in(MetersPerSecond)));
+            lastPose = pose;
+            fgpaSeconds = fgpa;
+        }
         if (!m_hasAppliedOperatorPerspective || DriverStation.isDisabled())
         {
             DriverStation.getAlliance().ifPresent(allianceColor ->
@@ -401,11 +460,21 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         SwerveRequest.FieldCentric request = new SwerveRequest.FieldCentric()
                 .withDriveRequestType(DriveRequestType.OpenLoopVoltage)
                 .withForwardPerspective(SwerveRequest.ForwardPerspectiveValue.OperatorPerspective);
+        SwerveRequest.SwerveDriveBrake brakeRequest = new SwerveRequest.SwerveDriveBrake();
+
         return applyRequest(() ->
         {
-            return request.withVelocityX(maxSpeed.times(xSupplier.getAsDouble()))
-                    .withVelocityY(maxSpeed.times(ySupplier.getAsDouble()))
-                    .withRotationalRate(maxAngularSpeed.times(omegaSupplier.getAsDouble()));
+            double x = xSupplier.getAsDouble();
+            double y = ySupplier.getAsDouble();
+            double omega = omegaSupplier.getAsDouble();
+
+            if (Math.abs(x) < 0.01 && Math.abs(y) < 0.01 && Math.abs(omega) < 0.01)
+            {
+                return brakeRequest;
+            }
+
+            return request.withVelocityX(maxSpeed.times(x)).withVelocityY(maxSpeed.times(y))
+                    .withRotationalRate(maxAngularSpeed.times(omega));
         });
     }
 
@@ -554,7 +623,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
      */
     public Command resetOrientation()
     {
-        return Commands.runOnce(() -> resetRotation(getOperatorForwardDirection()), this);
+        return Commands.runOnce(() -> resetRotation(getOperatorForwardDirection()), this).ignoringDisable(true);
     }
 
     /**

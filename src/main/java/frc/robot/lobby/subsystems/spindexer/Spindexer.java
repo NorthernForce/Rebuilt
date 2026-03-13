@@ -1,6 +1,7 @@
 package frc.robot.lobby.subsystems.spindexer;
 
 import edu.wpi.first.units.measure.Time;
+import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -55,6 +56,16 @@ public class Spindexer extends SubsystemBase
     public void periodic()
     {
         m_carousel.update();
+    }
+
+    public double getCarouselCurrent()
+    {
+        return m_carousel.getCurrent();
+    }
+
+    public double getFlickerCurrent()
+    {
+        return m_flicker.getCurrent();
     }
 
     public record SpindexerParameters(Time deJamTime) {

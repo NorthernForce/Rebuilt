@@ -8,6 +8,8 @@ import choreo.trajectory.SwerveSample;
 import dev.doglog.DogLog;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -34,7 +36,7 @@ public class AutoUtil
                 }, true, drive);
 
         chooser = new SendableChooser<>();
-        chooser.setDefaultOption("Nothing", Commands.none());
+        chooser.setDefaultOption("NONE", Commands.none());
 
         Shuffleboard.getTab("Robot").add("Auto Selector", chooser);
     }
@@ -42,6 +44,11 @@ public class AutoUtil
     public void bindAutoDefault(String name, Function<AutoFactory, AutoRoutine> autoBuilder)
     {
         chooser.setDefaultOption(name, autoBuilder.apply(factory).cmd());
+    }
+
+    public void bindAutoDefault(String name, Command cmd)
+    {
+        chooser.setDefaultOption(name, cmd);
     }
 
     public void bindAuto(String name, Function<AutoFactory, AutoRoutine> autoBuilder)
