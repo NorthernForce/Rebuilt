@@ -145,14 +145,15 @@ public class LobbyOI
         // activating. Use whileTrue so the auto sequence runs while inside the radius
         // and holds the drivetrain subsystem (disables manual driving during the
         // sequence).
+        Translation2d[] trenches = new Translation2d[]
+        { FieldConstants.kBlueTrench1, FieldConstants.kBlueTrench2, FieldConstants.kRedTrench1,
+                FieldConstants.kRedTrench2 };
         trenchTrigger.whileTrue(Commands.defer(() ->
         {
             Pose2d current = drive.getState().Pose;
 
             // find nearest trench
-            Translation2d[] trenches = new Translation2d[]
-            { FieldConstants.kBlueTrench1, FieldConstants.kBlueTrench2, FieldConstants.kRedTrench1,
-                    FieldConstants.kRedTrench2 };
+
             Translation2d nearest = null;
             double best = Double.MAX_VALUE;
             for (Translation2d t : trenches)
