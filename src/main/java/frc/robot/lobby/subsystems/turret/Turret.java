@@ -203,6 +203,17 @@ public class Turret extends SubsystemBase
     /**
      * Calculate pose for shooting at the hub
      */
+
+    public TurretPose calculateShootingPoseWithTurret(Pose2d turretPose)
+    {
+        Distance shooterDistanceToHub = calculateShooterDistanceToHubWithTurret(turretPose);
+        Angle suzieAngle = calculateSuzieTargetAngleWithTurret(turretPose, getHubPosition());
+        Angle hoodAngle = Degrees.of(hoodCalculator.getValueForDistance(shooterDistanceToHub.in(Meters)));
+        AngularVelocity shooterSpeed = RotationsPerSecond
+                .of(shooterCalculator.getValueForDistance(shooterDistanceToHub.in(Meters)));
+        return new TurretPose(suzieAngle, hoodAngle, shooterSpeed);
+    }
+
     private TurretPose calculateShootingPose(Pose2d robotPose)
     {
         Distance shooterDistanceToHub = calculateShooterDistanceToHub(robotPose);
@@ -249,6 +260,15 @@ public class Turret extends SubsystemBase
         return Radians.of(normalizeAngle(targetAngle));
     }
 
+    private Angle calculateSuzieTargetAngleWithTurret(Pose2d turretPose, Translation3d targetPosition)
+    {
+        Translation2d shooterPosition = turretPose.getTranslation();
+        double targetAngle = Math.atan2(targetPosition.getY() - shooterPosition.getY(),
+                targetPosition.getX() - shooterPosition.getX()) - turretPose.getRotation().getRadians()
+                - offset.getRotation().getRadians();
+        return Radians.of(normalizeAngle(targetAngle));
+    }
+
     public void setOffsetAngle(Angle angle)
     {
         offset = new Pose2d(offset.getTranslation(), new Rotation2d(angle));
@@ -278,6 +298,14 @@ public class Turret extends SubsystemBase
     public Distance calculateShooterDistanceToHub(Pose2d robotPose)
     {
         Translation2d shooterPosition = calculateFieldRelativeShooterPosition(robotPose);
+        Translation3d hubPos = getHubPosition();
+        Translation2d hubPosition2d = new Translation2d(hubPos.getX(), hubPos.getY());
+        return Meters.of(shooterPosition.getDistance(hubPosition2d));
+    }
+
+    public Distance calculateShooterDistanceToHubWithTurret(Pose2d turretPose)
+    {
+        Translation2d shooterPosition = turretPose.getTranslation();
         Translation3d hubPos = getHubPosition();
         Translation2d hubPosition2d = new Translation2d(hubPos.getX(), hubPos.getY());
         return Meters.of(shooterPosition.getDistance(hubPosition2d));
