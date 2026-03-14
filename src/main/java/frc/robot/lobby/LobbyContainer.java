@@ -5,9 +5,6 @@ import static edu.wpi.first.units.Units.MetersPerSecond;
 import static edu.wpi.first.units.Units.Amps;
 import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.Radians;
-import static edu.wpi.first.units.Units.Degrees;
-import edu.wpi.first.units.measure.Angle;
-import java.util.Optional;
 import static edu.wpi.first.units.Units.Seconds;
 
 import java.util.Optional;
@@ -36,7 +33,6 @@ import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.lobby.autos.SimpleAuto;
@@ -329,9 +325,6 @@ public class LobbyContainer implements NFRRobotContainer
                     .of((DriverStation.getAlliance().get() == DriverStation.Alliance.Blue) ? "active" : "inactive");
         }
 
-        DogLog.log("VelDir", getMovementDirectionRobotRelative().map(Rotation2d::getDegrees).orElse(Double.NaN));
-        DogLog.log("VelAng", turret.getSuzie().getAngle().in(Degrees));
-
         DogLog.log("GameData/StartingActivity", teamActivity.orElse("unknown"));
         if (!teamActivity.orElse("unknown").equals("unknown"))
 
@@ -460,5 +453,4 @@ public class LobbyContainer implements NFRRobotContainer
             return Optional.empty();
         return Optional.of(new Rotation2d(Math.atan2(vy, vx)));
     }
-
 }

@@ -1,21 +1,18 @@
 package frc.robot.lobby;
 
 import static edu.wpi.first.units.Units.Degrees;
-import java.util.Optional;
 import static edu.wpi.first.units.Units.Inches;
 
 import java.util.function.DoubleSupplier;
 
 import dev.doglog.DogLog;
 import edu.wpi.first.math.MathUtil;
-import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.wpilibj2.command.CommandScheduler;
-import edu.wpi.first.wpilibj2.command.Commands;
-import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
-import edu.wpi.first.math.geometry.Translation3d;
+import edu.wpi.first.units.measure.Angle;
+import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.FieldConstants;
 import frc.robot.lobby.subsystems.spindexer.commands.RunSpindexer;
 import frc.robot.lobby.subsystems.turret.commands.PrepTurretCommand;
@@ -41,13 +38,12 @@ public class LobbyOI
         var drive = container.getDrive();
         var intake = container.getIntake();
         var turret = container.getTurret();
-        var spindexer = container.getSpindexer();
         var suzie = container.getTurret().getSuzie();
-        var hood = container.getTurret().getHood();
-        var shooter = container.getTurret().getShooter();
+        DoubleSupplier driveXInput = inputProc(driveController::getLeftY);
+        DoubleSupplier driveYInput = inputProc(driveController::getLeftX);
+        DoubleSupplier driveOmegaInput = inputProc(driveController::getRightX);
 
-        drive.setDefaultCommand(drive.driveByJoystick(inputProc(driveController::getLeftY),
-                inputProc(driveController::getLeftX), inputProc(driveController::getRightX)));
+        drive.setDefaultCommand(drive.driveByJoystick(driveXInput, driveYInput, driveOmegaInput));
         intake.setDefaultCommand(intake.stopIntake().andThen(intake.getRunToMidAngleCommand()));
         // spindexer.setDefaultCommand(new Agitate(spindexer));
         // turret.setDefaultCommand(container.getTurret().runBasedOnLocation(() ->
@@ -113,22 +109,42 @@ public class LobbyOI
         driveController.povRight().whileTrue(Commands.runOnce(() -> suzie.setSpeed(-0.2), suzie))
                 .onFalse(Commands.runOnce(() -> suzie.setSpeed(0), suzie));
 
-        driveController.y().whileTrue(
+        driveController.y().whileTrue(drive.driveByJoystickFacingAngle(driveXInput, driveYInput, () ->
+        {
+            double x = driveXInput.getAsDouble();
+            double y = driveYInput.getAsDouble();
 
-                Commands.run(() ->
-                {
-                    Optional<Rotation2d> velAngle = container.getMovementDirectionRobotRelative();
-                    if (velAngle.isEmpty())
-                    {
-                        DogLog.log("VelDir", Double.NaN);
-                    } else
-                    {
-                        Rotation2d targetAngle = velAngle.get().plus(Rotation2d.k180deg);
-                        DogLog.log("VelTarget", targetAngle.getDegrees());
-                        suzie.setTargetAngle(Degrees.of(targetAngle.getDegrees()));
-                        CommandScheduler.getInstance().schedule(Commands.runOnce(() -> suzie.start(), suzie));
-                    }
+            Rotation2d targetAngle;
+            if (Math.hypot(x, y) < 0.01)
+            {
+                targetAngle = drive.getPose().getRotation();
+            } else
+            {
+                DogLog.log("VelNewDir", Math.toDegrees(Math.atan2(y, x)));
+                targetAngle = Rotation2d.fromRadians(Math.atan2(y, x)).plus(Rotation2d.k180deg);
+            }
 
-                })).onFalse(Commands.runOnce(() -> suzie.stop(), suzie));
+            DogLog.log("VelTarget", targetAngle.getDegrees());
+            return targetAngle;
+        }));
+
+        driveController.b().whileTrue(drive.driveByJoystickFacingAngle(driveXInput, driveYInput, () ->
+        {
+            double x = driveXInput.getAsDouble();
+            double y = driveYInput.getAsDouble();
+
+            Rotation2d targetAngle;
+            if (Math.hypot(x, y) < 0.01)
+            {
+                targetAngle = drive.getPose().getRotation();
+            } else
+            {
+                DogLog.log("VelNewDir", Math.toDegrees(Math.atan2(y, x)));
+                targetAngle = Rotation2d.fromRadians(Math.atan2(y, x));
+            }
+
+            DogLog.log("VelTarget", targetAngle.getDegrees());
+            return targetAngle;
+        }));
     }
 }

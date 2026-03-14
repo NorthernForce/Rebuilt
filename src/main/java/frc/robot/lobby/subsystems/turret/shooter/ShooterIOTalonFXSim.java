@@ -20,8 +20,9 @@ public class ShooterIOTalonFXSim extends ShooterIOTalonFX
         super(constants);
         this.constants = constants;
         m_simState = m_motor1.getSimState();
-        m_dcMotorSim = new DCMotorSim(LinearSystemId.createDCMotorSystem(constants.kV(), constants.kA()),
-                DCMotor.getKrakenX60Foc(2));
+        double simKV = Math.max(constants.kV(), 1e-6);
+        double simKA = Math.max(constants.kA(), 1e-6);
+        m_dcMotorSim = new DCMotorSim(LinearSystemId.createDCMotorSystem(simKV, simKA), DCMotor.getKrakenX60Foc(2));
     }
 
     @Override

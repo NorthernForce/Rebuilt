@@ -49,6 +49,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
+import frc.robot.lobby.LobbyConstants;
 import frc.robot.lobby.generated.LobbyTunerConstants;
 import frc.robot.lobby.generated.LobbyTunerConstants.TunerSwerveDrivetrain;
 import frc.robot.util.CTREUtil;
@@ -475,6 +476,31 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
 
             return request.withVelocityX(maxSpeed.times(x)).withVelocityY(maxSpeed.times(y))
                     .withRotationalRate(maxAngularSpeed.times(omega));
+        });
+    }
+
+    public Command driveByJoystickFacingAngle(DoubleSupplier xSupplier, DoubleSupplier ySupplier,
+            Supplier<Rotation2d> targetAngleSupplier)
+    {
+        SwerveRequest.FieldCentricFacingAngle request = new SwerveRequest.FieldCentricFacingAngle()
+                .withDriveRequestType(DriveRequestType.OpenLoopVoltage)
+                .withForwardPerspective(SwerveRequest.ForwardPerspectiveValue.OperatorPerspective);
+        request.HeadingController.setPID(LobbyConstants.DrivetrainConstants.kCloseDriveRP,
+                LobbyConstants.DrivetrainConstants.kCloseDriveRI, LobbyConstants.DrivetrainConstants.kCloseDriveRD);
+        request.HeadingController.enableContinuousInput(0, Math.PI * 2);
+
+        return applyRequest(() ->
+        {
+            double x = xSupplier.getAsDouble();
+            double y = ySupplier.getAsDouble();
+
+            Rotation2d operatorForward = DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Red
+                    ? kRedAlliancePerspectiveRotation
+                    : kBlueAlliancePerspectiveRotation;
+            Rotation2d operatorTargetAngle = targetAngleSupplier.get().minus(operatorForward);
+
+            return request.withVelocityX(maxSpeed.times(x)).withVelocityY(maxSpeed.times(y))
+                    .withTargetDirection(operatorTargetAngle);
         });
     }
 
