@@ -1,18 +1,10 @@
 package frc.robot.lobby;
 
-import static edu.wpi.first.units.Units.Degrees;
-import static edu.wpi.first.units.Units.Inches;
-
 import java.util.function.DoubleSupplier;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
-import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Translation2d;
-import edu.wpi.first.math.geometry.Translation3d;
-import frc.robot.FieldConstants;
 import frc.robot.lobby.subsystems.spindexer.commands.RunSpindexer;
 import frc.robot.lobby.subsystems.turret.commands.PrepTurretCommand;
 import frc.robot.lobby.subsystems.turret.commands.PrepTurretStupid;
@@ -47,7 +39,7 @@ public class LobbyOI
         intake.setDefaultCommand(intake.stopIntake().andThen(intake.getRunToMidAngleCommand()));
         // spindexer.setDefaultCommand(new Agitate(spindexer));
         // turret.setDefaultCommand(container.getTurret().runBasedOnLocation(() ->
-        // drive.getState().Pose,
+        // drive.getPose(),
         // hood.getDangerZone(), hood.getTrenchPositions()));
         // shooter.setDefaultCommand(Commands.run(() -> shooter.stop(), shooter));
 
@@ -58,7 +50,7 @@ public class LobbyOI
         driveController.rightTrigger().whileTrue(Commands
                 .waitUntil(() -> turret.getSuzie().isAtTargetAngle() && turret.getShooter().isAtTargetSpeed())
                 .andThen(new RunSpindexer(container.getSpindexer(), LobbyConstants.SpindexerConstants.kDeJamTime))
-                .alongWith(new PrepTurretCommand(() -> container.predictPose(), turret)));
+                .alongWith(new PrepTurretCommand(container)));
 
         driveController.start().onTrue(Commands.runOnce(() -> suzie.resetCRT()));
 
@@ -68,18 +60,12 @@ public class LobbyOI
 
         driveController.rightBumper().whileTrue(Commands.waitSeconds(0.25)
                 .andThen(new RunSpindexer(container.getSpindexer(), LobbyConstants.SpindexerConstants.kDeJamTime))
-                .alongWith(new PrepTurretStupid(() -> container.predictPose(), turret)));
+                .alongWith(new PrepTurretStupid(container)));
 
         manipulatorController.leftTrigger().whileTrue(intake.intakeMoving()).onFalse(intake.stopIntake());
-        manipulatorController.rightTrigger()
-                .whileTrue(
-                        Commands.waitSeconds(0.25)
-                                .andThen(new RunSpindexer(container.getSpindexer(),
-                                        LobbyConstants.SpindexerConstants.kDeJamTime))
-                                .alongWith(new PrepTurretStupid(() -> new Pose2d(
-                                        FieldConstants.kRedHubPosition.toTranslation2d()
-                                                .plus(new Translation2d(Inches.of(108), Inches.zero())),
-                                        new Rotation2d(Degrees.zero())), turret)));
+        manipulatorController.rightTrigger().whileTrue(Commands.waitSeconds(0.25)
+                .andThen(new RunSpindexer(container.getSpindexer(), LobbyConstants.SpindexerConstants.kDeJamTime))
+                .alongWith(new PrepTurretStupid(container)));
 
         // manipulatorController.b().onTrue(Commands.runOnce(() ->
         // {

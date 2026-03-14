@@ -23,10 +23,10 @@ public class AutoUtil
 
     public AutoUtil(CommandSwerveDrivetrain drive, PIDController xPid, PIDController yPid, PIDController rPid)
     {
-        factory = new AutoFactory(() -> drive.getState().Pose, pose -> drive.resetTranslation(pose.getTranslation()),
+        factory = new AutoFactory(() -> drive.getPose(), pose -> drive.resetTranslation(pose.getTranslation()),
                 (SwerveSample sample) ->
                 {
-                    var pose = drive.getState().Pose;
+                    var pose = drive.getPose();
                     ChassisSpeeds speed = new ChassisSpeeds(sample.vx + xPid.calculate(pose.getX(), sample.x),
                             sample.vy + yPid.calculate(pose.getY(), sample.y),
                             sample.omega + rPid.calculate(pose.getRotation().getRadians(), sample.heading));

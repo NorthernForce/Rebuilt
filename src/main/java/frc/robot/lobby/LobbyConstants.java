@@ -8,6 +8,7 @@ import static edu.wpi.first.units.Units.Inches;
 import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.MetersPerSecond;
 import static edu.wpi.first.units.Units.MetersPerSecondPerSecond;
+import static edu.wpi.first.units.Units.Radians;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static edu.wpi.first.units.Units.RadiansPerSecondPerSecond;
 import static edu.wpi.first.units.Units.Rotations;
@@ -150,6 +151,9 @@ public class LobbyConstants
     {
         public static Pose2d offset = new Pose2d(new Translation2d(Inches.of(-6.264), Inches.of(6.300)),
                 new Rotation2d(Degrees.of(45)));
+        public static Angle offsetAngle = Radians
+                .of(Math.atan2(offset.getMeasureX().in(Meters), offset.getMeasureY().in(Meters)));
+        public static Distance offsetDistance = Meters.of(offset.getTranslation().getDistance(Translation2d.kZero));
 
         public class Suzie
         {
@@ -234,7 +238,7 @@ public class LobbyConstants
             private static int kMotor2ID = 21;
             private static double kS = 0;
             private static double kV = 0.115;
-            private static double kA = 0;
+            private static double kA = 0.05;
             private static double kP = 0;
             private static double kI = 0;
             private static double kD = 0;

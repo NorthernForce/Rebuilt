@@ -78,6 +78,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
     private LinearVelocity velocity = MetersPerSecond.of(0);
     private LinearVelocity xVelocity = MetersPerSecond.of(0);
     private LinearVelocity yVelocity = MetersPerSecond.of(0);
+    private AngularVelocity thetaVelocity = RadiansPerSecond.of(0);
 
     /** Swerve request to apply during robot-centric path following */
     private final SwerveRequest.ApplyRobotSpeeds m_pathApplyRobotSpeeds = new SwerveRequest.ApplyRobotSpeeds();
@@ -200,7 +201,13 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
 
     public Pose2d getPose()
     {
-        return getState().Pose;
+        if (Utils.isSimulation())
+        {
+            return mapleSimSwerveDrivetrain.mapleSimDrive.getSimulatedDriveTrainPose();
+        } else
+        {
+            return getState().Pose;
+        }
     }
 
     public LinearVelocity getVelocity()
@@ -216,6 +223,11 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
     public LinearVelocity getYVelocity()
     {
         return yVelocity;
+    }
+
+    public AngularVelocity getThetaVelocity()
+    {
+        return thetaVelocity;
     }
 
     /**
@@ -311,8 +323,17 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
             Pathfinding.setPathfinder(new LocalADStar());
 
             var config = RobotConfig.fromGUISettings();
-            AutoBuilder.configure(() -> getState().Pose, // Supplier of current robot pose
-                    pose -> resetTranslation(pose.getTranslation()), // Consumer for seeding pose against auto
+            AutoBuilder.configure(() -> getPose(), // Supplier of current robot pose
+                    pose ->
+                    {
+                        if (mapleSimSwerveDrivetrain != null)
+                        {
+                            mapleSimSwerveDrivetrain.mapleSimDrive.setSimulationWorldPose(new Pose2d(
+                                    pose.getTranslation(),
+                                    mapleSimSwerveDrivetrain.mapleSimDrive.getSimulatedDriveTrainPose().getRotation()));
+                        }
+                        resetTranslation(pose.getTranslation());
+                    }, // Consumer for seeding pose against auto
                     () -> getState().Speeds, // Supplier of current robot speeds
                     // Consumer of ChassisSpeeds and feedforwards to drive the robot
                     (speeds, feedforwards) -> setControl(m_pathApplyRobotSpeeds.withSpeeds(speeds)
@@ -393,6 +414,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
                     .of((pose.getMeasureX().in(Meters) - lastPose.getMeasureX().in(Meters)) / (deltaTime.in(Seconds)));
             yVelocity = MetersPerSecond
                     .of((pose.getMeasureY().in(Meters) - lastPose.getMeasureY().in(Meters)) / (deltaTime.in(Seconds)));
+            thetaVelocity = pose.getRotation().getMeasure().minus(lastPose.getRotation().getMeasure()).div(deltaTime);
             velocity = MetersPerSecond.of(Math.hypot(xVelocity.in(MetersPerSecond), yVelocity.in(MetersPerSecond)));
             lastPose = pose;
             fgpaSeconds = fgpa;

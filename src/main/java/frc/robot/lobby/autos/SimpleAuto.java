@@ -16,6 +16,6 @@ public class SimpleAuto extends SequentialCommandGroup
                 .waitUntil(() -> container.getTurret().getSuzie().isAtTargetAngle()
                         && container.getTurret().getShooter().isAtTargetSpeed())
                 .andThen(new RunSpindexer(container.getSpindexer(), LobbyConstants.SpindexerConstants.kDeJamTime))
-                .alongWith(new PrepTurretCommand(() -> container.predictPose(), container.getTurret())));
+                .alongWith(new PrepTurretCommand(container)));
     }
 }
