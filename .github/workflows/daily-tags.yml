@@ -2,8 +2,8 @@ name: Daily Branch Tags
 
 on:
   schedule:
-    - cron: "0 7 * * *"
-    - cron: "0 8 * * *"
+    - cron: "0 7 * * *" # 07:00 UTC = 03:00 EDT
+    - cron: "0 8 * * *" # 08:00 UTC = 03:00 EST
   workflow_dispatch:
 
 permissions:
