@@ -38,6 +38,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.lobby.autos.SimpleAuto;
+import frc.robot.FieldConstants;
 import frc.robot.lobby.generated.LobbyTunerConstants;
 import frc.robot.lobby.subsystems.CommandSwerveDrivetrain;
 import frc.robot.lobby.subsystems.apriltagvision.*;
@@ -78,7 +79,8 @@ public class LobbyContainer implements NFRRobotContainer
 {
     private final CommandSwerveDrivetrain drive;
     private final Intake intake;
-
+    private final DoubleSubscriber timePredict;
+    private final DoubleSubscriber amtPoseCaptureFrames;
     private final AprilTagVision vision;
     private final AutoUtil autoUtil;
     private final Field2d field;
@@ -98,11 +100,10 @@ public class LobbyContainer implements NFRRobotContainer
     private final StatusSignal<Current> brDriveCurrent;
     private final StatusSignal<Current> brSteerCurrent;
 
-    private DoubleSubscriber predictionSeconds = DogLog.tunable("PredictionSeconds", 0.0);
-
     public LobbyContainer()
     {
-
+        timePredict = DogLog.tunable("RunNGun/Predict", 1.0);
+        amtPoseCaptureFrames = DogLog.tunable("RunNGun/CaptureFrames", 1.0);
         drive = new CommandSwerveDrivetrain(LobbyTunerConstants.DrivetrainConstants,
                 LobbyConstants.DrivetrainConstants.kMaxSpeed, LobbyConstants.DrivetrainConstants.kMaxAngularSpeed,
                 LobbyTunerConstants.FrontLeft, LobbyTunerConstants.FrontRight, LobbyTunerConstants.BackLeft,
@@ -130,7 +131,7 @@ public class LobbyContainer implements NFRRobotContainer
             turret = new Turret(new TurretConstants(LobbyConstants.Turret.offset),
                     new Suzie(new SuzieIOTalonFXSSim(LobbyConstants.Turret.Suzie.kMinionConstants)),
                     new Hood(new HoodIOServoSim(LobbyConstants.Turret.Hood.kServoConstants)),
-                    new Shooter(new ShooterIOTalonFXSim(LobbyConstants.Turret.Shooter.kKrakenConstants)),
+                    new Shooter(new ShooterIOTalonFXSim(LobbyConstants.Turret.Shooter.kKrakenSimConstants)),
                     new TrigHoodTargetingCalculator(), new TrigHoodTargetingCalculator());
             spindexer = new Spindexer(
                     new CarouselIOTalonFXSim(new CarouselConstants(LobbyConstants.CarouselConstants.kMotorID,
@@ -222,6 +223,14 @@ public class LobbyContainer implements NFRRobotContainer
                 turret.getSuzie().getSysIdQuasistaticReverse());
         Shuffleboard.getTab("SysId").add("Turntable Dynamic Forward", turret.getSuzie().getSysIdDynamicForward());
         Shuffleboard.getTab("SysId").add("Turntable Dynamic Reverse", turret.getSuzie().getSysIdDynamicReverse());
+
+        Shuffleboard.getTab("SysId").add("Shooter Quasistatic Forward",
+                turret.getShooter().getSysIdQuasistaticForward());
+        Shuffleboard.getTab("SysId").add("Shooter Quasistatic Reverse",
+                turret.getShooter().getSysIdQuasistaticReverse());
+        Shuffleboard.getTab("SysId").add("Shooter Dynamic Forward", turret.getShooter().getSysIdDynamicForward());
+        Shuffleboard.getTab("SysId").add("Shooter Dynamic Reverse", turret.getShooter().getSysIdDynamicReverse());
+
         Shuffleboard.getTab("Developer").add("Drive to Blue Reef",
                 drive.navigateToPose(new Pose2d(3, 4, new Rotation2d())));
 
@@ -349,9 +358,9 @@ public class LobbyContainer implements NFRRobotContainer
             {
                 DogLog.log("GameData/GameShift", teamActivity.get().equals("inactive") ? "inactive" : "active");
             }
-        DogLog.log("PredictedPose", drive.predictPose(Seconds.of(predictionSeconds.get())));
 
         DogLog.log("Velocity", drive.getVelocity());
+        DogLog.log("Drive/Predicted Pose", predictPose());
         DogLog.log("CurrentDraw/General/Voltage", powerDistributionHub.getVoltage());
         DogLog.log("CurrentDraw/General/TotalCurrent", powerDistributionHub.getTotalCurrent());
         DogLog.log("CurrentDraw/PDH/Feeder", powerDistributionHub.getCurrent(8));
@@ -391,7 +400,9 @@ public class LobbyContainer implements NFRRobotContainer
 
     public Pose2d predictPose()
     {
-        return drive.predictPose(Seconds.of(predictionSeconds.get()));
+        Pose2d pose = drive.predictSeconds(Seconds.of(timePredict.getAsDouble()), amtPoseCaptureFrames.getAsDouble());
+        DogLog.log("PredictedPose", pose);
+        return pose;
     }
 
     public Translation2d predictTurretPose()

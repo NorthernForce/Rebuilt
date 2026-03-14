@@ -36,7 +36,9 @@ public class LobbyOI
 
         drive.setDefaultCommand(drive.driveByJoystick(inputProc(driveController::getLeftY),
                 inputProc(driveController::getLeftX), inputProc(driveController::getRightX)));
-        intake.setDefaultCommand(intake.stopIntake().andThen(intake.getRunToMidAngleCommand()));
+        intake.setDefaultCommand(intake.stopIntake().andThen(intake.getRunToIntakeAngleCommand()));
+        // turret.setDefaultCommand(new AimTurretCommand(() -> container.predictPose(),
+        // turret));
         // spindexer.setDefaultCommand(new Agitate(spindexer));
         // turret.setDefaultCommand(container.getTurret().runBasedOnLocation(() ->
         // drive.getPose(),
@@ -47,10 +49,10 @@ public class LobbyOI
         driveController.x().toggleOnTrue(intake.stopIntake().andThen(intake.getRunToStowAngleCommand()).repeatedly());
 
         driveController.leftTrigger().whileTrue(intake.intakeMoving()).onFalse(intake.stopIntake());
-        driveController.rightTrigger().whileTrue(Commands
+        driveController.rightTrigger().whileTrue((Commands
                 .waitUntil(() -> turret.getSuzie().isAtTargetAngle() && turret.getShooter().isAtTargetSpeed())
                 .andThen(new RunSpindexer(container.getSpindexer(), LobbyConstants.SpindexerConstants.kDeJamTime))
-                .alongWith(new PrepTurretCommand(container)));
+                .alongWith(new PrepTurretCommand(container))));
 
         driveController.start().onTrue(Commands.runOnce(() -> suzie.resetCRT()));
 

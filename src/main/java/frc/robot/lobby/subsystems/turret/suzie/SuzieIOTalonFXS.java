@@ -112,8 +112,8 @@ public class SuzieIOTalonFXS implements SuzieIO
 
         m_motor.getConfigurator().apply(config);
 
-        m_drivingEncoder = new DutyCycleEncoder(kDrivingEncoderID, 1.0, 0.234);
-        m_sensingEncoder = new DutyCycleEncoder(kSensingEncoderID, 1.0, 0.804);
+        m_drivingEncoder = new DutyCycleEncoder(kDrivingEncoderID, 1.0, 0.878);
+        m_sensingEncoder = new DutyCycleEncoder(kSensingEncoderID, 1.0, 0.834);
 
         m_position = m_motor.getPosition();
         m_temperature = m_motor.getDeviceTemp();

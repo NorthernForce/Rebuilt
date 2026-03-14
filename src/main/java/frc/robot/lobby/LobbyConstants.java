@@ -59,6 +59,18 @@ public class LobbyConstants
         public static final ModuleType kModuleType = ModuleType.kRev;
     }
 
+    public class PhysicsConstants
+    {
+        public static final double G = 9.8;
+        public static final double RHO = 1.225;
+        public static final double CD = 0.47;
+        public static final double A = 0.0177;
+        public static final double M = 0.2268;
+        public static final double K = (RHO * CD * A) / (2.0 * M);
+        public static final double DT = 0.01;
+
+    }
+
     public class DrivetrainConstants
     {
         public static final LinearVelocity kMaxSpeed = LobbyTunerConstants.kSpeedAt12Volts;
@@ -236,10 +248,11 @@ public class LobbyConstants
         {
             private static int kMotor1ID = 20;
             private static int kMotor2ID = 21;
-            private static double kS = 0;
-            private static double kV = 0.115;
-            private static double kA = 0.05;
-            private static double kP = 0;
+            private static double kS = 0.25719;
+            private static double kV = 0.12306;
+            private static double kA = 0.0037127;
+            private static double kSimA = 0.1;
+            private static double kP = 0.015686;
             private static double kI = 0;
             private static double kD = 0;
             private static double kG = 0;
@@ -252,6 +265,9 @@ public class LobbyConstants
 
             public static ShooterConstants kKrakenConstants = new ShooterConstants(kMotor1ID, kMotor2ID, kS, kV, kA, kP,
                     kI, kD, kG, kCruiseVelocity, kAcceleration, kJerk, kMotor1Inverted, kMotor2Inverted,
+                    kErrorTolerance);
+            public static ShooterConstants kKrakenSimConstants = new ShooterConstants(kMotor1ID, kMotor2ID, kS, kV,
+                    kSimA, kP, kI, kD, kG, kCruiseVelocity, kAcceleration, kJerk, kMotor1Inverted, kMotor2Inverted,
                     kErrorTolerance);
         }
     }
@@ -349,8 +365,8 @@ public class LobbyConstants
         public static final int kRollerMotorId = 17;
         public static final int kAngleMotorId = 16;
         public static final int kAngleEncoderId = 22;
-        public static final double kDriverIntakeSpeed = 0.65;
-        public static final double kDriverPurgeSpeed = 1.0;
+        public static final double kDriverIntakeSpeed = 0.75;
+        public static final double kDriverPurgeSpeed = 0.75;
         public static final Angle kDownAngle = Rotations.of(0.005);
         public static final Angle kMiddleAngle = Rotations.of(0.122);
         public static final Angle kStowedAngle = Rotations.of(0.35);
@@ -365,7 +381,7 @@ public class LobbyConstants
         public static final double kCruiseVelocity = 1;
         public static final double kForwardSoftLimit = 0.4;
         public static final double kReverstSoftLimit = 0.005;
-        public static final Current kCurrentLimit = Amps.of(60);
+        public static final Current kCurrentLimit = Amps.of(50);
         public static final Angle kAngleTolerance = Degrees.of(5);
 
         public static final IntakeIOParameters kIOParameters = new IntakeIOParameters(kRollerMotorId, kAngleMotorId,

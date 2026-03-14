@@ -2,6 +2,7 @@ package frc.robot.lobby.subsystems;
 
 import static edu.wpi.first.units.Units.*;
 
+import java.util.ArrayList;
 import java.util.function.DoubleSupplier;
 import java.util.function.Supplier;
 
@@ -31,12 +32,14 @@ import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
+import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.units.measure.LinearAcceleration;
 import edu.wpi.first.units.measure.LinearVelocity;
 import edu.wpi.first.units.measure.Time;
@@ -49,9 +52,13 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
+import frc.robot.lobby.LobbyConstants;
 import frc.robot.lobby.generated.LobbyTunerConstants;
 import frc.robot.lobby.generated.LobbyTunerConstants.TunerSwerveDrivetrain;
+import frc.robot.lobby.subsystems.turret.Turret;
+import frc.robot.util.AngularVelocityWithTimestamp;
 import frc.robot.util.CTREUtil;
+import frc.robot.util.LinearVelocityWithTimestamp;
 import frc.robot.util.NFRLog;
 import frc.robot.util.Status;
 
@@ -78,7 +85,10 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
     private LinearVelocity velocity = MetersPerSecond.of(0);
     private LinearVelocity xVelocity = MetersPerSecond.of(0);
     private LinearVelocity yVelocity = MetersPerSecond.of(0);
-    private AngularVelocity thetaVelocity = RadiansPerSecond.of(0);
+    private ArrayList<LinearVelocityWithTimestamp> xVelocityCaptures = new ArrayList<LinearVelocityWithTimestamp>();
+    private ArrayList<LinearVelocityWithTimestamp> yVelocityCaptures = new ArrayList<LinearVelocityWithTimestamp>();
+    private ArrayList<AngularVelocityWithTimestamp> thetaVelocityCaptures = new ArrayList<AngularVelocityWithTimestamp>();
+    private AngularVelocity thetaVelocity = RotationsPerSecond.of(0);
 
     /** Swerve request to apply during robot-centric path following */
     private final SwerveRequest.ApplyRobotSpeeds m_pathApplyRobotSpeeds = new SwerveRequest.ApplyRobotSpeeds();
@@ -231,25 +241,116 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
     }
 
     /**
-     * Used to predict the future pose
-     * 
-     * @param amtTimeIntoTheFuture amount of time to predict
-     * @return the predicted pose
+     * Calculates a "Virtual Pose" for the turret to aim at.
      */
-
-    public Pose2d predictPose(Time amtTimeIntoTheFuture)
+    public Pose2d getShotCompensatedPose(Translation2d hubLocation, double ballExitVelocity)
     {
         Pose2d currentPose = getPose();
-        var speeds = getState().Speeds;
-        double dt = amtTimeIntoTheFuture.in(Seconds);
-        double cos = currentPose.getRotation().getCos();
-        double sin = currentPose.getRotation().getSin();
-        // Convert robot-relative ChassisSpeeds to field-relative velocities
-        double fieldVx = speeds.vxMetersPerSecond * cos - speeds.vyMetersPerSecond * sin;
-        double fieldVy = speeds.vxMetersPerSecond * sin + speeds.vyMetersPerSecond * cos;
-        Pose2d newPose = new Pose2d(currentPose.getX() + fieldVx * dt, currentPose.getY() + fieldVy * dt,
-                currentPose.getRotation().plus(Rotation2d.fromRadians(speeds.omegaRadiansPerSecond * dt)));
-        return newPose;
+        double distance = currentPose.getTranslation().getDistance(hubLocation);
+        double timeOfFlight = distance / ballExitVelocity;
+        double xCorrection = -xVelocity.in(MetersPerSecond) * timeOfFlight;
+        double yCorrection = -yVelocity.in(MetersPerSecond) * timeOfFlight;
+        return new Pose2d(currentPose.getX() + xCorrection, currentPose.getY() + yCorrection,
+                currentPose.getRotation());
+    }
+
+    public double calculateTimeOfFlight(double v0, double angleDeg, double targetDist)
+    {
+        double theta = Math.toRadians(angleDeg);
+        double vx = v0 * Math.cos(theta);
+        double vy = v0 * Math.sin(theta);
+        double x = 0;
+        double t = 0;
+        while (x < targetDist && t < 3.0)
+        {
+            double v = Math.sqrt(vx * vx + vy * vy);
+
+            double ax = -LobbyConstants.PhysicsConstants.K * v * vx;
+            double ay = -LobbyConstants.PhysicsConstants.G - (LobbyConstants.PhysicsConstants.K * v * vy);
+
+            vx += ax * LobbyConstants.PhysicsConstants.DT;
+            vy += ay * LobbyConstants.PhysicsConstants.DT;
+            x += vx * LobbyConstants.PhysicsConstants.DT;
+            t += LobbyConstants.PhysicsConstants.DT;
+        }
+        return t;
+    }
+
+    /**
+     * Generates a "Virtual Pose" for the turret. Aiming from this pose at the REAL
+     * hub location will counteract robot velocity.
+     */
+    public Pose2d getVirtualRobotPose(Translation2d realHubLocation, Turret turret)
+    {
+        LinearVelocity ballExitVelocity = MetersPerSecond
+                .of(turret.calculateTargetPose(getPose()).shooterSpeed().in(RotationsPerSecond)
+                        * Inches.of(3.0).in(Meters) * Math.PI);
+        Angle theta = turret.calculateTargetPose(getPose()).hoodAngle();
+        Pose2d currentPose = getPose();
+        Distance distance = Meters.of(currentPose.getTranslation().getDistance(realHubLocation));
+        Time timeOfFlight = Seconds.of(
+                calculateTimeOfFlight(ballExitVelocity.in(MetersPerSecond), theta.in(Degrees), distance.in(Meters)));
+        DogLog.log("TimeOfFlight", timeOfFlight);
+        Distance xVirtualOffset = xVelocity.times(timeOfFlight);
+        Distance yVirtualOffset = yVelocity.times(timeOfFlight);
+        return new Pose2d(Meters.of(currentPose.getMeasureX().in(Meters) + xVirtualOffset.in(Meters)),
+                Meters.of(currentPose.getMeasureY().in(Meters) + yVirtualOffset.in(Meters)), currentPose.getRotation());
+    }
+
+    public ChassisSpeeds getAverageVelocity(double amtCaptureFrames)
+    {
+        int frames = (int) amtCaptureFrames;
+        double sumX = 0;
+        double sumY = 0;
+        double sumTheta = 0;
+        int count = 0;
+
+        int xSize = xVelocityCaptures.size();
+        int ySize = yVelocityCaptures.size();
+        int thetaSize = thetaVelocityCaptures.size();
+        int available = Math.min(Math.min(xSize, ySize), Math.min(thetaSize, frames));
+
+        for (int i = 0; i < available; i++)
+        {
+            sumX += xVelocityCaptures.get(xSize - 1 - i).getVelocity().in(MetersPerSecond);
+            sumY += yVelocityCaptures.get(ySize - 1 - i).getVelocity().in(MetersPerSecond);
+            sumTheta += thetaVelocityCaptures.get(thetaSize - 1 - i).getVelocity().in(RadiansPerSecond);
+            count++;
+        }
+
+        int maxHistory = frames * 2;
+        if (xVelocityCaptures.size() > maxHistory)
+            xVelocityCaptures.subList(0, xVelocityCaptures.size() - maxHistory).clear();
+        if (yVelocityCaptures.size() > maxHistory)
+            yVelocityCaptures.subList(0, yVelocityCaptures.size() - maxHistory).clear();
+        if (thetaVelocityCaptures.size() > maxHistory)
+            thetaVelocityCaptures.subList(0, thetaVelocityCaptures.size() - maxHistory).clear();
+
+        DogLog.log("RunNGun/XLength", xVelocityCaptures.size());
+        DogLog.log("RunNGun/YLength", yVelocityCaptures.size());
+        DogLog.log("RunNGun/ThetaLength", thetaVelocityCaptures.size());
+        DogLog.log("RunNGun/SamplesUsed", count);
+
+        if (count == 0)
+        {
+            return new ChassisSpeeds();
+        }
+
+        return new ChassisSpeeds(sumX / count, sumY / count, sumTheta / count);
+    }
+
+    public Pose2d predictSeconds(Time time, double amtPoseCaptureFrames)
+    {
+        Pose2d pose = getPose();
+        ChassisSpeeds velocities = new ChassisSpeeds(xVelocity, yVelocity, thetaVelocity);// getAverageVelocity(amtPoseCaptureFrames);
+        Distance xOffset = Meters.of(
+                MathUtil.applyDeadband(MetersPerSecond.of(velocities.vxMetersPerSecond).times(time).in(Meters), 0.1));
+        Distance yOffset = Meters.of(
+                MathUtil.applyDeadband(MetersPerSecond.of(velocities.vyMetersPerSecond).times(time).in(Meters), 0.1));
+        Angle thetaOffset = Rotations.of(MathUtil.applyDeadband(
+                RadiansPerSecond.of(velocities.omegaRadiansPerSecond).times(time).in(Rotations), (0.05)));
+        return (new Pose2d(pose.getMeasureX().plus(xOffset), pose.getMeasureY().plus(yOffset),
+                new Rotation2d(pose.getRotation().getMeasure().plus(thetaOffset))));
     }
 
     /**
@@ -416,6 +517,13 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
                     .of((pose.getMeasureY().in(Meters) - lastPose.getMeasureY().in(Meters)) / (deltaTime.in(Seconds)));
             thetaVelocity = pose.getRotation().getMeasure().minus(lastPose.getRotation().getMeasure()).div(deltaTime);
             velocity = MetersPerSecond.of(Math.hypot(xVelocity.in(MetersPerSecond), yVelocity.in(MetersPerSecond)));
+            thetaVelocity = RotationsPerSecond
+                    .of((pose.getRotation().getRotations() - lastPose.getRotation().getRotations())
+                            / (deltaTime.in(Seconds)));
+            xVelocityCaptures.add(new LinearVelocityWithTimestamp(xVelocity));
+            yVelocityCaptures.add(new LinearVelocityWithTimestamp(yVelocity));
+            thetaVelocityCaptures.add(new AngularVelocityWithTimestamp(thetaVelocity));
+
             lastPose = pose;
             fgpaSeconds = fgpa;
         }
