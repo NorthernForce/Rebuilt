@@ -44,6 +44,7 @@ public class PrepTurretCommand extends Command
         // Calculate turret position and use it for danger check
         Translation2d turretPosition = predictedTurretPoseSupplier.get();
         DogLog.log("Turret/PrepCommand/TurretPosition", turretPosition);
+        Pose2d totalPose2d = new Pose2d(turretPosition, currentPose.getRotation());
 
         var hood = turret.getHood();
         boolean inDanger = turret.isInDangerProximity(turretPosition, hood.getDangerZone(), hood.getTrenchPositions());

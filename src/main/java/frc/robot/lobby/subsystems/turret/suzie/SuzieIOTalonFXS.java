@@ -184,6 +184,7 @@ public class SuzieIOTalonFXS implements SuzieIO
     public void start()
     {
         // if (!isAtTargetAngle())
+
         m_motor.setControl(m_positionVoltage.withPosition(m_targetAngle.in(Rotations)));
     }
 
