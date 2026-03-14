@@ -176,12 +176,14 @@ public class SuzieIOTalonFXS implements SuzieIO
     @Override
     public void setTargetAngle(Angle angle)
     {
+        // if (!m_targetAngle.isNear(angle, m_errorTolerance))
         m_targetAngle = angle;
     }
 
     @Override
     public void start()
     {
+        // if (!isAtTargetAngle())
         m_motor.setControl(m_positionVoltage.withPosition(m_targetAngle.in(Rotations)));
     }
 

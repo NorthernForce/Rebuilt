@@ -16,6 +16,7 @@ public class PrepTurretCommand extends Command
 {
     private final Supplier<Pose2d> robotPoseSupplier;
     private final Supplier<Translation2d> predictedTurretPoseSupplier;
+    private final Supplier<Pose2d> predictedPose;
     private final Turret turret;
 
     public PrepTurretCommand(LobbyContainer container)
@@ -25,6 +26,7 @@ public class PrepTurretCommand extends Command
         this.turret = container.getTurret();
         robotPoseSupplier = () -> container.getDrive().getPose();
         predictedTurretPoseSupplier = () -> container.predictTurretPose();
+        predictedPose = () -> container.predictPose();
     }
 
     @Override
@@ -48,7 +50,7 @@ public class PrepTurretCommand extends Command
         DogLog.log("Turret/PrepCommand/InDanger", inDanger);
 
         // Calculate the target pose
-        TurretPose targetPose = turret.calculateTargetPose(currentPose);
+        TurretPose targetPose = turret.calculateTargetPose(predictedPose.get());
         DogLog.log("Turret/PrepCommand/CalculatedSuzieAngle", targetPose.suzieAngle().in(Radians));
         DogLog.log("Turret/PrepCommand/CalculatedHoodAngle", targetPose.hoodAngle().in(Degrees));
         DogLog.log("Turret/PrepCommand/DistanceToHub", turret.getDistanceToHub(currentPose));

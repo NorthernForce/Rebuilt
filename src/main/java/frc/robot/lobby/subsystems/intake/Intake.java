@@ -14,6 +14,8 @@ import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
+import edu.wpi.first.wpilibj2.command.RepeatCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.lobby.LobbyConstants;
@@ -49,6 +51,15 @@ public class Intake extends SubsystemBase
         intakeSpeed = params.intakeSpeed();
         purgeSpeed = params.purgeSpeed();
         this.angleTolerance = params.angleTolerance();
+    }
+
+    public class AgitateCommand extends ParallelCommandGroup
+    {
+        public AgitateCommand()
+        {
+            addCommands(Commands.run(() -> io.intake(intakeSpeed)),
+                    (getRunToMidAngleCommand().andThen(getRunToStowAngleCommand()).repeatedly()));
+        }
     }
 
     public Command purgeIntake()
