@@ -19,12 +19,16 @@ jobs:
         with:
           fetch-depth: 0
       - name: Ensure it's 03:00 Eastern
+        id: hour_guard
         run: |
           if [ "$(TZ=America/New_York date +%H)" != "03" ]; then
             echo "Not 03:00 ET; skipping."
-            exit 0
+            echo "should_run=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "should_run=true" >> "$GITHUB_OUTPUT"
           fi
       - name: Create daily tags
+        if: steps.hour_guard.outputs.should_run == 'true'
         run: |
           DATE="$(TZ=America/New_York date +%Y%m%d)"
           MAIN_TAG="${DATE}-main"
