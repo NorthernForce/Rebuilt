@@ -9,9 +9,9 @@ public class PrepTurretWithValues extends ParallelCommandGroup
 {
     public PrepTurretWithValues(Turret turret)
     {
+        addRequirements(turret);
         addCommands(
                 // Commands.run(() -> turret.getSuzie().start(), turret.getSuzie()),
-                Commands.run(() -> turret.getHood().start(), turret.getHood()),
-                Commands.run(() -> turret.getShooter().start(), turret.getShooter()));
+                Commands.run(() -> turret.getHood().start()), Commands.run(() -> turret.getShooter().start()));
     }
 }
