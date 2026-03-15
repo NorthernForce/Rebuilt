@@ -2,13 +2,11 @@ package frc.robot.lobby.subsystems.turret.commands;
 
 import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.Radians;
-import static edu.wpi.first.units.Units.RotationsPerSecond;
-
 import java.util.function.Supplier;
 
 import dev.doglog.DogLog;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import frc.robot.lobby.LobbyContainer;
 import frc.robot.lobby.subsystems.turret.Turret;
 import frc.robot.lobby.subsystems.turret.Turret.TurretPose;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -16,14 +14,19 @@ import edu.wpi.first.math.geometry.Translation2d;
 
 public class PrepTurretCommand extends Command
 {
-    private Supplier<Pose2d> robotPoseSupplier;
-    private Turret turret;
+    private final Supplier<Pose2d> robotPoseSupplier;
+    private final Supplier<Translation2d> predictedTurretPoseSupplier;
+    private final Supplier<Pose2d> predictedPoseSupplier;
+    private final Turret turret;
 
-    public PrepTurretCommand(Supplier<Pose2d> robotPoseSupplier, Turret turret)
+    public PrepTurretCommand(LobbyContainer container)
     {
-        addRequirements(turret, turret.getSuzie(), turret.getHood(), turret.getShooter());
-        this.robotPoseSupplier = robotPoseSupplier;
-        this.turret = turret;
+        addRequirements(container.getTurret(), container.getTurret().getSuzie(), container.getTurret().getHood(),
+                container.getTurret().getShooter());
+        this.turret = container.getTurret();
+        robotPoseSupplier = () -> container.getDrive().getPose();
+        predictedTurretPoseSupplier = () -> container.predictTurretPose();
+        predictedPoseSupplier = () -> container.predictPose();
     }
 
     @Override
@@ -38,16 +41,12 @@ public class PrepTurretCommand extends Command
         Pose2d currentPose = robotPoseSupplier.get();
         DogLog.log("Turret/PrepCommand/RobotPose", currentPose);
 
-        // Calculate turret position and use it for danger check
-        Translation2d turretPosition = turret.calculateFieldRelativeShooterPosition(currentPose);
-        DogLog.log("Turret/PrepCommand/TurretPosition", turretPosition);
+        Translation2d predictedTurretPosition = predictedTurretPoseSupplier.get();
 
         var hood = turret.getHood();
-        boolean inDanger = turret.isInDangerProximity(turretPosition, hood.getDangerZone(), hood.getTrenchPositions());
-        DogLog.log("Turret/PrepCommand/InDanger", inDanger);
 
         // Calculate the target pose
-        TurretPose targetPose = turret.calculateTargetPose(currentPose);
+        TurretPose targetPose = turret.calculateTargetPose(predictedTurretPosition, robotPoseSupplier.get());
         DogLog.log("Turret/PrepCommand/CalculatedSuzieAngle", targetPose.suzieAngle().in(Radians));
         DogLog.log("Turret/PrepCommand/CalculatedHoodAngle", targetPose.hoodAngle().in(Degrees));
         DogLog.log("Turret/PrepCommand/DistanceToHub", turret.getDistanceToHub(currentPose));

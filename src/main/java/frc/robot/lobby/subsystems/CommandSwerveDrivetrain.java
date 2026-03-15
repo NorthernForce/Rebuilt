@@ -211,7 +211,13 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
 
     public Pose2d getPose()
     {
-        return getState().Pose;
+        if (Utils.isSimulation())
+        {
+            return mapleSimSwerveDrivetrain.mapleSimDrive.getSimulatedDriveTrainPose();
+        } else
+        {
+            return getState().Pose;
+        }
     }
 
     public LinearVelocity getVelocity()
@@ -227,6 +233,11 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
     public LinearVelocity getYVelocity()
     {
         return yVelocity;
+    }
+
+    public AngularVelocity getThetaVelocity()
+    {
+        return thetaVelocity;
     }
 
     /**
@@ -269,22 +280,27 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
      * Generates a "Virtual Pose" for the turret. Aiming from this pose at the REAL
      * hub location will counteract robot velocity.
      */
-    public Pose2d getVirtualRobotPose(Translation2d realHubLocation, Turret turret)
-    {
-        LinearVelocity ballExitVelocity = MetersPerSecond
-                .of(turret.calculateTargetPose(getPose()).shooterSpeed().in(RotationsPerSecond)
-                        * Inches.of(3.0).in(Meters) * Math.PI);
-        Angle theta = turret.calculateTargetPose(getPose()).hoodAngle();
-        Pose2d currentPose = getPose();
-        Distance distance = Meters.of(currentPose.getTranslation().getDistance(realHubLocation));
-        Time timeOfFlight = Seconds.of(
-                calculateTimeOfFlight(ballExitVelocity.in(MetersPerSecond), theta.in(Degrees), distance.in(Meters)));
-        DogLog.log("TimeOfFlight", timeOfFlight);
-        Distance xVirtualOffset = xVelocity.times(timeOfFlight);
-        Distance yVirtualOffset = yVelocity.times(timeOfFlight);
-        return new Pose2d(Meters.of(currentPose.getMeasureX().in(Meters) + xVirtualOffset.in(Meters)),
-                Meters.of(currentPose.getMeasureY().in(Meters) + yVirtualOffset.in(Meters)), currentPose.getRotation());
-    }
+    // public Pose2d getVirtualRobotPose(Translation2d realHubLocation, Turret
+    // turret)
+    // {
+    // LinearVelocity ballExitVelocity = MetersPerSecond
+    // .of(turret.calculateTargetPose(getPose()).shooterSpeed().in(RotationsPerSecond)
+    // * Inches.of(3.0).in(Meters) * Math.PI);
+    // Angle theta = turret.calculateTargetPose(getPose()).hoodAngle();
+    // Pose2d currentPose = getPose();
+    // Distance distance =
+    // Meters.of(currentPose.getTranslation().getDistance(realHubLocation));
+    // Time timeOfFlight = Seconds.of(
+    // calculateTimeOfFlight(ballExitVelocity.in(MetersPerSecond),
+    // theta.in(Degrees), distance.in(Meters)));
+    // DogLog.log("TimeOfFlight", timeOfFlight);
+    // Distance xVirtualOffset = xVelocity.times(timeOfFlight);
+    // Distance yVirtualOffset = yVelocity.times(timeOfFlight);
+    // return new Pose2d(Meters.of(currentPose.getMeasureX().in(Meters) +
+    // xVirtualOffset.in(Meters)),
+    // Meters.of(currentPose.getMeasureY().in(Meters) + yVirtualOffset.in(Meters)),
+    // currentPose.getRotation());
+    // }
 
     public ChassisSpeeds getAverageVelocity(double amtCaptureFrames)
     {
@@ -413,8 +429,17 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
             Pathfinding.setPathfinder(new LocalADStar());
 
             var config = RobotConfig.fromGUISettings();
-            AutoBuilder.configure(() -> getState().Pose, // Supplier of current robot pose
-                    pose -> resetTranslation(pose.getTranslation()), // Consumer for seeding pose against auto
+            AutoBuilder.configure(() -> getPose(), // Supplier of current robot pose
+                    pose ->
+                    {
+                        if (mapleSimSwerveDrivetrain != null)
+                        {
+                            mapleSimSwerveDrivetrain.mapleSimDrive.setSimulationWorldPose(new Pose2d(
+                                    pose.getTranslation(),
+                                    mapleSimSwerveDrivetrain.mapleSimDrive.getSimulatedDriveTrainPose().getRotation()));
+                        }
+                        resetTranslation(pose.getTranslation());
+                    }, // Consumer for seeding pose against auto
                     () -> getState().Speeds, // Supplier of current robot speeds
                     // Consumer of ChassisSpeeds and feedforwards to drive the robot
                     (speeds, feedforwards) -> setControl(m_pathApplyRobotSpeeds.withSpeeds(speeds)
@@ -495,6 +520,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
                     .of((pose.getMeasureX().in(Meters) - lastPose.getMeasureX().in(Meters)) / (deltaTime.in(Seconds)));
             yVelocity = MetersPerSecond
                     .of((pose.getMeasureY().in(Meters) - lastPose.getMeasureY().in(Meters)) / (deltaTime.in(Seconds)));
+            thetaVelocity = pose.getRotation().getMeasure().minus(lastPose.getRotation().getMeasure()).div(deltaTime);
             velocity = MetersPerSecond.of(Math.hypot(xVelocity.in(MetersPerSecond), yVelocity.in(MetersPerSecond)));
             thetaVelocity = RotationsPerSecond
                     .of((pose.getRotation().getRotations() - lastPose.getRotation().getRotations())
