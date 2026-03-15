@@ -58,11 +58,15 @@ public class LobbyOI
 
         manipulatorController.leftStick().whileTrue(intake.driveByJoystick(() -> manipulatorController.getLeftY()));
 
-        manipulatorController.leftBumper().whileTrue(new PrepTurretWithValues(turret));
+        driveController.rightBumper()
+                .whileTrue(new PrepTurretWithValues(turret).alongWith(Commands.waitSeconds(0.5).andThen(
+                        new RunSpindexer(container.getSpindexer(), LobbyConstants.SpindexerConstants.kDeJamTime))))
+                .onFalse(Commands.runOnce(() -> turret.stop()));
 
-        driveController.rightBumper().whileTrue(Commands.waitSeconds(0.25)
-                .andThen(new RunSpindexer(container.getSpindexer(), LobbyConstants.SpindexerConstants.kDeJamTime))
-                .alongWith(new PrepTurretStupid(container)));
+        // driveController.rightBumper().whileTrue(Commands.waitSeconds(0.25)
+        // .andThen(new RunSpindexer(container.getSpindexer(),
+        // LobbyConstants.SpindexerConstants.kDeJamTime))
+        // .alongWith(new PrepTurretStupid(container)));
 
         manipulatorController.leftTrigger().whileTrue(intake.intakeMoving()).onFalse(intake.stopIntake());
         manipulatorController.rightTrigger().whileTrue(Commands.waitSeconds(0.25)

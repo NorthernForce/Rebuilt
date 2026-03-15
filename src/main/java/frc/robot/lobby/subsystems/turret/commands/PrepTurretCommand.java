@@ -16,6 +16,7 @@ public class PrepTurretCommand extends Command
 {
     private final Supplier<Pose2d> robotPoseSupplier;
     private final Supplier<Translation2d> predictedTurretPoseSupplier;
+    private final Supplier<Pose2d> predictedPoseSupplier;
     private final Turret turret;
 
     public PrepTurretCommand(LobbyContainer container)
@@ -25,6 +26,7 @@ public class PrepTurretCommand extends Command
         this.turret = container.getTurret();
         robotPoseSupplier = () -> container.getDrive().getPose();
         predictedTurretPoseSupplier = () -> container.predictTurretPose();
+        predictedPoseSupplier = () -> container.predictPose();
     }
 
     @Override
