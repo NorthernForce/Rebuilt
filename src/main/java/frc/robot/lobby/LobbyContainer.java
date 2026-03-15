@@ -190,7 +190,8 @@ public class LobbyContainer implements NFRRobotContainer
         driveToPoseCommand = new DriveToPoseWithVision(drive);
         NamedCommands.registerCommand("Shoot",
                 Commands.waitUntil(() -> turret.getSuzie().isAtTargetAngle() && turret.getShooter().isAtTargetSpeed())
-                        .andThen(new RunSpindexer(getSpindexer(), LobbyConstants.SpindexerConstants.kDeJamTime))
+                        .andThen(new RunSpindexer(getSpindexer(), LobbyConstants.SpindexerConstants.kDeJamTime,
+                                LobbyConstants.SpindexerConstants.kPostDeJamTime))
                         .alongWith(new PrepTurretCommand(this)));
         NamedCommands.registerCommand("Intake", intake.intakeMoving());
         NamedCommands.registerCommand("StopShoot",

@@ -522,9 +522,6 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
                     .of((pose.getMeasureY().in(Meters) - lastPose.getMeasureY().in(Meters)) / (deltaTime.in(Seconds)));
             thetaVelocity = pose.getRotation().getMeasure().minus(lastPose.getRotation().getMeasure()).div(deltaTime);
             velocity = MetersPerSecond.of(Math.hypot(xVelocity.in(MetersPerSecond), yVelocity.in(MetersPerSecond)));
-            thetaVelocity = RotationsPerSecond
-                    .of((pose.getRotation().getRotations() - lastPose.getRotation().getRotations())
-                            / (deltaTime.in(Seconds)));
             xVelocityCaptures.add(new LinearVelocityWithTimestamp(xVelocity));
             yVelocityCaptures.add(new LinearVelocityWithTimestamp(yVelocity));
             thetaVelocityCaptures.add(new AngularVelocityWithTimestamp(thetaVelocity));

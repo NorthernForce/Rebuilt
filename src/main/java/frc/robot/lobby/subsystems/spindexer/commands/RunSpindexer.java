@@ -9,14 +9,18 @@ public class RunSpindexer extends Command
 {
     private final Spindexer spindexer;
     private final Timer timer;
+    private final Timer postDejam;
+    private final Time postDejamTime;
     private final Time dejamTime;
 
-    public RunSpindexer(Spindexer spindexer, Time dejamTime)
+    public RunSpindexer(Spindexer spindexer, Time dejamTime, Time postDejamTime)
     {
         addRequirements(spindexer);
         this.spindexer = spindexer;
         timer = new Timer();
         this.dejamTime = dejamTime;
+        this.postDejamTime = postDejamTime;
+        postDejam = new Timer();
     }
 
     @Override
@@ -39,10 +43,16 @@ public class RunSpindexer extends Command
         }
         if (!timer.isRunning())
         {
+            postDejam.stop();
+            postDejam.reset();
             spindexer.getCarousel().startCarousel();
             spindexer.getFlicker().rampFlicker();
         } else
         {
+            if (!postDejam.isRunning())
+            {
+                postDejam.start();
+            }
             spindexer.getCarousel().dejam();
             spindexer.getFlicker().dejam();
         }
