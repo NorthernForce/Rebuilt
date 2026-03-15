@@ -162,7 +162,7 @@ public class LobbyConstants
     public class Turret
     {
         public static Pose2d offset = new Pose2d(new Translation2d(Inches.of(-6.264), Inches.of(6.300)),
-                new Rotation2d(Degrees.of(45)));
+                new Rotation2d(Degrees.of(50)));
         public static Angle offsetAngle = Radians
                 .of(Math.atan2(offset.getMeasureX().in(Meters), offset.getMeasureY().in(Meters)));
         public static Distance offsetDistance = Meters.of(offset.getTranslation().getDistance(Translation2d.kZero));
@@ -399,7 +399,7 @@ public class LobbyConstants
         public static final double kDejamSpeed = 0.2;
 
         public static final int kMotorID = 15;
-        public static final double kSpeed = 0.5;
+        public static final double kSpeed = 1;
         public static final boolean kInverted = false;
         public static final double kGearRatio = 10.0;
 
