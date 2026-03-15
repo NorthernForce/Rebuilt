@@ -48,7 +48,7 @@ public class AimTurretCommand extends Command
         DogLog.log("Turret/PrepCommand/InDanger", inDanger);
 
         // Calculate the target pose
-        TurretPose targetPose = turret.calculateTargetPose(currentPose);
+        TurretPose targetPose = turret.calculateTargetPose(predictedTurretPoseSupplier.get(), currentPose);
         DogLog.log("Turret/PrepCommand/CalculatedSuzieAngle", targetPose.suzieAngle().in(Radians));
         DogLog.log("Turret/PrepCommand/CalculatedHoodAngle", targetPose.hoodAngle().in(Degrees));
         DogLog.log("Turret/PrepCommand/DistanceToHub", turret.getDistanceToHub(currentPose));

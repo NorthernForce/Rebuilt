@@ -39,16 +39,12 @@ public class PrepTurretCommand extends Command
         Pose2d currentPose = robotPoseSupplier.get();
         DogLog.log("Turret/PrepCommand/RobotPose", currentPose);
 
-        // Calculate turret position and use it for danger check
-        Translation2d turretPosition = predictedTurretPoseSupplier.get();
-        DogLog.log("Turret/PrepCommand/TurretPosition", turretPosition);
+        Translation2d predictedTurretPosition = predictedTurretPoseSupplier.get();
 
         var hood = turret.getHood();
-        boolean inDanger = turret.isInDangerProximity(turretPosition, hood.getDangerZone(), hood.getTrenchPositions());
-        DogLog.log("Turret/PrepCommand/InDanger", inDanger);
 
         // Calculate the target pose
-        TurretPose targetPose = turret.calculateTargetPose(currentPose);
+        TurretPose targetPose = turret.calculateTargetPose(predictedTurretPosition, robotPoseSupplier.get());
         DogLog.log("Turret/PrepCommand/CalculatedSuzieAngle", targetPose.suzieAngle().in(Radians));
         DogLog.log("Turret/PrepCommand/CalculatedHoodAngle", targetPose.hoodAngle().in(Degrees));
         DogLog.log("Turret/PrepCommand/DistanceToHub", turret.getDistanceToHub(currentPose));

@@ -2,6 +2,7 @@ package frc.robot.lobby.subsystems.turret;
 
 import static edu.wpi.first.units.Units.*;
 
+import java.lang.reflect.InaccessibleObjectException;
 import java.util.function.Supplier;
 
 import dev.doglog.DogLog;
@@ -122,21 +123,9 @@ public class Turret extends SubsystemBase
                 : FieldConstants.kBlueAllianceStationX;
     }
 
-    /**
-     * Check if the robot is in valid shooting range for the current alliance
-     * Shooting range is between the center trench and the alliance station
-     */
-    public boolean isInShootingRange(Pose2d robotPose)
+    public boolean isInAllianceZone(Pose2d robotPose)
     {
         Translation2d shooterPosition = calculateFieldRelativeShooterPosition(robotPose);
-        Translation2d hubPosition2d = new Translation2d(getHubPosition().getX(), getHubPosition().getY());
-        double distanceToHub = shooterPosition.getDistance(hubPosition2d);
-
-        // Check if within max shooting distance
-        if (distanceToHub > FieldConstants.kMaxShootingDistance)
-        {
-            return false;
-        }
 
         // Check if between center trench and alliance station
         Translation2d centerTrench = getCenterTrench();
@@ -155,12 +144,36 @@ public class Turret extends SubsystemBase
         }
     }
 
+    /**
+     * Check if the robot is in valid shooting range for the current alliance
+     * Shooting range is between the center trench and the alliance station
+     */
+    public boolean isInShootingRange(Pose2d robotPose)
+    {
+        Translation2d shooterPosition = calculateFieldRelativeShooterPosition(robotPose);
+        Translation2d hubPosition2d = new Translation2d(getHubPosition().getX(), getHubPosition().getY());
+        double distanceToHub = shooterPosition.getDistance(hubPosition2d);
+
+        // Check if within max shooting distance
+        if (distanceToHub > FieldConstants.kMaxShootingDistance || distanceToHub < FieldConstants.kMinShootingDistance)
+        {
+            return false;
+        }
+
+        return true;
+    }
+
     public void setTargetPose(TurretPose pose)
     {
         DogLog.log("Target Angle Being Set", pose.hoodAngle);
         suzie.setTargetAngle(pose.suzieAngle);
         hood.setTargetMechanismAngle(pose.hoodAngle);
         shooter.setTargetSpeed(pose.shooterSpeed);
+    }
+
+    public TurretPose getPose()
+    {
+        return new TurretPose(suzie.getAngle(), hood.getAngle(), shooter.getSpeed());
     }
 
     public void setTargetPoseStupid(TurretPose pose)
@@ -184,29 +197,38 @@ public class Turret extends SubsystemBase
         shooter.stop();
     }
 
-    public TurretPose calculateTargetPose(Pose2d robotPose)
+    public TurretPose calculateTargetPose(Translation2d predictedTurretPosition, Pose2d robotPose)
     {
+        boolean inAllianceZone = isInAllianceZone(robotPose);
         boolean inRange = isInShootingRange(robotPose);
+        DogLog.log("Turret/InAllianceZone", inAllianceZone);
         DogLog.log("Turret/InShootingRange", inRange);
 
-        if (inRange)
+        if (inAllianceZone)
         {
-            // Target the hub for shooting
-            return calculateShootingPose(robotPose);
+            if (inRange)
+            {
+                // Target the hub for shooting
+                return calculateShootingPose(robotPose, predictedTurretPosition);
+            } else
+            {
+                return getPose();
+            }
         } else
         {
-            // Target the passing zone
-            return calculatePassingPose(robotPose);
+            return calculatePassingPose(robotPose, predictedTurretPosition);
         }
     }
 
     /**
      * Calculate pose for shooting at the hub
      */
-    private TurretPose calculateShootingPose(Pose2d robotPose)
+    private TurretPose calculateShootingPose(Pose2d robotPose, Translation2d predictedTurretPosition)
     {
-        Distance shooterDistanceToHub = calculateShooterDistanceToHub(robotPose);
-        Angle suzieAngle = calculateSuzieTargetAngle(robotPose, getHubPosition());
+        Distance shooterDistanceToHub = Meters
+                .of(predictedTurretPosition.getDistance(getHubPosition().toTranslation2d()));
+        Angle suzieAngle = calculateSuzieTargetAngle(robotPose.getRotation().getMeasure(), predictedTurretPosition,
+                getHubPosition());
         Angle hoodAngle = Degrees.of(hoodCalculator.getValueForDistance(shooterDistanceToHub.in(Meters)));
         AngularVelocity shooterSpeed = RotationsPerSecond
                 .of(shooterCalculator.getValueForDistance(shooterDistanceToHub.in(Meters)));
@@ -220,14 +242,14 @@ public class Turret extends SubsystemBase
     /**
      * Calculate pose for passing to alliance corner
      */
-    private TurretPose calculatePassingPose(Pose2d robotPose)
+    private TurretPose calculatePassingPose(Pose2d robotPose, Translation2d predictedTurretPosition)
     {
         Translation2d passingTarget = getPassingTarget(robotPose);
         Translation2d shooterPosition = calculateFieldRelativeShooterPosition(robotPose);
         double distanceToTarget = shooterPosition.getDistance(passingTarget);
 
         // Calculate angle to passing target
-        Angle suzieAngle = calculateSuzieTargetAngle(robotPose,
+        Angle suzieAngle = calculateSuzieTargetAngle(robotPose.getRotation().getMeasure(), predictedTurretPosition,
                 new Translation3d(passingTarget.getX(), passingTarget.getY(), 0));
 
         Angle hoodAngle = Degrees.of(hoodCalculator.getValueForDistance(distanceToTarget));
@@ -240,11 +262,11 @@ public class Turret extends SubsystemBase
         return new TurretPose(suzieAngle, hoodAngle, shooterSpeed);
     }
 
-    private Angle calculateSuzieTargetAngle(Pose2d robotPose, Translation3d targetPosition)
+    private Angle calculateSuzieTargetAngle(Angle robotAngle, Translation2d predictedTurretPosition,
+            Translation3d targetPosition)
     {
-        Translation2d shooterPosition = calculateFieldRelativeShooterPosition(robotPose);
-        double targetAngle = Math.atan2(targetPosition.getY() - shooterPosition.getY(),
-                targetPosition.getX() - shooterPosition.getX()) - robotPose.getRotation().getRadians()
+        double targetAngle = Math.atan2(targetPosition.getY() - predictedTurretPosition.getY(),
+                targetPosition.getX() - predictedTurretPosition.getX()) - robotAngle.in(Radians)
                 - offset.getRotation().getRadians();
         return Radians.of(normalizeAngle(targetAngle));
     }
@@ -299,6 +321,11 @@ public class Turret extends SubsystemBase
     public Angle getSuzieAngleRobotRelative()
     {
         return suzie.getAngle().plus(offset.getRotation().getMeasure());
+    }
+
+    public Angle getSuzieTargetAngleRobotRelative()
+    {
+        return suzie.getTargetAngle().plus(offset.getRotation().getMeasure());
     }
 
     public Hood getHood()
@@ -362,7 +389,7 @@ public class Turret extends SubsystemBase
     public void periodic()
     {
         DogLog.log("Turret/Suzie/Angle", suzie.getAngle().in(Degrees));
-        // DogLog.log("Turret/Suzie/TargetAngle", suzie.getTargetAngle().in(Degrees));
+        DogLog.log("Turret/Suzie/TargetAngle", suzie.getTargetAngle().in(Degrees));
         DogLog.log("Turret/Suzie/IsAtTarget", suzie.isAtTargetAngle());
         DogLog.log("Turret/Hood/Angle", hood.getAngle().in(Radians));
         DogLog.log("Turret/Hood/TargetAngle", hood.getTargetAngle().in(Radians));

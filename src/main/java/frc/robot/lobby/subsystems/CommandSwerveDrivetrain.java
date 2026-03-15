@@ -280,22 +280,27 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
      * Generates a "Virtual Pose" for the turret. Aiming from this pose at the REAL
      * hub location will counteract robot velocity.
      */
-    public Pose2d getVirtualRobotPose(Translation2d realHubLocation, Turret turret)
-    {
-        LinearVelocity ballExitVelocity = MetersPerSecond
-                .of(turret.calculateTargetPose(getPose()).shooterSpeed().in(RotationsPerSecond)
-                        * Inches.of(3.0).in(Meters) * Math.PI);
-        Angle theta = turret.calculateTargetPose(getPose()).hoodAngle();
-        Pose2d currentPose = getPose();
-        Distance distance = Meters.of(currentPose.getTranslation().getDistance(realHubLocation));
-        Time timeOfFlight = Seconds.of(
-                calculateTimeOfFlight(ballExitVelocity.in(MetersPerSecond), theta.in(Degrees), distance.in(Meters)));
-        DogLog.log("TimeOfFlight", timeOfFlight);
-        Distance xVirtualOffset = xVelocity.times(timeOfFlight);
-        Distance yVirtualOffset = yVelocity.times(timeOfFlight);
-        return new Pose2d(Meters.of(currentPose.getMeasureX().in(Meters) + xVirtualOffset.in(Meters)),
-                Meters.of(currentPose.getMeasureY().in(Meters) + yVirtualOffset.in(Meters)), currentPose.getRotation());
-    }
+    // public Pose2d getVirtualRobotPose(Translation2d realHubLocation, Turret
+    // turret)
+    // {
+    // LinearVelocity ballExitVelocity = MetersPerSecond
+    // .of(turret.calculateTargetPose(getPose()).shooterSpeed().in(RotationsPerSecond)
+    // * Inches.of(3.0).in(Meters) * Math.PI);
+    // Angle theta = turret.calculateTargetPose(getPose()).hoodAngle();
+    // Pose2d currentPose = getPose();
+    // Distance distance =
+    // Meters.of(currentPose.getTranslation().getDistance(realHubLocation));
+    // Time timeOfFlight = Seconds.of(
+    // calculateTimeOfFlight(ballExitVelocity.in(MetersPerSecond),
+    // theta.in(Degrees), distance.in(Meters)));
+    // DogLog.log("TimeOfFlight", timeOfFlight);
+    // Distance xVirtualOffset = xVelocity.times(timeOfFlight);
+    // Distance yVirtualOffset = yVelocity.times(timeOfFlight);
+    // return new Pose2d(Meters.of(currentPose.getMeasureX().in(Meters) +
+    // xVirtualOffset.in(Meters)),
+    // Meters.of(currentPose.getMeasureY().in(Meters) + yVirtualOffset.in(Meters)),
+    // currentPose.getRotation());
+    // }
 
     public ChassisSpeeds getAverageVelocity(double amtCaptureFrames)
     {
