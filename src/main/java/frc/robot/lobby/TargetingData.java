@@ -12,7 +12,7 @@ public class TargetingData
 
     public static final Map<Double, Double> SHOOTER_DATA = Map.ofEntries(Map.entry(1.80, 45.0), Map.entry(2.0, 46.0),
             Map.entry(2.20, 47.5), Map.entry(2.40, 48.5), Map.entry(2.60, 50.5), Map.entry(2.80, 52.1),
-            Map.entry(3.00, 53.15), Map.entry(3.20, 54.2), Map.entry(3.40, 55.25), Map.entry(3.60, 56.5),
+            Map.entry(3.00, 53.15), Map.entry(3.20, 54.2), Map.entry(3.40, 55.3), Map.entry(3.60, 56.5),
             Map.entry(3.80, 57.25), Map.entry(4.00, 57.5), Map.entry(4.25, 58.7), Map.entry(4.44, 59.0),
             Map.entry(4.72, 59.5), Map.entry(5.05, 60.0), Map.entry(5.34, 61.0), Map.entry(5.56, 62.0));
 }
