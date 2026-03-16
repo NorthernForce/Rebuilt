@@ -193,7 +193,7 @@ public class LobbyContainer implements NFRRobotContainer
         NamedCommands.registerCommand("Intake", intake.intakeMoving());
         NamedCommands.registerCommand("StopShoot",
                 Commands.runOnce(() -> turret.getShooter().stop(), turret.getShooter()));
-        NamedCommands.registerCommand("StopIntake", intake.stopIntake().andThen(intake.getRunToMidAngleCommand()));
+        NamedCommands.registerCommand("StopIntake", intake.stopIntake().andThen(intake.getRunToIntakeAngleCommand()));
         NamedCommands.registerCommand("RunUpClimber", climber.runUp());
         NamedCommands.registerCommand("RunDownClimber", climber.runDown());
         autoUtil = new AutoUtil(drive, LobbyConstants.AutoConstants.xPid, LobbyConstants.AutoConstants.yPid,
