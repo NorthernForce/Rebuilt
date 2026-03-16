@@ -50,14 +50,18 @@ public class LobbyOI
                 .waitUntil(() -> turret.getSuzie().isAtTargetAngle() && turret.getShooter().isAtTargetSpeed())
                 .andThen(new RunSpindexer(container.getSpindexer(), LobbyConstants.SpindexerConstants.kDeJamTime,
                         LobbyConstants.SpindexerConstants.kPostDeJamTime))
-                .alongWith(new PrepTurretCommand(container))));
+                .alongWith(new PrepTurretCommand(container,
+                        () -> Math.hypot(inputProc(() -> driveController.getLeftX()).getAsDouble(),
+                                inputProc(() -> driveController.getLeftY()).getAsDouble())))));
 
         driveController.leftTrigger().whileTrue(intake.intakeMoving()).onFalse(intake.stopIntake());
         driveController.rightTrigger().whileTrue((Commands
                 .waitUntil(() -> turret.getSuzie().isAtTargetAngle() && turret.getShooter().isAtTargetSpeed())
                 .andThen(new RunSpindexer(container.getSpindexer(), LobbyConstants.SpindexerConstants.kDeJamTime,
                         LobbyConstants.SpindexerConstants.kPostDeJamTime))
-                .alongWith(new PrepTurretCommand(container))));
+                .alongWith(new PrepTurretCommand(container,
+                        () -> Math.hypot(inputProc(() -> driveController.getLeftX()).getAsDouble(),
+                                inputProc(() -> driveController.getLeftY()).getAsDouble())))));
 
         driveController.start().onTrue(Commands.runOnce(() -> suzie.resetCRT()));
 

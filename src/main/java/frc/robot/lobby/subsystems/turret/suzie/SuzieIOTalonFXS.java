@@ -112,8 +112,8 @@ public class SuzieIOTalonFXS implements SuzieIO
 
         m_motor.getConfigurator().apply(config);
 
-        m_drivingEncoder = new DutyCycleEncoder(kDrivingEncoderID, 1.0, 0.403);
-        m_sensingEncoder = new DutyCycleEncoder(kSensingEncoderID, 1.0, 0.648);
+        m_drivingEncoder = new DutyCycleEncoder(kDrivingEncoderID, 1.0, 0.384);
+        m_sensingEncoder = new DutyCycleEncoder(kSensingEncoderID, 1.0, 0.645);
 
         m_position = m_motor.getPosition();
         m_temperature = m_motor.getDeviceTemp();
@@ -212,7 +212,7 @@ public class SuzieIOTalonFXS implements SuzieIO
     @Override
     public boolean isAtTargetAngle()
     {
-        return Math.abs(getTargetAngle().in(Degrees) - getAngle().in(Degrees)) < m_errorTolerance.in(Degrees);
+        return getAngle().isNear(getTargetAngle(), m_errorTolerance);
     }
 
     @Override
