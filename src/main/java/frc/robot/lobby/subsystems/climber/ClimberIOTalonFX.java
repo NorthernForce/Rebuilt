@@ -1,32 +1,23 @@
 package frc.robot.lobby.subsystems.climber;
 
-import static edu.wpi.first.units.Units.Degrees;
-import static edu.wpi.first.units.Units.Inches;
 import static edu.wpi.first.units.Units.Rotations;
 
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
-import com.ctre.phoenix6.controls.PositionVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
 
 import dev.doglog.DogLog;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.units.measure.Angle;
-import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.DutyCycle;
-import edu.wpi.first.wpilibj.Servo;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
-import frc.robot.lobby.LobbyConstants.ClimberConstants.ClimbLevels;
 
 public class ClimberIOTalonFX implements ClimberIO
 {
     private final int motorID;
     private final TalonFX motor;
-    private ClimbLevels currentLevel;
     private final Angle tolerance;
 
-    private double setRotations = 0;
     private final Pose2d upperRedClimbPosition;
     private final Pose2d lowerRedClimbPosition;
     private final Pose2d upperBlueClimbPosition;

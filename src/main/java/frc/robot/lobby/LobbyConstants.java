@@ -398,7 +398,7 @@ public class LobbyConstants
         public static final double kDejamSpeed = 0.2;
 
         public static final int kMotorID = 15;
-        public static final double kSpeed = 0.5;
+        public static final double kSpeed = 1;
         public static final boolean kInverted = false;
         public static final double kGearRatio = 10.0;
 
