@@ -1,6 +1,5 @@
 package frc.robot.lobby.subsystems.apriltagvision.commands;
 
-import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.DegreesPerSecond;
 import static edu.wpi.first.units.Units.MetersPerSecond;
 

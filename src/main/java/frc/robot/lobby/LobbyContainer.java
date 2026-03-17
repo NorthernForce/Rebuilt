@@ -7,7 +7,6 @@ import static edu.wpi.first.units.Units.Amps;
 import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.Radians;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
-import static edu.wpi.first.units.Units.Seconds;
 
 import java.util.Optional;
 import org.northernforce.util.NFRRobotContainer;
@@ -27,7 +26,6 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.units.measure.Current;
-import edu.wpi.first.networktables.DoubleSubscriber;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.PowerDistribution;
@@ -38,7 +36,6 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.lobby.autos.SimpleAuto;
-import frc.robot.FieldConstants;
 import frc.robot.lobby.generated.LobbyTunerConstants;
 import frc.robot.lobby.subsystems.CommandSwerveDrivetrain;
 import frc.robot.lobby.subsystems.apriltagvision.*;
@@ -79,7 +76,6 @@ public class LobbyContainer implements NFRRobotContainer
 {
     private final CommandSwerveDrivetrain drive;
     private final Intake intake;
-    private final DoubleSubscriber amtPoseCaptureFrames;
     private final AprilTagVision vision;
     private final AutoUtil autoUtil;
     private final Field2d field;
@@ -101,7 +97,6 @@ public class LobbyContainer implements NFRRobotContainer
 
     public LobbyContainer()
     {
-        amtPoseCaptureFrames = DogLog.tunable("RunNGun/CaptureFrames", 1.0);
         drive = new CommandSwerveDrivetrain(LobbyTunerConstants.DrivetrainConstants,
                 LobbyConstants.DrivetrainConstants.kMaxSpeed, LobbyConstants.DrivetrainConstants.kMaxAngularSpeed,
                 LobbyTunerConstants.FrontLeft, LobbyTunerConstants.FrontRight, LobbyTunerConstants.BackLeft,

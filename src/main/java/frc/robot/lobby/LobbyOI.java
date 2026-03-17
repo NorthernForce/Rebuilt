@@ -29,8 +29,8 @@ public class LobbyOI
         var drive = container.getDrive();
         var intake = container.getIntake();
         var turret = container.getTurret();
-        var spindexer = container.getSpindexer();
         var suzie = container.getTurret().getSuzie();
+        var spindexer = container.getSpindexer();
         var hood = container.getTurret().getHood();
         var shooter = container.getTurret().getShooter();
 
@@ -44,6 +44,7 @@ public class LobbyOI
         drive.setDefaultCommand(drive.driveByJoystick(inputProc(driveController::getLeftY),
                 inputProc(driveController::getLeftX), inputProc(driveController::getRightX)));
         intake.setDefaultCommand(intake.stopIntake().andThen(intake.getRunToIntakeAngleCommand()));
+        // turret.setDefaultCommand(new AimTurretCommand(container));
         turret.setDefaultCommand(Commands.run(() -> turret.stop(), turret));
         // spindexer.setDefaultCommand(new Agitate(spindexer));
         // turret.setDefaultCommand(container.getTurret().runBasedOnLocation(() ->
@@ -60,6 +61,8 @@ public class LobbyOI
                 .alongWith(new PrepTurretCommand(container, movementMagnitudeSupplier))));
 
         driveController.leftTrigger().whileTrue(intake.intakeMoving()).onFalse(intake.stopIntake());
+        driveController.leftBumper().whileTrue(intake.purgeIntake()).onFalse(intake.stopIntake());
+
         driveController.rightTrigger().whileTrue((Commands
                 .waitUntil(() -> turret.getSuzie().isAtTargetAngle() && turret.getShooter().isAtTargetSpeed())
                 .andThen(new RunSpindexer(container.getSpindexer(), LobbyConstants.SpindexerConstants.kDeJamTime,

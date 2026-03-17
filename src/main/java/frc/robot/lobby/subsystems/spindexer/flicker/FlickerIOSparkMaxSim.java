@@ -9,14 +9,12 @@ import com.revrobotics.spark.SparkMax;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Time;
-import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj.Timer;
 
 public class FlickerIOSparkMaxSim implements FlickerIO
 {
     private int m_id;
     private double m_rampSpeed;
-    private double m_errorTolerance;
     private double m_simMaxRpm;
     private SparkMaxSim m_motor;
     private double nanoTimeLastChecked = 0.0;
@@ -28,7 +26,6 @@ public class FlickerIOSparkMaxSim implements FlickerIO
     {
         m_id = parameters.motorId();
         m_rampSpeed = parameters.rampSpeed();
-        m_errorTolerance = parameters.errorTolerance();
         m_simMaxRpm = parameters.simMaxRpm();
         DCMotor motorType = DCMotor.getNEO(1);
         SparkMax sparkMax = new SparkMax(m_id, SparkMax.MotorType.kBrushless);

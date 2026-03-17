@@ -2,9 +2,7 @@ package frc.robot.util;
 
 import static edu.wpi.first.units.Units.Seconds;
 
-import edu.wpi.first.units.LinearVelocityUnit;
 import edu.wpi.first.units.measure.AngularVelocity;
-import edu.wpi.first.units.measure.LinearVelocity;
 import edu.wpi.first.units.measure.Time;
 import edu.wpi.first.wpilibj.Timer;
 
