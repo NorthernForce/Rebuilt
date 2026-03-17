@@ -2,7 +2,6 @@ package frc.robot.lobby.subsystems.turret;
 
 import static edu.wpi.first.units.Units.*;
 
-import java.lang.reflect.InaccessibleObjectException;
 import java.util.function.Supplier;
 
 import dev.doglog.DogLog;
@@ -16,7 +15,6 @@ import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.FieldConstants;
 import frc.robot.lobby.subsystems.turret.hood.Hood;
@@ -220,20 +218,6 @@ public class Turret extends SubsystemBase
         }
     }
 
-    /**
-     * Calculate pose for shooting at the hub
-     */
-
-    public TurretPose calculateShootingPoseWithTurret(Pose2d turretPose)
-    {
-        Distance shooterDistanceToHub = calculateShooterDistanceToHubWithTurret(turretPose);
-        Angle suzieAngle = calculateSuzieTargetAngleWithTurret(turretPose, getHubPosition());
-        Angle hoodAngle = Degrees.of(hoodCalculator.getValueForDistance(shooterDistanceToHub.in(Meters)));
-        AngularVelocity shooterSpeed = RotationsPerSecond
-                .of(shooterCalculator.getValueForDistance(shooterDistanceToHub.in(Meters)));
-        return new TurretPose(suzieAngle, hoodAngle, shooterSpeed);
-    }
-
     private TurretPose calculateShootingPose(Pose2d robotPose, Translation2d predictedTurretPosition)
     {
         Distance shooterDistanceToHub = Meters
@@ -278,15 +262,6 @@ public class Turret extends SubsystemBase
     {
         double targetAngle = Math.atan2(targetPosition.getY() - predictedTurretPosition.getY(),
                 targetPosition.getX() - predictedTurretPosition.getX()) - robotAngle.in(Radians)
-                - offset.getRotation().getRadians();
-        return Radians.of(normalizeAngle(targetAngle));
-    }
-
-    private Angle calculateSuzieTargetAngleWithTurret(Pose2d turretPose, Translation3d targetPosition)
-    {
-        Translation2d shooterPosition = turretPose.getTranslation();
-        double targetAngle = Math.atan2(targetPosition.getY() - shooterPosition.getY(),
-                targetPosition.getX() - shooterPosition.getX()) - turretPose.getRotation().getRadians()
                 - offset.getRotation().getRadians();
         return Radians.of(normalizeAngle(targetAngle));
     }

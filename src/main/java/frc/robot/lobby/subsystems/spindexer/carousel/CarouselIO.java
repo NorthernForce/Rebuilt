@@ -3,7 +3,6 @@ package frc.robot.lobby.subsystems.spindexer.carousel;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Time;
-import edu.wpi.first.wpilibj.PowerDistribution;
 
 public interface CarouselIO
 {

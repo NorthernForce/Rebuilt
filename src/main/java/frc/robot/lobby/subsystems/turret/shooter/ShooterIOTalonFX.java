@@ -2,7 +2,6 @@ package frc.robot.lobby.subsystems.turret.shooter;
 
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 
-import java.io.ObjectInputFilter.Status;
 import java.util.function.Supplier;
 
 import com.ctre.phoenix6.StatusSignal;
@@ -20,7 +19,6 @@ import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Temperature;
 import edu.wpi.first.units.measure.Voltage;
-import edu.wpi.first.wpilibj.PowerDistribution;
 import frc.robot.util.TunablePID;
 
 public class ShooterIOTalonFX implements ShooterIO

@@ -5,11 +5,6 @@ import java.util.function.DoubleSupplier;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
-import frc.robot.lobby.subsystems.intake.Intake.AgitateCommand;
-import frc.robot.lobby.subsystems.spindexer.commands.Agitate;
-import frc.robot.lobby.subsystems.spindexer.commands.RunSpindexer;
-import frc.robot.lobby.subsystems.turret.commands.AimTurretCommand;
-import frc.robot.lobby.subsystems.spindexer.commands.RunSpindexer;
 import frc.robot.lobby.subsystems.spindexer.commands.RunSpindexer;
 import frc.robot.lobby.subsystems.turret.commands.PrepTurretCommand;
 import frc.robot.lobby.subsystems.turret.commands.PrepTurretStupid;
@@ -34,8 +29,8 @@ public class LobbyOI
         var drive = container.getDrive();
         var intake = container.getIntake();
         var turret = container.getTurret();
-        var spindexer = container.getSpindexer();
         var suzie = container.getTurret().getSuzie();
+        var spindexer = container.getSpindexer();
         var hood = container.getTurret().getHood();
         var shooter = container.getTurret().getShooter();
 
