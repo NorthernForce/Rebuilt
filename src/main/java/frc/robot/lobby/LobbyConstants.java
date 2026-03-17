@@ -162,7 +162,7 @@ public class LobbyConstants
     public class Turret
     {
         public static Pose2d offset = new Pose2d(new Translation2d(Inches.of(-6.264), Inches.of(6.300)),
-                new Rotation2d(Degrees.of(45)));
+                new Rotation2d(Degrees.of(50)));
         public static Angle offsetAngle = Radians
                 .of(Math.atan2(offset.getMeasureX().in(Meters), offset.getMeasureY().in(Meters)));
         public static Distance offsetDistance = Meters.of(offset.getTranslation().getDistance(Translation2d.kZero));
@@ -192,7 +192,7 @@ public class LobbyConstants
             private static boolean kInverted = false;
             private static Angle kLowerSoftLimit = Degrees.of(-180);
             private static Angle kUpperSoftLimit = Degrees.of(180);
-            private static Angle kErrorTolerance = Degrees.of(5);
+            private static Angle kErrorTolerance = Degrees.of(2);
             private static MotorArrangementValue kMotorArrangement = MotorArrangementValue.Minion_JST;
 
             public static SuzieConstants kMinionConstants = new SuzieConstants(kMotorID, kDrivingEncoderID,
@@ -261,7 +261,7 @@ public class LobbyConstants
             private static double kJerk = 0;
             private static boolean kMotor1Inverted = false;
             private static boolean kMotor2Inverted = true;
-            private static AngularVelocity kErrorTolerance = RotationsPerSecond.of(10);
+            private static AngularVelocity kErrorTolerance = RotationsPerSecond.of(2);
 
             public static ShooterConstants kKrakenConstants = new ShooterConstants(kMotor1ID, kMotor2ID, kS, kV, kA, kP,
                     kI, kD, kG, kCruiseVelocity, kAcceleration, kJerk, kMotor1Inverted, kMotor2Inverted,
@@ -381,7 +381,7 @@ public class LobbyConstants
         public static final double kCruiseVelocity = 1;
         public static final double kForwardSoftLimit = 0.4;
         public static final double kReverstSoftLimit = 0.005;
-        public static final Current kCurrentLimit = Amps.of(50);
+        public static final Current kCurrentLimit = Amps.of(30);
         public static final Angle kAngleTolerance = Degrees.of(5);
 
         public static final IntakeIOParameters kIOParameters = new IntakeIOParameters(kRollerMotorId, kAngleMotorId,
@@ -413,7 +413,7 @@ public class LobbyConstants
 
     public class SpindexerConstants
     {
-        public static final Time kDeJamTimeout = Seconds.of(1);
+        public static final Time kDeJamTimeout = Seconds.of(0.5);
         public static final Time kDeJamTime = Seconds.of(0.3);
         public static final Time kPostDeJamTime = Seconds.of(1);
     }

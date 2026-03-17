@@ -189,28 +189,20 @@ public class LobbyContainer implements NFRRobotContainer
         NamedCommands.registerCommand("Shoot",
                 Commands.waitUntil(() -> turret.getSuzie().isAtTargetAngle() && turret.getShooter().isAtTargetSpeed())
                         .andThen(new RunSpindexer(getSpindexer(), LobbyConstants.SpindexerConstants.kDeJamTime,
-                                LobbyConstants.SpindexerConstants.kPostDeJamTime))
-                        .alongWith(new PrepTurretCommand(this, () ->
-                        {
-                            return 0.0;
-                        })));
+                                LobbyConstants.SpindexerConstants.kPostDeJamTime, () -> turret.isAtTargetPose()))
+                        .alongWith(new PrepTurretCommand(this, false)));
         NamedCommands.registerCommand("ShootAndPump",
                 Commands.waitUntil(() -> turret.getSuzie().isAtTargetAngle() && turret.getShooter().isAtTargetSpeed())
                         .andThen(new RunSpindexer(getSpindexer(), LobbyConstants.SpindexerConstants.kDeJamTime,
-                                LobbyConstants.SpindexerConstants.kPostDeJamTime))
-                        .alongWith(new PrepTurretCommand(this, () ->
-                        {
-                            return 0.0;
-                        })).alongWith(intake.getRunToIntakeAngleCommand().withTimeout(0.5)
+                                LobbyConstants.SpindexerConstants.kPostDeJamTime, () -> turret.isAtTargetPose()))
+                        .alongWith(new PrepTurretCommand(this, false))
+                        .alongWith(intake.getRunToIntakeAngleCommand().withTimeout(0.5)
                                 .andThen(intake.getRunToStowAngleCommand().withTimeout(0.5)).repeatedly()));
         NamedCommands.registerCommand("ShootWithPrediction",
                 Commands.waitUntil(() -> turret.getSuzie().isAtTargetAngle() && turret.getShooter().isAtTargetSpeed())
                         .andThen(new RunSpindexer(getSpindexer(), LobbyConstants.SpindexerConstants.kDeJamTime,
-                                LobbyConstants.SpindexerConstants.kPostDeJamTime))
-                        .alongWith(new PrepTurretCommand(this, () ->
-                        {
-                            return 1.0;
-                        })));
+                                LobbyConstants.SpindexerConstants.kPostDeJamTime, () -> turret.isAtTargetPose()))
+                        .alongWith(new PrepTurretCommand(this, true)));
         NamedCommands.registerCommand("Intake", intake.intakeMoving());
         NamedCommands.registerCommand("StopShoot",
                 Commands.runOnce(() -> turret.getShooter().stop(), turret.getShooter()));

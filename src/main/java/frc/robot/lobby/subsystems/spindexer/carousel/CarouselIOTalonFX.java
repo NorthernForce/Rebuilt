@@ -58,7 +58,7 @@ public class CarouselIOTalonFX implements CarouselIO
 
         m_motor.getConfigurator().apply(config);
         m_motor.getConfigurator().apply(
-                new CurrentLimitsConfigs().withStatorCurrentLimit(Amps.of(60.0)).withStatorCurrentLimitEnable(true));
+                new CurrentLimitsConfigs().withStatorCurrentLimit(Amps.of(40.0)).withStatorCurrentLimitEnable(true));
 
         m_speed = kSpeed;
 

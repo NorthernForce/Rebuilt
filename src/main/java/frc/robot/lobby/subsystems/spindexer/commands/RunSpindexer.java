@@ -1,5 +1,7 @@
 package frc.robot.lobby.subsystems.spindexer.commands;
 
+import java.util.function.BooleanSupplier;
+
 import edu.wpi.first.units.measure.Time;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -12,15 +14,25 @@ public class RunSpindexer extends Command
     private final Timer postDejam;
     private final Time postDejamTime;
     private final Time dejamTime;
+    private final BooleanSupplier turretPreppedSupplier;
 
-    public RunSpindexer(Spindexer spindexer, Time dejamTime, Time postDejamTime)
+    public RunSpindexer(Spindexer spindexer, Time dejamTime, Time postDejamTime, BooleanSupplier turretPreppedSupplier)
     {
         addRequirements(spindexer);
         this.spindexer = spindexer;
         timer = new Timer();
         this.dejamTime = dejamTime;
         this.postDejamTime = postDejamTime;
+        this.turretPreppedSupplier = turretPreppedSupplier;
         postDejam = new Timer();
+    }
+
+    public RunSpindexer(Spindexer spindexer, Time dejamTime, Time postDejamTime)
+    {
+        this(spindexer, dejamTime, postDejamTime, () ->
+        {
+            return true;
+        });
     }
 
     @Override
@@ -45,8 +57,11 @@ public class RunSpindexer extends Command
         {
             postDejam.stop();
             postDejam.reset();
-            spindexer.getCarousel().startCarousel();
-            spindexer.getFlicker().rampFlicker();
+            if (turretPreppedSupplier.getAsBoolean())
+            {
+                spindexer.getCarousel().startCarousel();
+                spindexer.getFlicker().rampFlicker();
+            }
         } else
         {
             if (!postDejam.isRunning())

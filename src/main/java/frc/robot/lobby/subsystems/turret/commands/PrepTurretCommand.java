@@ -31,6 +31,17 @@ public class PrepTurretCommand extends Command
         this.joystickVelocitySupplier = joystickVelocitySupplier;
     }
 
+    public PrepTurretCommand(LobbyContainer container, boolean predict)
+    {
+        this(container, predict ? () ->
+        {
+            return 1.0;
+        } : () ->
+        {
+            return 0.0;
+        });
+    }
+
     @Override
     public void initialize()
     {

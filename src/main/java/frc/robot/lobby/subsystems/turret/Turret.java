@@ -297,6 +297,11 @@ public class Turret extends SubsystemBase
         return angle;
     }
 
+    public boolean isAtTargetPose()
+    {
+        return suzie.isAtTargetAngle() && shooter.isAtTargetSpeed();
+    }
+
     public Translation2d calculateFieldRelativeShooterPosition(Pose2d robotPose)
     {
         return new Translation2d(

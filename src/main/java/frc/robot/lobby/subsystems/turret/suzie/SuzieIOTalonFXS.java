@@ -105,7 +105,7 @@ public class SuzieIOTalonFXS implements SuzieIO
         config.SoftwareLimitSwitch.ReverseSoftLimitEnable = true;
         config.SoftwareLimitSwitch.ReverseSoftLimitThreshold = kLowerSoftLimit.in(Rotations);
 
-        config.CurrentLimits.StatorCurrentLimit = 60.0;
+        config.CurrentLimits.StatorCurrentLimit = 40.0;
         config.CurrentLimits.StatorCurrentLimitEnable = false;
 
         config.Commutation.MotorArrangement = kMotorArrangement;
