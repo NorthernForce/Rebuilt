@@ -49,6 +49,7 @@ import frc.robot.lobby.subsystems.climber.ClimberIOTalonFX;
 import frc.robot.lobby.subsystems.climber.ClimberIOTalonFXSim;
 import frc.robot.lobby.subsystems.intake.Intake;
 import frc.robot.lobby.subsystems.intake.IntakeIOTalonFX;
+import frc.robot.lobby.subsystems.nfrdashboard.Dashboard;
 import frc.robot.lobby.subsystems.spindexer.Spindexer;
 import frc.robot.lobby.subsystems.spindexer.Spindexer.SpindexerParameters;
 import frc.robot.lobby.subsystems.spindexer.carousel.CarouselIO.CarouselConstants;
@@ -77,6 +78,7 @@ import frc.robot.util.TrigHoodTargetingCalculator;
 
 public class LobbyContainer implements NFRRobotContainer
 {
+    private final Dashboard dashboard;
     private final CommandSwerveDrivetrain drive;
     private final Intake intake;
     private final DoubleSubscriber amtPoseCaptureFrames;
@@ -98,9 +100,16 @@ public class LobbyContainer implements NFRRobotContainer
     private final StatusSignal<Current> blSteerCurrent;
     private final StatusSignal<Current> brDriveCurrent;
     private final StatusSignal<Current> brSteerCurrent;
+    private int clickedAmt = 0;
 
     public LobbyContainer()
     {
+        dashboard = new Dashboard();
+        dashboard.putCommand("testCommand", Commands.run(() ->
+        {
+            clickedAmt++;
+            DogLog.log("CLICKED", clickedAmt);
+        }).withTimeout(1));
         amtPoseCaptureFrames = DogLog.tunable("RunNGun/CaptureFrames", 1.0);
         drive = new CommandSwerveDrivetrain(LobbyTunerConstants.DrivetrainConstants,
                 LobbyConstants.DrivetrainConstants.kMaxSpeed, LobbyConstants.DrivetrainConstants.kMaxAngularSpeed,
