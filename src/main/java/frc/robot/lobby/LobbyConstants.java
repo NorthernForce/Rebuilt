@@ -192,7 +192,7 @@ public class LobbyConstants
             private static boolean kInverted = false;
             private static Angle kLowerSoftLimit = Degrees.of(-180);
             private static Angle kUpperSoftLimit = Degrees.of(180);
-            private static Angle kErrorTolerance = Degrees.of(5);
+            private static Angle kErrorTolerance = Degrees.of(2);
             private static MotorArrangementValue kMotorArrangement = MotorArrangementValue.Minion_JST;
 
             public static SuzieConstants kMinionConstants = new SuzieConstants(kMotorID, kDrivingEncoderID,
@@ -249,10 +249,10 @@ public class LobbyConstants
             private static int kMotor1ID = 20;
             private static int kMotor2ID = 21;
             private static double kS = 0.25719;
-            private static double kV = 0.12306;
+            private static double kV = 0.118;
             private static double kA = 0.0037127;
-            private static double kSimA = 0.1;
-            private static double kP = 0.015686;
+            private static double kSimA = 0.0037127;
+            private static double kP = 0;
             private static double kI = 0;
             private static double kD = 0;
             private static double kG = 0;
@@ -261,7 +261,7 @@ public class LobbyConstants
             private static double kJerk = 0;
             private static boolean kMotor1Inverted = false;
             private static boolean kMotor2Inverted = true;
-            private static AngularVelocity kErrorTolerance = RotationsPerSecond.of(10);
+            private static AngularVelocity kErrorTolerance = RotationsPerSecond.of(2);
 
             public static ShooterConstants kKrakenConstants = new ShooterConstants(kMotor1ID, kMotor2ID, kS, kV, kA, kP,
                     kI, kD, kG, kCruiseVelocity, kAcceleration, kJerk, kMotor1Inverted, kMotor2Inverted,
@@ -343,7 +343,7 @@ public class LobbyConstants
 
         // TODO: check ALL values
         public static final int kMotorId = 18;
-        public static final double kRampSpeed = 1.0;
+        public static final double kRampSpeed = 0.85;
         public static final boolean kMotorInverted = false;
         public static final double kGearRatio = 5.0;
 
@@ -381,8 +381,7 @@ public class LobbyConstants
         public static final double kCruiseVelocity = 1;
         public static final double kForwardSoftLimit = 0.4;
         public static final double kReverstSoftLimit = 0.005;
-
-        public static final Current kCurrentLimit = Amps.of(50);
+        public static final Current kCurrentLimit = Amps.of(30);
         public static final Angle kAngleTolerance = Degrees.of(5);
 
         public static final IntakeIOParameters kIOParameters = new IntakeIOParameters(kRollerMotorId, kAngleMotorId,
@@ -414,8 +413,9 @@ public class LobbyConstants
 
     public class SpindexerConstants
     {
-        public static final Time kDeJamTimeout = Seconds.of(1);
+        public static final Time kDeJamTimeout = Seconds.of(0.5);
         public static final Time kDeJamTime = Seconds.of(0.3);
+        public static final Time kPostDeJamTime = Seconds.of(1);
     }
 
     public class TalonFXConstants

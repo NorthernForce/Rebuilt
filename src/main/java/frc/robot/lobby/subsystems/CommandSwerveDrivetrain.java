@@ -37,6 +37,7 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.system.plant.DCMotor;
+import edu.wpi.first.networktables.DoubleSubscriber;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Distance;
@@ -89,6 +90,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
     private ArrayList<LinearVelocityWithTimestamp> yVelocityCaptures = new ArrayList<LinearVelocityWithTimestamp>();
     private ArrayList<AngularVelocityWithTimestamp> thetaVelocityCaptures = new ArrayList<AngularVelocityWithTimestamp>();
     private AngularVelocity thetaVelocity = RotationsPerSecond.of(0);
+    private final DoubleSubscriber timePredict;
 
     /** Swerve request to apply during robot-centric path following */
     private final SwerveRequest.ApplyRobotSpeeds m_pathApplyRobotSpeeds = new SwerveRequest.ApplyRobotSpeeds();
@@ -178,6 +180,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
                 MapleSimSwerveDrivetrain.regulateModuleConstantsForSimulation(offsetEncoders(modules)));
         this.maxSpeed = LinearVelocity.ofBaseUnits(0, MetersPerSecond);
         this.maxAngularSpeed = AngularVelocity.ofBaseUnits(0, DegreesPerSecond);
+        timePredict = DogLog.tunable("RunNGun/Predict", 1.0);
         if (Utils.isSimulation())
         {
             startSimThread();
@@ -202,6 +205,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
                 MapleSimSwerveDrivetrain.regulateModuleConstantsForSimulation(offsetEncoders(modules)));
         this.maxSpeed = maxSpeed;
         this.maxAngularSpeed = maxAngularSpeed;
+        timePredict = DogLog.tunable("RunNGun/Predict", 1.0);
         if (Utils.isSimulation())
         {
             startSimThread();
@@ -280,22 +284,27 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
      * Generates a "Virtual Pose" for the turret. Aiming from this pose at the REAL
      * hub location will counteract robot velocity.
      */
-    public Pose2d getVirtualRobotPose(Translation2d realHubLocation, Turret turret)
-    {
-        LinearVelocity ballExitVelocity = MetersPerSecond
-                .of(turret.calculateTargetPose(getPose()).shooterSpeed().in(RotationsPerSecond)
-                        * Inches.of(3.0).in(Meters) * Math.PI);
-        Angle theta = turret.calculateTargetPose(getPose()).hoodAngle();
-        Pose2d currentPose = getPose();
-        Distance distance = Meters.of(currentPose.getTranslation().getDistance(realHubLocation));
-        Time timeOfFlight = Seconds.of(
-                calculateTimeOfFlight(ballExitVelocity.in(MetersPerSecond), theta.in(Degrees), distance.in(Meters)));
-        DogLog.log("TimeOfFlight", timeOfFlight);
-        Distance xVirtualOffset = xVelocity.times(timeOfFlight);
-        Distance yVirtualOffset = yVelocity.times(timeOfFlight);
-        return new Pose2d(Meters.of(currentPose.getMeasureX().in(Meters) + xVirtualOffset.in(Meters)),
-                Meters.of(currentPose.getMeasureY().in(Meters) + yVirtualOffset.in(Meters)), currentPose.getRotation());
-    }
+    // public Pose2d getVirtualRobotPose(Translation2d realHubLocation, Turret
+    // turret)
+    // {
+    // LinearVelocity ballExitVelocity = MetersPerSecond
+    // .of(turret.calculateTargetPose(getPose()).shooterSpeed().in(RotationsPerSecond)
+    // * Inches.of(3.0).in(Meters) * Math.PI);
+    // Angle theta = turret.calculateTargetPose(getPose()).hoodAngle();
+    // Pose2d currentPose = getPose();
+    // Distance distance =
+    // Meters.of(currentPose.getTranslation().getDistance(realHubLocation));
+    // Time timeOfFlight = Seconds.of(
+    // calculateTimeOfFlight(ballExitVelocity.in(MetersPerSecond),
+    // theta.in(Degrees), distance.in(Meters)));
+    // DogLog.log("TimeOfFlight", timeOfFlight);
+    // Distance xVirtualOffset = xVelocity.times(timeOfFlight);
+    // Distance yVirtualOffset = yVelocity.times(timeOfFlight);
+    // return new Pose2d(Meters.of(currentPose.getMeasureX().in(Meters) +
+    // xVirtualOffset.in(Meters)),
+    // Meters.of(currentPose.getMeasureY().in(Meters) + yVirtualOffset.in(Meters)),
+    // currentPose.getRotation());
+    // }
 
     public ChassisSpeeds getAverageVelocity(double amtCaptureFrames)
     {
@@ -373,6 +382,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
                 MapleSimSwerveDrivetrain.regulateModuleConstantsForSimulation(offsetEncoders(modules)));
         this.maxSpeed = maxSpeed;
         this.maxAngularSpeed = maxAngularSpeed;
+        timePredict = DogLog.tunable("RunNGun/Predict", 1.0);
         if (Utils.isSimulation())
         {
             startSimThread();
@@ -409,6 +419,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
                 MapleSimSwerveDrivetrain.regulateModuleConstantsForSimulation(offsetEncoders(modules)));
         this.maxSpeed = maxSpeed;
         this.maxAngularSpeed = maxAngularSpeed;
+        timePredict = DogLog.tunable("RunNGun/Predict", 1.0);
         if (Utils.isSimulation())
         {
             startSimThread();
@@ -511,15 +522,11 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         Time deltaTime = fgpa.minus(fgpaSeconds);
         if (deltaTime.in(Seconds) > 0.03)
         {
-            xVelocity = MetersPerSecond
-                    .of((pose.getMeasureX().in(Meters) - lastPose.getMeasureX().in(Meters)) / (deltaTime.in(Seconds)));
-            yVelocity = MetersPerSecond
-                    .of((pose.getMeasureY().in(Meters) - lastPose.getMeasureY().in(Meters)) / (deltaTime.in(Seconds)));
-            thetaVelocity = pose.getRotation().getMeasure().minus(lastPose.getRotation().getMeasure()).div(deltaTime);
+            xVelocity = pose.getMeasureX().minus(lastPose.getMeasureX()).div(deltaTime).times(timePredict.get());
+            yVelocity = pose.getMeasureY().minus(lastPose.getMeasureY()).div(deltaTime).times(timePredict.get());
+            thetaVelocity = pose.getRotation().getMeasure().minus(lastPose.getRotation().getMeasure()).div(deltaTime)
+                    .times(timePredict.get());
             velocity = MetersPerSecond.of(Math.hypot(xVelocity.in(MetersPerSecond), yVelocity.in(MetersPerSecond)));
-            thetaVelocity = RotationsPerSecond
-                    .of((pose.getRotation().getRotations() - lastPose.getRotation().getRotations())
-                            / (deltaTime.in(Seconds)));
             xVelocityCaptures.add(new LinearVelocityWithTimestamp(xVelocity));
             yVelocityCaptures.add(new LinearVelocityWithTimestamp(yVelocity));
             thetaVelocityCaptures.add(new AngularVelocityWithTimestamp(thetaVelocity));

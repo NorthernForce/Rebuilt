@@ -15,7 +15,11 @@ public class SimpleAuto extends SequentialCommandGroup
         addCommands(Commands.runOnce(() -> container.getDrive().resetPose(startingPose)), Commands
                 .waitUntil(() -> container.getTurret().getSuzie().isAtTargetAngle()
                         && container.getTurret().getShooter().isAtTargetSpeed())
-                .andThen(new RunSpindexer(container.getSpindexer(), LobbyConstants.SpindexerConstants.kDeJamTime))
-                .alongWith(new PrepTurretCommand(container)));
+                .andThen(new RunSpindexer(container.getSpindexer(), LobbyConstants.SpindexerConstants.kDeJamTime,
+                        LobbyConstants.SpindexerConstants.kPostDeJamTime))
+                .alongWith(new PrepTurretCommand(container, () ->
+                {
+                    return 1.0;
+                })));
     }
 }

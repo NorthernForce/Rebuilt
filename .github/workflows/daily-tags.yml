@@ -1,0 +1,53 @@
+name: Daily Branch Tags
+
+on:
+  schedule:
+    - cron: "0 7 * * *" # 07:00 UTC = 03:00 EDT
+    - cron: "0 8 * * *" # 08:00 UTC = 03:00 EST
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  tag:
+    name: Create daily tags
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Ensure it's 03:00 Eastern
+        id: hour_guard
+        run: |
+          if [ "$(TZ=America/New_York date +%H)" != "03" ]; then
+            echo "Not 03:00 ET; skipping."
+            echo "should_run=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "should_run=true" >> "$GITHUB_OUTPUT"
+          fi
+      - name: Create daily tags
+        if: steps.hour_guard.outputs.should_run == 'true'
+        run: |
+          DATE="$(TZ=America/New_York date +%Y%m%d)"
+          MAIN_TAG="${DATE}-main"
+          DEV_TAG="${DATE}-development"
+
+          git fetch origin main development --tags
+          MAIN_SHA="$(git rev-parse origin/main)"
+          DEV_SHA="$(git rev-parse origin/development)"
+
+          if ! git rev-parse -q --verify "refs/tags/${MAIN_TAG}" >/dev/null; then
+            git tag "${MAIN_TAG}" "${MAIN_SHA}"
+            git push origin "${MAIN_TAG}"
+          else
+            echo "Tag ${MAIN_TAG} already exists; skipping."
+          fi
+
+          if ! git rev-parse -q --verify "refs/tags/${DEV_TAG}" >/dev/null; then
+            git tag "${DEV_TAG}" "${DEV_SHA}"
+            git push origin "${DEV_TAG}"
+          else
+            echo "Tag ${DEV_TAG} already exists; skipping."
+          fi
