@@ -187,7 +187,7 @@ public class LobbyConstants
             private static int kDrivingGearTeeth = 24;
             private static int kSensingGearTeeth = 25;
             private static int kTurntableGearTeeth = 120;
-            private static double kRotorToTurntableRatio = 10.0 * 5.0 * (double) kTurntableGearTeeth
+            private static double kRotorToTurntableRatio = 10.0 * (double) kTurntableGearTeeth
                     / kDrivingGearTeeth;
             private static boolean kInverted = false;
             private static Angle kLowerSoftLimit = Degrees.of(-180);
