@@ -46,6 +46,7 @@ import frc.robot.lobby.subsystems.climber.ClimberIOTalonFX;
 import frc.robot.lobby.subsystems.climber.ClimberIOTalonFXSim;
 import frc.robot.lobby.subsystems.intake.Intake;
 import frc.robot.lobby.subsystems.intake.IntakeIOTalonFX;
+import frc.robot.lobby.subsystems.nfrdashboard.Dashboard;
 import frc.robot.lobby.subsystems.spindexer.Spindexer;
 import frc.robot.lobby.subsystems.spindexer.Spindexer.SpindexerParameters;
 import frc.robot.lobby.subsystems.spindexer.carousel.CarouselIO.CarouselConstants;
@@ -74,6 +75,7 @@ import frc.robot.util.TrigHoodTargetingCalculator;
 
 public class LobbyContainer implements NFRRobotContainer
 {
+    private final Dashboard dashboard;
     private final CommandSwerveDrivetrain drive;
     private final Intake intake;
     private final AprilTagVision vision;
@@ -97,6 +99,8 @@ public class LobbyContainer implements NFRRobotContainer
 
     public LobbyContainer()
     {
+        dashboard = new Dashboard();
+
         drive = new CommandSwerveDrivetrain(LobbyTunerConstants.DrivetrainConstants,
                 LobbyConstants.DrivetrainConstants.kMaxSpeed, LobbyConstants.DrivetrainConstants.kMaxAngularSpeed,
                 LobbyTunerConstants.FrontLeft, LobbyTunerConstants.FrontRight, LobbyTunerConstants.BackLeft,
@@ -247,7 +251,10 @@ public class LobbyContainer implements NFRRobotContainer
                 intake.sysIdArmQuasistatic(SysIdRoutine.Direction.kReverse));
         Shuffleboard.getTab("SysId").add("Arm Dynamic Fwd", intake.sysIdArmDynamic(SysIdRoutine.Direction.kForward));
         Shuffleboard.getTab("SysId").add("Arm Dynamic Rev", intake.sysIdArmDynamic(SysIdRoutine.Direction.kReverse));
-
+        dashboard.putCommand("Reset Suzie Encoders", Commands.runOnce(() ->
+        {
+            turret.getSuzie().resetEncoders();
+        }));
     }
 
     /**
