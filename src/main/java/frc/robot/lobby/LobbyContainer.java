@@ -79,7 +79,6 @@ public class LobbyContainer implements NFRRobotContainer
 {
     private final CommandSwerveDrivetrain drive;
     private final Intake intake;
-    private final DoubleSubscriber timePredict;
     private final DoubleSubscriber amtPoseCaptureFrames;
     private final AprilTagVision vision;
     private final AutoUtil autoUtil;
@@ -102,7 +101,6 @@ public class LobbyContainer implements NFRRobotContainer
 
     public LobbyContainer()
     {
-        timePredict = DogLog.tunable("RunNGun/Predict", 1.0);
         amtPoseCaptureFrames = DogLog.tunable("RunNGun/CaptureFrames", 1.0);
         drive = new CommandSwerveDrivetrain(LobbyTunerConstants.DrivetrainConstants,
                 LobbyConstants.DrivetrainConstants.kMaxSpeed, LobbyConstants.DrivetrainConstants.kMaxAngularSpeed,
@@ -191,12 +189,24 @@ public class LobbyContainer implements NFRRobotContainer
         NamedCommands.registerCommand("Shoot",
                 Commands.waitUntil(() -> turret.getSuzie().isAtTargetAngle() && turret.getShooter().isAtTargetSpeed())
                         .andThen(new RunSpindexer(getSpindexer(), LobbyConstants.SpindexerConstants.kDeJamTime,
-                                LobbyConstants.SpindexerConstants.kPostDeJamTime))
-                        .alongWith(new PrepTurretCommand(this)));
+                                LobbyConstants.SpindexerConstants.kPostDeJamTime, () -> turret.isAtTargetPose()))
+                        .alongWith(new PrepTurretCommand(this, false)));
+        NamedCommands.registerCommand("ShootAndPump",
+                Commands.waitUntil(() -> turret.getSuzie().isAtTargetAngle() && turret.getShooter().isAtTargetSpeed())
+                        .andThen(new RunSpindexer(getSpindexer(), LobbyConstants.SpindexerConstants.kDeJamTime,
+                                LobbyConstants.SpindexerConstants.kPostDeJamTime, () -> turret.isAtTargetPose()))
+                        .alongWith(new PrepTurretCommand(this, false))
+                        .alongWith(intake.getRunToIntakeAngleCommand().withTimeout(0.5)
+                                .andThen(intake.getRunToStowAngleCommand().withTimeout(0.5)).repeatedly()));
+        NamedCommands.registerCommand("ShootWithPrediction",
+                Commands.waitUntil(() -> turret.getSuzie().isAtTargetAngle() && turret.getShooter().isAtTargetSpeed())
+                        .andThen(new RunSpindexer(getSpindexer(), LobbyConstants.SpindexerConstants.kDeJamTime,
+                                LobbyConstants.SpindexerConstants.kPostDeJamTime, () -> turret.isAtTargetPose()))
+                        .alongWith(new PrepTurretCommand(this, true)));
         NamedCommands.registerCommand("Intake", intake.intakeMoving());
         NamedCommands.registerCommand("StopShoot",
                 Commands.runOnce(() -> turret.getShooter().stop(), turret.getShooter()));
-        NamedCommands.registerCommand("StopIntake", intake.stopIntake().andThen(intake.getRunToMidAngleCommand()));
+        NamedCommands.registerCommand("StopIntake", intake.stopIntake().andThen(intake.getRunToIntakeAngleCommand()));
         NamedCommands.registerCommand("RunUpClimber", climber.runUp());
         NamedCommands.registerCommand("RunDownClimber", climber.runDown());
         autoUtil = new AutoUtil(drive, LobbyConstants.AutoConstants.xPid, LobbyConstants.AutoConstants.yPid,
@@ -364,7 +374,7 @@ public class LobbyContainer implements NFRRobotContainer
             }
 
         DogLog.log("Velocity", drive.getVelocity());
-        DogLog.log("Drive/Predicted Pose", predictPose());
+        // DogLog.log("Drive/Predicted Pose", predictPose());
         DogLog.log("CurrentDraw/General/Voltage", powerDistributionHub.getVoltage());
         DogLog.log("CurrentDraw/General/TotalCurrent", powerDistributionHub.getTotalCurrent());
         DogLog.log("CurrentDraw/PDH/Feeder", powerDistributionHub.getCurrent(8));
@@ -402,12 +412,12 @@ public class LobbyContainer implements NFRRobotContainer
         new LobbyOI().bind(this);
     }
 
-    public Pose2d predictPose()
-    {
-        Pose2d pose = drive.predictSeconds(Seconds.of(timePredict.getAsDouble()), amtPoseCaptureFrames.getAsDouble());
-        DogLog.log("PredictedPose", pose);
-        return pose;
-    }
+//     public Pose2d predictPose()
+//     {
+//         Pose2d pose = drive.predictSeconds(Seconds.of(timePredict.getAsDouble()), amtPoseCaptureFrames.getAsDouble());
+//         DogLog.log("PredictedPose", pose);
+//         return pose;
+//     }
 
     public Translation2d predictTurretPose()
     {

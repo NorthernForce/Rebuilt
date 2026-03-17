@@ -37,6 +37,7 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.system.plant.DCMotor;
+import edu.wpi.first.networktables.DoubleSubscriber;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Distance;
@@ -89,6 +90,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
     private ArrayList<LinearVelocityWithTimestamp> yVelocityCaptures = new ArrayList<LinearVelocityWithTimestamp>();
     private ArrayList<AngularVelocityWithTimestamp> thetaVelocityCaptures = new ArrayList<AngularVelocityWithTimestamp>();
     private AngularVelocity thetaVelocity = RotationsPerSecond.of(0);
+    private final DoubleSubscriber timePredict;
 
     /** Swerve request to apply during robot-centric path following */
     private final SwerveRequest.ApplyRobotSpeeds m_pathApplyRobotSpeeds = new SwerveRequest.ApplyRobotSpeeds();
@@ -178,6 +180,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
                 MapleSimSwerveDrivetrain.regulateModuleConstantsForSimulation(offsetEncoders(modules)));
         this.maxSpeed = LinearVelocity.ofBaseUnits(0, MetersPerSecond);
         this.maxAngularSpeed = AngularVelocity.ofBaseUnits(0, DegreesPerSecond);
+        timePredict = DogLog.tunable("RunNGun/Predict", 1.0);
         if (Utils.isSimulation())
         {
             startSimThread();
@@ -202,6 +205,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
                 MapleSimSwerveDrivetrain.regulateModuleConstantsForSimulation(offsetEncoders(modules)));
         this.maxSpeed = maxSpeed;
         this.maxAngularSpeed = maxAngularSpeed;
+        timePredict = DogLog.tunable("RunNGun/Predict", 1.0);
         if (Utils.isSimulation())
         {
             startSimThread();
@@ -378,6 +382,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
                 MapleSimSwerveDrivetrain.regulateModuleConstantsForSimulation(offsetEncoders(modules)));
         this.maxSpeed = maxSpeed;
         this.maxAngularSpeed = maxAngularSpeed;
+        timePredict = DogLog.tunable("RunNGun/Predict", 1.0);
         if (Utils.isSimulation())
         {
             startSimThread();
@@ -414,6 +419,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
                 MapleSimSwerveDrivetrain.regulateModuleConstantsForSimulation(offsetEncoders(modules)));
         this.maxSpeed = maxSpeed;
         this.maxAngularSpeed = maxAngularSpeed;
+        timePredict = DogLog.tunable("RunNGun/Predict", 1.0);
         if (Utils.isSimulation())
         {
             startSimThread();
@@ -516,11 +522,10 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         Time deltaTime = fgpa.minus(fgpaSeconds);
         if (deltaTime.in(Seconds) > 0.03)
         {
-            xVelocity = MetersPerSecond
-                    .of((pose.getMeasureX().in(Meters) - lastPose.getMeasureX().in(Meters)) / (deltaTime.in(Seconds)));
-            yVelocity = MetersPerSecond
-                    .of((pose.getMeasureY().in(Meters) - lastPose.getMeasureY().in(Meters)) / (deltaTime.in(Seconds)));
-            thetaVelocity = pose.getRotation().getMeasure().minus(lastPose.getRotation().getMeasure()).div(deltaTime);
+            xVelocity = pose.getMeasureX().minus(lastPose.getMeasureX()).div(deltaTime).times(timePredict.get());
+            yVelocity = pose.getMeasureY().minus(lastPose.getMeasureY()).div(deltaTime).times(timePredict.get());
+            thetaVelocity = pose.getRotation().getMeasure().minus(lastPose.getRotation().getMeasure()).div(deltaTime)
+                    .times(timePredict.get());
             velocity = MetersPerSecond.of(Math.hypot(xVelocity.in(MetersPerSecond), yVelocity.in(MetersPerSecond)));
             xVelocityCaptures.add(new LinearVelocityWithTimestamp(xVelocity));
             yVelocityCaptures.add(new LinearVelocityWithTimestamp(yVelocity));

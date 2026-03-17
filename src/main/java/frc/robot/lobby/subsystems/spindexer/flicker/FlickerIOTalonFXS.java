@@ -43,7 +43,7 @@ public class FlickerIOTalonFXS implements FlickerIO
         m_motor.getConfigurator()
                 .apply(new CommutationConfigs().withMotorArrangement(MotorArrangementValue.Minion_JST));
         m_motor.getConfigurator().apply(
-                new CurrentLimitsConfigs().withStatorCurrentLimit(Amps.of(60.0)).withStatorCurrentLimitEnable(true));
+                new CurrentLimitsConfigs().withStatorCurrentLimit(Amps.of(40.0)).withStatorCurrentLimitEnable(true));
         m_motor.getConfigurator().apply(new MotorOutputConfigs().withNeutralMode(NeutralModeValue.Brake)
                 .withInverted(InvertedValue.Clockwise_Positive));
         dejamSpeed = parameters.dejamSpeed();
