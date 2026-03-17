@@ -105,11 +105,7 @@ public class LobbyContainer implements NFRRobotContainer
     public LobbyContainer()
     {
         dashboard = new Dashboard();
-        dashboard.putCommand("testCommand", Commands.run(() ->
-        {
-            clickedAmt++;
-            DogLog.log("CLICKED", clickedAmt);
-        }).withTimeout(1));
+
         amtPoseCaptureFrames = DogLog.tunable("RunNGun/CaptureFrames", 1.0);
         drive = new CommandSwerveDrivetrain(LobbyTunerConstants.DrivetrainConstants,
                 LobbyConstants.DrivetrainConstants.kMaxSpeed, LobbyConstants.DrivetrainConstants.kMaxAngularSpeed,
@@ -261,7 +257,10 @@ public class LobbyContainer implements NFRRobotContainer
                 intake.sysIdArmQuasistatic(SysIdRoutine.Direction.kReverse));
         Shuffleboard.getTab("SysId").add("Arm Dynamic Fwd", intake.sysIdArmDynamic(SysIdRoutine.Direction.kForward));
         Shuffleboard.getTab("SysId").add("Arm Dynamic Rev", intake.sysIdArmDynamic(SysIdRoutine.Direction.kReverse));
-
+        dashboard.putCommand("Reset Suzie Encoders", Commands.runOnce(() ->
+        {
+            turret.getSuzie().resetEncoders();
+        }));
     }
 
     /**

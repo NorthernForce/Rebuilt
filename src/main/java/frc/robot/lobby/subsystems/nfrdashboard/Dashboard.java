@@ -3,6 +3,11 @@ package frc.robot.lobby.subsystems.nfrdashboard;
 import java.util.Map;
 import java.util.HashMap;
 import java.util.Set;
+import java.util.function.BiConsumer;
+import java.util.function.BooleanSupplier;
+import java.util.function.Consumer;
+import java.util.function.DoubleSupplier;
+import java.util.function.Supplier;
 
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -16,6 +21,12 @@ public class Dashboard extends SubsystemBase
     private Map<String, Command> namesToCommands = new HashMap<String, Command>();
     private Map<String, Long> namesToLastRequestId = new HashMap<String, Long>();
     private Map<String, Command> namesToSafeCommands = new HashMap<String, Command>();
+    private Map<String, DoubleSupplier> namesToDoubles = new HashMap<String, DoubleSupplier>();
+    private Map<String, Supplier<String>> namesToStrings = new HashMap<String, Supplier<String>>();
+    private Map<String, BooleanSupplier> namesToBooleans = new HashMap<String, BooleanSupplier>();
+    private Map<String, Consumer<Double>> namesToDoubleTunables = new HashMap<String, Consumer<Double>>();
+    private Map<String, Consumer<String>> namesToStringsTunables = new HashMap<String, Consumer<String>>();
+    private Map<String, Consumer<Boolean>> namesToBooleansTunables = new HashMap<String, Consumer<Boolean>>();
     private NetworkTableInstance instance = NetworkTableInstance.getDefault();
     // public Dashboard(String outputPath) {
     // this.outputPath = outputPath;
@@ -82,11 +93,83 @@ public class Dashboard extends SubsystemBase
         return false;
     }
 
+    public void putNumber(String name, DoubleSupplier number)
+    {
+        if (!namesToDoubles.containsKey(name))
+        {
+            namesToDoubles.put(name, number);
+
+            var numberTable = instance.getTable(outputPath).getSubTable("numbers").getSubTable(name);
+            numberTable.getEntry("value").setDouble(number.getAsDouble());
+        }
+    }
+
+    public void putString(String name, Supplier<String> string)
+    {
+        if (!namesToStrings.containsKey(name))
+        {
+            namesToStrings.put(name, string);
+
+            var stringTable = instance.getTable(outputPath).getSubTable("strings").getSubTable(name);
+            stringTable.getEntry("value").setString(string.get());
+        }
+    }
+
+    public void putBoolean(String name, BooleanSupplier booleanSupplier)
+    {
+        if (!namesToBooleans.containsKey(name))
+        {
+            namesToBooleans.put(name, booleanSupplier);
+
+            var booleanTable = instance.getTable(outputPath).getSubTable("booleans").getSubTable(name);
+            booleanTable.getEntry("value").setBoolean(booleanSupplier.getAsBoolean());
+        }
+    }
+
+    public void putNumberTunable(String name, Consumer<Double> runOnChange)
+    {
+        if (!namesToDoubleTunables.containsKey(name))
+        {
+
+            namesToDoubleTunables.put(name, runOnChange);
+            var doubleTable = instance.getTable(outputPath).getSubTable("tunableNumbers").getSubTable(name);
+            doubleTable.getEntry("value").setNumber(0);
+            doubleTable.getEntry("changed").setBoolean(false);
+
+        }
+    }
+
+    public void putStringTunable(String name, Consumer<String> runOnChange)
+    {
+        if (!namesToStringsTunables.containsKey(name))
+        {
+
+            namesToStringsTunables.put(name, runOnChange);
+            var stringTable = instance.getTable(outputPath).getSubTable("tunableStrings").getSubTable(name);
+            stringTable.getEntry("value").setString("");
+            stringTable.getEntry("changed").setBoolean(false);
+
+        }
+    }
+
+    public void putBooleanTunable(String name, Consumer<Boolean> runOnChange)
+    {
+        if (!namesToBooleansTunables.containsKey(name))
+        {
+
+            namesToBooleansTunables.put(name, runOnChange);
+            var booleanTable = instance.getTable(outputPath).getSubTable("tunableBooleans").getSubTable(name);
+            booleanTable.getEntry("value").setBoolean(false);
+            booleanTable.getEntry("changed").setBoolean(false);
+
+        }
+    }
+
     @Override
     public void periodic()
     {
-        Set<String> names = namesToCommands.keySet();
-        for (String name : names)
+        Set<String> commandNames = namesToCommands.keySet();
+        for (String name : commandNames)
         {
             var table = instance.getTable(outputPath).getSubTable("commands").getSubTable(name);
             long currentRequestId = table.getEntry("requestId").getInteger(0);
@@ -109,6 +192,49 @@ public class Dashboard extends SubsystemBase
                         CommandScheduler.getInstance().schedule(safeCommand);
                     }
                 }
+            }
+        }
+
+        for (String name : namesToDoubles.keySet())
+        {
+            var numberTable = instance.getTable(outputPath).getSubTable("numbers").getSubTable(name);
+            numberTable.getEntry("value").setDouble(namesToDoubles.get(name).getAsDouble());
+        }
+        for (String name : namesToStrings.keySet())
+        {
+            var stringTable = instance.getTable(outputPath).getSubTable("strings").getSubTable(name);
+            stringTable.getEntry("value").setString(namesToStrings.get(name).get());
+        }
+        for (String name : namesToBooleans.keySet())
+        {
+            var booleanTable = instance.getTable(outputPath).getSubTable("booleans").getSubTable(name);
+            booleanTable.getEntry("value").setBoolean(namesToBooleans.get(name).getAsBoolean());
+        }
+
+        for (String name : namesToDoubleTunables.keySet())
+        {
+            var table = instance.getTable(outputPath).getSubTable("tunableNumbers").getSubTable(name);
+            if (table.getEntry("changed").getBoolean(false))
+            {
+                namesToDoubleTunables.get(name).accept(table.getEntry("value").getDouble(0));
+            }
+        }
+
+        for (String name : namesToStringsTunables.keySet())
+        {
+            var table = instance.getTable(outputPath).getSubTable("tunableStrings").getSubTable(name);
+            if (table.getEntry("changed").getBoolean(false))
+            {
+                namesToStringsTunables.get(name).accept(table.getEntry("value").getString(""));
+            }
+        }
+
+        for (String name : namesToBooleansTunables.keySet())
+        {
+            var table = instance.getTable(outputPath).getSubTable("tunableBooleans").getSubTable(name);
+            if (table.getEntry("changed").getBoolean(false))
+            {
+                namesToBooleansTunables.get(name).accept(table.getEntry("value").getBoolean(false));
             }
         }
     }

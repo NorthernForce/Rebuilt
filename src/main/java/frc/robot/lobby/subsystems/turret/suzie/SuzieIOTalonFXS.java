@@ -29,6 +29,7 @@ import edu.wpi.first.units.measure.Temperature;
 import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj.DutyCycleEncoder;
 import edu.wpi.first.wpilibj.PowerDistribution;
+import edu.wpi.first.wpilibj.Preferences;
 import frc.robot.util.TunablePID;
 import yams.units.EasyCRT;
 import yams.units.EasyCRTConfig;
@@ -112,8 +113,10 @@ public class SuzieIOTalonFXS implements SuzieIO
 
         m_motor.getConfigurator().apply(config);
 
-        m_drivingEncoder = new DutyCycleEncoder(kDrivingEncoderID, 1.0, 0.384);
-        m_sensingEncoder = new DutyCycleEncoder(kSensingEncoderID, 1.0, 0.645);
+        m_drivingEncoder = new DutyCycleEncoder(kDrivingEncoderID, 1.0,
+                Preferences.getDouble("drivingEncoderOffset", 0));
+        m_sensingEncoder = new DutyCycleEncoder(kSensingEncoderID, 1.0,
+                Preferences.getDouble("sensingEncoderOffset", 0));
 
         m_position = m_motor.getPosition();
         m_temperature = m_motor.getDeviceTemp();
@@ -260,5 +263,31 @@ public class SuzieIOTalonFXS implements SuzieIO
     {
         motorCurrent.refresh();
         return motorCurrent.getValueAsDouble();
+    }
+
+    @Override
+    public void setDrivingEncoderOffset(Angle angle)
+    {
+        m_drivingEncoder.close();
+        m_drivingEncoder = new DutyCycleEncoder(constants.kDrivingEncoderID(), 1.0, angle.in(Rotations));
+    }
+
+    @Override
+    public void setSensingEncoderOffset(Angle angle)
+    {
+        m_sensingEncoder.close();
+        m_sensingEncoder = new DutyCycleEncoder(constants.kSensingEncoderID(), 1.0, angle.in(Rotations));
+    }
+
+    @Override
+    public Angle getDrivingEncoderAngle()
+    {
+        return Rotations.of(m_drivingEncoder.get());
+    }
+
+    @Override
+    public Angle getSensingEncoderAngle()
+    {
+        return Rotations.of(m_sensingEncoder.get());
     }
 }
