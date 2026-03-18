@@ -1,12 +1,8 @@
 package frc.robot.lobby.subsystems.turret.suzie;
 
-import static edu.wpi.first.units.Units.Amps;
 import static edu.wpi.first.units.Units.Degrees;
-import static edu.wpi.first.units.Units.DegreesPerSecond;
 import static edu.wpi.first.units.Units.Rotations;
 
-import java.io.ObjectInputFilter.Status;
-import java.util.Optional;
 import java.util.function.Supplier;
 
 import com.ctre.phoenix6.StatusSignal;
@@ -15,7 +11,6 @@ import com.ctre.phoenix6.configs.TalonFXSConfiguration;
 import com.ctre.phoenix6.controls.ControlRequest;
 import com.ctre.phoenix6.controls.DutyCycleOut;
 import com.ctre.phoenix6.controls.MotionMagicExpoVoltage;
-import com.ctre.phoenix6.controls.PositionVoltage;
 import com.ctre.phoenix6.hardware.TalonFXS;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.MotorArrangementValue;
@@ -28,7 +23,6 @@ import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Temperature;
 import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj.DutyCycleEncoder;
-import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj.Preferences;
 import frc.robot.util.TunablePID;
 import yams.units.EasyCRT;
@@ -179,12 +173,15 @@ public class SuzieIOTalonFXS implements SuzieIO
     @Override
     public void setTargetAngle(Angle angle)
     {
+        // if (!m_targetAngle.isNear(angle, m_errorTolerance))
         m_targetAngle = angle;
     }
 
     @Override
     public void start()
     {
+        // if (!isAtTargetAngle())
+
         m_motor.setControl(m_positionVoltage.withPosition(m_targetAngle.in(Rotations)));
     }
 

@@ -1,7 +1,5 @@
 package frc.robot.lobby.subsystems.spindexer.flicker;
 
-import edu.wpi.first.wpilibj.PowerDistribution;
-
 public interface FlickerIO
 {
     public void rampFlicker();

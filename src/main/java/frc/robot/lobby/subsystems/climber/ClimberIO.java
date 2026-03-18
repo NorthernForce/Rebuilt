@@ -1,7 +1,6 @@
 package frc.robot.lobby.subsystems.climber;
 
 import edu.wpi.first.math.geometry.Pose2d;
-import frc.robot.lobby.LobbyConstants.ClimberConstants.ClimbLevels;
 
 public interface ClimberIO
 {
