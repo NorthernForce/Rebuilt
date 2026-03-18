@@ -32,6 +32,7 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj.RobotController;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -257,6 +258,33 @@ public class LobbyContainer implements NFRRobotContainer
                 intake.sysIdArmQuasistatic(SysIdRoutine.Direction.kReverse));
         Shuffleboard.getTab("SysId").add("Arm Dynamic Fwd", intake.sysIdArmDynamic(SysIdRoutine.Direction.kForward));
         Shuffleboard.getTab("SysId").add("Arm Dynamic Rev", intake.sysIdArmDynamic(SysIdRoutine.Direction.kReverse));
+        dashboard.putSystem("test system").withCommand("test command", Commands.runOnce(() ->
+        {
+            DogLog.log("TestCommand", "Command was run");
+            DogLog.log("TestCommandTimestamp", Timer.getFPGATimestamp());
+        })).withNumberTunable("test number tunable", (Double number) ->
+        {
+            DogLog.log("TestNumberTunable", number);
+            DogLog.log("TestNumberTunableTimestamp", Timer.getFPGATimestamp());
+        }).withBooleanTunable("test boolean tunable", (Boolean value) ->
+        {
+            DogLog.log("TestBooleanTunable", value);
+            DogLog.log("TestBooleanTunableTimestamp", Timer.getFPGATimestamp());
+        }).withStringTunable("test string tunable", (String value) ->
+        {
+            DogLog.log("TestStringTunable", value);
+            DogLog.log("TestStringTunableTimestamp", Timer.getFPGATimestamp());
+        }).withNumber("test number", () ->
+        {
+            clickedAmt++;
+            return clickedAmt;
+        }).withBoolean("test boolean", () ->
+        {
+            return clickedAmt % 2 == 0;
+        }).withString("test string", () ->
+        {
+            return "Clicked " + clickedAmt + " times";
+        });
         dashboard.putCommand("Reset Suzie Encoders", Commands.runOnce(() ->
         {
             turret.getSuzie().resetEncoders();
@@ -420,12 +448,13 @@ public class LobbyContainer implements NFRRobotContainer
         new LobbyOI().bind(this);
     }
 
-//     public Pose2d predictPose()
-//     {
-//         Pose2d pose = drive.predictSeconds(Seconds.of(timePredict.getAsDouble()), amtPoseCaptureFrames.getAsDouble());
-//         DogLog.log("PredictedPose", pose);
-//         return pose;
-//     }
+    // public Pose2d predictPose()
+    // {
+    // Pose2d pose = drive.predictSeconds(Seconds.of(timePredict.getAsDouble()),
+    // amtPoseCaptureFrames.getAsDouble());
+    // DogLog.log("PredictedPose", pose);
+    // return pose;
+    // }
 
     public Translation2d predictTurretPose()
     {

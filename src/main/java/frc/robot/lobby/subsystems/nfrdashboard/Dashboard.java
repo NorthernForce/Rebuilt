@@ -2,6 +2,7 @@ package frc.robot.lobby.subsystems.nfrdashboard;
 
 import java.util.Map;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Set;
 import java.util.function.BiConsumer;
 import java.util.function.BooleanSupplier;
@@ -28,9 +29,8 @@ public class Dashboard extends SubsystemBase
     private Map<String, Consumer<String>> namesToStringsTunables = new HashMap<String, Consumer<String>>();
     private Map<String, Consumer<Boolean>> namesToBooleansTunables = new HashMap<String, Consumer<Boolean>>();
     private NetworkTableInstance instance = NetworkTableInstance.getDefault();
-    // public Dashboard(String outputPath) {
-    // this.outputPath = outputPath;
-    // }
+
+    private Set<String> systems = new HashSet<>();
 
     public Dashboard()
     {
@@ -93,6 +93,63 @@ public class Dashboard extends SubsystemBase
         return false;
     }
 
+    public boolean putCommand(String table, String name, Command command)
+    {
+        String key = table + "/commands/" + name;
+        if (!namesToCommands.containsKey(key))
+        {
+            namesToCommands.put(key, command);
+            namesToLastRequestId.put(key, 0L);
+
+            var commandTable = instance.getTable(table).getSubTable("commands").getSubTable(name);
+            commandTable.getEntry("running").setBoolean(false);
+            commandTable.getEntry("requested").setBoolean(false);
+            commandTable.getEntry("requestId").setInteger(0);
+            commandTable.getEntry("lastHandledRequestId").setInteger(0);
+
+            Command safeCommand = new Command()
+            {
+                final Command inner = command;
+
+                @Override
+                public void initialize()
+                {
+                    var commandTable = instance.getTable(table).getSubTable("commands").getSubTable(name);
+                    commandTable.getEntry("requested").setBoolean(false);
+                    commandTable.getEntry("running").setBoolean(true);
+                    CommandScheduler.getInstance().schedule(inner);
+                }
+
+                @Override
+                public void execute()
+                {
+                }
+
+                @Override
+                public void end(boolean interrupted)
+                {
+                    if (CommandScheduler.getInstance().isScheduled(inner))
+                    {
+                        CommandScheduler.getInstance().cancel(inner);
+                    }
+                    instance.getTable(table).getSubTable("commands").getSubTable(name).getEntry("running")
+                            .setBoolean(false);
+                }
+
+                @Override
+                public boolean isFinished()
+                {
+                    return !CommandScheduler.getInstance().isScheduled(inner);
+                }
+            };
+
+            namesToSafeCommands.put(key, safeCommand);
+
+            return true;
+        }
+        return false;
+    }
+
     public void putNumber(String name, DoubleSupplier number)
     {
         if (!namesToDoubles.containsKey(name))
@@ -101,6 +158,38 @@ public class Dashboard extends SubsystemBase
 
             var numberTable = instance.getTable(outputPath).getSubTable("numbers").getSubTable(name);
             numberTable.getEntry("value").setDouble(number.getAsDouble());
+        }
+    }
+
+    public void putNumber(String table, String name, DoubleSupplier number)
+    {
+        String key = table + "/numbers/" + name;
+        if (!namesToDoubles.containsKey(key))
+        {
+            namesToDoubles.put(key, number);
+        }
+        var numberTable = instance.getTable(table).getSubTable("numbers").getSubTable(name);
+        numberTable.getEntry("value").setDouble(number.getAsDouble());
+    }
+
+    public void putString(String table, String name, Supplier<String> string)
+    {
+        String key = table + "/strings/" + name;
+        if (!namesToStrings.containsKey(key))
+        {
+            namesToStrings.put(key, string);
+        }
+        var stringTable = instance.getTable(table).getSubTable("strings").getSubTable(name);
+        stringTable.getEntry("value").setString(string.get());
+    }
+
+    public void putBoolean(String name, BooleanSupplier booleanSupplier)
+    {
+        if (!namesToBooleans.containsKey(name))
+        {
+            namesToBooleans.put(name, booleanSupplier);
+            var booleanTable = instance.getTable(outputPath).getSubTable("booleans").getSubTable(name);
+            booleanTable.getEntry("value").setBoolean(booleanSupplier.getAsBoolean());
         }
     }
 
@@ -115,15 +204,15 @@ public class Dashboard extends SubsystemBase
         }
     }
 
-    public void putBoolean(String name, BooleanSupplier booleanSupplier)
+    public void putBoolean(String table, String name, BooleanSupplier booleanSupplier)
     {
-        if (!namesToBooleans.containsKey(name))
+        String key = table + "/booleans/" + name;
+        if (!namesToBooleans.containsKey(key))
         {
-            namesToBooleans.put(name, booleanSupplier);
-
-            var booleanTable = instance.getTable(outputPath).getSubTable("booleans").getSubTable(name);
-            booleanTable.getEntry("value").setBoolean(booleanSupplier.getAsBoolean());
+            namesToBooleans.put(key, booleanSupplier);
         }
+        var booleanTable = instance.getTable(table).getSubTable("booleans").getSubTable(name);
+        booleanTable.getEntry("value").setBoolean(booleanSupplier.getAsBoolean());
     }
 
     public void putNumberTunable(String name, Consumer<Double> runOnChange)
@@ -133,6 +222,20 @@ public class Dashboard extends SubsystemBase
 
             namesToDoubleTunables.put(name, runOnChange);
             var doubleTable = instance.getTable(outputPath).getSubTable("tunableNumbers").getSubTable(name);
+            doubleTable.getEntry("value").setNumber(0);
+            doubleTable.getEntry("changed").setBoolean(false);
+
+        }
+    }
+
+    public void putNumberTunable(String table, String name, Consumer<Double> runOnChange)
+    {
+        String key = table + "/tunableNumbers/" + name;
+        if (!namesToDoubleTunables.containsKey(key))
+        {
+
+            namesToDoubleTunables.put(key, runOnChange);
+            var doubleTable = instance.getTable(table).getSubTable("tunableNumbers").getSubTable(name);
             doubleTable.getEntry("value").setNumber(0);
             doubleTable.getEntry("changed").setBoolean(false);
 
@@ -152,6 +255,20 @@ public class Dashboard extends SubsystemBase
         }
     }
 
+    public void putStringTunable(String table, String name, Consumer<String> runOnChange)
+    {
+        String key = table + "/tunableStrings/" + name;
+        if (!namesToStringsTunables.containsKey(key))
+        {
+
+            namesToStringsTunables.put(key, runOnChange);
+            var stringTable = instance.getTable(table).getSubTable("tunableStrings").getSubTable(name);
+            stringTable.getEntry("value").setString("");
+            stringTable.getEntry("changed").setBoolean(false);
+
+        }
+    }
+
     public void putBooleanTunable(String name, Consumer<Boolean> runOnChange)
     {
         if (!namesToBooleansTunables.containsKey(name))
@@ -165,77 +282,211 @@ public class Dashboard extends SubsystemBase
         }
     }
 
+    public void putBooleanTunable(String table, String name, Consumer<Boolean> runOnChange)
+    {
+        String key = table + "/tunableBooleans/" + name;
+        if (!namesToBooleansTunables.containsKey(key))
+        {
+
+            namesToBooleansTunables.put(key, runOnChange);
+            var booleanTable = instance.getTable(table).getSubTable("tunableBooleans").getSubTable(name);
+            booleanTable.getEntry("value").setBoolean(false);
+            booleanTable.getEntry("changed").setBoolean(false);
+
+        }
+    }
+
+    private static class ParsedKey
+    {
+        final String table;
+        final String name;
+
+        ParsedKey(String table, String name)
+        {
+            this.table = table;
+            this.name = name;
+        }
+    }
+
+    private ParsedKey parseCompositeKey(String key, String section)
+    {
+        String marker = "/" + section + "/";
+        int idx = key.indexOf(marker);
+        if (idx < 0)
+            return null;
+        String table = key.substring(0, idx);
+        String name = key.substring(idx + marker.length());
+        return new ParsedKey(table, name);
+    }
+
     @Override
     public void periodic()
     {
         Set<String> commandNames = namesToCommands.keySet();
-        for (String name : commandNames)
+        for (String key : commandNames)
         {
-            var table = instance.getTable(outputPath).getSubTable("commands").getSubTable(name);
+            ParsedKey parsed = parseCompositeKey(key, "commands");
+            var table = (parsed == null) ? instance.getTable(outputPath).getSubTable("commands").getSubTable(key)
+                    : instance.getTable(parsed.table).getSubTable("commands").getSubTable(parsed.name);
+
             long currentRequestId = table.getEntry("requestId").getInteger(0);
-            long lastHandledRequestId = namesToLastRequestId.getOrDefault(name, 0L);
+            long lastHandledRequestId = namesToLastRequestId.getOrDefault(key, 0L);
 
             if (currentRequestId != lastHandledRequestId)
             {
-                namesToLastRequestId.put(name, currentRequestId);
+                namesToLastRequestId.put(key, currentRequestId);
                 table.getEntry("lastHandledRequestId").setInteger(currentRequestId);
                 table.getEntry("requested").setBoolean(false);
 
-                Command safeCommand = namesToSafeCommands.get(name);
+                Command safeCommand = namesToSafeCommands.get(key);
                 if (safeCommand != null)
                 {
                     if (CommandScheduler.getInstance().isScheduled(safeCommand))
-                    {
                         CommandScheduler.getInstance().cancel(safeCommand);
-                    } else
-                    {
+                    else
                         CommandScheduler.getInstance().schedule(safeCommand);
-                    }
                 }
             }
         }
 
-        for (String name : namesToDoubles.keySet())
+        for (String key : namesToDoubles.keySet())
         {
-            var numberTable = instance.getTable(outputPath).getSubTable("numbers").getSubTable(name);
-            numberTable.getEntry("value").setDouble(namesToDoubles.get(name).getAsDouble());
-        }
-        for (String name : namesToStrings.keySet())
-        {
-            var stringTable = instance.getTable(outputPath).getSubTable("strings").getSubTable(name);
-            stringTable.getEntry("value").setString(namesToStrings.get(name).get());
-        }
-        for (String name : namesToBooleans.keySet())
-        {
-            var booleanTable = instance.getTable(outputPath).getSubTable("booleans").getSubTable(name);
-            booleanTable.getEntry("value").setBoolean(namesToBooleans.get(name).getAsBoolean());
-        }
-
-        for (String name : namesToDoubleTunables.keySet())
-        {
-            var table = instance.getTable(outputPath).getSubTable("tunableNumbers").getSubTable(name);
-            if (table.getEntry("changed").getBoolean(false))
+            ParsedKey parsed = parseCompositeKey(key, "numbers");
+            if (parsed == null)
             {
-                namesToDoubleTunables.get(name).accept(table.getEntry("value").getDouble(0));
+                var numberTable = instance.getTable(outputPath).getSubTable("numbers").getSubTable(key);
+                numberTable.getEntry("value").setDouble(namesToDoubles.get(key).getAsDouble());
+            } else
+            {
+                var numberTable = instance.getTable(parsed.table).getSubTable("numbers").getSubTable(parsed.name);
+                numberTable.getEntry("value").setDouble(namesToDoubles.get(key).getAsDouble());
+            }
+        }
+        for (String key : namesToStrings.keySet())
+        {
+            ParsedKey parsed = parseCompositeKey(key, "strings");
+            if (parsed == null)
+            {
+                var stringTable = instance.getTable(outputPath).getSubTable("strings").getSubTable(key);
+                stringTable.getEntry("value").setString(namesToStrings.get(key).get());
+            } else
+            {
+                var stringTable = instance.getTable(parsed.table).getSubTable("strings").getSubTable(parsed.name);
+                stringTable.getEntry("value").setString(namesToStrings.get(key).get());
+            }
+        }
+        for (String key : namesToBooleans.keySet())
+        {
+            ParsedKey parsed = parseCompositeKey(key, "booleans");
+            if (parsed == null)
+            {
+                var booleanTable = instance.getTable(outputPath).getSubTable("booleans").getSubTable(key);
+                booleanTable.getEntry("value").setBoolean(namesToBooleans.get(key).getAsBoolean());
+            } else
+            {
+                var booleanTable = instance.getTable(parsed.table).getSubTable("booleans").getSubTable(parsed.name);
+                booleanTable.getEntry("value").setBoolean(namesToBooleans.get(key).getAsBoolean());
             }
         }
 
-        for (String name : namesToStringsTunables.keySet())
+        for (String key : namesToDoubleTunables.keySet())
         {
-            var table = instance.getTable(outputPath).getSubTable("tunableStrings").getSubTable(name);
+            ParsedKey parsed = parseCompositeKey(key, "tunableNumbers");
+            var table = (parsed == null) ? instance.getTable(outputPath).getSubTable("tunableNumbers").getSubTable(key)
+                    : instance.getTable(parsed.table).getSubTable("tunableNumbers").getSubTable(parsed.name);
             if (table.getEntry("changed").getBoolean(false))
             {
-                namesToStringsTunables.get(name).accept(table.getEntry("value").getString(""));
+                namesToDoubleTunables.get(key).accept(table.getEntry("value").getDouble(0));
+                table.getEntry("changed").setBoolean(false);
             }
         }
 
-        for (String name : namesToBooleansTunables.keySet())
+        for (String key : namesToStringsTunables.keySet())
         {
-            var table = instance.getTable(outputPath).getSubTable("tunableBooleans").getSubTable(name);
+            ParsedKey parsed = parseCompositeKey(key, "tunableStrings");
+            var table = (parsed == null) ? instance.getTable(outputPath).getSubTable("tunableStrings").getSubTable(key)
+                    : instance.getTable(parsed.table).getSubTable("tunableStrings").getSubTable(parsed.name);
             if (table.getEntry("changed").getBoolean(false))
             {
-                namesToBooleansTunables.get(name).accept(table.getEntry("value").getBoolean(false));
+                namesToStringsTunables.get(key).accept(table.getEntry("value").getString(""));
+                table.getEntry("changed").setBoolean(false);
             }
+        }
+
+        for (String key : namesToBooleansTunables.keySet())
+        {
+            ParsedKey parsed = parseCompositeKey(key, "tunableBooleans");
+            var table = (parsed == null) ? instance.getTable(outputPath).getSubTable("tunableBooleans").getSubTable(key)
+                    : instance.getTable(parsed.table).getSubTable("tunableBooleans").getSubTable(parsed.name);
+            if (table.getEntry("changed").getBoolean(false))
+            {
+                namesToBooleansTunables.get(key).accept(table.getEntry("value").getBoolean(false));
+                table.getEntry("changed").setBoolean(false);
+            }
+        }
+    }
+
+    public DashboardSystem putSystem(String systemName)
+    {
+        systems.add(systemName);
+        return new DashboardSystem(systemName);
+    }
+
+    public class DashboardSystem
+    {
+        private String name;
+
+        public DashboardSystem(String name)
+        {
+            this.name = name;
+        }
+
+        public String getName()
+        {
+            return name;
+        }
+
+        public DashboardSystem withCommand(String name, Command command)
+        {
+            Dashboard.this.putCommand(outputPath + "/systems/" + this.name, name, command);
+            return this;
+        }
+
+        public DashboardSystem withNumber(String name, DoubleSupplier number)
+        {
+            Dashboard.this.putNumber(outputPath + "/systems/" + this.name, name, number);
+            return this;
+        }
+
+        public DashboardSystem withString(String name, Supplier<String> string)
+        {
+            Dashboard.this.putString(outputPath + "/systems/" + this.name, name, string);
+            return this;
+        }
+
+        public DashboardSystem withBoolean(String name, BooleanSupplier booleanSupplier)
+        {
+            Dashboard.this.putBoolean(outputPath + "/systems/" + this.name, name, booleanSupplier);
+            return this;
+        }
+
+        public DashboardSystem withNumberTunable(String name, Consumer<Double> runOnChange)
+        {
+            Dashboard.this.putNumberTunable(outputPath + "/systems/" + this.name, name, runOnChange);
+            return this;
+        }
+
+        public DashboardSystem withStringTunable(String name, Consumer<String> runOnChange)
+        {
+            Dashboard.this.putStringTunable(outputPath + "/systems/" + this.name, name, runOnChange);
+            return this;
+        }
+
+        public DashboardSystem withBooleanTunable(String name, Consumer<Boolean> runOnChange)
+        {
+            Dashboard.this.putBooleanTunable(outputPath + "/systems/" + this.name, name, runOnChange);
+            return this;
+
         }
     }
 }
