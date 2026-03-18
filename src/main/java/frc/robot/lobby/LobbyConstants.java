@@ -135,6 +135,9 @@ public class LobbyConstants
         public static final Transform3d kFrontCameraTransform = new Transform3d(
                 new Translation3d(Meters.of(-0.314), Meters.of(0.227), Meters.of(0.210)),
                 new Rotation3d(Degrees.of(180), Degrees.of(30), Degrees.of(-15)));
+        public static final Transform3d kBackCameraTransform = new Transform3d(
+                new Translation3d(Inches.of(-9.840), Inches.of(-12.586), Inches.of(10.245)),
+                new Rotation3d(Degrees.of(-90), Degrees.of(0), Degrees.of(180)));
     }
 
     public class VisionConstants
@@ -145,6 +148,7 @@ public class LobbyConstants
         {
             public static final String kLeftLimeLightName = "limelight-left";
             public static final String kFrontLimeLightName = "limelight-front";
+            public static final String kBackLimeLightName = "limelight-back";
             public static final int[] kValidIds =
             { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29,
                     30, 31 };

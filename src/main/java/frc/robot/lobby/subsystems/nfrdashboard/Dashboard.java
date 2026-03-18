@@ -151,10 +151,15 @@ public class Dashboard extends SubsystemBase
         return false;
     }
 
-    public void putCameraStream(String llName)
+    public void putLimelightStream(String llName)
     {
         instance.getTable(outputPath).getSubTable("cameraStreams").getEntry(llName)
-                .setString("https://" + llName + ".local:5800/stream.mjpg");
+                .setString("https://" + llName + ".local:5800");
+    }
+
+    public void putCameraStream(String name, String url)
+    {
+        instance.getTable(outputPath).getSubTable("cameraStreams").getEntry(name).setString(url);
     }
 
     public void putNumber(String name, DoubleSupplier number)

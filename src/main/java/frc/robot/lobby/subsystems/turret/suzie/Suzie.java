@@ -1,6 +1,7 @@
 package frc.robot.lobby.subsystems.turret.suzie;
 
 import static edu.wpi.first.units.Units.Degrees;
+import static edu.wpi.first.units.Units.Rotations;
 import static edu.wpi.first.units.Units.Second;
 import static edu.wpi.first.units.Units.Seconds;
 import static edu.wpi.first.units.Units.Volts;
@@ -99,8 +100,8 @@ public class Suzie extends SubsystemBase
         io.setDrivingEncoderOffset(Degrees.of(0.0));
         io.setSensingEncoderOffset(Degrees.of(0.0));
 
-        Preferences.setDouble("drivingEncoderOffset", io.getDrivingEncoderAngle().in(Degrees));
-        Preferences.setDouble("sensingEncoderOffset", io.getSensingEncoderAngle().in(Degrees));
+        Preferences.setDouble("drivingEncoderOffset", io.getDrivingEncoderAngle().in(Rotations));
+        Preferences.setDouble("sensingEncoderOffset", io.getSensingEncoderAngle().in(Rotations));
 
         io.setDrivingEncoderOffset(io.getDrivingEncoderAngle());
         io.setSensingEncoderOffset(io.getSensingEncoderAngle());

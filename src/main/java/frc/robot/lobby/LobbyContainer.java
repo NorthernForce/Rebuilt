@@ -156,6 +156,9 @@ public class LobbyContainer implements NFRRobotContainer
                             LobbyConstants.VisionConstants.LimeLightConstants.kValidIds),
                     new AprilTagVisionIOLimelight(LobbyConstants.VisionConstants.LimeLightConstants.kFrontLimeLightName,
                             LobbyConstants.CameraConstants.kFrontCameraTransform,
+                            LobbyConstants.VisionConstants.LimeLightConstants.kValidIds),
+                    new AprilTagVisionIOLimelight(LobbyConstants.VisionConstants.LimeLightConstants.kBackLimeLightName,
+                            LobbyConstants.CameraConstants.kBackCameraTransform,
                             LobbyConstants.VisionConstants.LimeLightConstants.kValidIds));
             turret = new Turret(new TurretConstants(LobbyConstants.Turret.offset),
                     new Suzie(new SuzieIOTalonFXS(LobbyConstants.Turret.Suzie.kMinionConstants)),
@@ -253,9 +256,9 @@ public class LobbyContainer implements NFRRobotContainer
         Shuffleboard.getTab("SysId").add("Arm Dynamic Rev", intake.sysIdArmDynamic(SysIdRoutine.Direction.kReverse));
         dashboard.putCommand("Reset Turret", Commands.runOnce(() -> turret.getSuzie().resetEncoders()));
         dashboard.putCommand("Reset Orientation", drive.resetOrientation());
-        dashboard.putCameraStream(LobbyConstants.VisionConstants.LimeLightConstants.kLeftLimeLightName);
-        dashboard.putCameraStream(LobbyConstants.VisionConstants.LimeLightConstants.kFrontLimeLightName);
-
+        dashboard.putLimelightStream(LobbyConstants.VisionConstants.LimeLightConstants.kLeftLimeLightName);
+        dashboard.putLimelightStream(LobbyConstants.VisionConstants.LimeLightConstants.kFrontLimeLightName);
+        dashboard.putCameraStream("Test Stream", "http://77.89.48.19:8000/cgi-bin/viewer/video.jpg?r=1773845157");
     }
 
     /**
