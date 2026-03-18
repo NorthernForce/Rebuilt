@@ -16,6 +16,7 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.LimelightHelpers;
+
 public class Dashboard extends SubsystemBase
 {
     private String outputPath;
@@ -34,7 +35,6 @@ public class Dashboard extends SubsystemBase
     // public Dashboard(String outputPath) {
     // this.outputPath = outputPath;
     // }
-
 
     public Dashboard()
     {
@@ -176,7 +176,6 @@ public class Dashboard extends SubsystemBase
         }
     }
 
-
     public void putNumber(String table, String name, DoubleSupplier number)
     {
         String key = table + "/numbers/" + name;
@@ -220,7 +219,6 @@ public class Dashboard extends SubsystemBase
         }
     }
 
-
     public void putBoolean(String table, String name, BooleanSupplier booleanSupplier)
     {
         String key = table + "/booleans/" + name;
@@ -231,7 +229,6 @@ public class Dashboard extends SubsystemBase
         var booleanTable = instance.getTable(table).getSubTable("booleans").getSubTable(name);
         booleanTable.getEntry("value").setBoolean(booleanSupplier.getAsBoolean());
     }
-
 
     public void putNumberTunable(String name, Consumer<Double> runOnChange)
     {
@@ -273,7 +270,6 @@ public class Dashboard extends SubsystemBase
         }
     }
 
-
     public void putStringTunable(String table, String name, Consumer<String> runOnChange)
     {
         String key = table + "/tunableStrings/" + name;
@@ -287,7 +283,6 @@ public class Dashboard extends SubsystemBase
 
         }
     }
-
 
     public void putBooleanTunable(String name, Consumer<Boolean> runOnChange)
     {
@@ -338,7 +333,6 @@ public class Dashboard extends SubsystemBase
         String name = key.substring(idx + marker.length());
         return new ParsedKey(table, name);
     }
-
 
     @Override
     public void periodic()
@@ -509,4 +503,5 @@ public class Dashboard extends SubsystemBase
             return this;
 
         }
-    }}
+    }
+}
