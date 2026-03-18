@@ -1,6 +1,6 @@
 # Rebuilt
 
-FRC Team 172 Northern Force's robot code for the 2025 season, built with WPILib and Java.
+FRC Team 172 Northern Force's robot code, built with WPILib 2026 and Java.
 
 ## About
 
