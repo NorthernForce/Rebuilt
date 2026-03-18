@@ -59,7 +59,10 @@ public class LobbyOI
                 .waitUntil(() -> turret.getSuzie().isAtTargetAngle() && turret.getShooter().isAtTargetSpeed())
                 .andThen(new RunSpindexer(container.getSpindexer(), LobbyConstants.SpindexerConstants.kDeJamTime,
                         LobbyConstants.SpindexerConstants.kPostDeJamTime, () -> turret.isAtTargetPose()))
-                .alongWith(new PrepTurretCommand(container, movementMagnitudeSupplier))));
+                .alongWith(new PrepTurretCommand(container, movementMagnitudeSupplier,
+                        () -> container.predictTurretPose(inputProc(() -> driveController.getLeftX()),
+                                inputProc(() -> driveController.getLeftY()),
+                                inputProc(() -> driveController.getRightX()))))));
 
         driveController.leftTrigger().whileTrue(intake.intakeMoving()).onFalse(intake.stopIntake());
         driveController.leftBumper().whileTrue(intake.purgeIntake()).onFalse(intake.stopIntake());
@@ -68,7 +71,10 @@ public class LobbyOI
                 .waitUntil(() -> turret.getSuzie().isAtTargetAngle() && turret.getShooter().isAtTargetSpeed())
                 .andThen(new RunSpindexer(container.getSpindexer(), LobbyConstants.SpindexerConstants.kDeJamTime,
                         LobbyConstants.SpindexerConstants.kPostDeJamTime, () -> turret.isAtTargetPose()))
-                .alongWith(new PrepTurretCommand(container, movementMagnitudeSupplier))
+                .alongWith(new PrepTurretCommand(container, movementMagnitudeSupplier,
+                        () -> container.predictTurretPose(inputProc(() -> driveController.getLeftX()),
+                                inputProc(() -> driveController.getLeftY()),
+                                inputProc(() -> driveController.getRightX()))))
                 .alongWith(Commands.waitSeconds(1.0).andThen(intake.pump()))));
 
         driveController.start().onTrue(Commands.runOnce(() -> suzie.resetCRT()));
@@ -77,7 +83,7 @@ public class LobbyOI
 
         driveController.rightBumper().whileTrue(new PrepTurretWithValues(turret).alongWith(Commands.waitSeconds(0.5)
                 .andThen(new RunSpindexer(container.getSpindexer(), LobbyConstants.SpindexerConstants.kDeJamTime,
-                        LobbyConstants.SpindexerConstants.kPostDeJamTime, () -> turret.isAtTargetPose()))))
+                        LobbyConstants.SpindexerConstants.kPostDeJamTime, () -> turret.isAtTargetPoseStupid()))))
                 .onFalse(Commands.runOnce(() -> turret.stop()));
 
         // driveController.rightBumper().whileTrue(Commands.waitSeconds(0.25)
@@ -90,7 +96,8 @@ public class LobbyOI
         manipulatorController.rightTrigger().whileTrue(Commands.waitSeconds(0.25)
                 .andThen(new RunSpindexer(container.getSpindexer(), LobbyConstants.SpindexerConstants.kDeJamTime,
                         LobbyConstants.SpindexerConstants.kPostDeJamTime, () -> turret.isAtTargetPose()))
-                .alongWith(new PrepTurretStupid(container)));
+                .alongWith(new PrepTurretStupid(container, () -> container.getTurret()
+                        .calculateFieldRelativeShooterPosition(container.getDrive().getPose()))));
 
         // manipulatorController.b().onTrue(Commands.runOnce(() ->
         // {

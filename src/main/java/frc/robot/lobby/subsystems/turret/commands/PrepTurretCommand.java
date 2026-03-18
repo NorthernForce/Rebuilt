@@ -12,6 +12,7 @@ import frc.robot.lobby.LobbyContainer;
 import frc.robot.lobby.subsystems.turret.Turret;
 import frc.robot.lobby.subsystems.turret.Turret.TurretPose;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 
 public class PrepTurretCommand extends Command
@@ -21,13 +22,14 @@ public class PrepTurretCommand extends Command
     private final Supplier<Translation2d> turretPositionSupplier;
     private final DoubleSupplier joystickVelocitySupplier;
 
-    public PrepTurretCommand(LobbyContainer container, DoubleSupplier joystickVelocitySupplier)
+    public PrepTurretCommand(LobbyContainer container, DoubleSupplier joystickVelocitySupplier,
+            Supplier<Translation2d> turretPositionSupplier)
     {
         addRequirements(container.getTurret(), container.getTurret().getSuzie(), container.getTurret().getHood(),
                 container.getTurret().getShooter());
         this.turret = container.getTurret();
         robotPoseSupplier = () -> container.getDrive().getPose();
-        turretPositionSupplier = () -> container.predictTurretPose();
+        this.turretPositionSupplier = turretPositionSupplier;
         this.joystickVelocitySupplier = joystickVelocitySupplier;
     }
 
@@ -39,7 +41,7 @@ public class PrepTurretCommand extends Command
         } : () ->
         {
             return 0.0;
-        });
+        }, () -> container.getTurret().calculateFieldRelativeShooterPosition(container.getDrive().getPose()));
     }
 
     @Override
@@ -53,6 +55,8 @@ public class PrepTurretCommand extends Command
     {
         Pose2d currentPose = robotPoseSupplier.get();
         DogLog.log("Turret/PrepCommand/RobotPose", currentPose);
+        DogLog.log("Turret/PrepCommand/PredictedTurretPose",
+                new Pose2d(turretPositionSupplier.get(), Rotation2d.kZero));
 
         Translation2d turretPosition;
         if (joystickVelocitySupplier.getAsDouble() < 0.1)

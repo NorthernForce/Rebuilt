@@ -20,6 +20,6 @@ public class SimpleAuto extends SequentialCommandGroup
                 .alongWith(new PrepTurretCommand(container, () ->
                 {
                     return 1.0;
-                })));
+                }, () -> container.getTurret().calculateFieldRelativeShooterPosition(container.getDrive().getPose()))));
     }
 }

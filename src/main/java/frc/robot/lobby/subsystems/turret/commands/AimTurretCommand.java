@@ -21,13 +21,14 @@ public class AimTurretCommand extends Command
     private final Turret turret;
     private final DoubleSupplier joystickVelocitySupplier;
 
-    public AimTurretCommand(LobbyContainer container, DoubleSupplier joystickVelocitySupplier)
+    public AimTurretCommand(LobbyContainer container, DoubleSupplier joystickVelocitySupplier,
+            Supplier<Translation2d> turretTranslationSupplier)
     {
         addRequirements(container.getTurret(), container.getTurret().getSuzie(), container.getTurret().getHood(),
                 container.getTurret().getShooter());
         this.turret = container.getTurret();
         robotPoseSupplier = () -> container.getDrive().getPose();
-        turretPositionSupplier = () -> container.predictTurretPose();
+        turretPositionSupplier = turretTranslationSupplier;
         this.joystickVelocitySupplier = joystickVelocitySupplier;
     }
 
