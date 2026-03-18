@@ -45,6 +45,7 @@ import frc.robot.lobby.subsystems.climber.Climber;
 import frc.robot.lobby.subsystems.climber.ClimberIOTalonFX;
 import frc.robot.lobby.subsystems.climber.ClimberIOTalonFXSim;
 import frc.robot.lobby.subsystems.intake.Intake;
+import frc.robot.lobby.subsystems.intake.Intake.PumpIntake;
 import frc.robot.lobby.subsystems.intake.IntakeIOTalonFX;
 import frc.robot.lobby.subsystems.nfrdashboard.Dashboard;
 import frc.robot.lobby.subsystems.spindexer.Spindexer;
@@ -194,9 +195,7 @@ public class LobbyContainer implements NFRRobotContainer
                 Commands.waitUntil(() -> turret.getSuzie().isAtTargetAngle() && turret.getShooter().isAtTargetSpeed())
                         .andThen(new RunSpindexer(getSpindexer(), LobbyConstants.SpindexerConstants.kDeJamTime,
                                 LobbyConstants.SpindexerConstants.kPostDeJamTime, () -> turret.isAtTargetPose()))
-                        .alongWith(new PrepTurretCommand(this, false))
-                        .alongWith(intake.getRunToIntakeAngleCommand().withTimeout(0.5)
-                                .andThen(intake.getRunToStowAngleCommand().withTimeout(0.5)).repeatedly()));
+                        .alongWith(new PrepTurretCommand(this, false)).alongWith(intake.pump()));
         NamedCommands.registerCommand("ShootWithPrediction",
                 Commands.waitUntil(() -> turret.getSuzie().isAtTargetAngle() && turret.getShooter().isAtTargetSpeed())
                         .andThen(new RunSpindexer(getSpindexer(), LobbyConstants.SpindexerConstants.kDeJamTime,
@@ -255,6 +254,11 @@ public class LobbyContainer implements NFRRobotContainer
         {
             turret.getSuzie().resetEncoders();
         }));
+
+        dashboard.putCommand("Turntable SysId Quasistatic Forward", turret.getSuzie().getSysIdQuasistaticForward());
+        dashboard.putCommand("Turntable SysId Quasistatic Reverse", turret.getSuzie().getSysIdQuasistaticReverse());
+        dashboard.putCommand("Turntable SysId Dynamic Forward", turret.getSuzie().getSysIdDynamicForward());
+        dashboard.putCommand("Turntable SysId Dynamic Reverse", turret.getSuzie().getSysIdDynamicReverse());
     }
 
     /**

@@ -24,6 +24,7 @@ public class Intake extends SubsystemBase
 
     private final Angle downAngle;
     private final Angle midAngle;
+    private final Angle pumpAngle;
     private final Angle stowAngle;
     private final double intakeSpeed;
     private final double purgeSpeed;
@@ -43,6 +44,7 @@ public class Intake extends SubsystemBase
                         this));
         downAngle = params.downAngle();
         midAngle = params.midAngle();
+        pumpAngle = params.pumpAngle();
         stowAngle = params.stowAngle();
         intakeSpeed = params.intakeSpeed();
         purgeSpeed = params.purgeSpeed();
@@ -107,6 +109,21 @@ public class Intake extends SubsystemBase
         }
     }
 
+    public class PumpIntake extends ParallelCommandGroup
+    {
+        public PumpIntake()
+        {
+            addCommands(getRunToIntakeAngleCommand().withTimeout(0.5)
+                    .andThen(getRunToPumpAngleCommand().withTimeout(0.5)).repeatedly(),
+                    Commands.run(() -> io.intake(intakeSpeed)));
+        }
+    }
+
+    public Command pump()
+    {
+        return new PumpIntake();
+    }
+
     public Command getRunToIntakeAngleCommand()
     {
         return new RunToAngleCommand(downAngle);
@@ -127,6 +144,11 @@ public class Intake extends SubsystemBase
     {
 
         return new RunToAngleCommand(midAngle);
+    }
+
+    public Command getRunToPumpAngleCommand()
+    {
+        return new RunToAngleCommand(pumpAngle);
     }
 
     public Command stopIntake()
@@ -167,7 +189,7 @@ public class Intake extends SubsystemBase
         return io.getAnglingCurrent();
     }
 
-    public record IntakeParameters(Angle downAngle, Angle midAngle, Angle stowAngle, double intakeSpeed,
-            double purgeSpeed, Angle angleTolerance) {
+    public record IntakeParameters(Angle downAngle, Angle midAngle, Angle pumpAngle, Angle stowAngle,
+            double intakeSpeed, double purgeSpeed, Angle angleTolerance) {
     }
 }
