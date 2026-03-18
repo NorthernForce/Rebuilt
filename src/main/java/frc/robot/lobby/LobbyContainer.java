@@ -251,6 +251,11 @@ public class LobbyContainer implements NFRRobotContainer
                 intake.sysIdArmQuasistatic(SysIdRoutine.Direction.kReverse));
         Shuffleboard.getTab("SysId").add("Arm Dynamic Fwd", intake.sysIdArmDynamic(SysIdRoutine.Direction.kForward));
         Shuffleboard.getTab("SysId").add("Arm Dynamic Rev", intake.sysIdArmDynamic(SysIdRoutine.Direction.kReverse));
+        dashboard.putCommand("Reset Turret", Commands.runOnce(() -> turret.getSuzie().resetEncoders()));
+        dashboard.putCommand("Reset Orientation", drive.resetOrientation());
+        dashboard.putCameraStream(LobbyConstants.VisionConstants.LimeLightConstants.kLeftLimeLightName);
+        dashboard.putCameraStream(LobbyConstants.VisionConstants.LimeLightConstants.kFrontLimeLightName);
+
     }
 
     /**

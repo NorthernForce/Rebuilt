@@ -15,6 +15,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.LimelightHelpers;
 
 public class Dashboard extends SubsystemBase
 {
@@ -148,6 +149,12 @@ public class Dashboard extends SubsystemBase
             return true;
         }
         return false;
+    }
+
+    public void putCameraStream(String llName)
+    {
+        instance.getTable(outputPath).getSubTable("cameraStreams").getEntry(llName)
+                .setString("https://" + llName + ".local:5800/stream.mjpg");
     }
 
     public void putNumber(String name, DoubleSupplier number)
