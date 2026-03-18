@@ -5,6 +5,7 @@ import java.util.function.DoubleSupplier;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import frc.robot.lobby.subsystems.spindexer.commands.Agitate;
 import frc.robot.lobby.subsystems.spindexer.commands.RunSpindexer;
 import frc.robot.lobby.subsystems.turret.commands.PrepTurretCommand;
 import frc.robot.lobby.subsystems.turret.commands.PrepTurretStupid;
@@ -67,7 +68,8 @@ public class LobbyOI
                 .waitUntil(() -> turret.getSuzie().isAtTargetAngle() && turret.getShooter().isAtTargetSpeed())
                 .andThen(new RunSpindexer(container.getSpindexer(), LobbyConstants.SpindexerConstants.kDeJamTime,
                         LobbyConstants.SpindexerConstants.kPostDeJamTime, () -> turret.isAtTargetPose()))
-                .alongWith(new PrepTurretCommand(container, movementMagnitudeSupplier))));
+                .alongWith(new PrepTurretCommand(container, movementMagnitudeSupplier))
+                .alongWith(Commands.waitSeconds(1.0).andThen(intake.pump()))));
 
         driveController.start().onTrue(Commands.runOnce(() -> suzie.resetCRT()));
 
