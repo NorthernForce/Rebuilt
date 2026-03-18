@@ -32,10 +32,10 @@ public class Suzie extends SubsystemBase
                 {
                     setTargetAngle(Degrees.of(newAngle));
                 });
-        m_sysId = new SysIdRoutine(new SysIdRoutine.Config(Volts.of(0.5).per(Second), Volts.of(6), // Reduce dynamic
+        m_sysId = new SysIdRoutine(new SysIdRoutine.Config(Volts.of(0.1).per(Second), Volts.of(6), // Reduce dynamic
                                                                                                    // step voltage to 6
                                                                                                    // V
-                Seconds.of(4), // Time out after 4 s
+                Seconds.of(10), // Time out after 10 s
                 state -> DogLog.log("Turntable_SysId_State", state.toString()) // Log state with DogLog
         ), new SysIdRoutine.Mechanism(output -> io.setMotorControl(new VoltageOut(output)), // Apply voltage
                                                                                             // output to motor

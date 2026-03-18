@@ -176,13 +176,14 @@ public class LobbyConstants
             private static int kMotorID = 19;
             private static int kDrivingEncoderID = 9;
             private static int kSensingEncoderID = 8;
-            private static double kS = 0.07483;
-            private static double kV = 11.819;
-            private static double kA = 0.26826;
-            private static double kP = 100;
+            private static double kS = 0.23196;
+            private static double kV = 4.0594;
+            private static double kA = 1.0709;
+            private static double kP = 38.746;
             private static double kI = 0;
-            private static double kD = 0;
+            private static double kD = 6.8457;
             private static double kG = 0;
+
             private static double kCruiseVelocity = 0;
             private static double kAcceleration = 160;
             private static double kJerk = 1600;
@@ -191,8 +192,7 @@ public class LobbyConstants
             private static int kDrivingGearTeeth = 24;
             private static int kSensingGearTeeth = 25;
             private static int kTurntableGearTeeth = 120;
-            private static double kRotorToTurntableRatio = 10.0 * 5.0 * (double) kTurntableGearTeeth
-                    / kDrivingGearTeeth;
+            private static double kRotorToTurntableRatio = 10.0 * (double) kTurntableGearTeeth / kDrivingGearTeeth;
             private static boolean kInverted = false;
             private static Angle kLowerSoftLimit = Degrees.of(-180);
             private static Angle kUpperSoftLimit = Degrees.of(180);
@@ -373,6 +373,7 @@ public class LobbyConstants
         public static final double kDriverPurgeSpeed = 0.75;
         public static final Angle kDownAngle = Rotations.of(0.005);
         public static final Angle kMiddleAngle = Rotations.of(0.122);
+        public static final Angle kPumpAngle = Rotations.of(0.275);
         public static final Angle kStowedAngle = Rotations.of(0.35);
         public static final double kP = 23.745;
         public static final double kI = 0;
@@ -384,25 +385,25 @@ public class LobbyConstants
         public static final double kAcceleration = 4;
         public static final double kCruiseVelocity = 1;
         public static final double kForwardSoftLimit = 0.4;
-        public static final double kReverstSoftLimit = 0.005;
+        public static final double kReverseSoftLimit = 0.005;
         public static final Current kCurrentLimit = Amps.of(30);
         public static final Angle kAngleTolerance = Degrees.of(5);
 
         public static final IntakeIOParameters kIOParameters = new IntakeIOParameters(kRollerMotorId, kAngleMotorId,
                 kAngleEncoderId, kP, kI, kD, kS, kV, kA, kG, kAcceleration, kCruiseVelocity, kForwardSoftLimit,
-                kReverstSoftLimit, kCurrentLimit);
-        public static final IntakeParameters kParameters = new IntakeParameters(kDownAngle, kMiddleAngle, kStowedAngle,
-                kDriverIntakeSpeed, kDriverPurgeSpeed, kAngleTolerance);
+                kReverseSoftLimit, kCurrentLimit);
+        public static final IntakeParameters kParameters = new IntakeParameters(kDownAngle, kMiddleAngle, kPumpAngle,
+                kStowedAngle, kDriverIntakeSpeed, kDriverPurgeSpeed, kAngleTolerance);
     }
 
     public class CarouselConstants
     {
-        public static final Current kJamCurrentThreshold = Amps.of(10);
+        public static final Current kJamCurrentThreshold = Amps.of(30);
         public static final Time kJamTimeout = Seconds.of(0.5);
         public static final double kDejamSpeed = 0.2;
 
         public static final int kMotorID = 15;
-        public static final double kSpeed = 1;
+        public static final double kSpeed = 0.75;
         public static final boolean kInverted = false;
         public static final double kGearRatio = 10.0;
 
