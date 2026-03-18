@@ -157,7 +157,7 @@ public class Dashboard extends SubsystemBase
     public void putLimelightStream(String llName)
     {
         instance.getTable(outputPath).getSubTable("cameraStreams").getEntry(llName)
-                .setString("https://" + llName + ".local:5800");
+                .setString("http://" + llName + ".local:5800");
     }
 
     public void putCameraStream(String name, String url)

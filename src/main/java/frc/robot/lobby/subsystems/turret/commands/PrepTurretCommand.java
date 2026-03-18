@@ -41,7 +41,7 @@ public class PrepTurretCommand extends Command
         } : () ->
         {
             return 0.0;
-        }, () -> container.getTurret().calculateFieldRelativeShooterPosition(container.getDrive().getPose()));
+        }, () -> container.predictTurretPose());
     }
 
     @Override

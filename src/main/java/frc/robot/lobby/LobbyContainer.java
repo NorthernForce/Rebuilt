@@ -481,6 +481,23 @@ public class LobbyContainer implements NFRRobotContainer
                                 * rotationInputSupplier.getAsDouble() * maxAngularVelocity.in(RadiansPerSecond)));
     }
 
+    public Translation2d predictTurretPose()
+    {
+        return turret.calculateFieldRelativeShooterPosition(drive.getPose())
+                .plus(turret.updateFromTOF(drive.getPose(),
+                        new Translation2d(drive.getXVelocity().in(MetersPerSecond),
+                                drive.getYVelocity().in(MetersPerSecond))))
+                .plus(new Translation2d(
+                        LobbyConstants.Turret.offsetDistance.in(Meters)
+                                * -Math.sin(drive.getPose().getRotation().getRadians()
+                                        + LobbyConstants.Turret.offsetAngle.in(Radians))
+                                * drive.getThetaVelocity().in(RadiansPerSecond),
+                        LobbyConstants.Turret.offsetDistance.in(Meters)
+                                * Math.cos(drive.getPose().getRotation().getRadians()
+                                        + LobbyConstants.Turret.offsetAngle.in(Radians))
+                                * drive.getThetaVelocity().in(RadiansPerSecond)));
+    }
+
     @Override
     public Command getAutonomousCommand()
     {

@@ -81,12 +81,6 @@
           }
         },
         {
-          "type": "named",
-          "data": {
-            "name": "StopShoot"
-          }
-        },
-        {
           "type": "deadline",
           "data": {
             "commands": [
@@ -100,6 +94,12 @@
                 "type": "named",
                 "data": {
                   "name": "Intake"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "ShootWithPrediction"
                 }
               }
             ]

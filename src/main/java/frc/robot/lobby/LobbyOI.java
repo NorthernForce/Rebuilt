@@ -75,7 +75,7 @@ public class LobbyOI
                         () -> container.predictTurretPose(inputProc(() -> driveController.getLeftX()),
                                 inputProc(() -> driveController.getLeftY()),
                                 inputProc(() -> driveController.getRightX()))))
-                .alongWith(Commands.waitSeconds(1.0).andThen(intake.pump()))));
+                .alongWith(Commands.waitSeconds(2.0).andThen(intake.pump()))));
 
         driveController.start().onTrue(Commands.runOnce(() -> suzie.resetCRT()));
 
