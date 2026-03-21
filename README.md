@@ -1,6 +1,6 @@
 # Rebuilt
 
-FRC Team 172 Northern Force's robot code for the 2025 season, built with WPILib and Java.
+FRC Team 172 Northern Force's robot code, built with WPILib 2026 and Java.
 
 ## About
 
@@ -10,7 +10,7 @@ This repository contains the robot code for **Team 172 - Northern Force**, a FIR
 
 Before you can build and deploy this project, you'll need:
 
-- **WPILib 2025** - Download and install from [WPILib Releases](https://github.com/wpilibsuite/allwpilib/releases)
+- **WPILib 2026** - Download and install from [WPILib Releases](https://github.com/wpilibsuite/allwpilib/releases)
 - **Java 17** - Included with WPILib installation
 - **Git** - For version control
 - **Gradle** - Included via Gradle wrapper (`gradlew`)

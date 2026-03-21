@@ -7,11 +7,7 @@ import static edu.wpi.first.units.Units.Amps;
 import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.Radians;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
-import static edu.wpi.first.units.Units.RotationsPerSecond;
-
 import java.util.Optional;
-import java.util.function.DoubleSupplier;
-
 import org.northernforce.util.NFRRobotContainer;
 import org.photonvision.simulation.SimCameraProperties;
 
@@ -28,9 +24,7 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
-import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
-import edu.wpi.first.units.measure.LinearVelocity;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.PowerDistribution;
@@ -50,7 +44,6 @@ import frc.robot.lobby.subsystems.climber.Climber;
 import frc.robot.lobby.subsystems.climber.ClimberIOTalonFX;
 import frc.robot.lobby.subsystems.climber.ClimberIOTalonFXSim;
 import frc.robot.lobby.subsystems.intake.Intake;
-import frc.robot.lobby.subsystems.intake.Intake.PumpIntake;
 import frc.robot.lobby.subsystems.intake.IntakeIOTalonFX;
 import frc.robot.lobby.subsystems.nfrdashboard.Dashboard;
 import frc.robot.lobby.subsystems.nfrdashboard.Dashboard.DashboardSystem;
@@ -103,8 +96,6 @@ public class LobbyContainer implements NFRRobotContainer
     private final StatusSignal<Current> blSteerCurrent;
     private final StatusSignal<Current> brDriveCurrent;
     private final StatusSignal<Current> brSteerCurrent;
-    private LinearVelocity maxTranslationalVelocity = MetersPerSecond.of(4.0);
-    private AngularVelocity maxAngularVelocity = RotationsPerSecond.of(1.5);
 
     public LobbyContainer()
     {
@@ -197,32 +188,18 @@ public class LobbyContainer implements NFRRobotContainer
         intake = new Intake(new IntakeIOTalonFX(LobbyConstants.IntakeConstants.kIOParameters),
                 LobbyConstants.IntakeConstants.kParameters);
 
-        DogLog.tunable("Drive/MaxTranslationalVelocity", 4.0, (newV) ->
-        {
-            setMaxTranslationalVelocity(MetersPerSecond.of(newV));
-        });
-        DogLog.tunable("Drive/MaxAngularVelocity", 1.5, (newV) ->
-        {
-            setMaxAngularVelocity(RotationsPerSecond.of(newV));
-        });
-
         field = new Field2d();
         driveToPoseCommand = new DriveToPoseWithVision(drive);
         NamedCommands.registerCommand("Shoot",
                 Commands.waitUntil(() -> turret.getSuzie().isAtTargetAngle() && turret.getShooter().isAtTargetSpeed())
                         .andThen(new RunSpindexer(getSpindexer(), LobbyConstants.SpindexerConstants.kDeJamTime,
                                 LobbyConstants.SpindexerConstants.kPostDeJamTime, () -> turret.isAtTargetPose()))
-                        .alongWith(new PrepTurretCommand(this, false)));
+                        .alongWith(new PrepTurretCommand(this)));
         NamedCommands.registerCommand("ShootAndPump",
                 Commands.waitUntil(() -> turret.getSuzie().isAtTargetAngle() && turret.getShooter().isAtTargetSpeed())
                         .andThen(new RunSpindexer(getSpindexer(), LobbyConstants.SpindexerConstants.kDeJamTime,
                                 LobbyConstants.SpindexerConstants.kPostDeJamTime, () -> turret.isAtTargetPose()))
-                        .alongWith(new PrepTurretCommand(this, false)).alongWith(intake.pump()));
-        NamedCommands.registerCommand("ShootWithPrediction",
-                Commands.waitUntil(() -> turret.getSuzie().isAtTargetAngle() && turret.getShooter().isAtTargetSpeed())
-                        .andThen(new RunSpindexer(getSpindexer(), LobbyConstants.SpindexerConstants.kDeJamTime,
-                                LobbyConstants.SpindexerConstants.kPostDeJamTime, () -> turret.isAtTargetPose()))
-                        .alongWith(new PrepTurretCommand(this, true)));
+                        .alongWith(new PrepTurretCommand(this)).alongWith(intake.pump()));
         NamedCommands.registerCommand("Intake", intake.intakeMoving());
         NamedCommands.registerCommand("StopShoot",
                 Commands.runOnce(() -> turret.getShooter().stop(), turret.getShooter()));
@@ -357,6 +334,7 @@ public class LobbyContainer implements NFRRobotContainer
         DogLog.log("Turret/Target Position",
                 new Pose2d(getTurret().calculateFieldRelativeShooterPosition(drive.getPose()), new Rotation2d(
                         turret.getSuzieTargetAngleRobotRelative().plus(drive.getPose().getRotation().getMeasure()))));
+        DogLog.log("Turret/Predicted Position", new Pose2d(predictTurretPose(), Rotation2d.kZero));
         DogLog.log("Turret/Target Direction",
                 getTurret().calculateFieldRelativeShooterPosition(drive.getPose())
                         .plus(new Translation2d(
@@ -453,49 +431,19 @@ public class LobbyContainer implements NFRRobotContainer
     // return pose;
     // }
 
-    public void setMaxTranslationalVelocity(LinearVelocity v)
-    {
-        maxTranslationalVelocity = v;
-    }
-
-    public void setMaxAngularVelocity(AngularVelocity v)
-    {
-        maxAngularVelocity = v;
-    }
-
-    public Translation2d predictTurretPose(DoubleSupplier translationXInputSupplier,
-            DoubleSupplier translationYInputSupplier, DoubleSupplier rotationInputSupplier)
-    {
-        return turret.calculateFieldRelativeShooterPosition(drive.getPose()).plus(turret.updateFromTOF(drive.getPose(),
-                new Translation2d(
-                        translationYInputSupplier.getAsDouble() * maxTranslationalVelocity.in(MetersPerSecond),
-                        translationXInputSupplier.getAsDouble() * maxTranslationalVelocity.in(MetersPerSecond))))
-                .plus(new Translation2d(
-                        LobbyConstants.Turret.offsetDistance.in(Meters)
-                                * -Math.sin(drive.getPose().getRotation().getRadians()
-                                        + LobbyConstants.Turret.offsetAngle.in(Radians))
-                                * rotationInputSupplier.getAsDouble() * maxAngularVelocity.in(RadiansPerSecond),
-                        LobbyConstants.Turret.offsetDistance.in(Meters)
-                                * Math.cos(drive.getPose().getRotation().getRadians()
-                                        + LobbyConstants.Turret.offsetAngle.in(Radians))
-                                * rotationInputSupplier.getAsDouble() * maxAngularVelocity.in(RadiansPerSecond)));
-    }
-
     public Translation2d predictTurretPose()
     {
-        return turret.calculateFieldRelativeShooterPosition(drive.getPose())
-                .plus(turret.updateFromTOF(drive.getPose(),
-                        new Translation2d(drive.getXVelocity().in(MetersPerSecond),
-                                drive.getYVelocity().in(MetersPerSecond))))
-                .plus(new Translation2d(
-                        LobbyConstants.Turret.offsetDistance.in(Meters)
-                                * -Math.sin(drive.getPose().getRotation().getRadians()
-                                        + LobbyConstants.Turret.offsetAngle.in(Radians))
-                                * drive.getThetaVelocity().in(RadiansPerSecond),
-                        LobbyConstants.Turret.offsetDistance.in(Meters)
-                                * Math.cos(drive.getPose().getRotation().getRadians()
-                                        + LobbyConstants.Turret.offsetAngle.in(Radians))
-                                * drive.getThetaVelocity().in(RadiansPerSecond)));
+        return turret.calculateFieldRelativeShooterPosition(drive.getPose()).plus(turret.updateFromTOF(drive.getPose(),
+                new Translation2d(drive.getXVelocity().in(MetersPerSecond), drive.getYVelocity().in(MetersPerSecond))
+                        .plus(new Translation2d(
+                                LobbyConstants.Turret.offsetDistance.in(Meters)
+                                        * Math.sin(drive.getPose().getRotation().getRadians()
+                                                + LobbyConstants.Turret.offsetAngle.in(Radians))
+                                        * drive.getThetaVelocity().in(RadiansPerSecond),
+                                LobbyConstants.Turret.offsetDistance.in(Meters)
+                                        * -Math.cos(drive.getPose().getRotation().getRadians()
+                                                + LobbyConstants.Turret.offsetAngle.in(Radians))
+                                        * drive.getThetaVelocity().in(RadiansPerSecond)))));
     }
 
     @Override
