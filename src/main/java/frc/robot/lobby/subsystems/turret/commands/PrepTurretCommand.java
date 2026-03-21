@@ -11,7 +11,6 @@ import frc.robot.lobby.LobbyContainer;
 import frc.robot.lobby.subsystems.turret.Turret;
 import frc.robot.lobby.subsystems.turret.Turret.TurretPose;
 import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 
 public class PrepTurretCommand extends Command

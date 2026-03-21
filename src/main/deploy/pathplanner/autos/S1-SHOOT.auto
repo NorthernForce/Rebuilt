@@ -9,31 +9,6 @@
           "data": {
             "commands": [
               {
-                "type": "wait",
-                "data": {
-                  "waitTime": 1.75
-                }
-              },
-              {
-                "type": "named",
-                "data": {
-                  "name": "Shoot"
-                }
-              }
-            ]
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "StopShoot"
-          }
-        },
-        {
-          "type": "deadline",
-          "data": {
-            "commands": [
-              {
                 "type": "path",
                 "data": {
                   "pathName": "S1-NZL"
@@ -93,13 +68,13 @@
               {
                 "type": "wait",
                 "data": {
-                  "waitTime": 2.0
+                  "waitTime": 4.0
                 }
               },
               {
                 "type": "named",
                 "data": {
-                  "name": "Shoot"
+                  "name": "ShootAndPump"
                 }
               }
             ]
@@ -118,7 +93,7 @@
               {
                 "type": "path",
                 "data": {
-                  "pathName": "SL-NZL"
+                  "pathName": "SL-NZLC"
                 }
               },
               {
@@ -137,7 +112,7 @@
               {
                 "type": "path",
                 "data": {
-                  "pathName": "NZL-NZM"
+                  "pathName": "NZLC-NZMC"
                 }
               },
               {
@@ -156,7 +131,7 @@
               {
                 "type": "path",
                 "data": {
-                  "pathName": "NZM-SL"
+                  "pathName": "NZMC-SL"
                 }
               },
               {
@@ -171,7 +146,7 @@
         {
           "type": "named",
           "data": {
-            "name": "Shoot"
+            "name": "ShootAndPump"
           }
         }
       ]
