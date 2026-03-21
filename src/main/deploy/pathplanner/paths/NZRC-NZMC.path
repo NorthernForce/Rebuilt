@@ -3,53 +3,32 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 3.625,
-        "y": 7.375
+        "x": 6.25,
+        "y": 1.5
       },
       "prevControl": null,
       "nextControl": {
-        "x": 3.8690353477630146,
-        "y": 7.429283966713797
+        "x": 6.25,
+        "y": 2.5
       },
       "isLocked": false,
-      "linkedName": "SL"
-    },
-    {
-      "anchor": {
-        "x": 5.915164051355206,
-        "y": 7.375
-      },
-      "prevControl": {
-        "x": 5.561610660761932,
-        "y": 7.728553390593274
-      },
-      "nextControl": {
-        "x": 6.26871744194848,
-        "y": 7.021446609406726
-      },
-      "isLocked": false,
-      "linkedName": null
+      "linkedName": "NZRC"
     },
     {
       "anchor": {
         "x": 6.25,
-        "y": 6.5
+        "y": 4.025
       },
       "prevControl": {
         "x": 6.25,
-        "y": 6.75
+        "y": 3.0250000000000004
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "NZLC"
+      "linkedName": "NZMC-BACKWARD"
     }
   ],
-  "rotationTargets": [
-    {
-      "waypointRelativePos": 1.0,
-      "rotationDegrees": -90.0
-    }
-  ],
+  "rotationTargets": [],
   "constraintZones": [],
   "pointTowardsZones": [],
   "eventMarkers": [],
@@ -62,14 +41,14 @@
     "unlimited": false
   },
   "goalEndState": {
-    "velocity": 4.0,
-    "rotation": 0.0
+    "velocity": 0,
+    "rotation": 180.0
   },
   "reversed": false,
   "folder": null,
   "idealStartingState": {
-    "velocity": 0,
-    "rotation": -90.0
+    "velocity": 4.0,
+    "rotation": 180.0
   },
   "useDefaultConstraints": true
 }

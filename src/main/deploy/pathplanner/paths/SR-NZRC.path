@@ -3,35 +3,35 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 6.25,
-        "y": 6.5
+        "x": 3.625,
+        "y": 0.625
       },
       "prevControl": null,
       "nextControl": {
-        "x": 6.25,
-        "y": 5.5
+        "x": 4.625,
+        "y": 0.625
       },
       "isLocked": false,
-      "linkedName": "NZLC"
+      "linkedName": "SR"
     },
     {
       "anchor": {
         "x": 6.25,
-        "y": 4.025
+        "y": 1.5
       },
       "prevControl": {
         "x": 6.25,
-        "y": 5.025
+        "y": 0.5
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "NZMFC"
+      "linkedName": "NZRC"
     }
   ],
   "rotationTargets": [
     {
       "waypointRelativePos": 0.5,
-      "rotationDegrees": 0.0
+      "rotationDegrees": 90.0
     }
   ],
   "constraintZones": [],
@@ -39,21 +39,21 @@
   "eventMarkers": [],
   "globalConstraints": {
     "maxVelocity": 4.0,
-    "maxAcceleration": 4.0,
-    "maxAngularVelocity": 540.0,
+    "maxAcceleration": 6.0,
+    "maxAngularVelocity": 600.0,
     "maxAngularAcceleration": 720.0,
     "nominalVoltage": 12.0,
     "unlimited": false
   },
   "goalEndState": {
-    "velocity": 0,
-    "rotation": 0.0
+    "velocity": 4.0,
+    "rotation": 180.0
   },
   "reversed": false,
   "folder": null,
   "idealStartingState": {
-    "velocity": 4.0,
-    "rotation": -45.0
+    "velocity": 0,
+    "rotation": 90.0
   },
   "useDefaultConstraints": true
 }

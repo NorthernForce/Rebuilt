@@ -19,6 +19,12 @@
                 "data": {
                   "name": "Intake"
                 }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "ShootWithPrediction"
+                }
               }
             ]
           }
@@ -27,6 +33,24 @@
           "type": "named",
           "data": {
             "name": "Shoot"
+          }
+        },
+        {
+          "type": "wait",
+          "data": {
+            "waitTime": 3.0
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "StopIntake"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "ShootAndPump"
           }
         }
       ]

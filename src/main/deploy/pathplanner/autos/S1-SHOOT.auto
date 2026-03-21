@@ -112,7 +112,7 @@
               {
                 "type": "path",
                 "data": {
-                  "pathName": "NZLC-NZMFC"
+                  "pathName": "NZLC-NZMC"
                 }
               },
               {
@@ -131,7 +131,7 @@
               {
                 "type": "path",
                 "data": {
-                  "pathName": "NZMFC-SL"
+                  "pathName": "NZMC-SL"
                 }
               },
               {

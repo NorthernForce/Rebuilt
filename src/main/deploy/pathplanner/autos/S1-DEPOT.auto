@@ -9,31 +9,6 @@
           "data": {
             "commands": [
               {
-                "type": "wait",
-                "data": {
-                  "waitTime": 1.75
-                }
-              },
-              {
-                "type": "named",
-                "data": {
-                  "name": "Shoot"
-                }
-              }
-            ]
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "StopShoot"
-          }
-        },
-        {
-          "type": "deadline",
-          "data": {
-            "commands": [
-              {
                 "type": "path",
                 "data": {
                   "pathName": "S1-D"
@@ -44,6 +19,12 @@
                 "data": {
                   "name": "Intake"
                 }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "ShootWithPrediction"
+                }
               }
             ]
           }
@@ -52,6 +33,24 @@
           "type": "named",
           "data": {
             "name": "Shoot"
+          }
+        },
+        {
+          "type": "wait",
+          "data": {
+            "waitTime": 3.0
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "StopIntake"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "ShootAndPump"
           }
         }
       ]
