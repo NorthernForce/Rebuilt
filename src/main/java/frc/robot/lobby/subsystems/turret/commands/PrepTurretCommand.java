@@ -3,7 +3,6 @@ package frc.robot.lobby.subsystems.turret.commands;
 import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.Radians;
 
-import java.util.function.DoubleSupplier;
 import java.util.function.Supplier;
 
 import dev.doglog.DogLog;
@@ -18,30 +17,16 @@ import edu.wpi.first.math.geometry.Translation2d;
 public class PrepTurretCommand extends Command
 {
     private final Supplier<Pose2d> robotPoseSupplier;
+    private final LobbyContainer container;
     private final Turret turret;
-    private final Supplier<Translation2d> turretPositionSupplier;
-    private final DoubleSupplier joystickVelocitySupplier;
 
-    public PrepTurretCommand(LobbyContainer container, DoubleSupplier joystickVelocitySupplier,
-            Supplier<Translation2d> turretPositionSupplier)
+    public PrepTurretCommand(LobbyContainer container)
     {
         addRequirements(container.getTurret(), container.getTurret().getSuzie(), container.getTurret().getHood(),
                 container.getTurret().getShooter());
-        this.turret = container.getTurret();
+        this.container = container;
+        turret = container.getTurret();
         robotPoseSupplier = () -> container.getDrive().getPose();
-        this.turretPositionSupplier = turretPositionSupplier;
-        this.joystickVelocitySupplier = joystickVelocitySupplier;
-    }
-
-    public PrepTurretCommand(LobbyContainer container, boolean predict)
-    {
-        this(container, predict ? () ->
-        {
-            return 1.0;
-        } : () ->
-        {
-            return 0.0;
-        }, () -> container.getTurret().calculateFieldRelativeShooterPosition(container.getDrive().getPose()));
     }
 
     @Override
@@ -55,23 +40,15 @@ public class PrepTurretCommand extends Command
     {
         Pose2d currentPose = robotPoseSupplier.get();
         DogLog.log("Turret/PrepCommand/RobotPose", currentPose);
-        DogLog.log("Turret/PrepCommand/PredictedTurretPose",
-                new Pose2d(turretPositionSupplier.get(), Rotation2d.kZero));
 
-        Translation2d turretPosition;
-        if (joystickVelocitySupplier.getAsDouble() < 0.1)
-        {
-            turretPosition = turret.calculateFieldRelativeShooterPosition(currentPose);
-        } else
-        {
-            turretPosition = turretPositionSupplier.get();
-        }
+        Translation2d turretPosition = container.predictTurretPose();
 
         // Calculate the target pose
         TurretPose targetPose = turret.calculateTargetPose(turretPosition, robotPoseSupplier.get());
         DogLog.log("Turret/PrepCommand/CalculatedSuzieAngle", targetPose.suzieAngle().in(Radians));
         DogLog.log("Turret/PrepCommand/CalculatedHoodAngle", targetPose.hoodAngle().in(Degrees));
         DogLog.log("Turret/PrepCommand/DistanceToHub", turret.getDistanceToHub(currentPose));
+
         turret.setTargetPose(
                 new TurretPose(targetPose.suzieAngle(), targetPose.hoodAngle(), targetPose.shooterSpeed()));
 

@@ -47,7 +47,6 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.Notifier;
 import edu.wpi.first.wpilibj.Preferences;
-import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.Subsystem;
@@ -79,8 +78,6 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
     private static final Rotation2d kRedAlliancePerspectiveRotation = Rotation2d.k180deg;
     /* Keep track if we've ever applied the operator perspective before or not */
     private boolean m_hasAppliedOperatorPerspective = false;
-    private Time fgpaSeconds = Seconds.of(0);
-    private Pose2d lastPose = Pose2d.kZero;
     private LinearVelocity velocity = MetersPerSecond.of(0);
     private LinearVelocity xVelocity = MetersPerSecond.of(0);
     private LinearVelocity yVelocity = MetersPerSecond.of(0);
@@ -515,23 +512,16 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
          * disable event occurs during testing.
          */
 
-        Pose2d pose = getPose();
-        Time fgpa = Seconds.of(Timer.getFPGATimestamp());
-        Time deltaTime = fgpa.minus(fgpaSeconds);
-        if (deltaTime.in(Seconds) > 0.03)
-        {
-            xVelocity = pose.getMeasureX().minus(lastPose.getMeasureX()).div(deltaTime).times(timePredict.get());
-            yVelocity = pose.getMeasureY().minus(lastPose.getMeasureY()).div(deltaTime).times(timePredict.get());
-            thetaVelocity = pose.getRotation().getMeasure().minus(lastPose.getRotation().getMeasure()).div(deltaTime)
-                    .times(timePredict.get());
-            velocity = MetersPerSecond.of(Math.hypot(xVelocity.in(MetersPerSecond), yVelocity.in(MetersPerSecond)));
-            xVelocityCaptures.add(new LinearVelocityWithTimestamp(xVelocity));
-            yVelocityCaptures.add(new LinearVelocityWithTimestamp(yVelocity));
-            thetaVelocityCaptures.add(new AngularVelocityWithTimestamp(thetaVelocity));
+        Translation2d v = new Translation2d(getState().Speeds.vxMetersPerSecond, getState().Speeds.vyMetersPerSecond);
+        v = v.rotateAround(Translation2d.kZero, getPose().getRotation());
+        xVelocity = MetersPerSecond.of(v.getX());
+        yVelocity = MetersPerSecond.of(v.getY());
+        thetaVelocity = RadiansPerSecond.of(getState().Speeds.omegaRadiansPerSecond);
+        velocity = MetersPerSecond.of(Math.hypot(xVelocity.in(MetersPerSecond), yVelocity.in(MetersPerSecond)));
+        xVelocityCaptures.add(new LinearVelocityWithTimestamp(xVelocity));
+        yVelocityCaptures.add(new LinearVelocityWithTimestamp(yVelocity));
+        thetaVelocityCaptures.add(new AngularVelocityWithTimestamp(thetaVelocity));
 
-            lastPose = pose;
-            fgpaSeconds = fgpa;
-        }
         if (!m_hasAppliedOperatorPerspective || DriverStation.isDisabled())
         {
             DriverStation.getAlliance().ifPresent(allianceColor ->
