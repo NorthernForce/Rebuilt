@@ -18,13 +18,13 @@ public class PrepTurretStupid extends Command
     private final Supplier<Translation2d> predictedTurretPoseSupplier;
     private final Turret turret;
 
-    public PrepTurretStupid(LobbyContainer container)
+    public PrepTurretStupid(LobbyContainer container, Supplier<Translation2d> turretPositionSupplier)
     {
         addRequirements(container.getTurret(), container.getTurret().getSuzie(), container.getTurret().getHood(),
                 container.getTurret().getShooter());
         this.turret = container.getTurret();
         robotPoseSupplier = () -> container.getDrive().getPose();
-        predictedTurretPoseSupplier = () -> container.predictTurretPose();
+        predictedTurretPoseSupplier = turretPositionSupplier;
     }
 
     @Override

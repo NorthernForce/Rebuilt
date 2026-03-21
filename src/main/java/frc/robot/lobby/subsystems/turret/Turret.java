@@ -31,10 +31,12 @@ public class Turret extends SubsystemBase
     private final Distance shooterOffsetDistance;
     private final TargetingCalculator hoodCalculator;
     private final TargetingCalculator shooterCalculator;
+    private final TargetingCalculator tofCalculator;
     private final Angle shooterToRobotAngle;
 
     public Turret(TurretConstants constants, Suzie suzie, Hood hood, Shooter shooter,
-            TargetingCalculator hoodCalculator, TargetingCalculator shooterCalculator)
+            TargetingCalculator hoodCalculator, TargetingCalculator shooterCalculator,
+            TargetingCalculator tofCalculator)
     {
         offset = constants.offset();
         this.suzie = suzie;
@@ -43,6 +45,7 @@ public class Turret extends SubsystemBase
         shooterOffsetDistance = Meters.of(constants.offset().getTranslation().getDistance(Translation2d.kZero));
         this.hoodCalculator = hoodCalculator;
         this.shooterCalculator = shooterCalculator;
+        this.tofCalculator = tofCalculator;
         shooterToRobotAngle = Radians
                 .of(Math.atan2(constants.offset().getTranslation().getY(), constants.offset().getTranslation().getX()));
 
@@ -218,8 +221,15 @@ public class Turret extends SubsystemBase
         }
     }
 
+    public Translation2d updateFromTOF(Pose2d robotPose, Translation2d predictedOffset)
+    {
+        return predictedOffset.times(tofCalculator
+                .getValueForDistance((robotPose.getTranslation().getDistance(getHubPosition().toTranslation2d()))));
+    }
+
     private TurretPose calculateShootingPose(Pose2d robotPose, Translation2d predictedTurretPosition)
     {
+
         Distance shooterDistanceToHub = Meters
                 .of(predictedTurretPosition.getDistance(getHubPosition().toTranslation2d()));
         Angle suzieAngle = calculateSuzieTargetAngle(robotPose.getRotation().getMeasure(), predictedTurretPosition,
@@ -286,6 +296,11 @@ public class Turret extends SubsystemBase
     public boolean isAtTargetPose()
     {
         return suzie.isAtTargetAngle() && shooter.isAtTargetSpeed();
+    }
+
+    public boolean isAtTargetPoseStupid()
+    {
+        return shooter.isAtTargetSpeed();
     }
 
     public Translation2d calculateFieldRelativeShooterPosition(Pose2d robotPose)

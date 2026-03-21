@@ -17,9 +17,6 @@ public class SimpleAuto extends SequentialCommandGroup
                         && container.getTurret().getShooter().isAtTargetSpeed())
                 .andThen(new RunSpindexer(container.getSpindexer(), LobbyConstants.SpindexerConstants.kDeJamTime,
                         LobbyConstants.SpindexerConstants.kPostDeJamTime))
-                .alongWith(new PrepTurretCommand(container, () ->
-                {
-                    return 1.0;
-                })));
+                .alongWith(new PrepTurretCommand(container)));
     }
 }
