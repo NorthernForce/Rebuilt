@@ -23,16 +23,28 @@
               {
                 "type": "named",
                 "data": {
-                  "name": "ShootWithPrediction"
+                  "name": "Shoot"
                 }
               }
             ]
           }
         },
         {
+          "type": "wait",
+          "data": {
+            "waitTime": 3.0
+          }
+        },
+        {
           "type": "named",
           "data": {
-            "name": "Shoot"
+            "name": "StopIntake"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "ShootAndPump"
           }
         },
         {

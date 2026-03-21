@@ -99,7 +99,7 @@
               {
                 "type": "named",
                 "data": {
-                  "name": "ShootWithPrediction"
+                  "name": "Shoot"
                 }
               }
             ]
