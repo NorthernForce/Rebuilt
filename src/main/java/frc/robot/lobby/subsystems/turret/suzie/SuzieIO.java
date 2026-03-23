@@ -1,5 +1,6 @@
 package frc.robot.lobby.subsystems.turret.suzie;
 
+import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.Rotations;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 import static edu.wpi.first.units.Units.Volts;
@@ -10,7 +11,6 @@ import com.ctre.phoenix6.signals.MotorArrangementValue;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Voltage;
-import edu.wpi.first.wpilibj.PowerDistribution;
 
 public interface SuzieIO
 {
@@ -32,6 +32,26 @@ public interface SuzieIO
 
     public default void setTargetAngle(Angle angle)
     {
+    }
+
+    public default void setDrivingEncoderOffset(Angle angle)
+    {
+
+    }
+
+    public default void setSensingEncoderOffset(Angle angle)
+    {
+
+    }
+
+    public default Angle getDrivingEncoderAngle()
+    {
+        return Degrees.zero();
+    }
+
+    public default Angle getSensingEncoderAngle()
+    {
+        return Degrees.zero();
     }
 
     public default void start()

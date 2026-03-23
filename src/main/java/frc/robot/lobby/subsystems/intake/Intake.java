@@ -1,6 +1,5 @@
 package frc.robot.lobby.subsystems.intake;
 
-import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.Rotations;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 import static edu.wpi.first.units.Units.Second;
@@ -11,12 +10,11 @@ import java.util.function.DoubleSupplier;
 
 import dev.doglog.DogLog;
 import edu.wpi.first.units.measure.Angle;
-import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
-import frc.robot.lobby.LobbyConstants;
 
 public class Intake extends SubsystemBase
 {
@@ -26,6 +24,7 @@ public class Intake extends SubsystemBase
 
     private final Angle downAngle;
     private final Angle midAngle;
+    private final Angle pumpAngle;
     private final Angle stowAngle;
     private final double intakeSpeed;
     private final double purgeSpeed;
@@ -45,10 +44,20 @@ public class Intake extends SubsystemBase
                         this));
         downAngle = params.downAngle();
         midAngle = params.midAngle();
+        pumpAngle = params.pumpAngle();
         stowAngle = params.stowAngle();
         intakeSpeed = params.intakeSpeed();
         purgeSpeed = params.purgeSpeed();
         this.angleTolerance = params.angleTolerance();
+    }
+
+    public class AgitateCommand extends ParallelCommandGroup
+    {
+        public AgitateCommand()
+        {
+            addCommands(Commands.run(() -> io.intake(intakeSpeed)),
+                    (getRunToMidAngleCommand().andThen(getRunToStowAngleCommand()).repeatedly()));
+        }
     }
 
     public Command purgeIntake()
@@ -105,6 +114,21 @@ public class Intake extends SubsystemBase
         }
     }
 
+    public class PumpIntake extends ParallelCommandGroup
+    {
+        public PumpIntake()
+        {
+            addCommands(getRunToIntakeAngleCommand().withTimeout(0.5)
+                    .andThen(getRunToPumpAngleCommand().withTimeout(0.5)).repeatedly(),
+                    Commands.run(() -> io.intake(intakeSpeed)));
+        }
+    }
+
+    public Command pump()
+    {
+        return new PumpIntake();
+    }
+
     public Command getRunToIntakeAngleCommand()
     {
         return new RunToAngleCommand(downAngle);
@@ -125,6 +149,11 @@ public class Intake extends SubsystemBase
     {
 
         return new RunToAngleCommand(midAngle);
+    }
+
+    public Command getRunToPumpAngleCommand()
+    {
+        return new RunToAngleCommand(pumpAngle);
     }
 
     public Command stopIntake()
@@ -165,7 +194,7 @@ public class Intake extends SubsystemBase
         return io.getAnglingCurrent();
     }
 
-    public record IntakeParameters(Angle downAngle, Angle midAngle, Angle stowAngle, double intakeSpeed,
-            double purgeSpeed, Angle angleTolerance) {
+    public record IntakeParameters(Angle downAngle, Angle midAngle, Angle pumpAngle, Angle stowAngle,
+            double intakeSpeed, double purgeSpeed, Angle angleTolerance) {
     }
 }

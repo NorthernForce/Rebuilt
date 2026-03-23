@@ -1,11 +1,9 @@
 package frc.robot.lobby.subsystems.climber;
 
-import static edu.wpi.first.units.Units.Inches;
 import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.Rotations;
 
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
-import com.ctre.phoenix6.controls.PositionVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.GravityTypeValue;
 import com.ctre.phoenix6.signals.InvertedValue;
@@ -19,9 +17,7 @@ import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.RobotController;
-import edu.wpi.first.wpilibj.Servo;
 import edu.wpi.first.wpilibj.simulation.ElevatorSim;
-import frc.robot.lobby.LobbyConstants.ClimberConstants.ClimbLevels;
 
 public class ClimberIOTalonFXSim implements ClimberIO
 {
@@ -31,7 +27,6 @@ public class ClimberIOTalonFXSim implements ClimberIO
     private final Angle bottomRotations;
 
     private final double drumRadiusMeters = 0.0127;
-    private double setRotations = 0;
     private final Angle topRotations;
     private final Angle tolerance;
     private final Pose2d upperRedClimbPosition;

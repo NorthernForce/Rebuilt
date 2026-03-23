@@ -4,38 +4,34 @@
     {
       "anchor": {
         "x": 3.625,
-        "y": 7.375
+        "y": 0.625
       },
       "prevControl": null,
       "nextControl": {
-        "x": 5.625,
-        "y": 7.375
+        "x": 4.625,
+        "y": 0.625
       },
       "isLocked": false,
-      "linkedName": "SL"
+      "linkedName": "SR"
     },
     {
       "anchor": {
-        "x": 7.75,
-        "y": 6.75
+        "x": 6.25,
+        "y": 1.5
       },
       "prevControl": {
-        "x": 7.75,
-        "y": 7.25
+        "x": 6.25,
+        "y": 0.5
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "NZL"
+      "linkedName": "NZRC"
     }
   ],
   "rotationTargets": [
     {
-      "waypointRelativePos": 0.3,
-      "rotationDegrees": -90.0
-    },
-    {
-      "waypointRelativePos": 1.0,
-      "rotationDegrees": 0.0
+      "waypointRelativePos": 0.5,
+      "rotationDegrees": 90.0
     }
   ],
   "constraintZones": [],
@@ -51,13 +47,13 @@
   },
   "goalEndState": {
     "velocity": 4.0,
-    "rotation": 0.0
+    "rotation": 180.0
   },
   "reversed": false,
   "folder": null,
   "idealStartingState": {
     "velocity": 0,
-    "rotation": -90.0
+    "rotation": 90.0
   },
   "useDefaultConstraints": true
 }

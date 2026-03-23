@@ -1,12 +1,8 @@
 package frc.robot.lobby.subsystems.turret.suzie;
 
-import static edu.wpi.first.units.Units.Amps;
 import static edu.wpi.first.units.Units.Degrees;
-import static edu.wpi.first.units.Units.DegreesPerSecond;
 import static edu.wpi.first.units.Units.Rotations;
 
-import java.io.ObjectInputFilter.Status;
-import java.util.Optional;
 import java.util.function.Supplier;
 
 import com.ctre.phoenix6.StatusSignal;
@@ -15,7 +11,6 @@ import com.ctre.phoenix6.configs.TalonFXSConfiguration;
 import com.ctre.phoenix6.controls.ControlRequest;
 import com.ctre.phoenix6.controls.DutyCycleOut;
 import com.ctre.phoenix6.controls.MotionMagicExpoVoltage;
-import com.ctre.phoenix6.controls.PositionVoltage;
 import com.ctre.phoenix6.hardware.TalonFXS;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.MotorArrangementValue;
@@ -28,7 +23,7 @@ import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Temperature;
 import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj.DutyCycleEncoder;
-import edu.wpi.first.wpilibj.PowerDistribution;
+import edu.wpi.first.wpilibj.Preferences;
 import frc.robot.util.TunablePID;
 import yams.units.EasyCRT;
 import yams.units.EasyCRTConfig;
@@ -105,15 +100,17 @@ public class SuzieIOTalonFXS implements SuzieIO
         config.SoftwareLimitSwitch.ReverseSoftLimitEnable = true;
         config.SoftwareLimitSwitch.ReverseSoftLimitThreshold = kLowerSoftLimit.in(Rotations);
 
-        config.CurrentLimits.StatorCurrentLimit = 60.0;
+        config.CurrentLimits.StatorCurrentLimit = 40.0;
         config.CurrentLimits.StatorCurrentLimitEnable = false;
 
         config.Commutation.MotorArrangement = kMotorArrangement;
 
         m_motor.getConfigurator().apply(config);
 
-        m_drivingEncoder = new DutyCycleEncoder(kDrivingEncoderID, 1.0, 0.878);
-        m_sensingEncoder = new DutyCycleEncoder(kSensingEncoderID, 1.0, 0.834);
+        m_drivingEncoder = new DutyCycleEncoder(kDrivingEncoderID, 1.0,
+                Preferences.getDouble("drivingEncoderOffset", 0));
+        m_sensingEncoder = new DutyCycleEncoder(kSensingEncoderID, 1.0,
+                Preferences.getDouble("sensingEncoderOffset", 0));
 
         m_position = m_motor.getPosition();
         m_temperature = m_motor.getDeviceTemp();
@@ -176,12 +173,15 @@ public class SuzieIOTalonFXS implements SuzieIO
     @Override
     public void setTargetAngle(Angle angle)
     {
+        // if (!m_targetAngle.isNear(angle, m_errorTolerance))
         m_targetAngle = angle;
     }
 
     @Override
     public void start()
     {
+        // if (!isAtTargetAngle())
+
         m_motor.setControl(m_positionVoltage.withPosition(m_targetAngle.in(Rotations)));
     }
 
@@ -212,7 +212,7 @@ public class SuzieIOTalonFXS implements SuzieIO
     @Override
     public boolean isAtTargetAngle()
     {
-        return Math.abs(getTargetAngle().in(Degrees) - getAngle().in(Degrees)) < m_errorTolerance.in(Degrees);
+        return getAngle().isNear(getTargetAngle(), m_errorTolerance);
     }
 
     @Override
@@ -260,5 +260,31 @@ public class SuzieIOTalonFXS implements SuzieIO
     {
         motorCurrent.refresh();
         return motorCurrent.getValueAsDouble();
+    }
+
+    @Override
+    public void setDrivingEncoderOffset(Angle angle)
+    {
+        m_drivingEncoder.close();
+        m_drivingEncoder = new DutyCycleEncoder(constants.kDrivingEncoderID(), 1.0, angle.in(Rotations));
+    }
+
+    @Override
+    public void setSensingEncoderOffset(Angle angle)
+    {
+        m_sensingEncoder.close();
+        m_sensingEncoder = new DutyCycleEncoder(constants.kSensingEncoderID(), 1.0, angle.in(Rotations));
+    }
+
+    @Override
+    public Angle getDrivingEncoderAngle()
+    {
+        return Rotations.of(m_drivingEncoder.get());
+    }
+
+    @Override
+    public Angle getSensingEncoderAngle()
+    {
+        return Rotations.of(m_sensingEncoder.get());
     }
 }

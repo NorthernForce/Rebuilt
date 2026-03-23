@@ -4,12 +4,12 @@
     {
       "anchor": {
         "x": 7.75,
-        "y": 4.025
+        "y": 3.25
       },
       "prevControl": null,
       "nextControl": {
         "x": 7.75,
-        "y": 3.0250000000000004
+        "y": 2.25
       },
       "isLocked": false,
       "linkedName": "NZM-BACKWARD"
@@ -21,11 +21,11 @@
       },
       "prevControl": {
         "x": 7.9267766952966365,
-        "y": 1.426776695296637
+        "y": 1.4267766952966372
       },
       "nextControl": {
         "x": 7.042893218813454,
-        "y": 0.5428932188134514
+        "y": 0.5428932188134513
       },
       "isLocked": false,
       "linkedName": "NZR"
@@ -54,9 +54,9 @@
   "pointTowardsZones": [],
   "eventMarkers": [],
   "globalConstraints": {
-    "maxVelocity": 3.0,
-    "maxAcceleration": 3.0,
-    "maxAngularVelocity": 540.0,
+    "maxVelocity": 4.0,
+    "maxAcceleration": 6.0,
+    "maxAngularVelocity": 600.0,
     "maxAngularAcceleration": 720.0,
     "nominalVoltage": 12.0,
     "unlimited": false
