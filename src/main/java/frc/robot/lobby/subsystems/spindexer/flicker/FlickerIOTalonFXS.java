@@ -7,25 +7,18 @@ import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.CommutationConfigs;
 import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
 import com.ctre.phoenix6.configs.MotorOutputConfigs;
-import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.hardware.TalonFXS;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.MotorArrangementValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
-import edu.wpi.first.hal.PowerDistributionStickyFaults;
 import edu.wpi.first.units.measure.Current;
-import edu.wpi.first.units.measure.Power;
 import edu.wpi.first.units.measure.Time;
-import edu.wpi.first.wpilibj.PowerDistribution;
 
 public class FlickerIOTalonFXS implements FlickerIO
 {
     private TalonFXS m_motor;
     private double m_rampSpeed;
-    private double m_errorTolerance;
-    private double m_gearRatio;
-    private final VelocityVoltage m_velocityRequest = new VelocityVoltage(0);
     private double nanoTimeLastChecked = 0.0;
     private final Current jamCurrentThreshold;
     private final Time jamTimeout;
@@ -35,15 +28,13 @@ public class FlickerIOTalonFXS implements FlickerIO
     public FlickerIOTalonFXS(FlickerParameters parameters)
     {
         m_rampSpeed = parameters.rampSpeed();
-        m_gearRatio = parameters.gearRatio();
-        m_errorTolerance = parameters.errorTolerance();
         m_motor = new TalonFXS(parameters.motorId());
         jamCurrentThreshold = parameters.jamCurrentThreshold();
         jamTimeout = parameters.jamTimeout();
         m_motor.getConfigurator()
                 .apply(new CommutationConfigs().withMotorArrangement(MotorArrangementValue.Minion_JST));
         m_motor.getConfigurator().apply(
-                new CurrentLimitsConfigs().withStatorCurrentLimit(Amps.of(60.0)).withStatorCurrentLimitEnable(true));
+                new CurrentLimitsConfigs().withStatorCurrentLimit(Amps.of(40.0)).withStatorCurrentLimitEnable(true));
         m_motor.getConfigurator().apply(new MotorOutputConfigs().withNeutralMode(NeutralModeValue.Brake)
                 .withInverted(InvertedValue.Clockwise_Positive));
         dejamSpeed = parameters.dejamSpeed();

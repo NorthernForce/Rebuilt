@@ -3,13 +3,11 @@ package frc.robot.lobby.subsystems.turret.shooter;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 import static edu.wpi.first.units.Units.Volts;
 
-import com.ctre.phoenix6.SignalLogger;
 import com.ctre.phoenix6.controls.VoltageOut;
 
 import dev.doglog.DogLog;
 import edu.wpi.first.networktables.DoubleSubscriber;
 import edu.wpi.first.units.measure.AngularVelocity;
-import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
@@ -34,7 +32,7 @@ public class Shooter extends SubsystemBase
             setTargetDutyCycle(newDutyCycle);
         });
         m_sysId = new SysIdRoutine(new SysIdRoutine.Config(null, // Use default ramp rate (1 V/s)
-                Volts.of(4), // Reduce dynamic step voltage to 4 V
+                Volts.of(7), // Reduce dynamic step voltage to 4 V
                 null, // Use default timeout (10 s)
                 state -> DogLog.log("Shooter_SysId_State", state.toString()) // Log state with SignalLogger class
         ), new SysIdRoutine.Mechanism(output -> io.setMotorControl(new VoltageOut(output)), // Apply voltage

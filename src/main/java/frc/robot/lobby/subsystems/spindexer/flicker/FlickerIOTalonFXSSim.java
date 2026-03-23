@@ -14,7 +14,6 @@ import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.system.plant.LinearSystemId;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Time;
-import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.simulation.FlywheelSim;
 
@@ -22,8 +21,6 @@ public class FlickerIOTalonFXSSim implements FlickerIO
 {
     private double m_gearRatio;
     private double m_rampSpeed;
-    private double m_errorTolerance;
-    private double m_simMaxRpm;
     private TalonFXS m_motorController;
 
     private TalonFXSSimState m_simState;
@@ -39,7 +36,6 @@ public class FlickerIOTalonFXSSim implements FlickerIO
     public FlickerIOTalonFXSSim(FlickerSimParameters parameters)
     {
         m_rampSpeed = parameters.rampSpeed();
-        m_errorTolerance = parameters.errorTolerance();
         m_gearRatio = parameters.gearRatio();
         m_motorController = new TalonFXS(parameters.motorId());
         jamCurrentThreshold = parameters.jamCurrentThreshold();
@@ -58,7 +54,6 @@ public class FlickerIOTalonFXSSim implements FlickerIO
         m_flywheelSim = new FlywheelSim(systemId, minionMotor);
 
         m_simState = m_motorController.getSimState();
-        m_simMaxRpm = parameters.simMaxRpm();
         dejamSpeed = parameters.dejamSpeed();
 
     }

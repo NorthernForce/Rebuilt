@@ -2,23 +2,23 @@ package frc.robot.lobby.subsystems.turret.shooter;
 
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 
-import java.io.ObjectInputFilter.Status;
 import java.util.function.Supplier;
 
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.MotorOutputConfigs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.ControlRequest;
+import com.ctre.phoenix6.controls.Follower;
 import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
+import com.ctre.phoenix6.signals.MotorAlignmentValue;
 
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Temperature;
 import edu.wpi.first.units.measure.Voltage;
-import edu.wpi.first.wpilibj.PowerDistribution;
 import frc.robot.util.TunablePID;
 
 public class ShooterIOTalonFX implements ShooterIO
@@ -82,9 +82,7 @@ public class ShooterIOTalonFX implements ShooterIO
 
         m_motor1.getConfigurator().apply(new MotorOutputConfigs().withInverted(
                 kMotor1Inverted ? InvertedValue.CounterClockwise_Positive : InvertedValue.Clockwise_Positive));
-        m_motor2.getConfigurator().apply(new MotorOutputConfigs().withInverted(
-                kMotor2Inverted ? InvertedValue.CounterClockwise_Positive : InvertedValue.Clockwise_Positive));
-
+        m_motor2.setControl(new Follower(kMotor1ID, MotorAlignmentValue.Opposed));
         m_position = m_motor1.getPosition();
         m_temperature = m_motor1.getDeviceTemp();
         m_voltage = m_motor1.getMotorVoltage();

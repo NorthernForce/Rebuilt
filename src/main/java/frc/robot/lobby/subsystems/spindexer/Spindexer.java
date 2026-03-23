@@ -1,7 +1,6 @@
 package frc.robot.lobby.subsystems.spindexer;
 
 import edu.wpi.first.units.measure.Time;
-import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;

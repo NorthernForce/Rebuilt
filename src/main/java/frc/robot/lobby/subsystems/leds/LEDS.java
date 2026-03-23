@@ -23,7 +23,6 @@ public class LEDS extends SubsystemBase
     private CANdle candle;
     private CANdleConfiguration config;
     private int length;
-    private double brightness = 0.5;
     private final RGBWColor offColor = new RGBWColor(0, 0, 0, 0);
 
     public static enum AnimationType
@@ -61,7 +60,6 @@ public class LEDS extends SubsystemBase
     {
         if (brightness >= 0.0 && brightness <= 1.0)
         {
-            this.brightness = brightness;
             config.LED.BrightnessScalar = brightness;
             candle.getConfigurator().apply(config);
         }

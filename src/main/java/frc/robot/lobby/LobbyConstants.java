@@ -8,6 +8,7 @@ import static edu.wpi.first.units.Units.Inches;
 import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.MetersPerSecond;
 import static edu.wpi.first.units.Units.MetersPerSecondPerSecond;
+import static edu.wpi.first.units.Units.Radians;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static edu.wpi.first.units.Units.RadiansPerSecondPerSecond;
 import static edu.wpi.first.units.Units.Rotations;
@@ -56,6 +57,18 @@ public class LobbyConstants
     {
         public static final int kPDHPort = 40;
         public static final ModuleType kModuleType = ModuleType.kRev;
+    }
+
+    public class PhysicsConstants
+    {
+        public static final double G = 9.8;
+        public static final double RHO = 1.225;
+        public static final double CD = 0.47;
+        public static final double A = 0.0177;
+        public static final double M = 0.2268;
+        public static final double K = (RHO * CD * A) / (2.0 * M);
+        public static final double DT = 0.01;
+
     }
 
     public class DrivetrainConstants
@@ -122,6 +135,9 @@ public class LobbyConstants
         public static final Transform3d kFrontCameraTransform = new Transform3d(
                 new Translation3d(Meters.of(-0.314), Meters.of(0.227), Meters.of(0.210)),
                 new Rotation3d(Degrees.of(180), Degrees.of(30), Degrees.of(-15)));
+        public static final Transform3d kBackCameraTransform = new Transform3d(
+                new Translation3d(Inches.of(-9.840), Inches.of(-12.586), Inches.of(10.245)),
+                new Rotation3d(Degrees.of(-90), Degrees.of(0), Degrees.of(180)));
     }
 
     public class VisionConstants
@@ -132,6 +148,7 @@ public class LobbyConstants
         {
             public static final String kLeftLimeLightName = "limelight-left";
             public static final String kFrontLimeLightName = "limelight-front";
+            public static final String kBackLimeLightName = "limelight-back";
             public static final int[] kValidIds =
             { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29,
                     30, 31 };
@@ -149,20 +166,24 @@ public class LobbyConstants
     public class Turret
     {
         public static Pose2d offset = new Pose2d(new Translation2d(Inches.of(-6.264), Inches.of(6.300)),
-                new Rotation2d(Degrees.of(45)));
+                new Rotation2d(Degrees.of(50)));
+        public static Angle offsetAngle = Radians
+                .of(Math.atan2(offset.getMeasureX().in(Meters), offset.getMeasureY().in(Meters)));
+        public static Distance offsetDistance = Meters.of(offset.getTranslation().getDistance(Translation2d.kZero));
 
         public class Suzie
         {
             private static int kMotorID = 19;
             private static int kDrivingEncoderID = 9;
             private static int kSensingEncoderID = 8;
-            private static double kS = 0.07483;
-            private static double kV = 11.819;
-            private static double kA = 0.26826;
-            private static double kP = 100;
+            private static double kS = 0.23196;
+            private static double kV = 4.0594;
+            private static double kA = 1.0709;
+            private static double kP = 38.746;
             private static double kI = 0;
-            private static double kD = 0;
+            private static double kD = 6.8457;
             private static double kG = 0;
+
             private static double kCruiseVelocity = 0;
             private static double kAcceleration = 160;
             private static double kJerk = 1600;
@@ -171,12 +192,11 @@ public class LobbyConstants
             private static int kDrivingGearTeeth = 24;
             private static int kSensingGearTeeth = 25;
             private static int kTurntableGearTeeth = 120;
-            private static double kRotorToTurntableRatio = 10.0 * 5.0 * (double) kTurntableGearTeeth
-                    / kDrivingGearTeeth;
+            private static double kRotorToTurntableRatio = 10.0 * (double) kTurntableGearTeeth / kDrivingGearTeeth;
             private static boolean kInverted = false;
             private static Angle kLowerSoftLimit = Degrees.of(-180);
             private static Angle kUpperSoftLimit = Degrees.of(180);
-            private static Angle kErrorTolerance = Degrees.of(5);
+            private static Angle kErrorTolerance = Degrees.of(2);
             private static MotorArrangementValue kMotorArrangement = MotorArrangementValue.Minion_JST;
 
             public static SuzieConstants kMinionConstants = new SuzieConstants(kMotorID, kDrivingEncoderID,
@@ -232,9 +252,10 @@ public class LobbyConstants
         {
             private static int kMotor1ID = 20;
             private static int kMotor2ID = 21;
-            private static double kS = 0;
-            private static double kV = 0.115;
-            private static double kA = 0;
+            private static double kS = 0.25719;
+            private static double kV = 0.118;
+            private static double kA = 0.0037127;
+            private static double kSimA = 0.0037127;
             private static double kP = 0;
             private static double kI = 0;
             private static double kD = 0;
@@ -244,10 +265,13 @@ public class LobbyConstants
             private static double kJerk = 0;
             private static boolean kMotor1Inverted = false;
             private static boolean kMotor2Inverted = true;
-            private static AngularVelocity kErrorTolerance = RotationsPerSecond.of(10);
+            private static AngularVelocity kErrorTolerance = RotationsPerSecond.of(2);
 
             public static ShooterConstants kKrakenConstants = new ShooterConstants(kMotor1ID, kMotor2ID, kS, kV, kA, kP,
                     kI, kD, kG, kCruiseVelocity, kAcceleration, kJerk, kMotor1Inverted, kMotor2Inverted,
+                    kErrorTolerance);
+            public static ShooterConstants kKrakenSimConstants = new ShooterConstants(kMotor1ID, kMotor2ID, kS, kV,
+                    kSimA, kP, kI, kD, kG, kCruiseVelocity, kAcceleration, kJerk, kMotor1Inverted, kMotor2Inverted,
                     kErrorTolerance);
         }
     }
@@ -323,7 +347,7 @@ public class LobbyConstants
 
         // TODO: check ALL values
         public static final int kMotorId = 18;
-        public static final double kRampSpeed = 1.0;
+        public static final double kRampSpeed = 0.85;
         public static final boolean kMotorInverted = false;
         public static final double kGearRatio = 5.0;
 
@@ -345,10 +369,11 @@ public class LobbyConstants
         public static final int kRollerMotorId = 17;
         public static final int kAngleMotorId = 16;
         public static final int kAngleEncoderId = 22;
-        public static final double kDriverIntakeSpeed = 0.65;
-        public static final double kDriverPurgeSpeed = 1.0;
+        public static final double kDriverIntakeSpeed = 0.75;
+        public static final double kDriverPurgeSpeed = 0.75;
         public static final Angle kDownAngle = Rotations.of(0.005);
         public static final Angle kMiddleAngle = Rotations.of(0.122);
+        public static final Angle kPumpAngle = Rotations.of(0.275);
         public static final Angle kStowedAngle = Rotations.of(0.35);
         public static final double kP = 23.745;
         public static final double kI = 0;
@@ -360,25 +385,25 @@ public class LobbyConstants
         public static final double kAcceleration = 4;
         public static final double kCruiseVelocity = 1;
         public static final double kForwardSoftLimit = 0.4;
-        public static final double kReverstSoftLimit = 0.005;
-        public static final Current kCurrentLimit = Amps.of(60);
+        public static final double kReverseSoftLimit = 0.005;
+        public static final Current kCurrentLimit = Amps.of(40);
         public static final Angle kAngleTolerance = Degrees.of(5);
 
         public static final IntakeIOParameters kIOParameters = new IntakeIOParameters(kRollerMotorId, kAngleMotorId,
                 kAngleEncoderId, kP, kI, kD, kS, kV, kA, kG, kAcceleration, kCruiseVelocity, kForwardSoftLimit,
-                kReverstSoftLimit, kCurrentLimit);
-        public static final IntakeParameters kParameters = new IntakeParameters(kDownAngle, kMiddleAngle, kStowedAngle,
-                kDriverIntakeSpeed, kDriverPurgeSpeed, kAngleTolerance);
+                kReverseSoftLimit, kCurrentLimit);
+        public static final IntakeParameters kParameters = new IntakeParameters(kDownAngle, kMiddleAngle, kPumpAngle,
+                kStowedAngle, kDriverIntakeSpeed, kDriverPurgeSpeed, kAngleTolerance);
     }
 
     public class CarouselConstants
     {
-        public static final Current kJamCurrentThreshold = Amps.of(10);
+        public static final Current kJamCurrentThreshold = Amps.of(30);
         public static final Time kJamTimeout = Seconds.of(0.5);
         public static final double kDejamSpeed = 0.2;
 
         public static final int kMotorID = 15;
-        public static final double kSpeed = 0.5;
+        public static final double kSpeed = 0.75;
         public static final boolean kInverted = false;
         public static final double kGearRatio = 10.0;
 
@@ -393,8 +418,9 @@ public class LobbyConstants
 
     public class SpindexerConstants
     {
-        public static final Time kDeJamTimeout = Seconds.of(1);
+        public static final Time kDeJamTimeout = Seconds.of(0.5);
         public static final Time kDeJamTime = Seconds.of(0.3);
+        public static final Time kPostDeJamTime = Seconds.of(1);
     }
 
     public class TalonFXConstants
