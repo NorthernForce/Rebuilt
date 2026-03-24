@@ -166,7 +166,7 @@ public class LobbyConstants
     public class Turret
     {
         public static Pose2d offset = new Pose2d(new Translation2d(Inches.of(-6.264), Inches.of(6.300)),
-                new Rotation2d(Degrees.of(50)));
+                new Rotation2d(Degrees.of(0)));
         public static Angle offsetAngle = Radians
                 .of(Math.atan2(offset.getMeasureX().in(Meters), offset.getMeasureY().in(Meters)));
         public static Distance offsetDistance = Meters.of(offset.getTranslation().getDistance(Translation2d.kZero));
@@ -207,7 +207,7 @@ public class LobbyConstants
 
         public class Hood
         {
-            private static Distance kDangerZone = Feet.of(10);
+            public static Distance kDangerZone = Feet.of(5);
             private static int kMotorID = 11;
             private static int kEncoderID = 2;
             private static double kS = 0;
@@ -228,7 +228,7 @@ public class LobbyConstants
             private static MotorArrangementValue kMotorArrangement = MotorArrangementValue.Minion_JST;
 
             // Create list of all 4 trench positions
-            private static List<Translation2d> kAllTrenchPositions = List.of(FieldConstants.kBlueTrench1,
+            public static List<Translation2d> kAllTrenchPositions = List.of(FieldConstants.kBlueTrench1,
                     FieldConstants.kBlueTrench2, FieldConstants.kRedTrench1, FieldConstants.kRedTrench2);
 
             // servo constants
@@ -373,7 +373,7 @@ public class LobbyConstants
         public static final double kDriverPurgeSpeed = 0.75;
         public static final Angle kDownAngle = Rotations.of(0.005);
         public static final Angle kMiddleAngle = Rotations.of(0.122);
-        public static final Angle kPumpAngle = Rotations.of(0.275);
+        public static final Angle kPumpAngle = Rotations.of(0.225);
         public static final Angle kStowedAngle = Rotations.of(0.35);
         public static final double kP = 23.745;
         public static final double kI = 0;

@@ -15,6 +15,7 @@ import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.FieldConstants;
 import frc.robot.lobby.subsystems.turret.hood.Hood;
@@ -390,22 +391,11 @@ public class Turret extends SubsystemBase
     public Command runBasedOnLocation(Supplier<Pose2d> robotPose, Distance dangerZone,
             java.util.List<Translation2d> trenchPositions)
     {
-        return run(() ->
+        return Commands.run(() ->
         {
-            // Use turret/shooter position instead of robot pose
-            Translation2d turretPosition = calculateFieldRelativeShooterPosition(robotPose.get());
-            boolean inDanger = isInDangerProximity(turretPosition, dangerZone, trenchPositions);
-            DogLog.log("Turret/DefaultCommand/TurretPosition", turretPosition);
-            DogLog.log("Turret/DefaultCommand/InDanger", inDanger);
-            DogLog.log("Turret/DefaultCommand/Alliance", getAlliance().toString());
-            if (inDanger)
-            {
-                // Duck the hood when in danger zone
-                hood.setTargetAngle(Degrees.of(0));
-            }
-            // When not in danger, keep hood at current position (don't change it)
-            // Other commands like PrepTurretCommand will set the proper angle
-        });
+            hood.setTargetMechanismAngle(Degrees.of(0));
+            hood.start();
+        }, this, hood);
     }
 
     @Override

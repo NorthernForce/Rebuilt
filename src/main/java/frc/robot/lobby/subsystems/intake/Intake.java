@@ -118,8 +118,8 @@ public class Intake extends SubsystemBase
     {
         public PumpIntake()
         {
-            addCommands(getRunToIntakeAngleCommand().withTimeout(0.5)
-                    .andThen(getRunToPumpAngleCommand().withTimeout(0.5)).repeatedly(),
+            addCommands(getRunToIntakeAngleCommand().withTimeout(1.0)
+                    .andThen(getRunToPumpAngleCommand().withTimeout(1.0)).repeatedly(),
                     Commands.run(() -> io.intake(intakeSpeed)));
         }
     }

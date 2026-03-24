@@ -1,10 +1,13 @@
 package frc.robot.lobby;
 
+import static edu.wpi.first.units.Units.Meters;
+
 import java.util.function.DoubleSupplier;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.lobby.subsystems.spindexer.commands.RunSpindexer;
 import frc.robot.lobby.subsystems.turret.commands.PrepTurretCommand;
 import frc.robot.lobby.subsystems.turret.commands.PrepTurretStupid;
@@ -38,7 +41,8 @@ public class LobbyOI
                 inputProc(driveController::getLeftX), inputProc(driveController::getRightX)));
         intake.setDefaultCommand(intake.stopIntake().andThen(intake.getRunToIntakeAngleCommand()));
         // turret.setDefaultCommand(new AimTurretCommand(container));
-        turret.setDefaultCommand(Commands.run(() -> turret.stop(), turret));
+        turret.setDefaultCommand(turret.runBasedOnLocation(() -> drive.getPose(),
+                LobbyConstants.Turret.Hood.kDangerZone, LobbyConstants.Turret.Hood.kAllTrenchPositions));
         // spindexer.setDefaultCommand(new Agitate(spindexer));
         // turret.setDefaultCommand(container.getTurret().runBasedOnLocation(() ->
         // drive.getPose(),
@@ -108,9 +112,9 @@ public class LobbyOI
 
         // manipulatorController.a().onTrue(Commands.runOnce(() -> suzie.resetAngle()));
 
-        driveController.povLeft().whileTrue(Commands.runOnce(() -> suzie.setSpeed(0.2), suzie))
+        driveController.povLeft().whileTrue(Commands.run(() -> suzie.setSpeed(0.1), suzie))
                 .onFalse(Commands.runOnce(() -> suzie.setSpeed(0), suzie));
-        driveController.povRight().whileTrue(Commands.runOnce(() -> suzie.setSpeed(-0.2), suzie))
+        driveController.povRight().whileTrue(Commands.run(() -> suzie.setSpeed(-0.1), suzie))
                 .onFalse(Commands.runOnce(() -> suzie.setSpeed(0), suzie));
     }
 }
