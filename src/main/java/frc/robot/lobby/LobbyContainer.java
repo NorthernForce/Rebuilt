@@ -216,6 +216,8 @@ public class LobbyContainer implements NFRRobotContainer
         autoUtil.bindAuto("S1-DEPOT", new PathPlannerAuto("S1-DEPOT"));
         autoUtil.bindAuto("S2-DEPOT", new PathPlannerAuto("S2-DEPOT"));
         autoUtil.bindAuto("S1-SHOOT", new PathPlannerAuto("S1-SHOOT"));
+        autoUtil.bindAuto("S1-SHOOT-BUMP", new PathPlannerAuto("S1-SHOOT-BUMP"));
+
         autoUtil.bindAuto("S3-SHOOT", new PathPlannerAuto("S3-SHOOT"));
         autoUtil.bindAuto("S1-SHOOT-DEPOT", new PathPlannerAuto("S1-SHOOT-DEPOT"));
         autoUtil.bindAuto("S1-SIMPLE", new SimpleAuto(this, new PathPlannerAuto("S1-SHOOT").getStartingPose()));
