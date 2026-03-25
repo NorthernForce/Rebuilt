@@ -40,6 +40,7 @@ import edu.wpi.first.units.measure.LinearAcceleration;
 import edu.wpi.first.units.measure.LinearVelocity;
 import edu.wpi.first.units.measure.Temperature;
 import edu.wpi.first.units.measure.Time;
+import edu.wpi.first.units.measure.Velocity;
 import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj.PowerDistribution.ModuleType;
 import frc.robot.FieldConstants;
@@ -230,6 +231,11 @@ public class LobbyConstants
             // Create list of all 4 trench positions
             private static List<Translation2d> kAllTrenchPositions = List.of(FieldConstants.kBlueTrench1,
                     FieldConstants.kBlueTrench2, FieldConstants.kRedTrench1, FieldConstants.kRedTrench2);
+
+            // Hood constants for trench auto lower
+            public static final Angle kTrenchDetectAngle = Degrees.of(90);
+            public static final Distance kTrenchDetectDistance = Meters.of(1.5);
+            public static final LinearVelocity kTrenchDetectionSpeed = MetersPerSecond.of(0.5);
 
             // servo constants
             private static int kServoID = 9;

@@ -1,10 +1,13 @@
 package frc.robot.lobby;
 
+import java.util.function.BooleanSupplier;
 import java.util.function.DoubleSupplier;
 
 import edu.wpi.first.math.MathUtil;
+import static edu.wpi.first.units.Units.Degrees;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.lobby.subsystems.spindexer.commands.RunSpindexer;
 import frc.robot.lobby.subsystems.turret.commands.PrepTurretCommand;
 import frc.robot.lobby.subsystems.turret.commands.PrepTurretStupid;
@@ -106,11 +109,24 @@ public class LobbyOI
         // manipulatorController.leftBumper().whileTrue(new
         // PrepTurretWithValues(turret));
 
-        // manipulatorController.a().onTrue(Commands.runOnce(() -> suzie.resetAngle()));
-
         driveController.povLeft().whileTrue(Commands.runOnce(() -> suzie.setSpeed(0.2), suzie))
                 .onFalse(Commands.runOnce(() -> suzie.setSpeed(0), suzie));
         driveController.povRight().whileTrue(Commands.runOnce(() -> suzie.setSpeed(-0.2), suzie))
                 .onFalse(Commands.runOnce(() -> suzie.setSpeed(0), suzie));
+
+        driveController.b().onTrue(Commands.sequence(turret.getHood().setSpeed(1.0, false),
+                turret.getHood().setTargetAngle(Degrees.of(90)), Commands.runOnce(() -> turret.getHood().start()),
+                Commands.waitUntil(turret.getHood()::isAtTargetAngle)));
+
+        BooleanSupplier yIsNotDown = () -> !driveController.y().getAsBoolean();
+
+        Trigger hoodTrigger = new Trigger(() ->
+        {
+            BooleanSupplier triggerHood = container::triggerHoodRetraction;
+            return triggerHood.getAsBoolean() && yIsNotDown.getAsBoolean();
+        });
+        hoodTrigger.onTrue(Commands.sequence(turret.getHood().setTargetAngle(Degrees.of(0)),
+                turret.getHood().setSpeed(1, false), Commands.runOnce(() -> turret.getHood().start()),
+                Commands.waitUntil(turret.getHood()::isAtTargetAngle)));
     }
 }

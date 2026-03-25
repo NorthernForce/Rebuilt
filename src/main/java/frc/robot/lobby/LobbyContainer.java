@@ -1,30 +1,35 @@
 package frc.robot.lobby;
 
-import static edu.wpi.first.units.Units.DegreesPerSecond;
-import static edu.wpi.first.units.Units.Meters;
-import static edu.wpi.first.units.Units.MetersPerSecond;
-import static edu.wpi.first.units.Units.Amps;
-import static edu.wpi.first.units.Units.Degrees;
-import static edu.wpi.first.units.Units.Radians;
-import static edu.wpi.first.units.Units.RadiansPerSecond;
 import java.util.Optional;
+
 import org.northernforce.util.NFRRobotContainer;
 import org.photonvision.simulation.SimCameraProperties;
 
+import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.Utils;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 import com.pathplanner.lib.auto.NamedCommands;
 import com.pathplanner.lib.commands.PathPlannerAuto;
+
 import choreo.auto.AutoFactory;
 import choreo.auto.AutoRoutine;
-
-import com.ctre.phoenix6.StatusSignal;
 import dev.doglog.DogLog;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import static edu.wpi.first.units.Units.Amps;
+import static edu.wpi.first.units.Units.Degrees;
+import static edu.wpi.first.units.Units.DegreesPerSecond;
+import static edu.wpi.first.units.Units.Meters;
+import static edu.wpi.first.units.Units.MetersPerSecond;
+import static edu.wpi.first.units.Units.Radians;
+import static edu.wpi.first.units.Units.RadiansPerSecond;
+
+import edu.wpi.first.units.DistanceUnit;
+import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.Current;
+import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.PowerDistribution;
@@ -32,12 +37,15 @@ import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.lobby.autos.SimpleAuto;
 import frc.robot.lobby.generated.LobbyTunerConstants;
 import frc.robot.lobby.subsystems.CommandSwerveDrivetrain;
-import frc.robot.lobby.subsystems.apriltagvision.*;
+import frc.robot.lobby.subsystems.apriltagvision.AprilTagVision;
+import frc.robot.lobby.subsystems.apriltagvision.AprilTagVisionIOLimelight;
+import frc.robot.lobby.subsystems.apriltagvision.AprilTagVisionIOPhotonVisionSim;
 import frc.robot.lobby.subsystems.apriltagvision.commands.CloseDriveToPoseRequest;
 import frc.robot.lobby.subsystems.apriltagvision.commands.DriveToPoseWithVision;
 import frc.robot.lobby.subsystems.climber.Climber;
@@ -62,13 +70,13 @@ import frc.robot.lobby.subsystems.turret.Turret.TurretConstants;
 import frc.robot.lobby.subsystems.turret.commands.PrepTurretCommand;
 import frc.robot.lobby.subsystems.turret.hood.Hood;
 import frc.robot.lobby.subsystems.turret.hood.HoodIOServo;
+import frc.robot.lobby.subsystems.turret.hood.HoodIOServoSim;
 import frc.robot.lobby.subsystems.turret.shooter.Shooter;
 import frc.robot.lobby.subsystems.turret.shooter.ShooterIOTalonFX;
 import frc.robot.lobby.subsystems.turret.shooter.ShooterIOTalonFXSim;
 import frc.robot.lobby.subsystems.turret.suzie.Suzie;
 import frc.robot.lobby.subsystems.turret.suzie.SuzieIOTalonFXS;
 import frc.robot.lobby.subsystems.turret.suzie.SuzieIOTalonFXSSim;
-import frc.robot.lobby.subsystems.turret.hood.HoodIOServoSim;
 import frc.robot.util.AutoUtil;
 import frc.robot.util.InterpolatedTargetingCalculator;
 import frc.robot.util.TrigHoodTargetingCalculator;
@@ -415,6 +423,7 @@ public class LobbyContainer implements NFRRobotContainer
         DogLog.log("CurrentDraw/DriveTrain/BackLeft/Steer", blSteerCurrent.getValue().in(Amps));
         DogLog.log("CurrentDraw/DriveTrain/BackRight/Drive", brDriveCurrent.getValue().in(Amps));
         DogLog.log("CurrentDraw/DriveTrain/BackRight/Steer", brSteerCurrent.getValue().in(Amps));
+
     }
 
     @Override
@@ -495,5 +504,56 @@ public class LobbyContainer implements NFRRobotContainer
     public void resetOdometry(Pose2d pose)
     {
         drive.resetPose(pose);
+    }
+
+    public Optional<Rotation2d> getMovementDirectionRobotRelative()
+    {
+        var speeds = drive.getState().Speeds;
+        double vx = speeds.vxMetersPerSecond;
+        double vy = speeds.vyMetersPerSecond;
+        double mag = Math.hypot(vx, vy);
+        if (mag < 1e-3)
+            return Optional.empty();
+        return Optional.of(new Rotation2d(Math.atan2(vy, vx)));
+    }
+
+    public Distance distanceBetweenMetersRT(Pose2d a, Translation2d b)
+    {
+        double dx = a.getMeasureX().minus(b.getMeasureX()).in(Meters);
+        double dy = a.getMeasureY().minus(b.getMeasureY()).in(Meters);
+        return Meters.of(Math.hypot(dx, dy));
+    }
+
+    public boolean pointedTowardsTrench(Translation2d trenchPosition, Rotation2d robotHeading)
+    {
+        Translation2d toTrench = trenchPosition.minus(drive.getPose().getTranslation());
+        double angleToTrench = Math.atan2(toTrench.getY(), toTrench.getX());
+        double angleDiff = Math.abs(Rotation2d.fromRadians(angleToTrench).minus(robotHeading).getRadians());
+        return angleDiff < LobbyConstants.Turret.Hood.kTrenchDetectAngle.in(Radians);
+
+    }
+
+    public boolean triggerHoodRetraction()
+    {
+        for (Translation2d t2d : turret.getHood().getTrenchPositions())
+        {
+
+            var s = drive.getState().Speeds;
+            double speed = Math.hypot(s.vxMetersPerSecond, s.vyMetersPerSecond);
+            DogLog.log("Burret/Speed", speed);
+
+            Optional<Rotation2d> movement = getMovementDirectionRobotRelative();
+            Rotation2d heading = movement.orElse(new Rotation2d());
+            if (distanceBetweenMetersRT(drive.getPose(), t2d).lte(LobbyConstants.Turret.Hood.kTrenchDetectDistance)
+                    && pointedTowardsTrench(t2d, heading)
+                    && speed > LobbyConstants.Turret.Hood.kTrenchDetectionSpeed.in(MetersPerSecond))
+            {
+                DogLog.log("Burret/trig", true);
+                return true;
+            }
+        }
+
+        DogLog.log("Burret/trig", false);
+        return false;
     }
 }
