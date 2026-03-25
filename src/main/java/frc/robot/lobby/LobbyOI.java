@@ -69,18 +69,10 @@ public class LobbyOI
 
         driveController.start().onTrue(Commands.runOnce(() -> suzie.resetCRT()));
 
-        manipulatorController.leftStick().whileTrue(intake.driveByJoystick(() -> manipulatorController.getLeftY()));
-
         driveController.rightBumper().whileTrue(new PrepTurretWithValues(turret).alongWith(Commands.waitSeconds(0.5)
                 .andThen(new RunSpindexer(container.getSpindexer(), LobbyConstants.SpindexerConstants.kDeJamTime,
                         LobbyConstants.SpindexerConstants.kPostDeJamTime, () -> turret.isAtTargetPoseStupid()))))
                 .onFalse(Commands.runOnce(() -> turret.stop()));
-
-        // driveController.rightBumper().whileTrue(Commands.waitSeconds(0.25)
-        // .andThen(new RunSpindexer(container.getSpindexer(),
-        // LobbyConstants.SpindexerConstants.kDeJamTime,
-        // LobbyConstants.SpindexerConstants.kPostDeJamTime))
-        // .alongWith(new PrepTurretStupid(container)));
 
         manipulatorController.leftTrigger().whileTrue(intake.intakeMoving()).onFalse(intake.stopIntake());
         manipulatorController.rightTrigger().whileTrue(Commands.waitSeconds(0.25)
@@ -89,28 +81,10 @@ public class LobbyOI
                 .alongWith(new PrepTurretStupid(container, () -> container.getTurret()
                         .calculateFieldRelativeShooterPosition(container.getDrive().getPose()))));
 
-        // manipulatorController.b().onTrue(Commands.runOnce(() ->
-        // {
-        // DogLog.log("Turret/csvValue",
-        // turret.getHoodTargetingCalculator().getValueForDistance(5.0));
-        // }));
-
-        // driveController.leftTrigger().whileTrue(new
-        // PrepTurretWithValues(container.getTurret()));
         driveController.povUp().whileTrue(container.getClimber().runUp())
                 .onFalse(Commands.runOnce(() -> container.getClimber().stopMotor(), container.getClimber()));
-        // Temporary test: hold D-pad down to command elevator up, release to home
         driveController.povDown().whileTrue(container.getClimber().runDown())
                 .onFalse(Commands.runOnce(() -> container.getClimber().stopMotor(), container.getClimber()));
-        // manipulatorController.leftTrigger().whileTrue(intake.getRunToIntakeAngleCommand());
-        // intake.setDefaultCommand(intake.getRunToStowAngleCommand());
-
-        // manipulatorController.rightTrigger().whileTrue(new
-        // RunSpindexer(container.getSpindexer()));
-        // manipulatorController.leftBumper().whileTrue(new
-        // PrepTurretWithValues(turret));
-
-        // manipulatorController.a().onTrue(Commands.runOnce(() -> suzie.resetAngle()));
 
         driveController.povLeft().whileTrue(Commands.run(() -> suzie.setSpeed(0.1), suzie))
                 .onFalse(Commands.runOnce(() -> suzie.setSpeed(0), suzie));
