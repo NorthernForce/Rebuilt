@@ -25,7 +25,7 @@
       },
       "nextControl": {
         "x": 7.042893218813454,
-        "y": 0.5428932188134513
+        "y": 0.5428932188134512
       },
       "isLocked": false,
       "linkedName": "NZR"
@@ -55,7 +55,7 @@
   "eventMarkers": [],
   "globalConstraints": {
     "maxVelocity": 4.0,
-    "maxAcceleration": 6.0,
+    "maxAcceleration": 4.0,
     "maxAngularVelocity": 600.0,
     "maxAngularAcceleration": 720.0,
     "nominalVoltage": 12.0,

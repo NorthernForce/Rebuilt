@@ -265,7 +265,7 @@ public class LobbyConstants
             private static double kJerk = 0;
             private static boolean kMotor1Inverted = false;
             private static boolean kMotor2Inverted = true;
-            private static AngularVelocity kErrorTolerance = RotationsPerSecond.of(2);
+            private static AngularVelocity kErrorTolerance = RotationsPerSecond.of(4);
 
             public static ShooterConstants kKrakenConstants = new ShooterConstants(kMotor1ID, kMotor2ID, kS, kV, kA, kP,
                     kI, kD, kG, kCruiseVelocity, kAcceleration, kJerk, kMotor1Inverted, kMotor2Inverted,
@@ -369,9 +369,9 @@ public class LobbyConstants
         public static final int kRollerMotorId = 17;
         public static final int kAngleMotorId = 16;
         public static final int kAngleEncoderId = 22;
-        public static final double kDriverIntakeSpeed = 0.75;
+        public static final double kDriverIntakeSpeed = 1.0;
         public static final double kDriverPurgeSpeed = 0.75;
-        public static final Angle kDownAngle = Rotations.of(0.005);
+        public static final Angle kDownAngle = Rotations.of(0.015);
         public static final Angle kMiddleAngle = Rotations.of(0.122);
         public static final Angle kPumpAngle = Rotations.of(0.225);
         public static final Angle kStowedAngle = Rotations.of(0.35);

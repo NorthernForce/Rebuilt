@@ -143,4 +143,9 @@ public class Suzie extends SubsystemBase
     {
         return io.getCurrent();
     }
+
+    public void setBrakeMode(boolean brake)
+    {
+        io.setBrakeMode(brake);
+    }
 }

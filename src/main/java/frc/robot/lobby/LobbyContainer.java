@@ -260,12 +260,15 @@ public class LobbyContainer implements NFRRobotContainer
             turret.getSuzie().resetEncoders();
         }));
         DashboardSystem turntableSystem = dashboard.putSystem("Turntable");
-        turntableSystem.withCommand("Turntable SysId Quasistatic Forward",
-                turret.getSuzie().getSysIdQuasistaticForward());
-        turntableSystem.withCommand("Turntable SysId Quasistatic Reverse",
-                turret.getSuzie().getSysIdQuasistaticReverse());
-        turntableSystem.withCommand("Turntable SysId Dynamic Forward", turret.getSuzie().getSysIdDynamicForward());
-        turntableSystem.withCommand("Turntable SysId Dynamic Reverse", turret.getSuzie().getSysIdDynamicReverse());
+        turntableSystem
+                .withCommand("Turntable SysId Quasistatic Forward", turret.getSuzie().getSysIdQuasistaticForward())
+                .withCommand("Turntable SysId Quasistatic Reverse", turret.getSuzie().getSysIdQuasistaticReverse())
+                .withCommand("Turntable SysId Dynamic Forward", turret.getSuzie().getSysIdDynamicForward())
+                .withCommand("Turntable SysId Dynamic Reverse", turret.getSuzie().getSysIdDynamicReverse())
+                .withBooleanTunable("Turntable Brake Mode", (brake) ->
+                {
+                    turret.getSuzie().setBrakeMode(brake);
+                });
     }
 
     /**

@@ -6,6 +6,7 @@ import static edu.wpi.first.units.Units.Rotations;
 import java.util.function.Supplier;
 
 import com.ctre.phoenix6.StatusSignal;
+import com.ctre.phoenix6.configs.MotorOutputConfigs;
 import com.ctre.phoenix6.configs.SoftwareLimitSwitchConfigs;
 import com.ctre.phoenix6.configs.TalonFXSConfiguration;
 import com.ctre.phoenix6.controls.ControlRequest;
@@ -286,5 +287,14 @@ public class SuzieIOTalonFXS implements SuzieIO
     public Angle getSensingEncoderAngle()
     {
         return Rotations.of(m_sensingEncoder.get());
+    }
+
+    @Override
+    public void setBrakeMode(boolean brake)
+    {
+        m_motor.getConfigurator()
+                .apply(new MotorOutputConfigs().withNeutralMode(brake ? NeutralModeValue.Brake : NeutralModeValue.Coast)
+                        .withInverted(constants.kInverted() ? InvertedValue.Clockwise_Positive
+                                : InvertedValue.CounterClockwise_Positive));
     }
 }
