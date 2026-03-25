@@ -114,9 +114,11 @@ public class LobbyOI
         driveController.povRight().whileTrue(Commands.runOnce(() -> suzie.setSpeed(-0.2), suzie))
                 .onFalse(Commands.runOnce(() -> suzie.setSpeed(0), suzie));
 
-        driveController.b().onTrue(Commands.sequence(turret.getHood().setSpeed(1.0, false),
-                turret.getHood().setTargetAngle(Degrees.of(90)), Commands.runOnce(() -> turret.getHood().start()),
-                Commands.waitUntil(turret.getHood()::isAtTargetAngle)));
+        // driveController.b().onTrue(Commands.sequence(turret.getHood().setSpeed(1.0,
+        // false),
+        // turret.getHood().setTargetAngle(Degrees.of(90)), Commands.runOnce(() ->
+        // turret.getHood().start()),
+        // Commands.waitUntil(turret.getHood()::isAtTargetAngle)));
 
         BooleanSupplier yIsNotDown = () -> !driveController.y().getAsBoolean();
 
