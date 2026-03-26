@@ -1,14 +1,12 @@
 package frc.robot.lobby.subsystems.climber;
 
-import static edu.wpi.first.units.Units.Rotations;
-
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
+import com.ctre.phoenix6.signals.NeutralModeValue;
 
 import dev.doglog.DogLog;
 import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 
@@ -16,60 +14,39 @@ public class ClimberIOTalonFX implements ClimberIO
 {
     private final int motorID;
     private final TalonFX motor;
-    private final Angle tolerance;
 
     private final Pose2d upperRedClimbPosition;
     private final Pose2d lowerRedClimbPosition;
     private final Pose2d upperBlueClimbPosition;
     private final Pose2d lowerBlueClimbPosition;
     private final double power;
-    private final Angle topRotations;
-    private final Angle bottomRotations;
 
     public ClimberIOTalonFX(ClimberParameters params)
     {
         motorID = params.motorID();
         motor = new TalonFX(motorID);
         TalonFXConfiguration config = new TalonFXConfiguration();
-        config.SoftwareLimitSwitch.ForwardSoftLimitThreshold = params.topSoftRotations().in(Rotations);
-        config.SoftwareLimitSwitch.ForwardSoftLimitEnable = true;
-        config.SoftwareLimitSwitch.ReverseSoftLimitThreshold = params.startRotations().in(Rotations);
-        config.SoftwareLimitSwitch.ReverseSoftLimitEnable = true;
         config.MotorOutput.Inverted = params.inverted() ? InvertedValue.Clockwise_Positive
                 : InvertedValue.CounterClockwise_Positive;
+        config.MotorOutput.NeutralMode = NeutralModeValue.Brake;
         motor.getConfigurator().apply(config);
         upperRedClimbPosition = params.upperRedPrepPose();
         lowerRedClimbPosition = params.lowerRedPrepPose();
         upperBlueClimbPosition = params.upperBluePrepPose();
         lowerBlueClimbPosition = params.lowerBluePrepPose();
         power = params.dutyCyclePower();
-        tolerance = params.tolerance();
-        topRotations = params.topSoftRotations();
-        bottomRotations = params.bottomSoftRotations();
     }
 
     @Override
     public void runUp()
     {
-        motor.set(power);
+        motor.set(1.0);
     }
 
     @Override
     public void homeDown()
     {
         motor.set(-power);
-    }
-
-    @Override
-    public boolean atTop()
-    {
-        return Rotations.of(getRotations()).isNear(topRotations, tolerance);
-    }
-
-    @Override
-    public boolean atBottom()
-    {
-        return Rotations.of(getRotations()).isNear(bottomRotations, tolerance);
     }
 
     @Override

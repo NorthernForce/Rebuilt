@@ -43,6 +43,7 @@ import frc.robot.lobby.subsystems.apriltagvision.commands.DriveToPoseWithVision;
 import frc.robot.lobby.subsystems.climber.Climber;
 import frc.robot.lobby.subsystems.climber.ClimberIOTalonFX;
 import frc.robot.lobby.subsystems.climber.ClimberIOTalonFXSim;
+import frc.robot.lobby.subsystems.climber.sensor.SensorIOLimitSwitch;
 import frc.robot.lobby.subsystems.intake.Intake;
 import frc.robot.lobby.subsystems.intake.IntakeIOTalonFX;
 import frc.robot.lobby.subsystems.nfrdashboard.Dashboard;
@@ -118,7 +119,8 @@ public class LobbyContainer implements NFRRobotContainer
         drive.setVisionMeasurementStdDevs(LobbyConstants.VisionConstants.kStdDevs);
         if (Utils.isSimulation())
         {
-            climber = new Climber(new ClimberIOTalonFXSim(LobbyConstants.ClimberConstants.kClimberParameters));
+            climber = new Climber(new ClimberIOTalonFXSim(LobbyConstants.ClimberConstants.kClimberParameters),
+                    new SensorIOLimitSwitch(LobbyConstants.ClimberConstants.kSensorID, true));
 
             // TODO: get camera json config for sim
             vision = new AprilTagVision(drive,
@@ -149,7 +151,8 @@ public class LobbyContainer implements NFRRobotContainer
                     new SpindexerParameters(LobbyConstants.SpindexerConstants.kDeJamTimeout));
         } else
         {
-            climber = new Climber(new ClimberIOTalonFX(LobbyConstants.ClimberConstants.kClimberParameters));
+            climber = new Climber(new ClimberIOTalonFX(LobbyConstants.ClimberConstants.kClimberParameters),
+                    new SensorIOLimitSwitch(LobbyConstants.ClimberConstants.kSensorID, true));
 
             vision = new AprilTagVision(drive,
                     new AprilTagVisionIOLimelight(LobbyConstants.VisionConstants.LimeLightConstants.kLeftLimeLightName,

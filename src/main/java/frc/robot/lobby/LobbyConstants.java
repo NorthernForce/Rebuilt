@@ -282,7 +282,7 @@ public class LobbyConstants
         public static final double kPulleyRatio = 2.0;
         public static final double gearRatio = kGearBoxRatio * kPulleyRatio;
         public static final int kMotorID = 14;
-        public static final int kSensorID = 2;
+        public static final int kSensorID = 0;
         public static final double slowSpeed = 1;
         public static final Distance maxHeight = Inches.of(20.5);
         public static final double kP = 20;
@@ -295,7 +295,7 @@ public class LobbyConstants
         public static final double kStartRotations = 0;
         public static final double kTolerance = 5;
         public static final double kDutyCyclePower = 0.4;
-        public static final boolean kInverted = false;
+        public static final boolean kInverted = true;
 
         public static final int servoID = 9;
 
@@ -369,9 +369,9 @@ public class LobbyConstants
         public static final int kRollerMotorId = 17;
         public static final int kAngleMotorId = 16;
         public static final int kAngleEncoderId = 22;
-        public static final double kDriverIntakeSpeed = 1.0;
+        public static final double kDriverIntakeSpeed = 0.85;
         public static final double kDriverPurgeSpeed = 0.75;
-        public static final Angle kDownAngle = Rotations.of(0.015);
+        public static final Angle kDownAngle = Rotations.of(0.01);
         public static final Angle kMiddleAngle = Rotations.of(0.122);
         public static final Angle kPumpAngle = Rotations.of(0.225);
         public static final Angle kStowedAngle = Rotations.of(0.35);
@@ -386,12 +386,13 @@ public class LobbyConstants
         public static final double kCruiseVelocity = 1;
         public static final double kForwardSoftLimit = 0.4;
         public static final double kReverseSoftLimit = 0.005;
-        public static final Current kCurrentLimit = Amps.of(40);
+        public static final Current kHingeCurrentLimit = Amps.of(30);
+        public static final Current kRollerCurrentLimit = Amps.of(40);
         public static final Angle kAngleTolerance = Degrees.of(5);
 
         public static final IntakeIOParameters kIOParameters = new IntakeIOParameters(kRollerMotorId, kAngleMotorId,
                 kAngleEncoderId, kP, kI, kD, kS, kV, kA, kG, kAcceleration, kCruiseVelocity, kForwardSoftLimit,
-                kReverseSoftLimit, kCurrentLimit);
+                kReverseSoftLimit, kHingeCurrentLimit, kRollerCurrentLimit);
         public static final IntakeParameters kParameters = new IntakeParameters(kDownAngle, kMiddleAngle, kPumpAngle,
                 kStowedAngle, kDriverIntakeSpeed, kDriverPurgeSpeed, kAngleTolerance);
     }

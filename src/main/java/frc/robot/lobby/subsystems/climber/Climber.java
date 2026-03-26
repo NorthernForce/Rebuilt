@@ -8,14 +8,17 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.lobby.LobbyConstants.ClimberConstants.ClimbLevels;
 import frc.robot.lobby.subsystems.climber.commands.HomeCommand;
+import frc.robot.lobby.subsystems.climber.sensor.SensorIO;
 
 public class Climber extends SubsystemBase
 {
     private final ClimberIO climber;
+    private final SensorIO sensor;
 
-    public Climber(ClimberIO climber)
+    public Climber(ClimberIO climber, SensorIO sensor)
     {
         this.climber = climber;
+        this.sensor = sensor;
     }
 
     public Command runUp()
@@ -40,12 +43,7 @@ public class Climber extends SubsystemBase
 
     public boolean isAtBottom()
     {
-        return climber.atBottom();
-    }
-
-    public boolean isAtTop()
-    {
-        return climber.atTop();
+        return sensor.atLimit();
     }
 
     public Pose2d getClosestClimbPose(Pose2d currentPose)
@@ -86,7 +84,6 @@ public class Climber extends SubsystemBase
     public void periodic()
     {
         DogLog.log("Elevator/ElevatorRotations", climber.getRotations());
-        DogLog.log("Elevator/AtTop", climber.atTop());
-        DogLog.log("Elevator/AtBottom", climber.atBottom());
+        DogLog.log("Elevator/AtBottom", sensor.atLimit());
     }
 }

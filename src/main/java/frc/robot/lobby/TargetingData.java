@@ -9,8 +9,8 @@ public class TargetingData
     public static final Map<Double, Double> HOOD_DATA = Map.ofEntries(Map.entry(1.80, 21.0), Map.entry(2.0, 21.0),
             Map.entry(2.20, 21.0), Map.entry(2.40, 21.0), Map.entry(2.60, 21.0), Map.entry(2.80, 21.0),
             Map.entry(3.00, 21.0), Map.entry(3.20, 21.0), Map.entry(3.40, 23.0), Map.entry(3.60, 25.0),
-            Map.entry(3.80, 27.0), Map.entry(4.00, 28.0), Map.entry(4.25, 30.0), Map.entry(4.44, 30.0),
-            Map.entry(4.72, 32.0), Map.entry(5.05, 34.0));
+            Map.entry(3.80, 27.0), Map.entry(4.00, 28.0), Map.entry(4.25, 31.0), Map.entry(4.44, 31.0),
+            Map.entry(4.72, 33.0), Map.entry(5.05, 35.0));
 
     public static final Map<Double, Double> SHOOTER_DATA = Map.ofEntries(Map.entry(1.80, 44.0), Map.entry(2.0, 46.0),
             Map.entry(2.20, 47.0), Map.entry(2.40, 49.0), Map.entry(2.60, 51.5), Map.entry(2.80, 53.1),

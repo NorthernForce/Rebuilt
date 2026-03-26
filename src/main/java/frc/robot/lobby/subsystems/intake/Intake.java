@@ -120,7 +120,7 @@ public class Intake extends SubsystemBase
         {
             addCommands(getRunToIntakeAngleCommand().withTimeout(1.0)
                     .andThen(getRunToPumpAngleCommand().withTimeout(1.0)).repeatedly(),
-                    Commands.run(() -> io.intake(intakeSpeed)));
+                    Commands.run(() -> io.intake(0.4)));
         }
     }
 

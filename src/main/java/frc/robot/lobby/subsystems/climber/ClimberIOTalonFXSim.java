@@ -13,7 +13,6 @@ import dev.doglog.DogLog;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.system.plant.LinearSystemId;
-import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.RobotController;
@@ -24,11 +23,8 @@ public class ClimberIOTalonFXSim implements ClimberIO
     private final TalonFX motor;
     private final TalonFXSimState simMotor;
     private final ElevatorSim elevatorSim;
-    private final Angle bottomRotations;
 
     private final double drumRadiusMeters = 0.0127;
-    private final Angle topRotations;
-    private final Angle tolerance;
     private final Pose2d upperRedClimbPosition;
     private final Pose2d lowerRedClimbPosition;
     private final Pose2d upperBlueClimbPosition;
@@ -56,14 +52,10 @@ public class ClimberIOTalonFXSim implements ClimberIO
                 LinearSystemId.createElevatorSystem(DCMotor.getKrakenX60(1), massKg, drumRadiusMeters, gearRatio),
                 DCMotor.getKrakenX60(1), 0, params.maxHeight().in(Meters), true, 0);
 
-        bottomRotations = params.bottomSoftRotations();
-
-        topRotations = params.topSoftRotations();
         upperRedClimbPosition = params.upperRedPrepPose();
         lowerRedClimbPosition = params.lowerRedPrepPose();
         upperBlueClimbPosition = params.upperBluePrepPose();
         lowerBlueClimbPosition = params.lowerBluePrepPose();
-        tolerance = params.tolerance();
         power = params.dutyCyclePower();
     }
 
@@ -101,19 +93,6 @@ public class ClimberIOTalonFXSim implements ClimberIO
     public void homeDown()
     {
         motor.set(-power);
-    }
-
-    @Override
-    public boolean atBottom()
-    {
-        return Rotations.of(getRotations()).isNear(bottomRotations, tolerance);
-    }
-
-    @Override
-    public boolean atTop()
-    {
-        return Rotations.of(getRotations()).isNear(topRotations, tolerance);
-
     }
 
     @Override

@@ -8,7 +8,7 @@ public interface IntakeIO
 {
     public record IntakeIOParameters(int rollerMotorID, int angleMotorID, int encoderID, double kP, double kI,
             double kD, double kS, double kV, double kA, double kG, double acceleration, double cruiseVelocity,
-            double forwardSoftLimit, double reverseSoftLimit, Current currentLimit) {
+            double forwardSoftLimit, double reverseSoftLimit, Current hingeCurrentLimit, Current rollerCurrentLimit) {
     }
 
     public void intake(double speed);
