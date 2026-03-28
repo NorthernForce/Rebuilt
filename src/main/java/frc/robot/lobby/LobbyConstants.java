@@ -253,7 +253,7 @@ public class LobbyConstants
             private static int kMotor1ID = 20;
             private static int kMotor2ID = 21;
             private static double kS = 0.25719;
-            private static double kV = 0.118;
+            private static double kV = 0.112;
             private static double kA = 0.0037127;
             private static double kSimA = 0.0037127;
             private static double kP = 0;
