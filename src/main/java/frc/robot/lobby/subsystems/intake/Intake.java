@@ -70,6 +70,11 @@ public class Intake extends SubsystemBase
         return run(() -> io.intake(intakeSpeed));
     }
 
+    public Command pumpIntake()
+    {
+        return getRunToIntakeAngleCommand().andThen(getRunToStowAngleCommand()).repeatedly();
+    }
+
     public class RunToAngleCommand extends Command
     {
         private final Angle angle;
