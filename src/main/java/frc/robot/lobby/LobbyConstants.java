@@ -196,7 +196,7 @@ public class LobbyConstants
             private static boolean kInverted = false;
             private static Angle kLowerSoftLimit = Degrees.of(-180);
             private static Angle kUpperSoftLimit = Degrees.of(180);
-            private static Angle kErrorTolerance = Degrees.of(2);
+            private static Angle kErrorTolerance = Degrees.of(4);
             private static MotorArrangementValue kMotorArrangement = MotorArrangementValue.Minion_JST;
 
             public static SuzieConstants kMinionConstants = new SuzieConstants(kMotorID, kDrivingEncoderID,
@@ -265,7 +265,7 @@ public class LobbyConstants
             private static double kJerk = 0;
             private static boolean kMotor1Inverted = false;
             private static boolean kMotor2Inverted = true;
-            private static AngularVelocity kErrorTolerance = RotationsPerSecond.of(4);
+            private static AngularVelocity kErrorTolerance = RotationsPerSecond.of(6);
 
             public static ShooterConstants kKrakenConstants = new ShooterConstants(kMotor1ID, kMotor2ID, kS, kV, kA, kP,
                     kI, kD, kG, kCruiseVelocity, kAcceleration, kJerk, kMotor1Inverted, kMotor2Inverted,
