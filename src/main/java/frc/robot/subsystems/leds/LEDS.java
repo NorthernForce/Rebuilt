@@ -70,49 +70,61 @@ public class LEDS extends SubsystemBase
             if (matchTime > 130)
             {
                 gameState = GameState.TRANSITION;
-                if (matchTime <= 135) {
+                if (matchTime <= 135)
+                {
                     shiftChangeSoon = true;
-                } else {
+                } else
+                {
                     shiftChangeSoon = false;
                 }
             } else if (matchTime > 105)
             {
                 gameState = GameState.ALLIANCE_SHIFT1;
-                if (matchTime <= 110) {
+                if (matchTime <= 110)
+                {
                     shiftChangeSoon = true;
-                } else {
+                } else
+                {
                     shiftChangeSoon = false;
                 }
             } else if (matchTime > 80)
             {
                 gameState = GameState.ALLIANCE_SHIFT2;
-                if (matchTime <= 85) {
+                if (matchTime <= 85)
+                {
                     shiftChangeSoon = true;
-                } else {
+                } else
+                {
                     shiftChangeSoon = false;
                 }
             } else if (matchTime > 55)
             {
                 gameState = GameState.ALLIANCE_SHIFT3;
-                if (matchTime <= 60) {
+                if (matchTime <= 60)
+                {
                     shiftChangeSoon = true;
-                } else {
+                } else
+                {
                     shiftChangeSoon = false;
                 }
             } else if (matchTime > 30)
             {
                 gameState = GameState.ALLIANCE_SHIFT4;
-                if (matchTime <= 35) {
+                if (matchTime <= 35)
+                {
                     shiftChangeSoon = true;
-                } else {
+                } else
+                {
                     shiftChangeSoon = false;
                 }
             } else
             {
                 gameState = GameState.END_GAME;
-                if (matchTime <= 5) {
+                if (matchTime <= 5)
+                {
                     shiftChangeSoon = true;
-                } else {
+                } else
+                {
                     shiftChangeSoon = false;
                 }
             }
@@ -155,16 +167,20 @@ public class LEDS extends SubsystemBase
             return;
         } else if (hubActive)
         {
-            if (shiftChangeSoon) {
+            if (shiftChangeSoon)
+            {
                 io.blinkAnimation(0, 255, 0);
-            } else {
+            } else
+            {
                 setColor(0, 255, 0);
             }
         } else
         {
-            if (shiftChangeSoon) {
+            if (shiftChangeSoon)
+            {
                 io.blinkAnimation(255, 0, 0);
-            } else {
+            } else
+            {
                 setColor(255, 0, 0);
             }
         }
