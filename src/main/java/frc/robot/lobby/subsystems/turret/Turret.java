@@ -282,6 +282,11 @@ public class Turret extends SubsystemBase
         offset = new Pose2d(offset.getTranslation(), new Rotation2d(angle));
     }
 
+    public Angle getOffsetAngle()
+    {
+        return offset.getRotation().getMeasure();
+    }
+
     /**
      * Normalize angle to be within -PI to PI
      */

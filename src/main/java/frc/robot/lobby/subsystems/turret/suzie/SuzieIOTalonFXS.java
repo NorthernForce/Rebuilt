@@ -136,6 +136,7 @@ public class SuzieIOTalonFXS implements SuzieIO
 
         TunablePID.createMotionMagic("Turret/Suzie/PID", m_motor, config);
         motorCurrent = m_motor.getSupplyCurrent();
+        m_motor.setPosition(0.0);
     }
 
     @Override

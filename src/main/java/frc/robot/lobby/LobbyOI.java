@@ -71,7 +71,7 @@ public class LobbyOI
         driveController.start().onTrue(Commands.runOnce(() -> suzie.resetCRT()));
 
         driveController.leftBumper()
-                .whileTrue(new PrepTurretWithValues(turret, RotationsPerSecond.of(55), Degrees.of(21))
+                .whileTrue(new PrepTurretWithValues(turret, RotationsPerSecond.of(100), Degrees.of(21))
                         .alongWith(Commands.waitSeconds(0.5)
                                 .andThen(new RunSpindexer(container.getSpindexer(),
                                         LobbyConstants.SpindexerConstants.kDeJamTime,
@@ -90,10 +90,10 @@ public class LobbyOI
         driveController.povDown().whileTrue(container.getClimber().runDown())
                 .onFalse(Commands.runOnce(() -> container.getClimber().stopMotor(), container.getClimber()));
 
-        driveController.povLeft().whileTrue(Commands.run(() -> suzie.setSpeed(0.1), suzie))
-                .onFalse(Commands.runOnce(() -> suzie.setSpeed(0), suzie));
-        driveController.povRight().whileTrue(Commands.run(() -> suzie.setSpeed(-0.1), suzie))
-                .onFalse(Commands.runOnce(() -> suzie.setSpeed(0), suzie));
+        driveController.povLeft().onTrue(
+                Commands.runOnce(() -> turret.setOffsetAngle(turret.getOffsetAngle().minus(Degrees.of(1))), suzie));
+        driveController.povRight().onTrue(
+                Commands.runOnce(() -> turret.setOffsetAngle(turret.getOffsetAngle().plus(Degrees.of(1))), suzie));
 
         manipulatorController.back().onTrue(drive.resetOrientation());
         manipulatorController.x()
@@ -116,12 +116,14 @@ public class LobbyOI
         manipulatorController.start().onTrue(Commands.runOnce(() -> suzie.resetCRT()));
 
         manipulatorController.leftBumper()
-                .whileTrue(new PrepTurretWithValues(turret, RotationsPerSecond.of(55), Degrees.of(21))
+                .whileTrue(new PrepTurretWithValues(turret, RotationsPerSecond.of(120), Degrees.of(21))
                         .alongWith(Commands.waitSeconds(0.5)
                                 .andThen(new RunSpindexer(container.getSpindexer(),
                                         LobbyConstants.SpindexerConstants.kDeJamTime,
-                                        LobbyConstants.SpindexerConstants.kPostDeJamTime,
-                                        () -> turret.isAtTargetPoseStupid()))))
+                                        LobbyConstants.SpindexerConstants.kPostDeJamTime, () ->
+                                        {
+                                            return true;
+                                        }))))
                 .onFalse(Commands.runOnce(() -> turret.stop()));
 
         manipulatorController.rightBumper().whileTrue((Commands
