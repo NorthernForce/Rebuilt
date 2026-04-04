@@ -18,6 +18,7 @@ import static edu.wpi.first.units.Units.Volts;
 
 import java.util.List;
 
+import com.ctre.phoenix6.signals.AnimationDirectionValue;
 import com.ctre.phoenix6.signals.MotorArrangementValue;
 import com.pathplanner.lib.config.PIDConstants;
 import com.pathplanner.lib.path.PathConstraints;
@@ -427,5 +428,13 @@ public class LobbyConstants
     public class TalonFXConstants
     {
         public static final Temperature kMaxTemperature = Celsius.of(60.0);
+    }
+
+    public class LEDConstants
+    {
+        public static final int kLength = 60;
+        public static final double kBrightness = 0.5;
+        public static final int kCANdleId = 20;
+        public static final AnimationDirectionValue kAnimationDirection = AnimationDirectionValue.Forward;
     }
 }
