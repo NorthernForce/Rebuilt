@@ -58,14 +58,14 @@ public class IntakeIOTalonFX implements IntakeIO
         config.MotionMagic.MotionMagicExpo_kA = intakeParams.kA();
         config.MotionMagic.MotionMagicAcceleration = intakeParams.acceleration();
         config.MotionMagic.MotionMagicCruiseVelocity = intakeParams.cruiseVelocity();
-        config.CurrentLimits.StatorCurrentLimit = intakeParams.currentLimit().in(Amps);
+        config.CurrentLimits.StatorCurrentLimit = intakeParams.hingeCurrentLimit().in(Amps);
         config.CurrentLimits.StatorCurrentLimitEnable = true;
 
         angleMotor.getConfigurator().apply(config);
 
         var rollerConfig = new TalonFXSConfiguration();
         rollerConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
-        rollerConfig.CurrentLimits.StatorCurrentLimit = intakeParams.currentLimit().in(Amps);
+        rollerConfig.CurrentLimits.StatorCurrentLimit = intakeParams.rollerCurrentLimit().in(Amps);
         rollerConfig.CurrentLimits.StatorCurrentLimitEnable = true;
         rollerMotor.getConfigurator().apply(rollerConfig);
 

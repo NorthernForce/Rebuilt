@@ -114,4 +114,9 @@ public interface SuzieIO
 
     public double getCurrent();
 
+    public default void setBrakeMode(boolean brake)
+    {
+
+    }
+
 }
