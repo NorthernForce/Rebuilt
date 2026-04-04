@@ -266,6 +266,11 @@ public class LobbyContainer implements NFRRobotContainer
                 turret.getSuzie().getSysIdQuasistaticReverse());
         turntableSystem.withCommand("Turntable SysId Dynamic Forward", turret.getSuzie().getSysIdDynamicForward());
         turntableSystem.withCommand("Turntable SysId Dynamic Reverse", turret.getSuzie().getSysIdDynamicReverse());
+                turret.getHood().setDefaultCommand(Commands.run(() ->
+                {
+                        turret.getHood().setTargetAngle(Degrees.of(0.0));
+                        turret.getHood().start();
+                }, turret.getHood()));
     }
 
     /**
@@ -498,4 +503,5 @@ public class LobbyContainer implements NFRRobotContainer
     {
         drive.resetPose(pose);
     }
+
 }

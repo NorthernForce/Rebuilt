@@ -1,8 +1,12 @@
 package frc.robot.lobby;
 
+import static edu.wpi.first.units.Units.Degrees;
+
 import java.util.function.DoubleSupplier;
 
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.lobby.subsystems.spindexer.commands.RunSpindexer;
@@ -112,5 +116,9 @@ public class LobbyOI
                 .onFalse(Commands.runOnce(() -> suzie.setSpeed(0), suzie));
         driveController.povRight().whileTrue(Commands.runOnce(() -> suzie.setSpeed(-0.2), suzie))
                 .onFalse(Commands.runOnce(() -> suzie.setSpeed(0), suzie));
+        driveController.b().onTrue(Commands.sequence(turret.getHood().setSpeed(1.0, false),
+                turret.getHood().setTargetAngle(Degrees.of(90.0)), Commands.runOnce(() -> turret.getHood().start()),
+                Commands.waitUntil(turret.getHood()::isAtTargetAngle)));
+
     }
 }
