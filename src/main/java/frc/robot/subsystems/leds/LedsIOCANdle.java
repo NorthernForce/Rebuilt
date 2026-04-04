@@ -3,6 +3,7 @@ package frc.robot.subsystems.leds;
 import com.ctre.phoenix6.configs.CANdleConfiguration;
 import com.ctre.phoenix6.controls.RainbowAnimation;
 import com.ctre.phoenix6.controls.SolidColor;
+import com.ctre.phoenix6.controls.StrobeAnimation;
 import com.ctre.phoenix6.hardware.CANdle;
 import com.ctre.phoenix6.signals.AnimationDirectionValue;
 import com.ctre.phoenix6.signals.RGBWColor;
@@ -57,6 +58,14 @@ public class LedsIOCANdle implements LedsIO
     public void rainbowAnimation()
     {
         RainbowAnimation animation = new RainbowAnimation(0, length).withSlot(0).withDirection(animationDirection);
+        candle.setControl(animation);
+    }
+
+    @Override
+    public void blinkAnimation(int red, int green, int blue)
+    {
+        RGBWColor newColor = new RGBWColor(red, green, blue, 0);
+        StrobeAnimation animation = new StrobeAnimation(0, length).withSlot(0).withColor(newColor);
         candle.setControl(animation);
     }
 }

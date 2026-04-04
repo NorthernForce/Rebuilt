@@ -16,6 +16,8 @@ public class LEDS extends SubsystemBase
         END_GAME, TEST
     }
 
+    private boolean shiftChangeSoon = false;
+
     private GameState gameState;
 
     private boolean hubActive;
@@ -68,21 +70,51 @@ public class LEDS extends SubsystemBase
             if (matchTime > 130)
             {
                 gameState = GameState.TRANSITION;
+                if (matchTime <= 135) {
+                    shiftChangeSoon = true;
+                } else {
+                    shiftChangeSoon = false;
+                }
             } else if (matchTime > 105)
             {
                 gameState = GameState.ALLIANCE_SHIFT1;
+                if (matchTime <= 110) {
+                    shiftChangeSoon = true;
+                } else {
+                    shiftChangeSoon = false;
+                }
             } else if (matchTime > 80)
             {
                 gameState = GameState.ALLIANCE_SHIFT2;
+                if (matchTime <= 85) {
+                    shiftChangeSoon = true;
+                } else {
+                    shiftChangeSoon = false;
+                }
             } else if (matchTime > 55)
             {
                 gameState = GameState.ALLIANCE_SHIFT3;
+                if (matchTime <= 60) {
+                    shiftChangeSoon = true;
+                } else {
+                    shiftChangeSoon = false;
+                }
             } else if (matchTime > 30)
             {
                 gameState = GameState.ALLIANCE_SHIFT4;
-            } else if (matchTime > 30)
+                if (matchTime <= 35) {
+                    shiftChangeSoon = true;
+                } else {
+                    shiftChangeSoon = false;
+                }
+            } else
             {
                 gameState = GameState.END_GAME;
+                if (matchTime <= 5) {
+                    shiftChangeSoon = true;
+                } else {
+                    shiftChangeSoon = false;
+                }
             }
         }
 
@@ -123,10 +155,18 @@ public class LEDS extends SubsystemBase
             return;
         } else if (hubActive)
         {
-            setColor(0, 255, 0);
+            if (shiftChangeSoon) {
+                io.blinkAnimation(0, 255, 0);
+            } else {
+                setColor(0, 255, 0);
+            }
         } else
         {
-            setColor(255, 255, 128);
+            if (shiftChangeSoon) {
+                io.blinkAnimation(255, 0, 0);
+            } else {
+                setColor(255, 0, 0);
+            }
         }
     }
 

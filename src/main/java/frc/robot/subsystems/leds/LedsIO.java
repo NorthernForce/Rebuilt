@@ -19,4 +19,8 @@ public interface LedsIO
     {
     }
 
+    public default void blinkAnimation(int red, int green, int blue)
+    {
+    }
+
 }
