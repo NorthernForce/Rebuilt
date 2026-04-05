@@ -4,8 +4,8 @@ import com.ctre.phoenix6.signals.AnimationDirectionValue;
 
 public interface LedsIO
 {
-    public static record LedsConstants(int id, int length, double brightness, AnimationDirectionValue animationDirection)
-    {
+    public static record LedsConstants(int id, int length, double brightness,
+            AnimationDirectionValue animationDirection) {
     }
 
     public default void setColor(int red, int green, int blue)

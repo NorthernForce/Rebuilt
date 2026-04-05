@@ -43,7 +43,8 @@ public class LedsIOCANdle implements LedsIO
     public void movingColor(int red, int green, int blue)
     {
         RGBWColor color = new RGBWColor(red, green, blue, 0);
-        candle.setControl(new LarsonAnimation(0, length).withBounceMode(LarsonBounceValue.Back).withFrameRate(4).withSize(3).withColor(color));
+        candle.setControl(new LarsonAnimation(0, length).withBounceMode(LarsonBounceValue.Back).withFrameRate(4)
+                .withSize(3).withColor(color));
     }
 
     @Override
@@ -78,7 +79,8 @@ public class LedsIOCANdle implements LedsIO
     public void blinkAnimation(int red, int green, int blue, double frameRate)
     {
         RGBWColor newColor = new RGBWColor(red, green, blue, 0);
-        StrobeAnimation animation = new StrobeAnimation(0, length).withSlot(0).withColor(newColor).withFrameRate(frameRate);
+        StrobeAnimation animation = new StrobeAnimation(0, length).withSlot(0).withColor(newColor)
+                .withFrameRate(frameRate);
         candle.setControl(animation);
     }
 }

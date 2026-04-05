@@ -437,6 +437,7 @@ public class LobbyConstants
         public static final double kBrightness = 0.5;
         public static final int kCANdleId = 20;
         public static final AnimationDirectionValue kAnimationDirection = AnimationDirectionValue.Forward;
-        public static final LedsConstants kCANdleConstants = new LedsConstants(kCANdleId, kLength, kBrightness, kAnimationDirection);
+        public static final LedsConstants kCANdleConstants = new LedsConstants(kCANdleId, kLength, kBrightness,
+                kAnimationDirection);
     }
 }

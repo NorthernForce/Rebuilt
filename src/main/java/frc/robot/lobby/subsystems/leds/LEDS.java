@@ -8,15 +8,16 @@ import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
-public class Leds extends SubsystemBase {
+public class Leds extends SubsystemBase
+{
     LedsIO io;
     private boolean connected = false;
     private Timer timer;
 
-    enum GameState {
+    enum GameState
+    {
         DISCONNECTED, DISABLED, AUTONOMOUS, TELEOP, TRANSITION, ALLIANCE_SHIFT1, ALLIANCE_SHIFT2, ALLIANCE_SHIFT3,
-        ALLIANCE_SHIFT4,
-        END_GAME, TEST
+        ALLIANCE_SHIFT4, END_GAME, TEST
     }
 
     private boolean shiftChangeSoon = false;
@@ -29,169 +30,224 @@ public class Leds extends SubsystemBase {
 
     private Optional<Alliance> alliance;
 
-    public Leds(LedsIO ledIO) {
+    public Leds(LedsIO ledIO)
+    {
         io = ledIO;
 
         alliance = DriverStation.getAlliance();
         timer = new Timer();
     }
 
-    public void setColor(int red, int green, int blue) {
+    public void setColor(int red, int green, int blue)
+    {
         io.setColor(red, green, blue);
     }
 
-    public void setColor(Color color) {
+    public void setColor(Color color)
+    {
         io.setColor((int) (color.red * 255), (int) (color.green * 255), (int) (color.blue * 255));
     }
 
-    public void movingColor(int red, int green, int blue) {
+    public void movingColor(int red, int green, int blue)
+    {
         io.movingColor(red, green, blue);
     }
 
-    public void movingColor(Color color) {
+    public void movingColor(Color color)
+    {
         io.movingColor((int) (color.red * 255), (int) (color.green * 255), (int) (color.blue * 255));
     }
 
-    public void blinkAnimation(int red, int green, int blue) {
+    public void blinkAnimation(int red, int green, int blue)
+    {
         io.blinkAnimation(red, green, blue);
     }
 
-    public void blinkAnimation(int red, int green, int blue, double frameRate) {
+    public void blinkAnimation(int red, int green, int blue, double frameRate)
+    {
         io.blinkAnimation(red, green, blue, frameRate);
     }
 
-    public void blinkAnimation(Color color) {
+    public void blinkAnimation(Color color)
+    {
         io.blinkAnimation((int) (color.red * 255), (int) (color.green * 255), (int) (color.blue * 255));
     }
 
-    public void blinkAnimation(Color color, double frameRate) {
+    public void blinkAnimation(Color color, double frameRate)
+    {
         io.blinkAnimation((int) (color.red * 255), (int) (color.green * 255), (int) (color.blue * 255), frameRate);
     }
 
-    public void setBrightness(double brightness) {
+    public void setBrightness(double brightness)
+    {
         io.setBrightness(brightness);
     }
 
-    public void setLength(int length) {
+    public void setLength(int length)
+    {
         io.setLength(length);
     }
 
-    public void rainbowAnimation() {
+    public void rainbowAnimation()
+    {
         io.rainbowAnimation();
     }
 
-    public void setGameState() {
+    public void setGameState()
+    {
         matchTime = DriverStation.getMatchTime();
-        if (!DriverStation.isDSAttached()) {
+        if (!DriverStation.isDSAttached())
+        {
             gameState = GameState.DISCONNECTED;
-        } else if (DriverStation.isDisabled()) {
+        } else if (DriverStation.isDisabled())
+        {
             gameState = GameState.DISABLED;
-        } else if (DriverStation.isAutonomous()) {
+        } else if (DriverStation.isAutonomous())
+        {
             gameState = GameState.AUTONOMOUS;
-        } else if (DriverStation.isTest()) {
+        } else if (DriverStation.isTest())
+        {
             gameState = GameState.TEST;
-        } else {
-            if (matchTime > 130) {
+        } else
+        {
+            if (matchTime > 130)
+            {
                 gameState = GameState.TRANSITION;
-                if (matchTime <= 140) {
+                if (matchTime <= 140)
+                {
                     shiftChangeSoon = true;
-                } else {
+                } else
+                {
                     shiftChangeSoon = false;
                 }
-            } else if (matchTime > 105) {
+            } else if (matchTime > 105)
+            {
                 gameState = GameState.ALLIANCE_SHIFT1;
-                if (matchTime <= 115) {
+                if (matchTime <= 115)
+                {
                     shiftChangeSoon = true;
-                } else {
+                } else
+                {
                     shiftChangeSoon = false;
                 }
-            } else if (matchTime > 80) {
+            } else if (matchTime > 80)
+            {
                 gameState = GameState.ALLIANCE_SHIFT2;
-                if (matchTime <= 90) {
+                if (matchTime <= 90)
+                {
                     shiftChangeSoon = true;
-                } else {
+                } else
+                {
                     shiftChangeSoon = false;
                 }
-            } else if (matchTime > 55) {
+            } else if (matchTime > 55)
+            {
                 gameState = GameState.ALLIANCE_SHIFT3;
-                if (matchTime <= 65) {
+                if (matchTime <= 65)
+                {
                     shiftChangeSoon = true;
-                } else {
+                } else
+                {
                     shiftChangeSoon = false;
                 }
-            } else if (matchTime > 30) {
+            } else if (matchTime > 30)
+            {
                 gameState = GameState.ALLIANCE_SHIFT4;
-                if (matchTime <= 40) {
+                if (matchTime <= 40)
+                {
                     shiftChangeSoon = true;
-                } else {
+                } else
+                {
                     shiftChangeSoon = false;
                 }
-            } else {
+            } else
+            {
                 gameState = GameState.END_GAME;
-                if (matchTime <= 10) {
+                if (matchTime <= 10)
+                {
                     shiftChangeSoon = true;
-                } else {
+                } else
+                {
                     shiftChangeSoon = false;
                 }
             }
         }
 
-        boolean redInactiveFirst = switch (DriverStation.getGameSpecificMessage().charAt(0)) {
-            case 'R' -> true;
-            case 'B' -> false;
-            default -> false;
+        boolean redInactiveFirst = switch (DriverStation.getGameSpecificMessage().charAt(0))
+        {
+        case 'R' -> true;
+        case 'B' -> false;
+        default -> false;
         };
 
-        boolean firstShiftActive = switch (alliance.get()) {
-            case Red -> !redInactiveFirst;
-            case Blue -> redInactiveFirst;
-            default -> false;
+        boolean firstShiftActive = switch (alliance.get())
+        {
+        case Red -> !redInactiveFirst;
+        case Blue -> redInactiveFirst;
+        default -> false;
         };
 
-        hubActive = switch (gameState) {
-            case AUTONOMOUS, TRANSITION, END_GAME -> true;
-            case ALLIANCE_SHIFT1 -> firstShiftActive;
-            case ALLIANCE_SHIFT2 -> !firstShiftActive;
-            case ALLIANCE_SHIFT3 -> firstShiftActive;
-            case ALLIANCE_SHIFT4 -> !firstShiftActive;
-            default -> false;
+        hubActive = switch (gameState)
+        {
+        case AUTONOMOUS, TRANSITION, END_GAME -> true;
+        case ALLIANCE_SHIFT1 -> firstShiftActive;
+        case ALLIANCE_SHIFT2 -> !firstShiftActive;
+        case ALLIANCE_SHIFT3 -> firstShiftActive;
+        case ALLIANCE_SHIFT4 -> !firstShiftActive;
+        default -> false;
         };
     }
 
     @Override
-    public void periodic() {
+    public void periodic()
+    {
         setGameState();
 
-        if (gameState == GameState.DISCONNECTED) {
-            if (connected) {
+        if (gameState == GameState.DISCONNECTED)
+        {
+            if (connected)
+            {
                 blinkAnimation(kOrange, 4);
-            } else {
+            } else
+            {
                 movingColor(kPink);
             }
-        } else {
-            if (!connected) {
+        } else
+        {
+            if (!connected)
+            {
                 connected = true;
                 timer.restart();
                 blinkAnimation(kPink, 2);
             }
-            if (gameState == GameState.DISABLED && timer.hasElapsed(2.0)) {
-                if (alliance.orElse(Alliance.Blue) == Alliance.Blue) {
+            if (gameState == GameState.DISABLED && timer.hasElapsed(2.0))
+            {
+                if (alliance.orElse(Alliance.Blue) == Alliance.Blue)
+                {
                     setColor(kBlue);
-                } else {
+                } else
+                {
                     setColor(kRed);
                 }
-            } else if (gameState == GameState.AUTONOMOUS) {
+            } else if (gameState == GameState.AUTONOMOUS)
+            {
                 setColor(kGreen);
-            } else if (hubActive) {
-                if (shiftChangeSoon) {
+            } else if (hubActive)
+            {
+                if (shiftChangeSoon)
+                {
                     blinkAnimation(kGreen);
-                } else {
+                } else
+                {
                     setColor(kGreen);
                 }
-            } else {
-                if (shiftChangeSoon) {
+            } else
+            {
+                if (shiftChangeSoon)
+                {
                     blinkAnimation(kPink);
-                } else {
+                } else
+                {
                     setColor(kPink);
                 }
             }

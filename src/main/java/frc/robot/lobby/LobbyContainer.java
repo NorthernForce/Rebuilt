@@ -193,7 +193,7 @@ public class LobbyContainer implements NFRRobotContainer
 
         intake = new Intake(new IntakeIOTalonFX(LobbyConstants.IntakeConstants.kIOParameters),
                 LobbyConstants.IntakeConstants.kParameters);
-        
+
         leds = new Leds(new LedsIOCANdle(LobbyConstants.Leds.kCANdleConstants));
 
         field = new Field2d();
