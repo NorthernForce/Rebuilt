@@ -46,6 +46,7 @@ import edu.wpi.first.wpilibj.PowerDistribution.ModuleType;
 import frc.robot.FieldConstants;
 import frc.robot.lobby.generated.LobbyTunerConstants;
 import frc.robot.lobby.subsystems.intake.IntakeIO.IntakeIOParameters;
+import frc.robot.lobby.subsystems.leds.LedsIO.LedsConstants;
 import frc.robot.lobby.subsystems.climber.ClimberParameters;
 import frc.robot.lobby.subsystems.intake.Intake.IntakeParameters;
 import frc.robot.lobby.subsystems.turret.hood.HoodIO.HoodConstants;
@@ -430,11 +431,12 @@ public class LobbyConstants
         public static final Temperature kMaxTemperature = Celsius.of(60.0);
     }
 
-    public class LEDConstants
+    public class Leds
     {
         public static final int kLength = 60;
         public static final double kBrightness = 0.5;
         public static final int kCANdleId = 20;
         public static final AnimationDirectionValue kAnimationDirection = AnimationDirectionValue.Forward;
+        public static final LedsConstants kCANdleConstants = new LedsConstants(kCANdleId, kLength, kBrightness, kAnimationDirection);
     }
 }

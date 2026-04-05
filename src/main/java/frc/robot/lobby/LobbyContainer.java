@@ -46,6 +46,8 @@ import frc.robot.lobby.subsystems.climber.ClimberIOTalonFXSim;
 import frc.robot.lobby.subsystems.climber.sensor.SensorIOLimitSwitch;
 import frc.robot.lobby.subsystems.intake.Intake;
 import frc.robot.lobby.subsystems.intake.IntakeIOTalonFX;
+import frc.robot.lobby.subsystems.leds.Leds;
+import frc.robot.lobby.subsystems.leds.LedsIOCANdle;
 import frc.robot.lobby.subsystems.nfrdashboard.Dashboard;
 import frc.robot.lobby.subsystems.nfrdashboard.Dashboard.DashboardSystem;
 import frc.robot.lobby.subsystems.spindexer.Spindexer;
@@ -85,6 +87,7 @@ public class LobbyContainer implements NFRRobotContainer
     private final Climber climber;
     private final Turret turret;
     private final Spindexer spindexer;
+    private final Leds leds;
     private final DriveToPoseWithVision driveToPoseCommand;
     private Optional<String> teamActivity = Optional.empty();
     private final PowerDistribution powerDistributionHub = new PowerDistribution(LobbyConstants.PDHConstants.kPDHPort,
@@ -190,6 +193,8 @@ public class LobbyContainer implements NFRRobotContainer
 
         intake = new Intake(new IntakeIOTalonFX(LobbyConstants.IntakeConstants.kIOParameters),
                 LobbyConstants.IntakeConstants.kParameters);
+        
+        leds = new Leds(new LedsIOCANdle(LobbyConstants.Leds.kCANdleConstants));
 
         field = new Field2d();
         driveToPoseCommand = new DriveToPoseWithVision(drive);
@@ -282,6 +287,11 @@ public class LobbyContainer implements NFRRobotContainer
     public CommandSwerveDrivetrain getDrive()
     {
         return drive;
+    }
+
+    public Leds getLeds()
+    {
+        return leds;
     }
 
     public Turret getTurret()
