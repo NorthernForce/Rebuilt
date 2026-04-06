@@ -1,7 +1,6 @@
 package frc.robot.lobby;
 
 import static edu.wpi.first.units.Units.Degrees;
-import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 
 import java.util.function.DoubleSupplier;
@@ -9,10 +8,8 @@ import java.util.function.DoubleSupplier;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
-import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.lobby.subsystems.spindexer.commands.RunSpindexer;
 import frc.robot.lobby.subsystems.turret.commands.PrepTurretCommand;
-import frc.robot.lobby.subsystems.turret.commands.PrepTurretStupid;
 import frc.robot.lobby.subsystems.turret.commands.PrepTurretWithValues;
 
 public class LobbyOI
@@ -38,6 +35,7 @@ public class LobbyOI
         var spindexer = container.getSpindexer();
         var hood = container.getTurret().getHood();
         var shooter = container.getTurret().getShooter();
+        var leds = container.getLeds();
 
         drive.setDefaultCommand(drive.driveByJoystick(inputProc(driveController::getLeftY),
                 inputProc(driveController::getLeftX), inputProc(driveController::getRightX)));
