@@ -46,6 +46,8 @@ import frc.robot.lobby.subsystems.climber.ClimberIOTalonFXSim;
 import frc.robot.lobby.subsystems.climber.sensor.SensorIOLimitSwitch;
 import frc.robot.lobby.subsystems.intake.Intake;
 import frc.robot.lobby.subsystems.intake.IntakeIOTalonFX;
+import frc.robot.lobby.subsystems.leds.LEDS;
+import frc.robot.lobby.subsystems.leds.LedsIOCANdle;
 import frc.robot.lobby.subsystems.nfrdashboard.Dashboard;
 import frc.robot.lobby.subsystems.nfrdashboard.Dashboard.DashboardSystem;
 import frc.robot.lobby.subsystems.spindexer.Spindexer;
@@ -97,6 +99,7 @@ public class LobbyContainer implements NFRRobotContainer
     private final StatusSignal<Current> blSteerCurrent;
     private final StatusSignal<Current> brDriveCurrent;
     private final StatusSignal<Current> brSteerCurrent;
+    private final LEDS led;
 
     public LobbyContainer()
     {
@@ -190,6 +193,9 @@ public class LobbyContainer implements NFRRobotContainer
 
         intake = new Intake(new IntakeIOTalonFX(LobbyConstants.IntakeConstants.kIOParameters),
                 LobbyConstants.IntakeConstants.kParameters);
+
+        led = new LEDS(new LedsIOCANdle(), LobbyConstants.LEDConstants.kCANdleId, LobbyConstants.LEDConstants.kLength,
+                LobbyConstants.LEDConstants.kBrightness);
 
         field = new Field2d();
         driveToPoseCommand = new DriveToPoseWithVision(drive);
