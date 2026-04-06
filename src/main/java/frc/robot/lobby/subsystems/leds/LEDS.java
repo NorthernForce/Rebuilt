@@ -8,7 +8,7 @@ import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
-public class Leds extends SubsystemBase
+public class LEDS extends SubsystemBase
 {
     LedsIO io;
     private boolean connected = false;
@@ -30,7 +30,7 @@ public class Leds extends SubsystemBase
 
     private Optional<Alliance> alliance;
 
-    public Leds(LedsIO ledIO)
+    public LEDS(LedsIO ledIO)
     {
         io = ledIO;
 
