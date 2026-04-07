@@ -504,4 +504,15 @@ public class LobbyContainer implements NFRRobotContainer
     {
         drive.resetPose(pose);
     }
+
+    public Optional<Rotation2d> getMovementDirectionRobotRelative()
+    {
+        var speeds = drive.getState().Speeds; // ChassisSpeeds-like object
+        double vx = speeds.vxMetersPerSecond;
+        double vy = speeds.vyMetersPerSecond;
+        double mag = Math.hypot(vx, vy);
+        if (mag < 1e-3)
+            return Optional.empty();
+        return Optional.of(new Rotation2d(Math.atan2(vy, vx)));
+    }
 }

@@ -603,6 +603,31 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         });
     }
 
+    public Command driveByJoystickFacingAngle(DoubleSupplier xSupplier, DoubleSupplier ySupplier,
+            Supplier<Rotation2d> targetAngleSupplier)
+    {
+        SwerveRequest.FieldCentricFacingAngle request = new SwerveRequest.FieldCentricFacingAngle()
+                .withDriveRequestType(DriveRequestType.OpenLoopVoltage)
+                .withForwardPerspective(SwerveRequest.ForwardPerspectiveValue.OperatorPerspective);
+        request.HeadingController.setPID(LobbyConstants.DrivetrainConstants.kCloseDriveRP,
+                LobbyConstants.DrivetrainConstants.kCloseDriveRI, LobbyConstants.DrivetrainConstants.kCloseDriveRD);
+        request.HeadingController.enableContinuousInput(0, Math.PI * 2);
+
+        return applyRequest(() ->
+        {
+            double x = xSupplier.getAsDouble();
+            double y = ySupplier.getAsDouble();
+
+            Rotation2d operatorForward = DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Red
+                    ? kRedAlliancePerspectiveRotation
+                    : kBlueAlliancePerspectiveRotation;
+            Rotation2d operatorTargetAngle = targetAngleSupplier.get().minus(operatorForward);
+
+            return request.withVelocityX(maxSpeed.times(x)).withVelocityY(maxSpeed.times(y))
+                    .withTargetDirection(operatorTargetAngle);
+        });
+    }
+
     public void fieldRelativeDrive(ChassisSpeeds speeds)
     {
         this.setControl(m_autoApplyFieldRelative.withVelocityX(speeds.vxMetersPerSecond)
