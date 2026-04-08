@@ -11,6 +11,8 @@ import com.ctre.phoenix6.signals.LarsonBounceValue;
 import com.ctre.phoenix6.signals.RGBWColor;
 import com.ctre.phoenix6.signals.StripTypeValue;
 
+import edu.wpi.first.wpilibj.util.Color;
+
 public class LedsIOCANdle implements LedsIO
 {
     private CANdle candle;
@@ -24,27 +26,29 @@ public class LedsIOCANdle implements LedsIO
     {
         candle = new CANdle(constants.id());
         config = new CANdleConfiguration();
-        config.LED.StripType = StripTypeValue.RGB;
+        config.LED.StripType = StripTypeValue.GRB;
         length = constants.length();
         config.LED.BrightnessScalar = constants.brightness();
         candle.getConfigurator().apply(config);
 
         animationDirection = constants.animationDirection();
+        candle.clearAllAnimations();
+        movingColor(Color.kMagenta);
     }
 
     @Override
-    public void setColor(int red, int green, int blue)
+    public void setColor(Color color)
     {
-        RGBWColor color = new RGBWColor(red, green, blue, 0);
-        candle.setControl(new SolidColor(0, length).withColor(color));
+        RGBWColor newColor = new RGBWColor(color);
+        candle.setControl(new SolidColor(0, length).withColor(newColor));
     }
 
     @Override
-    public void movingColor(int red, int green, int blue)
+    public void movingColor(Color color)
     {
-        RGBWColor color = new RGBWColor(red, green, blue, 0);
-        candle.setControl(new LarsonAnimation(0, length).withBounceMode(LarsonBounceValue.Back).withFrameRate(4)
-                .withSize(3).withColor(color));
+        RGBWColor newColor = new RGBWColor(color);
+        candle.setControl(new LarsonAnimation(0, length).withBounceMode(LarsonBounceValue.Front).withFrameRate(4)
+                .withSize(3).withColor(newColor));
     }
 
     @Override
@@ -68,19 +72,22 @@ public class LedsIOCANdle implements LedsIO
     }
 
     @Override
-    public void blinkAnimation(int red, int green, int blue)
+    public void blinkAnimation(Color color)
     {
-        RGBWColor newColor = new RGBWColor(red, green, blue, 0);
-        StrobeAnimation animation = new StrobeAnimation(0, length).withSlot(0).withColor(newColor).withFrameRate(4);
-        candle.setControl(animation);
+        RGBWColor newColor = new RGBWColor(color);
+        candle.setControl(new StrobeAnimation(0, length).withColor(newColor).withFrameRate(4));
     }
 
     @Override
-    public void blinkAnimation(int red, int green, int blue, double frameRate)
+    public void blinkAnimation(Color color, double frameRate)
     {
-        RGBWColor newColor = new RGBWColor(red, green, blue, 0);
-        StrobeAnimation animation = new StrobeAnimation(0, length).withSlot(0).withColor(newColor)
-                .withFrameRate(frameRate);
-        candle.setControl(animation);
+        RGBWColor newColor = new RGBWColor(color);
+        candle.setControl(new StrobeAnimation(0, length).withColor(newColor).withFrameRate(frameRate));
+    }
+
+    @Override
+    public void clear()
+    {
+        candle.clearAllAnimations();
     }
 }

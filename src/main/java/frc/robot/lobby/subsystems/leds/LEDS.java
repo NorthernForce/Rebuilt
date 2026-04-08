@@ -1,10 +1,10 @@
 package frc.robot.lobby.subsystems.leds;
 
 import java.util.Optional;
+import java.util.function.Supplier;
 
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
-import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
@@ -12,7 +12,6 @@ public class LEDS extends SubsystemBase
 {
     LedsIO io;
     private boolean connected = false;
-    private Timer timer;
 
     enum GameState
     {
@@ -28,54 +27,56 @@ public class LEDS extends SubsystemBase
 
     private double matchTime = 0.0;
 
-    private Optional<Alliance> alliance;
+    private Supplier<Optional<Alliance>> alliance;
+    
+    /*
+     * LED COLOR RUNDOWN
+     * 
+     * BOUNCING PINK: Robot not connected yet
+     * BLINKING ORANGE: Robot was connected but is not anymore
+     * 
+     * RED: Robot disabled; Red Alliance
+     * BLUE: Robot disabled; Blue Alliance
+     * YELLOW: Robot disabled; No Alliance assigned
+     * 
+     * GREEN: Hub active
+     * BLINKING GREEN: Hub active; Shift ending in 10 seconds
+     * 
+     * PINK: Hub inactive
+     * BLINKING PINK: Hub inactive; Shift ending in 10 seconds
+     * 
+     * SLOW BLINKING GREEN: Hub active; End game period
+     */
 
     public LEDS(LedsIO ledIO)
     {
         io = ledIO;
 
-        alliance = DriverStation.getAlliance();
-        timer = new Timer();
-    }
-
-    public void setColor(int red, int green, int blue)
-    {
-        io.setColor(red, green, blue);
+        alliance = () -> DriverStation.getAlliance();
     }
 
     public void setColor(Color color)
     {
-        io.setColor((int) (color.red * 255), (int) (color.green * 255), (int) (color.blue * 255));
-    }
-
-    public void movingColor(int red, int green, int blue)
-    {
-        io.movingColor(red, green, blue);
+        io.clear();
+        io.setColor(color);
     }
 
     public void movingColor(Color color)
     {
-        io.movingColor((int) (color.red * 255), (int) (color.green * 255), (int) (color.blue * 255));
-    }
-
-    public void blinkAnimation(int red, int green, int blue)
-    {
-        io.blinkAnimation(red, green, blue);
-    }
-
-    public void blinkAnimation(int red, int green, int blue, double frameRate)
-    {
-        io.blinkAnimation(red, green, blue, frameRate);
+        io.clear();
+        io.movingColor(color);
     }
 
     public void blinkAnimation(Color color)
     {
-        io.blinkAnimation((int) (color.red * 255), (int) (color.green * 255), (int) (color.blue * 255));
+        io.clear();
+        io.blinkAnimation(color);
     }
 
     public void blinkAnimation(Color color, double frameRate)
     {
-        io.blinkAnimation((int) (color.red * 255), (int) (color.green * 255), (int) (color.blue * 255), frameRate);
+        io.clear();
+        io.blinkAnimation(color, frameRate);
     }
 
     public void setBrightness(double brightness)
@@ -173,14 +174,14 @@ public class LEDS extends SubsystemBase
             }
         }
 
-        boolean redInactiveFirst = switch (DriverStation.getGameSpecificMessage().charAt(0))
-        {
-        case 'R' -> true;
-        case 'B' -> false;
-        default -> false;
-        };
+        boolean redInactiveFirst = false;
 
-        boolean firstShiftActive = switch (alliance.get())
+        if (DriverStation.getGameSpecificMessage().indexOf('R') == 0)
+        {
+            redInactiveFirst = true;
+        }
+
+        boolean firstShiftActive = switch (alliance.get().orElse(Alliance.Blue))
         {
         case Red -> !redInactiveFirst;
         case Blue -> redInactiveFirst;
@@ -203,60 +204,73 @@ public class LEDS extends SubsystemBase
     {
         setGameState();
 
-        if (gameState == GameState.DISCONNECTED)
+        if (gameState.equals(GameState.DISCONNECTED))
         {
             if (connected)
             {
-                blinkAnimation(kOrange, 4);
+                blinkAnimation(Color.kOrange);
             } else
             {
-                movingColor(kPink);
+                movingColor(Color.kMagenta);
             }
-        } else
+        } else if (DriverStation.isFMSAttached() || DriverStation.isTest())
         {
             if (!connected)
             {
                 connected = true;
-                timer.restart();
-                blinkAnimation(kPink, 2);
             }
-            if (gameState == GameState.DISABLED && timer.hasElapsed(2.0))
+            if (gameState.equals(GameState.DISABLED))
             {
-                if (alliance.orElse(Alliance.Blue) == Alliance.Blue)
+                if (alliance.get().isPresent() && alliance.get().orElse(Alliance.Blue) == Alliance.Blue)
                 {
-                    setColor(kBlue);
+                    if (alliance.get().orElse(Alliance.Blue) == Alliance.Blue)
+                    {
+                        setColor(Color.kBlue);
+                    } else {
+                        setColor(Color.kRed);
+                    }
                 } else
                 {
-                    setColor(kRed);
+                    blinkAnimation(Color.kYellow);
                 }
-            } else if (gameState == GameState.AUTONOMOUS)
+            } else if (gameState.equals(GameState.AUTONOMOUS) || gameState.equals(GameState.TRANSITION))
             {
-                setColor(kGreen);
+                if (shiftChangeSoon)
+                {
+                    blinkAnimation(Color.kGreen);
+                } else {
+                    setColor(Color.kGreen);
+                }
+            } else if (gameState.equals(GameState.END_GAME))
+            {
+                blinkAnimation(Color.kGreen, 2);
             } else if (hubActive)
             {
                 if (shiftChangeSoon)
                 {
-                    blinkAnimation(kGreen);
+                    blinkAnimation(Color.kGreen);
                 } else
                 {
-                    setColor(kGreen);
+                    setColor(Color.kGreen);
                 }
             } else
             {
                 if (shiftChangeSoon)
                 {
-                    blinkAnimation(kPink);
+                    blinkAnimation(Color.kMagenta);
                 } else
                 {
-                    setColor(kPink);
+                    setColor(Color.kMagenta);
                 }
             }
+        } else
+        {
+            setColor(Color.kPink);
         }
     }
 
-    public static final Color kPink = new Color(239, 48, 125);
-    public static final Color kGreen = new Color(65, 230, 53);
-    public static final Color kOrange = new Color(255, 170, 0);
-    public static final Color kRed = new Color(255, 0, 0);
-    public static final Color kBlue = new Color(0, 0, 255);
+    public String getGameStateString()
+    {
+        return gameState.toString();
+    }
 }

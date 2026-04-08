@@ -433,9 +433,9 @@ public class LobbyConstants
 
     public class Leds
     {
-        public static final int kLength = 60;
-        public static final double kBrightness = 0.5;
-        public static final int kCANdleId = 20;
+        public static final int kLength = 175;
+        public static final double kBrightness = 0.4;
+        public static final int kCANdleId = 23;
         public static final AnimationDirectionValue kAnimationDirection = AnimationDirectionValue.Forward;
         public static final LedsConstants kCANdleConstants = new LedsConstants(kCANdleId, kLength, kBrightness,
                 kAnimationDirection);

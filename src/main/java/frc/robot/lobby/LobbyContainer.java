@@ -368,14 +368,16 @@ public class LobbyContainer implements NFRRobotContainer
                                         + getDrive().getPose().getRotation().getRadians()))));
         DogLog.log("Turret/Distance", getTurret().calculateShooterDistanceToHub(drive.getPose()));
 
-        if (DriverStation.getGameSpecificMessage().equals("R"))
+        DogLog.log("Leds/GameState", leds.getGameStateString());
+
+        if (DriverStation.getGameSpecificMessage().indexOf('R') == 0)
         {
-            teamActivity = Optional
-                    .of((DriverStation.getAlliance().get() == DriverStation.Alliance.Red) ? "active" : "inactive");
+                teamActivity = Optional
+                        .of((DriverStation.getAlliance().orElse(Alliance.Blue) == DriverStation.Alliance.Red) ? "active" : "inactive");
         } else if (DriverStation.getGameSpecificMessage().equals("B"))
         {
-            teamActivity = Optional
-                    .of((DriverStation.getAlliance().get() == DriverStation.Alliance.Blue) ? "active" : "inactive");
+                teamActivity = Optional
+                        .of((DriverStation.getAlliance().orElse(Alliance.Blue) == DriverStation.Alliance.Blue) ? "active" : "inactive");
         }
 
         DogLog.log("GameData/StartingActivity", teamActivity.orElse("unknown"));
