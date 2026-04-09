@@ -28,25 +28,6 @@ public class LEDS extends SubsystemBase
     private double matchTime = 0.0;
 
     private Supplier<Optional<Alliance>> alliance;
-    
-    /*
-     * LED COLOR RUNDOWN
-     * 
-     * BOUNCING PINK: Robot not connected yet
-     * BLINKING ORANGE: Robot was connected but is not anymore
-     * 
-     * RED: Robot disabled; Red Alliance
-     * BLUE: Robot disabled; Blue Alliance
-     * YELLOW: Robot disabled; No Alliance assigned
-     * 
-     * GREEN: Hub active
-     * BLINKING GREEN: Hub active; Shift ending in 10 seconds
-     * 
-     * PINK: Hub inactive
-     * BLINKING PINK: Hub inactive; Shift ending in 10 seconds
-     * 
-     * SLOW BLINKING GREEN: Hub active; End game period
-     */
 
     public LEDS(LedsIO ledIO)
     {
@@ -226,7 +207,8 @@ public class LEDS extends SubsystemBase
                     if (alliance.get().orElse(Alliance.Blue) == Alliance.Blue)
                     {
                         setColor(Color.kBlue);
-                    } else {
+                    } else
+                    {
                         setColor(Color.kRed);
                     }
                 } else
@@ -238,7 +220,8 @@ public class LEDS extends SubsystemBase
                 if (shiftChangeSoon)
                 {
                     blinkAnimation(Color.kGreen);
-                } else {
+                } else
+                {
                     setColor(Color.kGreen);
                 }
             } else if (gameState.equals(GameState.END_GAME))
