@@ -16,16 +16,16 @@
     },
     {
       "anchor": {
-        "x": 6.238630527817403,
+        "x": 6.0,
         "y": 7.375
       },
       "prevControl": {
-        "x": 6.768960613707313,
-        "y": 6.8446699141100895
+        "x": 7.38625641025033,
+        "y": 7.093217948713573
       },
       "nextControl": {
-        "x": 6.061853832520766,
-        "y": 7.5517766952966365
+        "x": 5.7550100233026615,
+        "y": 7.424798707993657
       },
       "isLocked": false,
       "linkedName": null
@@ -50,7 +50,21 @@
       "rotationDegrees": 85.62535323661872
     }
   ],
-  "constraintZones": [],
+  "constraintZones": [
+    {
+      "name": "Reentry Speeds",
+      "minWaypointRelativePos": 0.5602049530316013,
+      "maxWaypointRelativePos": 1.47566182749787,
+      "constraints": {
+        "maxVelocity": 2.5,
+        "maxAcceleration": 4.0,
+        "maxAngularVelocity": 600.0,
+        "maxAngularAcceleration": 720.0,
+        "nominalVoltage": 12.0,
+        "unlimited": false
+      }
+    }
+  ],
   "pointTowardsZones": [],
   "eventMarkers": [],
   "globalConstraints": {

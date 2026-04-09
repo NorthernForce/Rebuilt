@@ -305,7 +305,7 @@ public class LobbyContainer implements NFRRobotContainer
         {
             Pose2d target = climber.getClosestClimbPose(drive.getPose());
             DogLog.log("Auto/DrivingToPreClimbPosition", target);
-            return driveToPose(target);
+            return closeDriveToPose(target);
         }, java.util.Set.of(drive));
     }
 
