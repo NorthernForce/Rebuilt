@@ -58,14 +58,14 @@ public class ClimberIOTalonFX implements ClimberIO
     public Pose2d getNearestPreclimbPosition(Pose2d robotPose)
     {
         DogLog.log("Climber/RobotPose", robotPose);
-        if (DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Blue)
+        if (DriverStation.getAlliance().orElse(Alliance.Red) == Alliance.Red)
         {
             double distanceToUpperBlue = robotPose.getTranslation()
                     .getDistance(upperBlueClimbPosition.getTranslation());
             double distanceToLowerBlue = robotPose.getTranslation()
                     .getDistance(lowerBlueClimbPosition.getTranslation());
             return distanceToUpperBlue < distanceToLowerBlue ? upperBlueClimbPosition : lowerBlueClimbPosition;
-        } else if (DriverStation.getAlliance().get() == Alliance.Red)
+        } else if (DriverStation.getAlliance().get() == Alliance.Blue)
         {
             double distanceToUpperRed = robotPose.getTranslation().getDistance(upperRedClimbPosition.getTranslation());
             double distanceToLowerRed = robotPose.getTranslation().getDistance(lowerRedClimbPosition.getTranslation());

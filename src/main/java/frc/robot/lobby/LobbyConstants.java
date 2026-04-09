@@ -303,10 +303,10 @@ public class LobbyConstants
                 new Rotation2d(Degrees.of(0)));
         public static final Pose2d kLowerRedPose = new Pose2d(Meters.of(14.841), Meters.of(3.889),
                 new Rotation2d(Degrees.of(0)));
-        public static final Pose2d kUpperBluePose = new Pose2d(Meters.of(1.591), Meters.of(4.745),
-                new Rotation2d(Degrees.of(0)));
-        public static final Pose2d kLowerBluePose = new Pose2d(Meters.of(1.591), Meters.of(3.889),
-                new Rotation2d(Degrees.of(0)));
+        public static final Pose2d kUpperBluePose = new Pose2d(Meters.of(1.038), Meters.of(2.73),
+                new Rotation2d(Degrees.of(90)));
+        public static final Pose2d kLowerBluePose = new Pose2d(Meters.of(1.257), Meters.of(4.860),
+                new Rotation2d(Degrees.of(-90)));
 
         public static enum ClimbLevels
         {
@@ -380,6 +380,7 @@ public class LobbyConstants
         public static final double kD = 2.6807;
         public static final double kS = 0.24758;
         public static final double kA = 0.85231;
+
         public static final double kV = 9.1813;
         public static final double kG = 0.15;
         public static final double kAcceleration = 4;

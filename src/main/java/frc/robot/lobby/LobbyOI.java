@@ -58,7 +58,10 @@ public class LobbyOI
                 .andThen(new RunSpindexer(container.getSpindexer(), LobbyConstants.SpindexerConstants.kDeJamTime,
                         LobbyConstants.SpindexerConstants.kPostDeJamTime, () -> turret.isAtTargetPose()))
                 .alongWith(new PrepTurretCommand(container))));
-
+        driveController.b()
+                .whileTrue(Commands
+                        .parallel(container.getClimber().runDown().withTimeout(3), container.driveToPreClimbPosition())
+                        .andThen(container.driveToClimbPost()));
         driveController.leftTrigger().whileTrue(intake.intakeMoving()).onFalse(intake.stopIntake());
 
         driveController.rightTrigger().whileTrue((Commands
