@@ -20,6 +20,7 @@ import choreo.auto.AutoRoutine;
 
 import com.ctre.phoenix6.StatusSignal;
 import dev.doglog.DogLog;
+import dev.doglog.DogLogOptions;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
@@ -119,6 +120,8 @@ public class LobbyContainer implements NFRRobotContainer
         drive.resetPose(new Pose2d(3, 3, new Rotation2d()));
 
         drive.setVisionMeasurementStdDevs(LobbyConstants.VisionConstants.kStdDevs);
+
+        DogLog.setOptions(new DogLogOptions().withCaptureDs(true));
         if (Utils.isSimulation())
         {
             climber = new Climber(new ClimberIOTalonFXSim(LobbyConstants.ClimberConstants.kClimberParameters),
@@ -334,6 +337,8 @@ public class LobbyContainer implements NFRRobotContainer
         Rotation2d currentHeading = state.Pose.getRotation();
         Rotation2d yawRate = Rotation2d.fromRadians(state.Speeds.omegaRadiansPerSecond);
         vision.setHeading(currentHeading, yawRate);
+
+        leds.setShooterPrepped(turret.isAtTargetPose());
 
         var visionPoses = vision.getPoses();
         DogLog.log("Vision/PoseCount", visionPoses.size());

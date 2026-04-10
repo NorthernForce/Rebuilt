@@ -3,6 +3,7 @@ package frc.robot.lobby.subsystems.leds;
 import java.util.Optional;
 import java.util.function.Supplier;
 
+import dev.doglog.DogLog;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.util.Color;
@@ -29,6 +30,12 @@ public class LEDS extends SubsystemBase
 
     private Supplier<Optional<Alliance>> alliance;
 
+    private boolean shooterPrepped = false;
+
+    private double lastTime = DriverStation.getMatchTime();
+
+    private boolean timeDecreasing = false;
+
     public LEDS(LedsIO ledIO)
     {
         io = ledIO;
@@ -38,26 +45,38 @@ public class LEDS extends SubsystemBase
 
     public void setColor(Color color)
     {
-        io.clear();
-        io.setColor(color);
+        if (!io.getAnimationName().equals("SolidColor"))
+        {
+            io.clear();
+            io.setColor(color);
+        }
     }
 
     public void movingColor(Color color)
     {
-        io.clear();
-        io.movingColor(color);
+        if (!io.getAnimationName().equals("LarsonAnimation"))
+        {
+            io.clear();
+            io.movingColor(color);
+        }
     }
 
     public void blinkAnimation(Color color)
     {
-        io.clear();
-        io.blinkAnimation(color);
+        if (!io.getAnimationName().equals("StrobeAnimation"))
+        {
+            io.clear();
+            io.blinkAnimation(color);
+        }
     }
 
     public void blinkAnimation(Color color, double frameRate)
     {
-        io.clear();
-        io.blinkAnimation(color, frameRate);
+        if (!io.getAnimationName().equals("StrobeAnimation"))
+        {
+            io.clear();
+            io.blinkAnimation(color, frameRate);
+        }
     }
 
     public void setBrightness(double brightness)
@@ -68,11 +87,6 @@ public class LEDS extends SubsystemBase
     public void setLength(int length)
     {
         io.setLength(length);
-    }
-
-    public void rainbowAnimation()
-    {
-        io.rainbowAnimation();
     }
 
     public void setGameState()
@@ -184,6 +198,12 @@ public class LEDS extends SubsystemBase
     public void periodic()
     {
         setGameState();
+        DogLog.log("Leds/ShooterPrepped", shooterPrepped);
+        DogLog.log("Leds/MatchType", DriverStation.getMatchType().toString());
+        DogLog.log("Leds/AnimationName", io.getAnimationName());
+        DogLog.log("Leds/MatchTime", DriverStation.getMatchTime());
+        DogLog.log("Leds/LastMatchTime", lastTime);
+        DogLog.log("Leds/IsPractice", isPractice());
 
         if (gameState.equals(GameState.DISCONNECTED))
         {
@@ -194,7 +214,7 @@ public class LEDS extends SubsystemBase
             {
                 movingColor(Color.kMagenta);
             }
-        } else if (DriverStation.isFMSAttached() || DriverStation.isTest())
+        } else if (DriverStation.isFMSAttached() || isPractice())
         {
             if (!connected)
             {
@@ -202,7 +222,7 @@ public class LEDS extends SubsystemBase
             }
             if (gameState.equals(GameState.DISABLED))
             {
-                if (alliance.get().isPresent() && alliance.get().orElse(Alliance.Blue) == Alliance.Blue)
+                if (alliance.get().isPresent())
                 {
                     if (alliance.get().orElse(Alliance.Blue) == Alliance.Blue)
                     {
@@ -248,7 +268,31 @@ public class LEDS extends SubsystemBase
             }
         } else
         {
-            setColor(Color.kPink);
+            if (shooterPrepped)
+            {
+                blinkAnimation(Color.kMagenta);
+            } else
+            {
+                setColor(Color.kMagenta);
+            }
+        }
+    }
+
+    public void setShooterPrepped(boolean shooterPrepped)
+    {
+        this.shooterPrepped = shooterPrepped;
+    }
+
+    public boolean isPractice()
+    {
+        if (matchTime != lastTime)
+        {
+            timeDecreasing = matchTime < lastTime;
+            lastTime = matchTime;
+            return timeDecreasing;
+        } else
+        {
+            return timeDecreasing;
         }
     }
 

@@ -38,6 +38,11 @@ public interface LedsIO
     {
     }
 
+    public default String getAnimationName()
+    {
+        return "None";
+    }
+
     public default void clear()
     {
     }
