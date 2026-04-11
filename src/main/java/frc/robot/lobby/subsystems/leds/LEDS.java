@@ -1,258 +1,332 @@
 package frc.robot.lobby.subsystems.leds;
 
-import com.ctre.phoenix6.configs.CANdleConfiguration;
-import com.ctre.phoenix6.controls.ColorFlowAnimation;
-import com.ctre.phoenix6.controls.FireAnimation;
-import com.ctre.phoenix6.controls.RainbowAnimation;
-import com.ctre.phoenix6.controls.RgbFadeAnimation;
-import com.ctre.phoenix6.controls.SingleFadeAnimation;
-import com.ctre.phoenix6.controls.SolidColor;
-import com.ctre.phoenix6.controls.StrobeAnimation;
-import com.ctre.phoenix6.controls.TwinkleAnimation;
-import com.ctre.phoenix6.controls.TwinkleOffAnimation;
-import com.ctre.phoenix6.hardware.CANdle;
-import com.ctre.phoenix6.signals.AnimationDirectionValue;
-import com.ctre.phoenix6.signals.RGBWColor;
-import com.ctre.phoenix6.signals.StripTypeValue;
+import java.util.Optional;
+import java.util.function.Supplier;
 
-import edu.wpi.first.wpilibj2.command.Command;
+import dev.doglog.DogLog;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
+import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class LEDS extends SubsystemBase
 {
-    private CANdle candle;
-    private CANdleConfiguration config;
-    private int length;
-    private final RGBWColor offColor = new RGBWColor(0, 0, 0, 0);
+    LedsIO io;
+    private boolean connected = false;
 
-    public static enum AnimationType
+    enum GameState
     {
-        None, ColorFlow, Fire, Rainbow, RgbFade, SingleFade, Strobe, Twinkle, TwinkleOff,
+        DISCONNECTED, DISABLED, AUTONOMOUS, TELEOP, TRANSITION, ALLIANCE_SHIFT1, ALLIANCE_SHIFT2, ALLIANCE_SHIFT3,
+        ALLIANCE_SHIFT4, END_GAME, TEST
     }
 
-    private AnimationType currentAnimation = AnimationType.None;
-    private RGBWColor animationColor = new RGBWColor(255, 0, 0, 0);
-    private int animationSpeed = 25;
-    private AnimationDirectionValue animationDirection = AnimationDirectionValue.Forward;
-    private double animationHz = 10.0;
-    private int[] animationSegment =
-    { 0, length - 1 };
-    private double animationFireCooling = 0.4;
-    private double animationFireSparking = 0.2;
+    private boolean shiftChangeSoon = false;
 
-    public LEDS(int CANID, int length)
+    private GameState gameState;
+
+    private boolean hubActive;
+
+    private double matchTime = 0.0;
+
+    private Supplier<Optional<Alliance>> alliance;
+
+    private boolean shooterPrepped = false;
+
+    private Timer timer = new Timer();
+
+    public LEDS(LedsIO ledIO)
     {
-        candle = new CANdle(CANID);
-        config = new CANdleConfiguration();
-        this.length = length;
-        config.LED.StripType = StripTypeValue.RGB;
-        candle.getConfigurator().apply(config);
+        io = ledIO;
+
+        alliance = () -> DriverStation.getAlliance();
     }
 
-    public void setColor(int red, int green, int blue)
+    public void setColor(Color color)
     {
-        RGBWColor newColor = new RGBWColor(red, green, blue, 0);
-        candle.setControl(new SolidColor(0, length).withColor(newColor));
-        currentAnimation = AnimationType.None;
+        if (!io.getAnimationName().equals("SolidColor"))
+        {
+            io.clear();
+            io.setColor(color);
+        }
+    }
+
+    public void movingColor(Color color)
+    {
+        if (!io.getAnimationName().equals("LarsonAnimation"))
+        {
+            io.clear();
+            io.movingColor(color);
+        }
+    }
+
+    public void blinkAnimation(Color color)
+    {
+        if (!io.getAnimationName().equals("StrobeAnimation"))
+        {
+            io.clear();
+            io.blinkAnimation(color);
+        }
+    }
+
+    public void blinkAnimation(Color color, double frameRate)
+    {
+        if (!io.getAnimationName().equals("StrobeAnimation"))
+        {
+            io.clear();
+            io.blinkAnimation(color, frameRate);
+        }
     }
 
     public void setBrightness(double brightness)
     {
-        if (brightness >= 0.0 && brightness <= 1.0)
+        io.setBrightness(brightness);
+    }
+
+    public void setLength(int length)
+    {
+        io.setLength(length);
+    }
+
+    public void setGameState()
+    {
+        matchTime = DriverStation.getMatchTime();
+        if (!DriverStation.isDSAttached())
         {
-            config.LED.BrightnessScalar = brightness;
-            candle.getConfigurator().apply(config);
-        }
-    }
-
-    public void setAnimation(AnimationType animation)
-    {
-        currentAnimation = animation;
-    }
-
-    public Command getSetAnimationCommand(AnimationType animation, int r, int g, int b, int speed,
-            AnimationDirectionValue direction, double hz, int segmentStart, int segmentEnd, double fireCooling,
-            double fireSparking)
-    {
-        return this.runOnce(() ->
+            gameState = GameState.DISCONNECTED;
+        } else if (DriverStation.isDisabled())
         {
-            setAnimation(animation);
-            setAnimationColor(r, g, b);
-            setAnimationSpeed(speed);
-            setAnimationDirection(direction);
-            setAnimationHz(hz);
-            setAnimationSegment(segmentStart, segmentEnd);
-            setFireAnimationParameters(fireCooling, fireSparking);
-            pushAnimationState();
-        }).until(() -> false);
-    }
-
-    public Command getSetAnimationCommand(AnimationType animation, int r, int g, int b, int speed,
-            AnimationDirectionValue direction, double hz, int segmentStart, int segmentEnd)
-    {
-        return this.runOnce(() ->
+            gameState = GameState.DISABLED;
+        } else if (DriverStation.isAutonomous())
         {
-            setAnimation(animation);
-            setAnimationColor(r, g, b);
-            setAnimationSpeed(speed);
-            setAnimationDirection(direction);
-            setAnimationHz(hz);
-            setAnimationSegment(segmentStart, segmentEnd);
-            pushAnimationState();
-        }).until(() -> false);
-    }
-
-    public Command getSetAnimationCommand(AnimationType animation, int r, int g, int b, int speed,
-            AnimationDirectionValue direction, double hz)
-    {
-        return this.runOnce(() ->
+            gameState = GameState.AUTONOMOUS;
+        } else if (DriverStation.isTest())
         {
-            setAnimation(animation);
-            setAnimationColor(r, g, b);
-            setAnimationSpeed(speed);
-            setAnimationDirection(direction);
-            setAnimationHz(hz);
-            pushAnimationState();
-        }).until(() -> false);
-    }
-
-    public Command getSetAnimationCommand(AnimationType animation, int r, int g, int b, int speed,
-            AnimationDirectionValue direction, double hz, double fireCooling, double fireSparking)
-    {
-        return this.runOnce(() ->
+            gameState = GameState.TEST;
+        } else
         {
-            setAnimation(animation);
-            setAnimationColor(r, g, b);
-            setAnimationSpeed(speed);
-            setAnimationDirection(direction);
-            setAnimationHz(hz);
-            setFireAnimationParameters(fireCooling, fireSparking);
-            pushAnimationState();
-        }).until(() -> false);
-    }
-
-    public Command getSetLEDColorCommand(int red, int green, int blue, double brightness)
-    {
-        return this.runOnce(() ->
-        {
-            setAnimation(AnimationType.None);
-            pushAnimationState();
-            setColor(red, green, blue);
-            setBrightness(brightness);
-        }).until(() -> false);
-    }
-
-    public void setAnimationColor(int red, int green, int blue)
-    {
-        animationColor = new RGBWColor(red, green, blue, 0);
-    }
-
-    public void setAnimationSpeed(int speed)
-    {
-        animationSpeed = speed;
-    }
-
-    public void setAnimationDirection(AnimationDirectionValue direction)
-    {
-        animationDirection = direction;
-    }
-
-    public void setAnimationHz(double hz)
-    {
-        if (hz <= 1000 && hz >= 2)
-        {
-            animationHz = hz;
-        }
-    }
-
-    public void setAnimationSegment(int start, int end)
-    {
-        if (start >= 0 && end < length && start < end)
-        {
-            animationSegment[0] = start;
-            animationSegment[1] = end;
-        }
-    }
-
-    public void setFireAnimationParameters(double cooling, double sparking)
-    {
-        if (cooling >= 0.0 && cooling <= 1.0)
-        {
-            animationFireCooling = cooling;
-        }
-        if (sparking >= 0.0 && sparking <= 1.0)
-        {
-            animationFireSparking = sparking;
-        }
-    }
-
-    public void setAnimationFireSparking(double sparking)
-    {
-        if (sparking >= 0.0 && sparking <= 1.0)
-        {
-            animationFireSparking = sparking;
-        }
-    }
-
-    public void pushAnimationState()
-    {
-        switch (currentAnimation)
-        {
-        case None:
-            candle.setControl(new SolidColor(animationSegment[0], animationSegment[1]).withColor(offColor));
-            break;
-        case ColorFlow:
-        {
-            ColorFlowAnimation animColorFlow = new ColorFlowAnimation(animationSegment[0], animationSegment[1])
-                    .withSlot(0).withColor(animationColor).withDirection(animationDirection).withFrameRate(animationHz);
-            candle.setControl(animColorFlow);
-        }
-            break;
-        case Fire:
-            FireAnimation animFire = new FireAnimation(animationSegment[0], animationSegment[1]).withSlot(0)
-                    .withFrameRate(animationSpeed).withDirection(animationDirection).withCooling(animationFireCooling)
-                    .withSparking(animationFireSparking);
-            candle.setControl(animFire);
-            break;
-        case Rainbow:
-            RainbowAnimation animRainbow = new RainbowAnimation(animationSegment[0], animationSegment[1]).withSlot(0)
-                    .withDirection(animationDirection).withFrameRate(animationHz);
-            candle.setControl(animRainbow);
-            break;
-        case RgbFade:
-            RgbFadeAnimation animRgbFade = new RgbFadeAnimation(animationSegment[0], animationSegment[1])
-                    .withFrameRate(animationHz);
-            candle.setControl(animRgbFade);
-            break;
-        case SingleFade:
-            SingleFadeAnimation animSingleFade = new SingleFadeAnimation(animationSegment[0], animationSegment[1])
-                    .withColor(animationColor).withFrameRate(animationHz);
-            candle.setControl(animSingleFade);
-            break;
-        case Strobe:
-            StrobeAnimation animStrobe = new StrobeAnimation(animationSegment[0], animationSegment[1])
-                    .withColor(animationColor).withFrameRate(animationHz);
-            candle.setControl(animStrobe);
-            break;
-        case Twinkle:
-            TwinkleAnimation animTwinkle = new TwinkleAnimation(animationSegment[0], animationSegment[1]).withSlot(0)
-                    .withColor(animationColor).withFrameRate(animationHz);
-            candle.setControl(animTwinkle);
-            break;
-        case TwinkleOff:
-            TwinkleOffAnimation animTwinkleOff = new TwinkleOffAnimation(animationSegment[0], animationSegment[1])
-                    .withSlot(0).withColor(animationColor).withFrameRate(animationHz);
-            candle.setControl(animTwinkleOff);
-            break;
-        default:
-            candle.setControl(new SolidColor(animationSegment[0], animationSegment[1]).withColor(offColor));
-            break;
+            if (matchTime > 130)
+            {
+                gameState = GameState.TRANSITION;
+                if (matchTime <= 140)
+                {
+                    shiftChangeSoon = true;
+                } else
+                {
+                    shiftChangeSoon = false;
+                }
+            } else if (matchTime > 105)
+            {
+                gameState = GameState.ALLIANCE_SHIFT1;
+                if (matchTime <= 115)
+                {
+                    shiftChangeSoon = true;
+                } else
+                {
+                    shiftChangeSoon = false;
+                }
+            } else if (matchTime > 80)
+            {
+                gameState = GameState.ALLIANCE_SHIFT2;
+                if (matchTime <= 90)
+                {
+                    shiftChangeSoon = true;
+                } else
+                {
+                    shiftChangeSoon = false;
+                }
+            } else if (matchTime > 55)
+            {
+                gameState = GameState.ALLIANCE_SHIFT3;
+                if (matchTime <= 65)
+                {
+                    shiftChangeSoon = true;
+                } else
+                {
+                    shiftChangeSoon = false;
+                }
+            } else if (matchTime > 30)
+            {
+                gameState = GameState.ALLIANCE_SHIFT4;
+                if (matchTime <= 40)
+                {
+                    shiftChangeSoon = true;
+                } else
+                {
+                    shiftChangeSoon = false;
+                }
+            } else
+            {
+                gameState = GameState.END_GAME;
+                if (matchTime <= 10)
+                {
+                    shiftChangeSoon = true;
+                } else
+                {
+                    shiftChangeSoon = false;
+                }
+            }
         }
 
+        boolean redInactiveFirst = false;
+
+        if (DriverStation.getGameSpecificMessage().indexOf('R') == 0)
+        {
+            redInactiveFirst = true;
+        }
+
+        boolean firstShiftActive = switch (alliance.get().orElse(Alliance.Blue))
+        {
+        case Red -> !redInactiveFirst;
+        case Blue -> redInactiveFirst;
+        default -> false;
+        };
+
+        hubActive = switch (gameState)
+        {
+        case AUTONOMOUS, TRANSITION, END_GAME -> true;
+        case ALLIANCE_SHIFT1 -> firstShiftActive;
+        case ALLIANCE_SHIFT2 -> !firstShiftActive;
+        case ALLIANCE_SHIFT3 -> firstShiftActive;
+        case ALLIANCE_SHIFT4 -> !firstShiftActive;
+        default -> false;
+        };
     }
 
     @Override
     public void periodic()
     {
+        setGameState();
+        DogLog.log("Leds/ShooterPrepped", shooterPrepped);
+        DogLog.log("Leds/MatchType", DriverStation.getMatchType().toString());
+        DogLog.log("Leds/AnimationName", io.getAnimationName());
+        DogLog.log("Leds/MatchTime", DriverStation.getMatchTime());
+        DogLog.log("Leds/IsPractice", isPractice());
+
+        if (gameState.equals(GameState.DISCONNECTED))
+        {
+            if (connected)
+            {
+                blinkAnimation(Color.kOrange);
+            } else
+            {
+                movingColor(Color.kMagenta);
+            }
+        } else if (DriverStation.isFMSAttached() || isPractice())
+        {
+            if (!connected)
+            {
+                connected = true;
+                timer.restart();
+            }
+            if (timer.hasElapsed(2.5))
+            {
+                if (gameState.equals(GameState.DISABLED))
+                {
+                    if (alliance.get().isPresent())
+                    {
+                        if (alliance.get().orElse(Alliance.Blue) == Alliance.Blue)
+                        {
+                            setColor(Color.kBlue);
+                        } else
+                        {
+                            setColor(Color.kRed);
+                        }
+                    } else
+                    {
+                        blinkAnimation(Color.kYellow);
+                    }
+                } else if (gameState.equals(GameState.AUTONOMOUS) || gameState.equals(GameState.TRANSITION))
+                {
+                    if (shiftChangeSoon)
+                    {
+                        blinkAnimation(Color.kGreen);
+                    } else
+                    {
+                        setColor(Color.kGreen);
+                    }
+                } else if (gameState.equals(GameState.END_GAME))
+                {
+                    blinkAnimation(Color.kGreen, 2);
+                } else if (hubActive)
+                {
+                    if (shiftChangeSoon)
+                    {
+                        blinkAnimation(Color.kGreen);
+                    } else
+                    {
+                        setColor(Color.kGreen);
+                    }
+                } else
+                {
+                    if (shiftChangeSoon)
+                    {
+                        blinkAnimation(Color.kMagenta);
+                    } else
+                    {
+                        setColor(Color.kMagenta);
+                    }
+                }
+            } else
+            {
+                blinkAnimation(Color.kMagenta, 2);
+            }
+        } else
+        {
+            if (!connected)
+            {
+                connected = true;
+                timer.restart();
+            }
+            if (timer.hasElapsed(2.5))
+            {
+                if (gameState.equals(GameState.DISABLED))
+                {
+                    if (alliance.get().isPresent())
+                    {
+                        if (alliance.get().orElse(Alliance.Blue) == Alliance.Blue)
+                        {
+                            setColor(Color.kBlue);
+                        } else
+                        {
+                            setColor(Color.kRed);
+                        }
+                    } else
+                    {
+                        blinkAnimation(Color.kYellow);
+                    }
+                } else if (shooterPrepped)
+                {
+                    blinkAnimation(Color.kMagenta);
+                } else
+                {
+                    setColor(Color.kMagenta);
+                }
+            } else
+            {
+                blinkAnimation(Color.kMagenta, 2);
+            }
+        }
+    }
+
+    public void setShooterPrepped(boolean shooterPrepped)
+    {
+        this.shooterPrepped = shooterPrepped;
+    }
+
+    public boolean isPractice()
+    {
+        if (matchTime == -1)
+        {
+            return false;
+        } else
+        {
+            return true;
+        }
+    }
+
+    public String getGameStateString()
+    {
+        return gameState.toString();
     }
 }

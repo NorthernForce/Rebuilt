@@ -20,6 +20,7 @@ import choreo.auto.AutoRoutine;
 
 import com.ctre.phoenix6.StatusSignal;
 import dev.doglog.DogLog;
+import dev.doglog.DogLogOptions;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
@@ -73,6 +74,7 @@ import frc.robot.lobby.subsystems.turret.hood.HoodIOServoSim;
 import frc.robot.util.AutoUtil;
 import frc.robot.util.InterpolatedTargetingCalculator;
 import frc.robot.util.TrigHoodTargetingCalculator;
+import frc.robot.lobby.subsystems.leds.*;
 
 public class LobbyContainer implements NFRRobotContainer
 {
@@ -85,6 +87,7 @@ public class LobbyContainer implements NFRRobotContainer
     private final Climber climber;
     private final Turret turret;
     private final Spindexer spindexer;
+    private final LEDS leds;
     private final DriveToPoseWithVision driveToPoseCommand;
     private Optional<String> teamActivity = Optional.empty();
     private final PowerDistribution powerDistributionHub = new PowerDistribution(LobbyConstants.PDHConstants.kPDHPort,
@@ -117,6 +120,8 @@ public class LobbyContainer implements NFRRobotContainer
         drive.resetPose(new Pose2d(3, 3, new Rotation2d()));
 
         drive.setVisionMeasurementStdDevs(LobbyConstants.VisionConstants.kStdDevs);
+
+        DogLog.setOptions(new DogLogOptions().withCaptureDs(true));
         if (Utils.isSimulation())
         {
             climber = new Climber(new ClimberIOTalonFXSim(LobbyConstants.ClimberConstants.kClimberParameters),
@@ -190,6 +195,8 @@ public class LobbyContainer implements NFRRobotContainer
 
         intake = new Intake(new IntakeIOTalonFX(LobbyConstants.IntakeConstants.kIOParameters),
                 LobbyConstants.IntakeConstants.kParameters);
+
+        leds = new LEDS(new LedsIOCANdle(LobbyConstants.Leds.kCANdleConstants));
 
         field = new Field2d();
         driveToPoseCommand = new DriveToPoseWithVision(drive);
@@ -284,6 +291,11 @@ public class LobbyContainer implements NFRRobotContainer
         return drive;
     }
 
+    public LEDS getLeds()
+    {
+        return leds;
+    }
+
     public Turret getTurret()
     {
         return turret;
@@ -326,6 +338,8 @@ public class LobbyContainer implements NFRRobotContainer
         Rotation2d yawRate = Rotation2d.fromRadians(state.Speeds.omegaRadiansPerSecond);
         vision.setHeading(currentHeading, yawRate);
 
+        leds.setShooterPrepped(turret.isAtTargetPose());
+
         var visionPoses = vision.getPoses();
         DogLog.log("Vision/PoseCount", visionPoses.size());
         visionPoses.forEach(m ->
@@ -359,14 +373,18 @@ public class LobbyContainer implements NFRRobotContainer
                                         + getDrive().getPose().getRotation().getRadians()))));
         DogLog.log("Turret/Distance", getTurret().calculateShooterDistanceToHub(drive.getPose()));
 
-        if (DriverStation.getGameSpecificMessage().equals("R"))
+        DogLog.log("Leds/GameState", leds.getGameStateString());
+
+        if (DriverStation.getGameSpecificMessage().indexOf('R') == 0)
         {
             teamActivity = Optional
-                    .of((DriverStation.getAlliance().get() == DriverStation.Alliance.Red) ? "active" : "inactive");
+                    .of((DriverStation.getAlliance().orElse(Alliance.Blue) == DriverStation.Alliance.Red) ? "active"
+                            : "inactive");
         } else if (DriverStation.getGameSpecificMessage().equals("B"))
         {
             teamActivity = Optional
-                    .of((DriverStation.getAlliance().get() == DriverStation.Alliance.Blue) ? "active" : "inactive");
+                    .of((DriverStation.getAlliance().orElse(Alliance.Blue) == DriverStation.Alliance.Blue) ? "active"
+                            : "inactive");
         }
 
         DogLog.log("GameData/StartingActivity", teamActivity.orElse("unknown"));

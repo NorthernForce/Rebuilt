@@ -18,6 +18,7 @@ import static edu.wpi.first.units.Units.Volts;
 
 import java.util.List;
 
+import com.ctre.phoenix6.signals.AnimationDirectionValue;
 import com.ctre.phoenix6.signals.MotorArrangementValue;
 import com.pathplanner.lib.config.PIDConstants;
 import com.pathplanner.lib.path.PathConstraints;
@@ -45,6 +46,7 @@ import edu.wpi.first.wpilibj.PowerDistribution.ModuleType;
 import frc.robot.FieldConstants;
 import frc.robot.lobby.generated.LobbyTunerConstants;
 import frc.robot.lobby.subsystems.intake.IntakeIO.IntakeIOParameters;
+import frc.robot.lobby.subsystems.leds.LedsIO.LedsConstants;
 import frc.robot.lobby.subsystems.climber.ClimberParameters;
 import frc.robot.lobby.subsystems.intake.Intake.IntakeParameters;
 import frc.robot.lobby.subsystems.turret.hood.HoodIO.HoodConstants;
@@ -428,5 +430,15 @@ public class LobbyConstants
     public class TalonFXConstants
     {
         public static final Temperature kMaxTemperature = Celsius.of(60.0);
+    }
+
+    public class Leds
+    {
+        public static final int kLength = 175;
+        public static final double kBrightness = 0.4;
+        public static final int kCANdleId = 23;
+        public static final AnimationDirectionValue kAnimationDirection = AnimationDirectionValue.Forward;
+        public static final LedsConstants kCANdleConstants = new LedsConstants(kCANdleId, kLength, kBrightness,
+                kAnimationDirection);
     }
 }
