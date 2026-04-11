@@ -47,8 +47,8 @@ public class LedsIOCANdle implements LedsIO
     public void movingColor(Color color)
     {
         RGBWColor newColor = new RGBWColor(color);
-        candle.setControl(new LarsonAnimation(0, length).withBounceMode(LarsonBounceValue.Front).withFrameRate(16)
-                .withSize(8).withColor(newColor));
+        candle.setControl(new LarsonAnimation(0, length).withBounceMode(LarsonBounceValue.Front).withFrameRate(32)
+                .withSize(16).withColor(newColor));
     }
 
     @Override

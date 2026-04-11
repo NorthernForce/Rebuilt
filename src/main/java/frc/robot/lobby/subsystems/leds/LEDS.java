@@ -6,6 +6,7 @@ import java.util.function.Supplier;
 import dev.doglog.DogLog;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
@@ -32,9 +33,7 @@ public class LEDS extends SubsystemBase
 
     private boolean shooterPrepped = false;
 
-    private double lastTime = DriverStation.getMatchTime();
-
-    private boolean timeDecreasing = false;
+    private Timer timer = new Timer();
 
     public LEDS(LedsIO ledIO)
     {
@@ -202,7 +201,6 @@ public class LEDS extends SubsystemBase
         DogLog.log("Leds/MatchType", DriverStation.getMatchType().toString());
         DogLog.log("Leds/AnimationName", io.getAnimationName());
         DogLog.log("Leds/MatchTime", DriverStation.getMatchTime());
-        DogLog.log("Leds/LastMatchTime", lastTime);
         DogLog.log("Leds/IsPractice", isPractice());
 
         if (gameState.equals(GameState.DISCONNECTED))
@@ -219,61 +217,94 @@ public class LEDS extends SubsystemBase
             if (!connected)
             {
                 connected = true;
+                timer.restart();
             }
-            if (gameState.equals(GameState.DISABLED))
+            if (timer.hasElapsed(2.5))
             {
-                if (alliance.get().isPresent())
+                if (gameState.equals(GameState.DISABLED))
                 {
-                    if (alliance.get().orElse(Alliance.Blue) == Alliance.Blue)
+                    if (alliance.get().isPresent())
                     {
-                        setColor(Color.kBlue);
+                        if (alliance.get().orElse(Alliance.Blue) == Alliance.Blue)
+                        {
+                            setColor(Color.kBlue);
+                        } else
+                        {
+                            setColor(Color.kRed);
+                        }
                     } else
                     {
-                        setColor(Color.kRed);
+                        blinkAnimation(Color.kYellow);
+                    }
+                } else if (gameState.equals(GameState.AUTONOMOUS) || gameState.equals(GameState.TRANSITION))
+                {
+                    if (shiftChangeSoon)
+                    {
+                        blinkAnimation(Color.kGreen);
+                    } else
+                    {
+                        setColor(Color.kGreen);
+                    }
+                } else if (gameState.equals(GameState.END_GAME))
+                {
+                    blinkAnimation(Color.kGreen, 2);
+                } else if (hubActive)
+                {
+                    if (shiftChangeSoon)
+                    {
+                        blinkAnimation(Color.kGreen);
+                    } else
+                    {
+                        setColor(Color.kGreen);
                     }
                 } else
                 {
-                    blinkAnimation(Color.kYellow);
-                }
-            } else if (gameState.equals(GameState.AUTONOMOUS) || gameState.equals(GameState.TRANSITION))
-            {
-                if (shiftChangeSoon)
-                {
-                    blinkAnimation(Color.kGreen);
-                } else
-                {
-                    setColor(Color.kGreen);
-                }
-            } else if (gameState.equals(GameState.END_GAME))
-            {
-                blinkAnimation(Color.kGreen, 2);
-            } else if (hubActive)
-            {
-                if (shiftChangeSoon)
-                {
-                    blinkAnimation(Color.kGreen);
-                } else
-                {
-                    setColor(Color.kGreen);
+                    if (shiftChangeSoon)
+                    {
+                        blinkAnimation(Color.kMagenta);
+                    } else
+                    {
+                        setColor(Color.kMagenta);
+                    }
                 }
             } else
             {
-                if (shiftChangeSoon)
+                blinkAnimation(Color.kMagenta, 2);
+            }
+        } else
+        {
+            if (!connected)
+            {
+                connected = true;
+                timer.restart();
+            }
+            if (timer.hasElapsed(2.5))
+            {
+                if (gameState.equals(GameState.DISABLED))
+                {
+                    if (alliance.get().isPresent())
+                    {
+                        if (alliance.get().orElse(Alliance.Blue) == Alliance.Blue)
+                        {
+                            setColor(Color.kBlue);
+                        } else
+                        {
+                            setColor(Color.kRed);
+                        }
+                    } else
+                    {
+                        blinkAnimation(Color.kYellow);
+                    }
+                } else if (shooterPrepped)
                 {
                     blinkAnimation(Color.kMagenta);
                 } else
                 {
                     setColor(Color.kMagenta);
                 }
-            }
-        } else
-        {
-            if (shooterPrepped)
-            {
-                blinkAnimation(Color.kMagenta);
             } else
             {
-                setColor(Color.kMagenta);
+                blinkAnimation(Color.kMagenta, 2);
             }
         }
     }
@@ -285,14 +316,12 @@ public class LEDS extends SubsystemBase
 
     public boolean isPractice()
     {
-        if (matchTime != lastTime)
+        if (matchTime == -1)
         {
-            timeDecreasing = matchTime < lastTime;
-            lastTime = matchTime;
-            return timeDecreasing;
+            return false;
         } else
         {
-            return timeDecreasing;
+            return true;
         }
     }
 
