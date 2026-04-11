@@ -1,8 +1,11 @@
 package frc.robot;
 
+import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.Inches;
 import static edu.wpi.first.units.Units.Meters;
 
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
 
@@ -61,4 +64,6 @@ public class FieldConstants
     // Maximum shooting distance (meters)
     public static final double kMaxShootingDistance = 8.0;
     public static final double kMinShootingDistance = 1.6;
+    public static final Pose2d kLeftClimbPose = new Pose2d(Meters.of(1.061), Meters.of(4.643),
+            new Rotation2d(Degrees.of(90)));
 }
