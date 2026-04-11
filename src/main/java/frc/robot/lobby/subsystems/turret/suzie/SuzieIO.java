@@ -58,6 +58,11 @@ public interface SuzieIO
     {
     }
 
+    public default void start(double chassisOmegaRadPerSec)
+    {
+        start(); // fallback for sim/stub implementations
+    }
+
     public default void stop()
     {
     }

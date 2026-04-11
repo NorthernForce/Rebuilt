@@ -182,9 +182,15 @@ public class SuzieIOTalonFXS implements SuzieIO
     @Override
     public void start()
     {
-        // if (!isAtTargetAngle())
-
         m_motor.setControl(m_positionVoltage.withPosition(m_targetAngle.in(Rotations)));
+    }
+
+    @Override
+    public void start(double chassisOmegaRadPerSec)
+    {
+        double turretVelocityRotPerSec = -chassisOmegaRadPerSec / (2.0 * Math.PI);
+        double ffVoltage = constants.kV() * turretVelocityRotPerSec;
+        m_motor.setControl(m_positionVoltage.withPosition(m_targetAngle.in(Rotations)).withFeedForward(ffVoltage));
     }
 
     @Override

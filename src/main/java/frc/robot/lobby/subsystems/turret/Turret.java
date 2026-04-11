@@ -192,6 +192,13 @@ public class Turret extends SubsystemBase
         shooter.start();
     }
 
+    public void start(double chassisOmegaRadPerSec)
+    {
+        suzie.start(chassisOmegaRadPerSec);
+        hood.start();
+        shooter.start();
+    }
+
     public void stop()
     {
         suzie.stop();

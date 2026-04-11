@@ -55,6 +55,11 @@ public class Suzie extends SubsystemBase
         io.start();
     }
 
+    public void start(double chassisOmegaRadPerSec)
+    {
+        io.start(chassisOmegaRadPerSec);
+    }
+
     public void stop()
     {
         io.stop();
