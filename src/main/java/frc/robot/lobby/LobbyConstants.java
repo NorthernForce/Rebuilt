@@ -112,9 +112,9 @@ public class LobbyConstants
 
     public class AutoConstants
     {
-        public static final PIDController xPid = new PIDController(10.0, 0.0, 0.0);
-        public static final PIDController yPid = new PIDController(10.0, 0.0, 0.0);
-        public static final PIDController rPid = new PIDController(7.0, 0.0, 0.0);
+        public static final PIDController xPid = new PIDController(1.79, 0.0, 0.0);
+        public static final PIDController yPid = new PIDController(1.79, 0.0, 0.0);
+        public static final PIDController rPid = new PIDController(0.7, 0.0, 0.0);
         static
         {
             rPid.enableContinuousInput(0, 2 * Math.PI);

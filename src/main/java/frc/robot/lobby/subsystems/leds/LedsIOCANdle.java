@@ -40,14 +40,14 @@ public class LedsIOCANdle implements LedsIO
     public void setColor(Color color)
     {
         RGBWColor newColor = new RGBWColor(color);
-        candle.setControl(new SolidColor(0, length).withColor(newColor));
+        candle.setControl(new SolidColor(8, length).withColor(newColor));
     }
 
     @Override
     public void movingColor(Color color)
     {
         RGBWColor newColor = new RGBWColor(color);
-        candle.setControl(new LarsonAnimation(0, length).withBounceMode(LarsonBounceValue.Front).withFrameRate(32)
+        candle.setControl(new LarsonAnimation(8, length).withBounceMode(LarsonBounceValue.Front).withFrameRate(32)
                 .withSize(16).withColor(newColor));
     }
 
@@ -67,7 +67,7 @@ public class LedsIOCANdle implements LedsIO
     @Override
     public void rainbowAnimation()
     {
-        RainbowAnimation animation = new RainbowAnimation(0, length).withSlot(0).withDirection(animationDirection);
+        RainbowAnimation animation = new RainbowAnimation(8, length).withSlot(0).withDirection(animationDirection);
         candle.setControl(animation);
     }
 
@@ -75,14 +75,14 @@ public class LedsIOCANdle implements LedsIO
     public void blinkAnimation(Color color)
     {
         RGBWColor newColor = new RGBWColor(color);
-        candle.setControl(new StrobeAnimation(0, length).withColor(newColor).withFrameRate(4));
+        candle.setControl(new StrobeAnimation(8, length).withColor(newColor).withFrameRate(4));
     }
 
     @Override
     public void blinkAnimation(Color color, double frameRate)
     {
         RGBWColor newColor = new RGBWColor(color);
-        candle.setControl(new StrobeAnimation(0, length).withColor(newColor).withFrameRate(frameRate));
+        candle.setControl(new StrobeAnimation(8, length).withColor(newColor).withFrameRate(frameRate));
     }
 
     @Override

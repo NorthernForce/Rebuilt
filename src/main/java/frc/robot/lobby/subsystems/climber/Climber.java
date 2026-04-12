@@ -23,12 +23,12 @@ public class Climber extends SubsystemBase
 
     public Command runUp()
     {
-        return run(() -> climber.runUp());
+        return run(() -> climber.runUp()).handleInterrupt(() -> climber.stopMotor());
     }
 
     public Command runDown()
     {
-        return run(() -> climber.homeDown());
+        return run(() -> climber.homeDown()).handleInterrupt(() -> climber.stopMotor());
     }
 
     public Command getHomingCommand()

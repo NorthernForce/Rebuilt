@@ -11,7 +11,7 @@
               {
                 "type": "path",
                 "data": {
-                  "pathName": "S2-PCL"
+                  "pathName": "S3-PCR"
                 }
               },
               {
@@ -29,6 +29,12 @@
                       "data": {
                         "name": "RunUpClimber"
                       }
+                    },
+                    {
+                      "type": "named",
+                      "data": {
+                        "name": "Shoot"
+                      }
                     }
                   ]
                 }
@@ -39,7 +45,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "PCL-CL"
+            "pathName": "PCR-CR"
           }
         },
         {

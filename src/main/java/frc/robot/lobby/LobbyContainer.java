@@ -21,6 +21,7 @@ import choreo.auto.AutoRoutine;
 import com.ctre.phoenix6.StatusSignal;
 import dev.doglog.DogLog;
 import dev.doglog.DogLogOptions;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
@@ -232,7 +233,7 @@ public class LobbyContainer implements NFRRobotContainer
         autoUtil.bindAuto("S1-SHOOT-DEPOT", new PathPlannerAuto("S1-SHOOT-DEPOT"));
         autoUtil.bindAuto("S1-SIMPLE", new SimpleAuto(this, new PathPlannerAuto("S1-SHOOT").getStartingPose()));
         autoUtil.bindAuto("S3-SIMPLE", new SimpleAuto(this, new PathPlannerAuto("S3-SHOOT").getStartingPose()));
-
+        autoUtil.bindAuto("S2-CLIMB", new PathPlannerAuto("S2-CLIMB"));
         Shuffleboard.getTab("Developer").add(field);
         Shuffleboard.getTab("Developer").add("Reset Encoders", drive.resetEncoders());
         Shuffleboard.getTab("Developer").add("Reset Orientation", drive.resetOrientation());
@@ -265,6 +266,19 @@ public class LobbyContainer implements NFRRobotContainer
         dashboard.putCommand("Reset Orientation", drive.resetOrientation());
         dashboard.putLimelightStream(LobbyConstants.VisionConstants.LimeLightConstants.kLeftLimeLightName);
         dashboard.putLimelightStream(LobbyConstants.VisionConstants.LimeLightConstants.kFrontLimeLightName);
+        dashboard.putSystem("Drivetrain")
+                .withCommand("SysId Move Quasistatic Forward", (drive.sysIdQuasistaticTranslation(Direction.kForward)))
+                .withCommand("SysId Move Quasistatic Reverse", (drive.sysIdQuasistaticTranslation(Direction.kReverse)))
+                .withCommand("SysId Move Dynamic Forward", (drive.sysIdDynamicTranslation(Direction.kForward)))
+                .withCommand("SysId Move Dynamic Reverse", (drive.sysIdDynamicTranslation(Direction.kReverse)))
+                .withCommand("SysId Steer Quasistatic Forward", (drive.sysIdQuasistaticSteer(Direction.kForward)))
+                .withCommand("SysId Steer Quasistatic Reverse", (drive.sysIdQuasistaticSteer(Direction.kReverse)))
+                .withCommand("SysId Steer Dynamic Forward", (drive.sysIdDynamicSteer(Direction.kForward)))
+                .withCommand("SysId Steer Dynamic Reverse", (drive.sysIdDynamicSteer(Direction.kReverse)))
+                .withCommand("SysId Rotation Quasistatic Forward", (drive.sysIdQuasistaticRotation(Direction.kForward)))
+                .withCommand("SysId Rotation Quasistatic Reverse", (drive.sysIdQuasistaticRotation(Direction.kReverse)))
+                .withCommand("SysId Rotation Dynamic Forward", (drive.sysIdDynamicRotation(Direction.kForward)))
+                .withCommand("SysId Rotation Dynamic Reverse", (drive.sysIdDynamicRotation(Direction.kReverse)));
         dashboard.putCommand("Reset Suzie Encoders", Commands.runOnce(() ->
         {
             turret.getSuzie().resetEncoders();

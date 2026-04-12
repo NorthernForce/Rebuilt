@@ -11,7 +11,7 @@
               {
                 "type": "path",
                 "data": {
-                  "pathName": "S2-PCL"
+                  "pathName": "S1-C"
                 }
               },
               {
@@ -28,6 +28,12 @@
                       "type": "named",
                       "data": {
                         "name": "RunUpClimber"
+                      }
+                    },
+                    {
+                      "type": "named",
+                      "data": {
+                        "name": "Shoot"
                       }
                     }
                   ]
