@@ -13,6 +13,7 @@ import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.Preferences;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -34,12 +35,21 @@ public class Turret extends SubsystemBase
     private final TargetingCalculator shooterCalculator;
     private final TargetingCalculator tofCalculator;
     private final Angle shooterToRobotAngle;
+    private final TurretConstants constants;
 
     public Turret(TurretConstants constants, Suzie suzie, Hood hood, Shooter shooter,
             TargetingCalculator hoodCalculator, TargetingCalculator shooterCalculator,
             TargetingCalculator tofCalculator)
     {
-        offset = constants.offset();
+        offset = new Pose2d(
+                new Translation2d(
+                        Meters.of(Preferences.getDouble("suzieOffsetXMeters",
+                                constants.offset().getTranslation().getMeasureX().in(Meters))),
+                        Meters.of(Preferences.getDouble("suzieOffsetYMeters",
+                                constants.offset().getTranslation().getMeasureY().in(Meters)))),
+                new Rotation2d(Degrees.of(Preferences.getDouble("suzieOffsetDegrees",
+                        constants.offset().getRotation().getMeasure().in(Degrees)))));
+        this.constants = constants;
         this.suzie = suzie;
         this.hood = hood;
         this.shooter = shooter;
@@ -146,6 +156,11 @@ public class Turret extends SubsystemBase
         }
     }
 
+    public TurretConstants getConstants()
+    {
+        return constants;
+    }
+
     /**
      * Check if the robot is in valid shooting range for the current alliance
      * Shooting range is between the center trench and the alliance station
@@ -171,6 +186,11 @@ public class Turret extends SubsystemBase
         suzie.setTargetAngle(pose.suzieAngle);
         hood.setTargetMechanismAngle(pose.hoodAngle);
         shooter.setTargetSpeed(pose.shooterSpeed);
+    }
+
+    public void resetTrim()
+    {
+        setOffsetAngle(constants.offset().getRotation().getMeasure());
     }
 
     public TurretPose getPose()
@@ -287,6 +307,9 @@ public class Turret extends SubsystemBase
     public void setOffsetAngle(Angle angle)
     {
         offset = new Pose2d(offset.getTranslation(), new Rotation2d(angle));
+        Preferences.setDouble("suzieOffsetDegrees", offset.getRotation().getMeasure().in(Degrees));
+        Preferences.setDouble("suzieOffsetXMeters", offset.getTranslation().getMeasureX().in(Meters));
+        Preferences.setDouble("suzieOffsetYMeters", offset.getTranslation().getMeasureY().in(Meters));
     }
 
     public Angle getOffsetAngle()

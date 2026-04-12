@@ -30,6 +30,7 @@ import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.PowerDistribution;
+import edu.wpi.first.wpilibj.Preferences;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
@@ -265,7 +266,8 @@ public class LobbyContainer implements NFRRobotContainer
                 intake.sysIdArmQuasistatic(SysIdRoutine.Direction.kReverse));
         Shuffleboard.getTab("SysId").add("Arm Dynamic Fwd", intake.sysIdArmDynamic(SysIdRoutine.Direction.kForward));
         Shuffleboard.getTab("SysId").add("Arm Dynamic Rev", intake.sysIdArmDynamic(SysIdRoutine.Direction.kReverse));
-        dashboard.putCommand("Reset Turret", Commands.runOnce(() -> turret.getSuzie().resetEncoders()));
+        dashboard.putCommand("Reset Turret",
+                Commands.runOnce(() -> turret.getSuzie().resetEncoders()).ignoringDisable(true));
         dashboard.putCommand("Reset Orientation", drive.resetOrientation());
         dashboard.putLimelightStream(LobbyConstants.VisionConstants.LimeLightConstants.kLeftLimeLightName);
         dashboard.putLimelightStream(LobbyConstants.VisionConstants.LimeLightConstants.kFrontLimeLightName);
@@ -292,6 +294,10 @@ public class LobbyContainer implements NFRRobotContainer
                 .withCommand("Turntable SysId Quasistatic Reverse", turret.getSuzie().getSysIdQuasistaticReverse())
                 .withCommand("Turntable SysId Dynamic Forward", turret.getSuzie().getSysIdDynamicForward())
                 .withCommand("Turntable SysId Dynamic Reverse", turret.getSuzie().getSysIdDynamicReverse())
+                .withCommand("Reset Trim", Commands.runOnce(() -> turret.resetTrim(), turret))
+                .withNumber("Current Trim",
+                        () -> Preferences.getDouble("suzieOffsetDegrees",
+                                turret.getConstants().offset().getRotation().getMeasure().in(Degrees)))
                 .withBooleanTunable("Turntable Brake Mode", (brake) ->
                 {
                     turret.getSuzie().setBrakeMode(brake);
@@ -430,34 +436,49 @@ public class LobbyContainer implements NFRRobotContainer
 
         DogLog.log("Velocity", drive.getVelocity());
         // DogLog.log("Drive/Predicted Pose", predictPose());
-        DogLog.log("CurrentDraw/General/Voltage", powerDistributionHub.getVoltage());
-        DogLog.log("CurrentDraw/General/TotalCurrent", powerDistributionHub.getTotalCurrent());
-        DogLog.log("CurrentDraw/PDH/Feeder", powerDistributionHub.getCurrent(8));
-        DogLog.log("CurrentDraw/PDH/Suzie", powerDistributionHub.getCurrent(9));
-        DogLog.log("CurrentDraw/PDH/LeftShooterMotor", powerDistributionHub.getCurrent(7));
-        DogLog.log("CurrentDraw/PDH/RightShooterMotor", powerDistributionHub.getCurrent(6));
-        DogLog.log("CurrentDraw/PDH/Suzie", powerDistributionHub.getCurrent(9));
-        DogLog.log("CurrentDraw/PDH/Carousel", powerDistributionHub.getCurrent(4));
-        DogLog.log("CurrentDraw/Turret/Shooter/LeftMotor", turret.getShooter().getMotor1Current());
-        DogLog.log("CurrentDraw/Turret/Shooter/RightMotor", turret.getShooter().getMotor2Current());
-        DogLog.log("Turret/Shooter/Speed", turret.getShooter().getSpeed());
+        // DogLog.log("CurrentDraw/General/Voltage", powerDistributionHub.getVoltage());
+        // DogLog.log("CurrentDraw/General/TotalCurrent",
+        // powerDistributionHub.getTotalCurrent());
+        // DogLog.log("CurrentDraw/PDH/Feeder", powerDistributionHub.getCurrent(8));
+        // DogLog.log("CurrentDraw/PDH/Suzie", powerDistributionHub.getCurrent(9));
+        // DogLog.log("CurrentDraw/PDH/LeftShooterMotor",
+        // powerDistributionHub.getCurrent(7));
+        // DogLog.log("CurrentDraw/PDH/RightShooterMotor",
+        // powerDistributionHub.getCurrent(6));
+        // DogLog.log("CurrentDraw/PDH/Suzie", powerDistributionHub.getCurrent(9));
+        // DogLog.log("CurrentDraw/PDH/Carousel", powerDistributionHub.getCurrent(4));
+        // DogLog.log("CurrentDraw/Turret/Shooter/LeftMotor",
+        // turret.getShooter().getMotor1Current());
+        // DogLog.log("CurrentDraw/Turret/Shooter/RightMotor",
+        // turret.getShooter().getMotor2Current());
+        // DogLog.log("Turret/Shooter/Speed", turret.getShooter().getSpeed());
 
-        DogLog.log("CurrentDraw/Turret/Suzie", turret.getSuzie().getCurrent());
-        DogLog.log("CurrentDraw/Intake/Rollers", intake.getRollerCurrent());
-        DogLog.log("CurrentDraw/Intake/Angling", intake.getAnglingCurrent());
+        // DogLog.log("CurrentDraw/Turret/Suzie", turret.getSuzie().getCurrent());
+        // DogLog.log("CurrentDraw/Intake/Rollers", intake.getRollerCurrent());
+        // DogLog.log("CurrentDraw/Intake/Angling", intake.getAnglingCurrent());
         // DogLog.log("CurrentDraw/Turret/Hood",
         // turret.getHood().getCurrent(powerDistributionHub));
-        DogLog.log("CurrentDraw/Spindexer/Feeder", spindexer.getFlicker().getCurrent());
-        DogLog.log("CurrentDraw/Spindexer/Carousel", spindexer.getCarousel().getCurrent());
+        // DogLog.log("CurrentDraw/Spindexer/Feeder",
+        // spindexer.getFlicker().getCurrent());
+        // DogLog.log("CurrentDraw/Spindexer/Carousel",
+        // spindexer.getCarousel().getCurrent());
 
-        DogLog.log("CurrentDraw/DriveTrain/FrontLeft/Drive", flDriveCurrent.getValue().in(Amps));
-        DogLog.log("CurrentDraw/DriveTrain/FrontLeft/Steer", flSteerCurrent.getValue().in(Amps));
-        DogLog.log("CurrentDraw/DriveTrain/FrontRight/Drive", frDriveCurrent.getValue().in(Amps));
-        DogLog.log("CurrentDraw/DriveTrain/FrontRight/Steer", frSteerCurrent.getValue().in(Amps));
-        DogLog.log("CurrentDraw/DriveTrain/BackLeft/Drive", blDriveCurrent.getValue().in(Amps));
-        DogLog.log("CurrentDraw/DriveTrain/BackLeft/Steer", blSteerCurrent.getValue().in(Amps));
-        DogLog.log("CurrentDraw/DriveTrain/BackRight/Drive", brDriveCurrent.getValue().in(Amps));
-        DogLog.log("CurrentDraw/DriveTrain/BackRight/Steer", brSteerCurrent.getValue().in(Amps));
+        // DogLog.log("CurrentDraw/DriveTrain/FrontLeft/Drive",
+        // flDriveCurrent.getValue().in(Amps));
+        // DogLog.log("CurrentDraw/DriveTrain/FrontLeft/Steer",
+        // flSteerCurrent.getValue().in(Amps));
+        // DogLog.log("CurrentDraw/DriveTrain/FrontRight/Drive",
+        // frDriveCurrent.getValue().in(Amps));
+        // DogLog.log("CurrentDraw/DriveTrain/FrontRight/Steer",
+        // frSteerCurrent.getValue().in(Amps));
+        // DogLog.log("CurrentDraw/DriveTrain/BackLeft/Drive",
+        // blDriveCurrent.getValue().in(Amps));
+        // DogLog.log("CurrentDraw/DriveTrain/BackLeft/Steer",
+        // blSteerCurrent.getValue().in(Amps));
+        // DogLog.log("CurrentDraw/DriveTrain/BackRight/Drive",
+        // brDriveCurrent.getValue().in(Amps));
+        // DogLog.log("CurrentDraw/DriveTrain/BackRight/Steer",
+        // brSteerCurrent.getValue().in(Amps));
     }
 
     @Override

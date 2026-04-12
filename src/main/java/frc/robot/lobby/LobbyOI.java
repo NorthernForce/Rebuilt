@@ -56,10 +56,9 @@ public class LobbyOI
                 .andThen(new RunSpindexer(container.getSpindexer(), LobbyConstants.SpindexerConstants.kDeJamTime,
                         LobbyConstants.SpindexerConstants.kPostDeJamTime, () -> turret.isAtTargetPose()))
                 .alongWith(new PrepTurretCommand(container))));
-        driveController.b()
-                .whileTrue(Commands
-                        .parallel(container.getClimber().runDown().withTimeout(3), container.driveToPreClimbPosition())
-                        .andThen(container.driveToClimbPost()));
+        driveController.b().whileTrue(Commands
+                .parallel(container.getClimber().runUp().withTimeout(6), container.driveToPreClimbPosition())
+                .andThen(container.driveToClimbPost()).andThen(container.getClimber().runDown().withTimeout(8)));
         driveController.leftTrigger().whileTrue(intake.intakeMoving()).onFalse(intake.stopIntake());
 
         driveController.rightTrigger().whileTrue((Commands
@@ -90,11 +89,17 @@ public class LobbyOI
                 .onFalse(Commands.runOnce(() -> container.getClimber().stopMotor(), container.getClimber()));
         driveController.povDown().whileTrue(container.getClimber().runDown())
                 .onFalse(Commands.runOnce(() -> container.getClimber().stopMotor(), container.getClimber()));
-
-        driveController.povLeft().onTrue(
-                Commands.runOnce(() -> turret.setOffsetAngle(turret.getOffsetAngle().minus(Degrees.of(1))), suzie));
-        driveController.povRight().onTrue(
-                Commands.runOnce(() -> turret.setOffsetAngle(turret.getOffsetAngle().plus(Degrees.of(1))), suzie));
+        driveController.a().onTrue(Commands.runOnce(() -> turret.resetTrim()));
+        driveController.povLeft().onTrue(Commands.runOnce(() -> suzie.start(), suzie))
+                .onFalse(Commands.runOnce(() -> suzie.stop()))
+                .whileTrue(Commands
+                        .runOnce(() -> turret.setOffsetAngle(turret.getOffsetAngle().minus(Degrees.of(1))), suzie)
+                        .andThen(Commands.waitSeconds(0.02)).repeatedly());
+        driveController.povRight().onTrue(Commands.runOnce(() -> suzie.start(), suzie))
+                .onFalse(Commands.runOnce(() -> suzie.stop()))
+                .whileTrue(Commands
+                        .runOnce(() -> turret.setOffsetAngle(turret.getOffsetAngle().plus(Degrees.of(1))), suzie)
+                        .andThen(Commands.waitSeconds(0.02)).repeatedly());
 
         manipulatorController.back().onTrue(drive.resetOrientation());
         manipulatorController.x()

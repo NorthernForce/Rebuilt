@@ -143,12 +143,12 @@ public class Suzie extends SubsystemBase
     public void periodic()
     {
         io.update();
-        var config = io.getSlot0Configs();
-        DogLog.log("Turret/Suzie/PID Values/kP", config.kP);
-        DogLog.log("Turret/Suzie/PID Values/kI", config.kI);
-        DogLog.log("Turret/Suzie/PID Values/kD", config.kD);
-        DogLog.log("Turret/Suzie/PID Values/kV", config.kV);
-        DogLog.log("Turret/Suzie/PID Values/kA", config.kA);
+        // var config = io.getSlot0Configs();
+        // DogLog.log("Turret/Suzie/PID Values/kP", config.kP);
+        // DogLog.log("Turret/Suzie/PID Values/kI", config.kI);
+        // DogLog.log("Turret/Suzie/PID Values/kD", config.kD);
+        // DogLog.log("Turret/Suzie/PID Values/kV", config.kV);
+        // DogLog.log("Turret/Suzie/PID Values/kA", config.kA);
     }
 
     public double getCurrent()

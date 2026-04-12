@@ -178,12 +178,12 @@ public class LobbyConstants
             private static int kMotorID = 19;
             private static int kDrivingEncoderID = 9;
             private static int kSensingEncoderID = 8;
-            private static double kS = 0.23196;
-            private static double kV = 4.0594;
-            private static double kA = 1.0709;
-            private static double kP = 38.746;
+            private static double kS = 0;
+            private static double kV = 0;
+            private static double kA = 0;
+            private static double kP = 100;
             private static double kI = 0;
-            private static double kD = 6.8457;
+            private static double kD = 0;
             private static double kG = 0;
 
             private static double kCruiseVelocity = 0;
@@ -234,7 +234,7 @@ public class LobbyConstants
                     FieldConstants.kBlueTrench2, FieldConstants.kRedTrench1, FieldConstants.kRedTrench2);
 
             // servo constants
-            private static int kServoID = 9;
+            private static int kServoID = 8;
             private static Angle kLowerServoLimit = Degrees.of(0);
             private static Angle kUpperServoLimit = Degrees.of(180);
             private static Angle kMechanismLowerAngle = Degrees.of(20);
@@ -255,7 +255,7 @@ public class LobbyConstants
             private static int kMotor1ID = 20;
             private static int kMotor2ID = 21;
             private static double kS = 0.25719;
-            private static double kV = 0.112;
+            private static double kV = 0.122;
             private static double kA = 0.0037127;
             private static double kSimA = 0.0037127;
             private static double kP = 0;
