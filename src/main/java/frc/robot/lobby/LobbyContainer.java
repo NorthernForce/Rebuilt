@@ -20,6 +20,8 @@ import choreo.auto.AutoRoutine;
 
 import com.ctre.phoenix6.StatusSignal;
 import dev.doglog.DogLog;
+import dev.doglog.DogLogOptions;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
@@ -28,6 +30,7 @@ import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.PowerDistribution;
+import edu.wpi.first.wpilibj.Preferences;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
@@ -73,6 +76,7 @@ import frc.robot.lobby.subsystems.turret.hood.HoodIOServoSim;
 import frc.robot.util.AutoUtil;
 import frc.robot.util.InterpolatedTargetingCalculator;
 import frc.robot.util.TrigHoodTargetingCalculator;
+import frc.robot.lobby.subsystems.leds.*;
 
 public class LobbyContainer implements NFRRobotContainer
 {
@@ -85,6 +89,7 @@ public class LobbyContainer implements NFRRobotContainer
     private final Climber climber;
     private final Turret turret;
     private final Spindexer spindexer;
+    private final LEDS leds;
     private final DriveToPoseWithVision driveToPoseCommand;
     private Optional<String> teamActivity = Optional.empty();
     private final PowerDistribution powerDistributionHub = new PowerDistribution(LobbyConstants.PDHConstants.kPDHPort,
@@ -117,6 +122,8 @@ public class LobbyContainer implements NFRRobotContainer
         drive.resetPose(new Pose2d(3, 3, new Rotation2d()));
 
         drive.setVisionMeasurementStdDevs(LobbyConstants.VisionConstants.kStdDevs);
+
+        DogLog.setOptions(new DogLogOptions().withCaptureDs(true));
         if (Utils.isSimulation())
         {
             climber = new Climber(new ClimberIOTalonFXSim(LobbyConstants.ClimberConstants.kClimberParameters),
@@ -191,6 +198,8 @@ public class LobbyContainer implements NFRRobotContainer
         intake = new Intake(new IntakeIOTalonFX(LobbyConstants.IntakeConstants.kIOParameters),
                 LobbyConstants.IntakeConstants.kParameters);
 
+        leds = new LEDS(new LedsIOCANdle(LobbyConstants.Leds.kCANdleConstants));
+
         field = new Field2d();
         driveToPoseCommand = new DriveToPoseWithVision(drive);
         NamedCommands.registerCommand("Shoot",
@@ -225,7 +234,10 @@ public class LobbyContainer implements NFRRobotContainer
         autoUtil.bindAuto("S1-SHOOT-DEPOT", new PathPlannerAuto("S1-SHOOT-DEPOT"));
         autoUtil.bindAuto("S1-SIMPLE", new SimpleAuto(this, new PathPlannerAuto("S1-SHOOT").getStartingPose()));
         autoUtil.bindAuto("S3-SIMPLE", new SimpleAuto(this, new PathPlannerAuto("S3-SHOOT").getStartingPose()));
-
+        autoUtil.bindAuto("S1-CLIMB", new PathPlannerAuto("S1-CLIMB"));
+        autoUtil.bindAuto("S1-SHOOT-CLIMB", new PathPlannerAuto("S1-SHOOT-CLIMB"));
+        autoUtil.bindAuto("S2-CLIMB", new PathPlannerAuto("S2-CLIMB"));
+        autoUtil.bindAuto("S3-CLIMB", new PathPlannerAuto("S3-CLIMB"));
         Shuffleboard.getTab("Developer").add(field);
         Shuffleboard.getTab("Developer").add("Reset Encoders", drive.resetEncoders());
         Shuffleboard.getTab("Developer").add("Reset Orientation", drive.resetOrientation());
@@ -254,10 +266,24 @@ public class LobbyContainer implements NFRRobotContainer
                 intake.sysIdArmQuasistatic(SysIdRoutine.Direction.kReverse));
         Shuffleboard.getTab("SysId").add("Arm Dynamic Fwd", intake.sysIdArmDynamic(SysIdRoutine.Direction.kForward));
         Shuffleboard.getTab("SysId").add("Arm Dynamic Rev", intake.sysIdArmDynamic(SysIdRoutine.Direction.kReverse));
-        dashboard.putCommand("Reset Turret", Commands.runOnce(() -> turret.getSuzie().resetEncoders()));
+        dashboard.putCommand("Reset Turret",
+                Commands.runOnce(() -> turret.getSuzie().resetEncoders()).ignoringDisable(true));
         dashboard.putCommand("Reset Orientation", drive.resetOrientation());
         dashboard.putLimelightStream(LobbyConstants.VisionConstants.LimeLightConstants.kLeftLimeLightName);
         dashboard.putLimelightStream(LobbyConstants.VisionConstants.LimeLightConstants.kFrontLimeLightName);
+        dashboard.putSystem("Drivetrain")
+                .withCommand("SysId Move Quasistatic Forward", (drive.sysIdQuasistaticTranslation(Direction.kForward)))
+                .withCommand("SysId Move Quasistatic Reverse", (drive.sysIdQuasistaticTranslation(Direction.kReverse)))
+                .withCommand("SysId Move Dynamic Forward", (drive.sysIdDynamicTranslation(Direction.kForward)))
+                .withCommand("SysId Move Dynamic Reverse", (drive.sysIdDynamicTranslation(Direction.kReverse)))
+                .withCommand("SysId Steer Quasistatic Forward", (drive.sysIdQuasistaticSteer(Direction.kForward)))
+                .withCommand("SysId Steer Quasistatic Reverse", (drive.sysIdQuasistaticSteer(Direction.kReverse)))
+                .withCommand("SysId Steer Dynamic Forward", (drive.sysIdDynamicSteer(Direction.kForward)))
+                .withCommand("SysId Steer Dynamic Reverse", (drive.sysIdDynamicSteer(Direction.kReverse)))
+                .withCommand("SysId Rotation Quasistatic Forward", (drive.sysIdQuasistaticRotation(Direction.kForward)))
+                .withCommand("SysId Rotation Quasistatic Reverse", (drive.sysIdQuasistaticRotation(Direction.kReverse)))
+                .withCommand("SysId Rotation Dynamic Forward", (drive.sysIdDynamicRotation(Direction.kForward)))
+                .withCommand("SysId Rotation Dynamic Reverse", (drive.sysIdDynamicRotation(Direction.kReverse)));
         dashboard.putCommand("Reset Suzie Encoders", Commands.runOnce(() ->
         {
             turret.getSuzie().resetEncoders();
@@ -268,6 +294,10 @@ public class LobbyContainer implements NFRRobotContainer
                 .withCommand("Turntable SysId Quasistatic Reverse", turret.getSuzie().getSysIdQuasistaticReverse())
                 .withCommand("Turntable SysId Dynamic Forward", turret.getSuzie().getSysIdDynamicForward())
                 .withCommand("Turntable SysId Dynamic Reverse", turret.getSuzie().getSysIdDynamicReverse())
+                .withCommand("Reset Trim", Commands.runOnce(() -> turret.resetTrim(), turret))
+                .withNumber("Current Trim",
+                        () -> Preferences.getDouble("suzieOffsetDegrees",
+                                turret.getConstants().offset().getRotation().getMeasure().in(Degrees)))
                 .withBooleanTunable("Turntable Brake Mode", (brake) ->
                 {
                     turret.getSuzie().setBrakeMode(brake);
@@ -282,6 +312,11 @@ public class LobbyContainer implements NFRRobotContainer
     public CommandSwerveDrivetrain getDrive()
     {
         return drive;
+    }
+
+    public LEDS getLeds()
+    {
+        return leds;
     }
 
     public Turret getTurret()
@@ -326,6 +361,8 @@ public class LobbyContainer implements NFRRobotContainer
         Rotation2d yawRate = Rotation2d.fromRadians(state.Speeds.omegaRadiansPerSecond);
         vision.setHeading(currentHeading, yawRate);
 
+        leds.setShooterPrepped(turret.isAtTargetPose());
+
         var visionPoses = vision.getPoses();
         DogLog.log("Vision/PoseCount", visionPoses.size());
         visionPoses.forEach(m ->
@@ -359,14 +396,18 @@ public class LobbyContainer implements NFRRobotContainer
                                         + getDrive().getPose().getRotation().getRadians()))));
         DogLog.log("Turret/Distance", getTurret().calculateShooterDistanceToHub(drive.getPose()));
 
-        if (DriverStation.getGameSpecificMessage().equals("R"))
+        DogLog.log("Leds/GameState", leds.getGameStateString());
+
+        if (DriverStation.getGameSpecificMessage().indexOf('R') == 0)
         {
             teamActivity = Optional
-                    .of((DriverStation.getAlliance().get() == DriverStation.Alliance.Red) ? "active" : "inactive");
+                    .of((DriverStation.getAlliance().orElse(Alliance.Blue) == DriverStation.Alliance.Red) ? "active"
+                            : "inactive");
         } else if (DriverStation.getGameSpecificMessage().equals("B"))
         {
             teamActivity = Optional
-                    .of((DriverStation.getAlliance().get() == DriverStation.Alliance.Blue) ? "active" : "inactive");
+                    .of((DriverStation.getAlliance().orElse(Alliance.Blue) == DriverStation.Alliance.Blue) ? "active"
+                            : "inactive");
         }
 
         DogLog.log("GameData/StartingActivity", teamActivity.orElse("unknown"));
@@ -395,34 +436,49 @@ public class LobbyContainer implements NFRRobotContainer
 
         DogLog.log("Velocity", drive.getVelocity());
         // DogLog.log("Drive/Predicted Pose", predictPose());
-        DogLog.log("CurrentDraw/General/Voltage", powerDistributionHub.getVoltage());
-        DogLog.log("CurrentDraw/General/TotalCurrent", powerDistributionHub.getTotalCurrent());
-        DogLog.log("CurrentDraw/PDH/Feeder", powerDistributionHub.getCurrent(8));
-        DogLog.log("CurrentDraw/PDH/Suzie", powerDistributionHub.getCurrent(9));
-        DogLog.log("CurrentDraw/PDH/LeftShooterMotor", powerDistributionHub.getCurrent(7));
-        DogLog.log("CurrentDraw/PDH/RightShooterMotor", powerDistributionHub.getCurrent(6));
-        DogLog.log("CurrentDraw/PDH/Suzie", powerDistributionHub.getCurrent(9));
-        DogLog.log("CurrentDraw/PDH/Carousel", powerDistributionHub.getCurrent(4));
-        DogLog.log("CurrentDraw/Turret/Shooter/LeftMotor", turret.getShooter().getMotor1Current());
-        DogLog.log("CurrentDraw/Turret/Shooter/RightMotor", turret.getShooter().getMotor2Current());
-        DogLog.log("Turret/Shooter/Speed", turret.getShooter().getSpeed());
+        // DogLog.log("CurrentDraw/General/Voltage", powerDistributionHub.getVoltage());
+        // DogLog.log("CurrentDraw/General/TotalCurrent",
+        // powerDistributionHub.getTotalCurrent());
+        // DogLog.log("CurrentDraw/PDH/Feeder", powerDistributionHub.getCurrent(8));
+        // DogLog.log("CurrentDraw/PDH/Suzie", powerDistributionHub.getCurrent(9));
+        // DogLog.log("CurrentDraw/PDH/LeftShooterMotor",
+        // powerDistributionHub.getCurrent(7));
+        // DogLog.log("CurrentDraw/PDH/RightShooterMotor",
+        // powerDistributionHub.getCurrent(6));
+        // DogLog.log("CurrentDraw/PDH/Suzie", powerDistributionHub.getCurrent(9));
+        // DogLog.log("CurrentDraw/PDH/Carousel", powerDistributionHub.getCurrent(4));
+        // DogLog.log("CurrentDraw/Turret/Shooter/LeftMotor",
+        // turret.getShooter().getMotor1Current());
+        // DogLog.log("CurrentDraw/Turret/Shooter/RightMotor",
+        // turret.getShooter().getMotor2Current());
+        // DogLog.log("Turret/Shooter/Speed", turret.getShooter().getSpeed());
 
-        DogLog.log("CurrentDraw/Turret/Suzie", turret.getSuzie().getCurrent());
-        DogLog.log("CurrentDraw/Intake/Rollers", intake.getRollerCurrent());
-        DogLog.log("CurrentDraw/Intake/Angling", intake.getAnglingCurrent());
+        // DogLog.log("CurrentDraw/Turret/Suzie", turret.getSuzie().getCurrent());
+        // DogLog.log("CurrentDraw/Intake/Rollers", intake.getRollerCurrent());
+        // DogLog.log("CurrentDraw/Intake/Angling", intake.getAnglingCurrent());
         // DogLog.log("CurrentDraw/Turret/Hood",
         // turret.getHood().getCurrent(powerDistributionHub));
-        DogLog.log("CurrentDraw/Spindexer/Feeder", spindexer.getFlicker().getCurrent());
-        DogLog.log("CurrentDraw/Spindexer/Carousel", spindexer.getCarousel().getCurrent());
+        // DogLog.log("CurrentDraw/Spindexer/Feeder",
+        // spindexer.getFlicker().getCurrent());
+        // DogLog.log("CurrentDraw/Spindexer/Carousel",
+        // spindexer.getCarousel().getCurrent());
 
-        DogLog.log("CurrentDraw/DriveTrain/FrontLeft/Drive", flDriveCurrent.getValue().in(Amps));
-        DogLog.log("CurrentDraw/DriveTrain/FrontLeft/Steer", flSteerCurrent.getValue().in(Amps));
-        DogLog.log("CurrentDraw/DriveTrain/FrontRight/Drive", frDriveCurrent.getValue().in(Amps));
-        DogLog.log("CurrentDraw/DriveTrain/FrontRight/Steer", frSteerCurrent.getValue().in(Amps));
-        DogLog.log("CurrentDraw/DriveTrain/BackLeft/Drive", blDriveCurrent.getValue().in(Amps));
-        DogLog.log("CurrentDraw/DriveTrain/BackLeft/Steer", blSteerCurrent.getValue().in(Amps));
-        DogLog.log("CurrentDraw/DriveTrain/BackRight/Drive", brDriveCurrent.getValue().in(Amps));
-        DogLog.log("CurrentDraw/DriveTrain/BackRight/Steer", brSteerCurrent.getValue().in(Amps));
+        // DogLog.log("CurrentDraw/DriveTrain/FrontLeft/Drive",
+        // flDriveCurrent.getValue().in(Amps));
+        // DogLog.log("CurrentDraw/DriveTrain/FrontLeft/Steer",
+        // flSteerCurrent.getValue().in(Amps));
+        // DogLog.log("CurrentDraw/DriveTrain/FrontRight/Drive",
+        // frDriveCurrent.getValue().in(Amps));
+        // DogLog.log("CurrentDraw/DriveTrain/FrontRight/Steer",
+        // frSteerCurrent.getValue().in(Amps));
+        // DogLog.log("CurrentDraw/DriveTrain/BackLeft/Drive",
+        // blDriveCurrent.getValue().in(Amps));
+        // DogLog.log("CurrentDraw/DriveTrain/BackLeft/Steer",
+        // blSteerCurrent.getValue().in(Amps));
+        // DogLog.log("CurrentDraw/DriveTrain/BackRight/Drive",
+        // brDriveCurrent.getValue().in(Amps));
+        // DogLog.log("CurrentDraw/DriveTrain/BackRight/Steer",
+        // brSteerCurrent.getValue().in(Amps));
     }
 
     @Override

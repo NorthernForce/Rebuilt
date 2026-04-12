@@ -18,6 +18,7 @@ import static edu.wpi.first.units.Units.Volts;
 
 import java.util.List;
 
+import com.ctre.phoenix6.signals.AnimationDirectionValue;
 import com.ctre.phoenix6.signals.MotorArrangementValue;
 import com.pathplanner.lib.config.PIDConstants;
 import com.pathplanner.lib.path.PathConstraints;
@@ -45,6 +46,7 @@ import edu.wpi.first.wpilibj.PowerDistribution.ModuleType;
 import frc.robot.FieldConstants;
 import frc.robot.lobby.generated.LobbyTunerConstants;
 import frc.robot.lobby.subsystems.intake.IntakeIO.IntakeIOParameters;
+import frc.robot.lobby.subsystems.leds.LedsIO.LedsConstants;
 import frc.robot.lobby.subsystems.climber.ClimberParameters;
 import frc.robot.lobby.subsystems.intake.Intake.IntakeParameters;
 import frc.robot.lobby.subsystems.turret.hood.HoodIO.HoodConstants;
@@ -110,9 +112,9 @@ public class LobbyConstants
 
     public class AutoConstants
     {
-        public static final PIDController xPid = new PIDController(10.0, 0.0, 0.0);
-        public static final PIDController yPid = new PIDController(10.0, 0.0, 0.0);
-        public static final PIDController rPid = new PIDController(7.0, 0.0, 0.0);
+        public static final PIDController xPid = new PIDController(1.79, 0.0, 0.0);
+        public static final PIDController yPid = new PIDController(1.79, 0.0, 0.0);
+        public static final PIDController rPid = new PIDController(0.7, 0.0, 0.0);
         static
         {
             rPid.enableContinuousInput(0, 2 * Math.PI);
@@ -176,12 +178,12 @@ public class LobbyConstants
             private static int kMotorID = 19;
             private static int kDrivingEncoderID = 9;
             private static int kSensingEncoderID = 8;
-            private static double kS = 0.23196;
-            private static double kV = 4.0594;
-            private static double kA = 1.0709;
-            private static double kP = 38.746;
+            private static double kS = 0;
+            private static double kV = 0;
+            private static double kA = 0;
+            private static double kP = 100;
             private static double kI = 0;
-            private static double kD = 6.8457;
+            private static double kD = 0;
             private static double kG = 0;
 
             private static double kCruiseVelocity = 0;
@@ -232,7 +234,7 @@ public class LobbyConstants
                     FieldConstants.kBlueTrench2, FieldConstants.kRedTrench1, FieldConstants.kRedTrench2);
 
             // servo constants
-            private static int kServoID = 9;
+            private static int kServoID = 8;
             private static Angle kLowerServoLimit = Degrees.of(0);
             private static Angle kUpperServoLimit = Degrees.of(180);
             private static Angle kMechanismLowerAngle = Degrees.of(20);
@@ -253,7 +255,7 @@ public class LobbyConstants
             private static int kMotor1ID = 20;
             private static int kMotor2ID = 21;
             private static double kS = 0.25719;
-            private static double kV = 0.112;
+            private static double kV = 0.122;
             private static double kA = 0.0037127;
             private static double kSimA = 0.0037127;
             private static double kP = 0;
@@ -428,5 +430,15 @@ public class LobbyConstants
     public class TalonFXConstants
     {
         public static final Temperature kMaxTemperature = Celsius.of(60.0);
+    }
+
+    public class Leds
+    {
+        public static final int kLength = 175;
+        public static final double kBrightness = 0.4;
+        public static final int kCANdleId = 23;
+        public static final AnimationDirectionValue kAnimationDirection = AnimationDirectionValue.Forward;
+        public static final LedsConstants kCANdleConstants = new LedsConstants(kCANdleId, kLength, kBrightness,
+                kAnimationDirection);
     }
 }
