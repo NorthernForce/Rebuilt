@@ -81,8 +81,7 @@ public class LobbyOI
                                         () -> turret.isAtTargetPoseStupid()))))
                 .onFalse(Commands.runOnce(() -> turret.stop()));
 
-        driveController.rightBumper()
-                .whileTrue(container.getSpindexer().runBackwards());
+        driveController.rightBumper().whileTrue(container.getSpindexer().runBackwards());
         // driveController.rightBumper().whileTrue((Commands
         // .waitUntil(() -> turret.getSuzie().isAtTargetAngle() &&
         // turret.getShooter().isAtTargetSpeed())
