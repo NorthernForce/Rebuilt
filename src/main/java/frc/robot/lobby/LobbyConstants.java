@@ -28,6 +28,7 @@ import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
@@ -43,6 +44,7 @@ import edu.wpi.first.units.measure.Temperature;
 import edu.wpi.first.units.measure.Time;
 import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj.PowerDistribution.ModuleType;
+import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import frc.robot.FieldConstants;
 import frc.robot.lobby.generated.LobbyTunerConstants;
 import frc.robot.lobby.subsystems.intake.IntakeIO.IntakeIOParameters;
@@ -101,11 +103,11 @@ public class LobbyConstants
         public static final PathConstraints kPPConstraints = new PathConstraints(kPPMaxVelocity, kPPMaxAcceleration,
                 kPPMaxAngularVelocity, kPPMaxAngularAcceleration);
 
-        public static final double kCloseDriveTP = 2.65;
+        public static final double kCloseDriveTP = 5;
         public static final double kCloseDriveTI = 0.0;
-        public static final double kCloseDriveTD = 0.3;
+        public static final double kCloseDriveTD = 0.0;
 
-        public static final double kCloseDriveRP = 5;
+        public static final double kCloseDriveRP = 10;
         public static final double kCloseDriveRI = 0.0;
         public static final double kCloseDriveRD = 0.0;
     }
@@ -296,19 +298,34 @@ public class LobbyConstants
         public static final double kBottomRotations = 62.0;
         public static final double kStartRotations = 0;
         public static final double kTolerance = 5;
-        public static final double kDutyCyclePower = 0.4;
+        public static final double kDutyCyclePower = 1;
         public static final boolean kInverted = true;
+        public static final Distance offsetPrepPose = Meters.of(0.5);
 
         public static final int servoID = 9;
-
-        public static final Pose2d kUpperRedPose = new Pose2d(Meters.of(14.841), Meters.of(4.745),
-                new Rotation2d(Degrees.of(0)));
-        public static final Pose2d kLowerRedPose = new Pose2d(Meters.of(14.841), Meters.of(3.889),
-                new Rotation2d(Degrees.of(0)));
-        public static final Pose2d kUpperBluePose = new Pose2d(Meters.of(1.038), Meters.of(2.73),
-                new Rotation2d(Degrees.of(90)));
-        public static final Pose2d kLowerBluePose = new Pose2d(Meters.of(1.257), Meters.of(4.860),
+        public static final Pose2d kLowerBluePose = new Pose2d(Meters.of(1.134), Meters.of(4.813),
                 new Rotation2d(Degrees.of(-90)));
+        public static final Pose2d kUpperBluePose = new Pose2d(Meters.of(1.108), Meters.of(2.988),
+                new Rotation2d(Degrees.of(90)));
+        public static final Pose2d kLowerRedPose = new Pose2d(Meters.of(14), Meters.of(4.813),
+                new Rotation2d(Degrees.of(-90)));
+        public static final Pose2d kUpperRedPose = new Pose2d(Meters.of(14), Meters.of(4.813),
+                new Rotation2d(Degrees.of(-90)));
+
+        public static final Pose2d kUpperRedPrepPose = kUpperRedPose
+                .plus(new Transform2d(Meters.of(-offsetPrepPose.in(Meters)), Meters.of(offsetPrepPose.in(Meters)),
+                        new Rotation2d(Degrees.zero())));
+        public static final Pose2d kLowerRedPrepPose = kLowerRedPose
+                .plus(new Transform2d(Meters.of(-offsetPrepPose.in(Meters)), Meters.of(offsetPrepPose.in(Meters)),
+                        new Rotation2d(Degrees.zero())));
+
+        public static final Pose2d kUpperBluePrepPose = kUpperBluePose
+                .plus(new Transform2d(Meters.of(-offsetPrepPose.in(Meters)), Meters.of(offsetPrepPose.in(Meters)),
+                        new Rotation2d(Degrees.zero())));
+
+        public static final Pose2d kLowerBluePrepPose = kLowerBluePose
+                .plus(new Transform2d(Meters.of(-offsetPrepPose.in(Meters)), Meters.of(offsetPrepPose.in(Meters)),
+                        new Rotation2d(Degrees.zero())));
 
         public static enum ClimbLevels
         {
@@ -336,8 +353,9 @@ public class LobbyConstants
 
         public static final ClimberParameters kClimberParameters = new ClimberParameters(kMotorID,
                 Rotations.of(kTopRotations), Rotations.of(kBottomRotations), Rotations.of(kStartRotations),
-                Rotations.of(kTolerance), kInverted, kUpperBluePose, kLowerBluePose, kUpperRedPose, kLowerRedPose,
-                kDutyCyclePower, gearRatio, maxHeight);
+                Rotations.of(kTolerance), kInverted, kUpperRedPrepPose, kLowerRedPrepPose, kUpperBluePrepPose,
+                kLowerBluePrepPose, kUpperRedPose, kLowerRedPose, kUpperBluePose, kLowerBluePose, kDutyCyclePower,
+                gearRatio, maxHeight);
 
     }
 

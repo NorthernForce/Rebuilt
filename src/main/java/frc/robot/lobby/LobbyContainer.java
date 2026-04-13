@@ -338,7 +338,7 @@ public class LobbyContainer implements NFRRobotContainer
     {
         return Commands.defer(() ->
         {
-            Pose2d target = climber.getClosestClimbPose(drive.getPose());
+            Pose2d target = climber.getClosestPreClimbPose(drive.getPose());
             DogLog.log("Auto/DrivingToPreClimbPosition", target);
             return closeDriveToPose(target);
         }, java.util.Set.of(drive));
@@ -346,9 +346,12 @@ public class LobbyContainer implements NFRRobotContainer
 
     public Command driveToClimbPost()
     {
-        return Commands.deadline(Commands.waitSeconds(0.5),
-                drive.applyRequest(() -> new SwerveRequest.ApplyRobotSpeeds().withSpeeds(
-                        new ChassisSpeeds(MetersPerSecond.of(0), MetersPerSecond.of(0.05), DegreesPerSecond.of(0)))));
+        return Commands.defer(() ->
+        {
+            Pose2d target = climber.getClosestClimbPose(drive.getPose());
+            DogLog.log("Auto/DrivingToClimbPosition", target);
+            return closeDriveToPose(target);
+        }, java.util.Set.of(drive));
     }
 
     @Override
@@ -553,7 +556,9 @@ public class LobbyContainer implements NFRRobotContainer
                 LobbyConstants.DrivetrainConstants.kCloseDriveRI, LobbyConstants.DrivetrainConstants.kCloseDriveRD,
                 LobbyConstants.DrivetrainConstants.kPPMaxVelocity);
         return Commands.runOnce(() -> request.reset(drive.getPose()))
-                .andThen(drive.applyRequest(() -> request).until(request::isFinished));
+                .andThen(drive.applyRequest(() -> request).until(request::isFinished))
+                .andThen(drive.applyRequest(() -> new SwerveRequest.ApplyRobotSpeeds().withSpeeds(new ChassisSpeeds()))
+                        .withTimeout(0.05));
     }
 
     public void resetOdometry(Pose2d pose)

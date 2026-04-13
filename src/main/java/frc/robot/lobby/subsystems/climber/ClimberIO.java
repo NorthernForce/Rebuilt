@@ -17,6 +17,11 @@ public interface ClimberIO
         return robotPose;
     }
 
+    public default Pose2d getNearestClimbPosition(Pose2d robotPose)
+    {
+        return robotPose;
+    }
+
     public default void updateSimulation()
     {
     }
