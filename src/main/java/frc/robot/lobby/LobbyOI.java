@@ -7,6 +7,8 @@ import static edu.wpi.first.units.Units.RotationsPerSecond;
 import java.util.function.DoubleSupplier;
 
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
@@ -79,11 +81,16 @@ public class LobbyOI
                                         () -> turret.isAtTargetPoseStupid()))))
                 .onFalse(Commands.runOnce(() -> turret.stop()));
 
-        driveController.rightBumper().whileTrue((Commands
-                .waitUntil(() -> turret.getSuzie().isAtTargetAngle() && turret.getShooter().isAtTargetSpeed())
-                .andThen(new RunSpindexer(container.getSpindexer(), LobbyConstants.SpindexerConstants.kDeJamTime,
-                        LobbyConstants.SpindexerConstants.kPostDeJamTime, () -> turret.isAtTargetPose()))
-                .alongWith(new PrepTurretCommand(container))));
+        driveController.rightBumper()
+                .whileTrue(container.getSpindexer().runBackwards());
+        // driveController.rightBumper().whileTrue((Commands
+        // .waitUntil(() -> turret.getSuzie().isAtTargetAngle() &&
+        // turret.getShooter().isAtTargetSpeed())
+        // .andThen(new RunSpindexer(container.getSpindexer(),
+        // LobbyConstants.SpindexerConstants.kDeJamTime,
+        // LobbyConstants.SpindexerConstants.kPostDeJamTime, () ->
+        // turret.isAtTargetPose()))
+        // .alongWith(new PrepTurretCommand(container))));
 
         driveController.povUp().whileTrue(container.getClimber().runUp())
                 .onFalse(Commands.runOnce(() -> container.getClimber().stopMotor(), container.getClimber()));
