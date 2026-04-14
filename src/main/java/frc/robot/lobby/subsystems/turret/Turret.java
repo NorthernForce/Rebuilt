@@ -256,6 +256,11 @@ public class Turret extends SubsystemBase
         this.state = state;
     }
 
+    public TurretState getState()
+    {
+        return state;
+    }
+
     public Translation2d updateFromTOF(Pose2d robotPose, Translation2d predictedOffset)
     {
         return predictedOffset.times(tofCalculator
@@ -433,6 +438,7 @@ public class Turret extends SubsystemBase
     {
         return Commands.run(() ->
         {
+            shooter.setTargetSpeed(RotationsPerSecond.of(0));
             hood.setTargetMechanismAngle(Degrees.of(0));
             hood.start();
         }, this, hood);

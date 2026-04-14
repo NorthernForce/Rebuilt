@@ -135,7 +135,7 @@ public class LobbyContainer implements NFRRobotContainer
                             LobbyConstants.VisionConstants.LimeLightConstants.kLeftLimeLightName,
                             new SimCameraProperties(), LobbyConstants.CameraConstants.kLeftCameraTransform));
             turret = new Turret(new TurretConstants(LobbyConstants.Turret.offset),
-                    new Suzie(new SuzieIOTalonFXSSim(LobbyConstants.Turret.Suzie.kMinionConstants)),
+                    new Suzie(new SuzieIOTalonFXSSim(LobbyConstants.Turret.Suzie.kSimConstants)),
                     new Hood(new HoodIOServoSim(LobbyConstants.Turret.Hood.kServoConstants)),
                     new Shooter(new ShooterIOTalonFXSim(LobbyConstants.Turret.Shooter.kKrakenSimConstants)),
                     new TrigHoodTargetingCalculator(), new TrigHoodTargetingCalculator(),
