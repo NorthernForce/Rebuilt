@@ -1,14 +1,17 @@
 package frc.robot.lobby.subsystems.nfrdashboard;
 
 import java.util.Map;
+
+import static edu.wpi.first.units.Units.Degrees;
+
 import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Set;
 import java.util.function.BooleanSupplier;
 import java.util.function.Consumer;
 import java.util.function.DoubleSupplier;
 import java.util.function.Supplier;
 
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
@@ -27,10 +30,11 @@ public class Dashboard extends SubsystemBase
     private Map<String, Consumer<Double>> namesToDoubleTunables = new HashMap<>();
     private Map<String, Consumer<String>> namesToStringsTunables = new HashMap<>();
     private Map<String, Consumer<Boolean>> namesToBooleansTunables = new HashMap<>();
+    private Map<String, DashboardField> namesToFields = new HashMap<>();
+    private Map<String, DashboardRobot> namesToRobots = new HashMap<>();
 
     private NetworkTableInstance instance = NetworkTableInstance.getDefault();
 
-    private Set<String> systems = new HashSet<>();
     // public Dashboard(String outputPath) {
     // this.outputPath = outputPath;
     // }
@@ -66,6 +70,17 @@ public class Dashboard extends SubsystemBase
         return new ParsedKey(parts[0], parts[1], parts[2], parts[3]);
     }
 
+    private NetworkTable scopedEntry(String table, String section, String tab, String name)
+    {
+        return instance.getTable(table).getSubTable(section).getSubTable(tab).getSubTable(name);
+    }
+
+    private NetworkTable robotEntry(String tab, String field, String robotName)
+    {
+        return instance.getTable(outputPath).getSubTable("robots").getSubTable(tab).getSubTable(field)
+                .getSubTable(robotName);
+    }
+
     public boolean putCommand(String tab, String name, Command command)
     {
         String key = makeKey(tab, outputPath, "commands", name);
@@ -74,7 +89,7 @@ public class Dashboard extends SubsystemBase
             namesToCommands.put(key, command);
             namesToLastRequestId.put(key, 0L);
 
-            var commandTable = instance.getTable(outputPath).getSubTable("commands").getSubTable(name);
+            var commandTable = scopedEntry(outputPath, "commands", tab, name);
             commandTable.getEntry("running").setBoolean(false);
             commandTable.getEntry("requested").setBoolean(false);
             commandTable.getEntry("requestId").setInteger(0);
@@ -88,9 +103,9 @@ public class Dashboard extends SubsystemBase
                 @Override
                 public void initialize()
                 {
-                    var commandTable = instance.getTable(outputPath).getSubTable("commands").getSubTable(name);
-                    commandTable.getEntry("requested").setBoolean(false);
-                    commandTable.getEntry("running").setBoolean(true);
+                    var t = scopedEntry(outputPath, "commands", tab, name);
+                    t.getEntry("requested").setBoolean(false);
+                    t.getEntry("running").setBoolean(true);
                     CommandScheduler.getInstance().schedule(inner);
                 }
 
@@ -103,11 +118,8 @@ public class Dashboard extends SubsystemBase
                 public void end(boolean interrupted)
                 {
                     if (CommandScheduler.getInstance().isScheduled(inner))
-                    {
                         CommandScheduler.getInstance().cancel(inner);
-                    }
-                    instance.getTable(outputPath).getSubTable("commands").getSubTable(name).getEntry("running")
-                            .setBoolean(false);
+                    scopedEntry(outputPath, "commands", tab, name).getEntry("running").setBoolean(false);
                 }
 
                 @Override
@@ -132,7 +144,7 @@ public class Dashboard extends SubsystemBase
             namesToCommands.put(key, command);
             namesToLastRequestId.put(key, 0L);
 
-            var commandTable = instance.getTable(table).getSubTable("commands").getSubTable(name);
+            var commandTable = scopedEntry(table, "commands", tab, name);
             commandTable.getEntry("running").setBoolean(false);
             commandTable.getEntry("requested").setBoolean(false);
             commandTable.getEntry("requestId").setInteger(0);
@@ -146,9 +158,9 @@ public class Dashboard extends SubsystemBase
                 @Override
                 public void initialize()
                 {
-                    var commandTable = instance.getTable(table).getSubTable("commands").getSubTable(name);
-                    commandTable.getEntry("requested").setBoolean(false);
-                    commandTable.getEntry("running").setBoolean(true);
+                    var t = scopedEntry(table, "commands", tab, name);
+                    t.getEntry("requested").setBoolean(false);
+                    t.getEntry("running").setBoolean(true);
                     CommandScheduler.getInstance().schedule(inner);
                 }
 
@@ -161,11 +173,8 @@ public class Dashboard extends SubsystemBase
                 public void end(boolean interrupted)
                 {
                     if (CommandScheduler.getInstance().isScheduled(inner))
-                    {
                         CommandScheduler.getInstance().cancel(inner);
-                    }
-                    instance.getTable(table).getSubTable("commands").getSubTable(name).getEntry("running")
-                            .setBoolean(false);
+                    scopedEntry(table, "commands", tab, name).getEntry("running").setBoolean(false);
                 }
 
                 @Override
@@ -184,15 +193,18 @@ public class Dashboard extends SubsystemBase
 
     public void putLimelightStream(String tab, String llName)
     {
-        instance.getTable(outputPath).getSubTable("cameraStreams").getSubTable(llName).getEntry("url")
-                .setString("http://" + llName + ".local:5800");
-        instance.getTable(outputPath).getSubTable("cameraStreams").getSubTable(llName).getEntry("tab").setString(tab);
+        var streamTable = scopedEntry(outputPath, "cameraStreams", tab, llName);
+        streamTable.getEntry("url").setString("http://" + llName + ".local:5800");
+        streamTable.getEntry("tab").setString(tab);
+        streamTable.getEntry("name").setString(llName);
     }
 
     public void putCameraStream(String tab, String name, String url)
     {
-        instance.getTable(outputPath).getSubTable("cameraStreams").getSubTable(name).getEntry("url").setString(url);
-        instance.getTable(outputPath).getSubTable("cameraStreams").getSubTable(name).getEntry("tab").setString(tab);
+        var streamTable = scopedEntry(outputPath, "cameraStreams", tab, name);
+        streamTable.getEntry("url").setString(url);
+        streamTable.getEntry("tab").setString(tab);
+        streamTable.getEntry("name").setString(name);
     }
 
     public void putNumber(String tab, String name, DoubleSupplier number)
@@ -201,10 +213,9 @@ public class Dashboard extends SubsystemBase
         if (!namesToDoubles.containsKey(key))
         {
             namesToDoubles.put(key, number);
-
-            var numberTable = instance.getTable(outputPath).getSubTable("numbers").getSubTable(name);
-            numberTable.getEntry("value").setDouble(number.getAsDouble());
-            numberTable.getEntry("tab").setString(tab);
+            var t = scopedEntry(outputPath, "numbers", tab, name);
+            t.getEntry("value").setDouble(number.getAsDouble());
+            t.getEntry("tab").setString(tab);
         }
     }
 
@@ -214,9 +225,9 @@ public class Dashboard extends SubsystemBase
         if (!namesToDoubles.containsKey(key))
         {
             namesToDoubles.put(key, number);
-            var numberTable = instance.getTable(table).getSubTable("numbers").getSubTable(name);
-            numberTable.getEntry("value").setDouble(number.getAsDouble());
-            numberTable.getEntry("tab").setString(tab);
+            var t = scopedEntry(table, "numbers", tab, name);
+            t.getEntry("value").setDouble(number.getAsDouble());
+            t.getEntry("tab").setString(tab);
         }
     }
 
@@ -226,10 +237,9 @@ public class Dashboard extends SubsystemBase
         if (!namesToStrings.containsKey(key))
         {
             namesToStrings.put(key, string);
-
-            var stringTable = instance.getTable(outputPath).getSubTable("strings").getSubTable(name);
-            stringTable.getEntry("value").setString(string.get());
-            stringTable.getEntry("tab").setString(tab);
+            var t = scopedEntry(outputPath, "strings", tab, name);
+            t.getEntry("value").setString(string.get());
+            t.getEntry("tab").setString(tab);
         }
     }
 
@@ -239,9 +249,9 @@ public class Dashboard extends SubsystemBase
         if (!namesToStrings.containsKey(key))
         {
             namesToStrings.put(key, string);
-            var stringTable = instance.getTable(table).getSubTable("strings").getSubTable(name);
-            stringTable.getEntry("value").setString(string.get());
-            stringTable.getEntry("tab").setString(tab);
+            var t = scopedEntry(table, "strings", tab, name);
+            t.getEntry("value").setString(string.get());
+            t.getEntry("tab").setString(tab);
         }
     }
 
@@ -251,9 +261,9 @@ public class Dashboard extends SubsystemBase
         if (!namesToBooleans.containsKey(key))
         {
             namesToBooleans.put(key, booleanSupplier);
-            var booleanTable = instance.getTable(outputPath).getSubTable("booleans").getSubTable(name);
-            booleanTable.getEntry("value").setBoolean(booleanSupplier.getAsBoolean());
-            booleanTable.getEntry("tab").setString(tab);
+            var t = scopedEntry(outputPath, "booleans", tab, name);
+            t.getEntry("value").setBoolean(booleanSupplier.getAsBoolean());
+            t.getEntry("tab").setString(tab);
         }
     }
 
@@ -263,9 +273,9 @@ public class Dashboard extends SubsystemBase
         if (!namesToBooleans.containsKey(key))
         {
             namesToBooleans.put(key, booleanSupplier);
-            var booleanTable = instance.getTable(table).getSubTable("booleans").getSubTable(name);
-            booleanTable.getEntry("value").setBoolean(booleanSupplier.getAsBoolean());
-            booleanTable.getEntry("tab").setString(tab);
+            var t = scopedEntry(table, "booleans", tab, name);
+            t.getEntry("value").setBoolean(booleanSupplier.getAsBoolean());
+            t.getEntry("tab").setString(tab);
         }
     }
 
@@ -274,13 +284,11 @@ public class Dashboard extends SubsystemBase
         String key = makeKey(tab, outputPath, "tunableNumbers", name);
         if (!namesToDoubleTunables.containsKey(key))
         {
-
             namesToDoubleTunables.put(key, runOnChange);
-            var doubleTable = instance.getTable(outputPath).getSubTable("tunableNumbers").getSubTable(name);
-            doubleTable.getEntry("value").setNumber(0);
-            doubleTable.getEntry("changed").setBoolean(false);
-            doubleTable.getEntry("tab").setString(tab);
-
+            var t = scopedEntry(outputPath, "tunableNumbers", tab, name);
+            t.getEntry("value").setNumber(0);
+            t.getEntry("changed").setBoolean(false);
+            t.getEntry("tab").setString(tab);
         }
     }
 
@@ -289,13 +297,11 @@ public class Dashboard extends SubsystemBase
         String key = makeKey(tab, table, "tunableNumbers", name);
         if (!namesToDoubleTunables.containsKey(key))
         {
-
             namesToDoubleTunables.put(key, runOnChange);
-            var doubleTable = instance.getTable(table).getSubTable("tunableNumbers").getSubTable(name);
-            doubleTable.getEntry("value").setNumber(0);
-            doubleTable.getEntry("changed").setBoolean(false);
-            doubleTable.getEntry("tab").setString(tab);
-
+            var t = scopedEntry(table, "tunableNumbers", tab, name);
+            t.getEntry("value").setNumber(0);
+            t.getEntry("changed").setBoolean(false);
+            t.getEntry("tab").setString(tab);
         }
     }
 
@@ -304,12 +310,11 @@ public class Dashboard extends SubsystemBase
         String key = makeKey(tab, outputPath, "tunableStrings", name);
         if (!namesToStringsTunables.containsKey(key))
         {
-
             namesToStringsTunables.put(key, runOnChange);
-            var stringTable = instance.getTable(outputPath).getSubTable("tunableStrings").getSubTable(name);
-            stringTable.getEntry("value").setString("");
-            stringTable.getEntry("changed").setBoolean(false);
-            stringTable.getEntry("tab").setString(tab);
+            var t = scopedEntry(outputPath, "tunableStrings", tab, name);
+            t.getEntry("value").setString("");
+            t.getEntry("changed").setBoolean(false);
+            t.getEntry("tab").setString(tab);
         }
     }
 
@@ -318,12 +323,11 @@ public class Dashboard extends SubsystemBase
         String key = makeKey(tab, table, "tunableStrings", name);
         if (!namesToStringsTunables.containsKey(key))
         {
-
             namesToStringsTunables.put(key, runOnChange);
-            var stringTable = instance.getTable(table).getSubTable("tunableStrings").getSubTable(name);
-            stringTable.getEntry("value").setString("");
-            stringTable.getEntry("changed").setBoolean(false);
-            stringTable.getEntry("tab").setString(tab);
+            var t = scopedEntry(table, "tunableStrings", tab, name);
+            t.getEntry("value").setString("");
+            t.getEntry("changed").setBoolean(false);
+            t.getEntry("tab").setString(tab);
         }
     }
 
@@ -332,12 +336,11 @@ public class Dashboard extends SubsystemBase
         String key = makeKey(tab, outputPath, "tunableBooleans", name);
         if (!namesToBooleansTunables.containsKey(key))
         {
-
             namesToBooleansTunables.put(key, runOnChange);
-            var booleanTable = instance.getTable(outputPath).getSubTable("tunableBooleans").getSubTable(name);
-            booleanTable.getEntry("value").setBoolean(false);
-            booleanTable.getEntry("changed").setBoolean(false);
-            booleanTable.getEntry("tab").setString(tab);
+            var t = scopedEntry(outputPath, "tunableBooleans", tab, name);
+            t.getEntry("value").setBoolean(false);
+            t.getEntry("changed").setBoolean(false);
+            t.getEntry("tab").setString(tab);
         }
     }
 
@@ -346,13 +349,50 @@ public class Dashboard extends SubsystemBase
         String key = makeKey(tab, table, "tunableBooleans", name);
         if (!namesToBooleansTunables.containsKey(key))
         {
-
             namesToBooleansTunables.put(key, runOnChange);
-            var booleanTable = instance.getTable(table).getSubTable("tunableBooleans").getSubTable(name);
-            booleanTable.getEntry("value").setBoolean(false);
-            booleanTable.getEntry("changed").setBoolean(false);
-            booleanTable.getEntry("tab").setString(tab);
+            var t = scopedEntry(table, "tunableBooleans", tab, name);
+            t.getEntry("value").setBoolean(false);
+            t.getEntry("changed").setBoolean(false);
+            t.getEntry("tab").setString(tab);
         }
+    }
+
+    public DashboardField putField(String tab, String name)
+    {
+        String key = makeKey(tab, outputPath, "fields", name);
+        if (!namesToFields.containsKey(key))
+        {
+            DashboardField field = new DashboardField(tab, name);
+            namesToFields.put(key, field);
+            var t = scopedEntry(outputPath, "fields", tab, name);
+            t.getEntry("tab").setString(tab);
+            t.getEntry("name").setString(name);
+            return field;
+        }
+        return namesToFields.get(key);
+    }
+
+    public DashboardRobot putRobot(String tab, String field, String name, Supplier<Pose2d> pose)
+    {
+        // ensure relationship target exists
+        putField(tab, field);
+
+        String key = makeKey(tab, outputPath, "robots", field + "/" + name);
+        if (!namesToRobots.containsKey(key))
+        {
+            DashboardRobot robot = new DashboardRobot(tab, field, name, pose);
+            namesToRobots.put(key, robot);
+
+            var robotTable = robotEntry(tab, field, name);
+            robotTable.getEntry("tab").setString(tab);
+            robotTable.getEntry("field").setString(field);
+            robotTable.getEntry("name").setString(name);
+            robotTable.getEntry("x").setDouble(pose.get().getX());
+            robotTable.getEntry("y").setDouble(pose.get().getY());
+            robotTable.getEntry("rotation").setDouble(pose.get().getRotation().getMeasure().in(Degrees));
+            return robot;
+        }
+        return namesToRobots.get(key);
     }
 
     @Override
@@ -363,8 +403,7 @@ public class Dashboard extends SubsystemBase
             ParsedKey p = parseKey(key);
             if (p == null)
                 continue;
-            var table = instance.getTable(p.table).getSubTable("commands").getSubTable(p.name);
-
+            var table = scopedEntry(p.table, "commands", p.tab, p.name);
             long currentRequestId = table.getEntry("requestId").getInteger(0);
             long lastHandledRequestId = namesToLastRequestId.getOrDefault(key, 0L);
             if (currentRequestId != lastHandledRequestId)
@@ -372,7 +411,6 @@ public class Dashboard extends SubsystemBase
                 namesToLastRequestId.put(key, currentRequestId);
                 table.getEntry("lastHandledRequestId").setInteger(currentRequestId);
                 table.getEntry("requested").setBoolean(false);
-
                 Command safe = namesToSafeCommands.get(key);
                 if (safe != null)
                 {
@@ -389,7 +427,7 @@ public class Dashboard extends SubsystemBase
             ParsedKey p = parseKey(key);
             if (p == null)
                 continue;
-            instance.getTable(p.table).getSubTable("numbers").getSubTable(p.name).getEntry("value")
+            scopedEntry(p.table, "numbers", p.tab, p.name).getEntry("value")
                     .setDouble(namesToDoubles.get(key).getAsDouble());
         }
         for (String key : namesToStrings.keySet())
@@ -397,23 +435,23 @@ public class Dashboard extends SubsystemBase
             ParsedKey p = parseKey(key);
             if (p == null)
                 continue;
-            instance.getTable(p.table).getSubTable("strings").getSubTable(p.name).getEntry("value")
-                    .setString(namesToStrings.get(key).get());
+            scopedEntry(p.table, "strings", p.tab, p.name).getEntry("value").setString(namesToStrings.get(key).get());
         }
         for (String key : namesToBooleans.keySet())
         {
             ParsedKey p = parseKey(key);
             if (p == null)
                 continue;
-            instance.getTable(p.table).getSubTable("booleans").getSubTable(p.name).getEntry("value")
+            scopedEntry(p.table, "booleans", p.tab, p.name).getEntry("value")
                     .setBoolean(namesToBooleans.get(key).getAsBoolean());
         }
+
         for (String key : namesToDoubleTunables.keySet())
         {
             ParsedKey p = parseKey(key);
             if (p == null)
                 continue;
-            var table = instance.getTable(p.table).getSubTable("tunableNumbers").getSubTable(p.name);
+            var table = scopedEntry(p.table, "tunableNumbers", p.tab, p.name);
             if (table.getEntry("changed").getBoolean(false))
             {
                 namesToDoubleTunables.get(key).accept(table.getEntry("value").getDouble(0));
@@ -425,7 +463,7 @@ public class Dashboard extends SubsystemBase
             ParsedKey p = parseKey(key);
             if (p == null)
                 continue;
-            var table = instance.getTable(p.table).getSubTable("tunableStrings").getSubTable(p.name);
+            var table = scopedEntry(p.table, "tunableStrings", p.tab, p.name);
             if (table.getEntry("changed").getBoolean(false))
             {
                 namesToStringsTunables.get(key).accept(table.getEntry("value").getString(""));
@@ -437,19 +475,61 @@ public class Dashboard extends SubsystemBase
             ParsedKey p = parseKey(key);
             if (p == null)
                 continue;
-            var table = instance.getTable(p.table).getSubTable("tunableBooleans").getSubTable(p.name);
+            var table = scopedEntry(p.table, "tunableBooleans", p.tab, p.name);
             if (table.getEntry("changed").getBoolean(false))
             {
                 namesToBooleansTunables.get(key).accept(table.getEntry("value").getBoolean(false));
                 table.getEntry("changed").setBoolean(false);
             }
         }
+
+        for (String key : namesToRobots.keySet())
+        {
+            DashboardRobot robot = namesToRobots.get(key);
+            var robotTable = robotEntry(robot.tab, robot.fieldName, robot.robotName);
+            Pose2d pose = robot.pose.get();
+            robotTable.getEntry("x").setDouble(pose.getX());
+            robotTable.getEntry("y").setDouble(pose.getY());
+            robotTable.getEntry("rotation").setDouble(pose.getRotation().getMeasure().in(Degrees));
+        }
     }
 
-    // changed order to match usage: putSystem(tab, systemName)
+    public class DashboardRobot
+    {
+        private Supplier<Pose2d> pose;
+        private String tab;
+        private String fieldName;
+        private String robotName;
+
+        public DashboardRobot(String tab, String fieldName, String robotName, Supplier<Pose2d> pose)
+        {
+            this.pose = pose;
+            this.tab = tab;
+            this.fieldName = fieldName;
+            this.robotName = robotName;
+        }
+    }
+
+    public class DashboardField
+    {
+        private String tab;
+        private String fieldName;
+
+        public DashboardField(String tab, String name)
+        {
+            this.tab = tab;
+            this.fieldName = name;
+        }
+
+        public DashboardField withRobot(String name, Supplier<Pose2d> pose)
+        {
+            Dashboard.this.putRobot(tab, fieldName, name, pose);
+            return this;
+        }
+    }
+
     public DashboardSystem putSystem(String tab, String systemName)
     {
-        systems.add(systemName);
         return new DashboardSystem(systemName, tab);
     }
 

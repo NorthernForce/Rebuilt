@@ -300,6 +300,9 @@ public class LobbyContainer implements NFRRobotContainer
                 {
                     turret.getSuzie().setBrakeMode(brake);
                 });
+
+        dashboard.putField("Driver", "Main Field").withRobot("Lobby", () -> drive.getPose());
+
     }
 
     /**
