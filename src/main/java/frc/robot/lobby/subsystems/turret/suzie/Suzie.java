@@ -78,7 +78,7 @@ public class Suzie extends SubsystemBase
 
     public void resetAngle()
     {
-        io.resetAngle(Degrees.of(0.0));
+        io.resetAngle();
     }
 
     public Angle getTargetAngle()
@@ -94,24 +94,6 @@ public class Suzie extends SubsystemBase
     public void setTargetAngle(Angle angle)
     {
         io.setTargetAngle(angle);
-    }
-
-    public void resetCRT()
-    {
-        io.resetCRT();
-    }
-
-    public void resetEncoders()
-    {
-        io.setDrivingEncoderOffset(Degrees.of(0.0));
-        io.setSensingEncoderOffset(Degrees.of(0.0));
-
-        Preferences.setDouble("drivingEncoderOffset", io.getDrivingEncoderAngle().in(Rotations));
-        Preferences.setDouble("sensingEncoderOffset", io.getSensingEncoderAngle().in(Rotations));
-
-        io.setDrivingEncoderOffset(io.getDrivingEncoderAngle());
-        io.setSensingEncoderOffset(io.getSensingEncoderAngle());
-        io.resetCRT();
     }
 
     public Command getSysIdQuasistaticForward()
