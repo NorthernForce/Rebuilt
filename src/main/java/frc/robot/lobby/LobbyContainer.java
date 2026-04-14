@@ -29,12 +29,14 @@ import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.PowerDistribution;
+import edu.wpi.first.wpilibj.Preferences;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import frc.robot.lobby.autos.SimpleAuto;
 import frc.robot.lobby.generated.LobbyTunerConstants;
 import frc.robot.lobby.subsystems.CommandSwerveDrivetrain;
@@ -232,7 +234,10 @@ public class LobbyContainer implements NFRRobotContainer
         autoUtil.bindAuto("S1-SHOOT-DEPOT", new PathPlannerAuto("S1-SHOOT-DEPOT"));
         autoUtil.bindAuto("S1-SIMPLE", new SimpleAuto(this, new PathPlannerAuto("S1-SHOOT").getStartingPose()));
         autoUtil.bindAuto("S3-SIMPLE", new SimpleAuto(this, new PathPlannerAuto("S3-SHOOT").getStartingPose()));
-
+        autoUtil.bindAuto("S1-CLIMB", new PathPlannerAuto("S1-CLIMB"));
+        autoUtil.bindAuto("S1-SHOOT-CLIMB", new PathPlannerAuto("S1-SHOOT-CLIMB"));
+        autoUtil.bindAuto("S2-CLIMB", new PathPlannerAuto("S2-CLIMB"));
+        autoUtil.bindAuto("S3-CLIMB", new PathPlannerAuto("S3-CLIMB"));
         Shuffleboard.getTab("Developer").add(field);
         Shuffleboard.getTab("Developer").add("Reset Encoders", drive.resetEncoders());
         Shuffleboard.getTab("Developer").add("Reset Orientation", drive.resetOrientation());
@@ -261,20 +266,36 @@ public class LobbyContainer implements NFRRobotContainer
                 intake.sysIdArmQuasistatic(SysIdRoutine.Direction.kReverse));
         Shuffleboard.getTab("SysId").add("Arm Dynamic Fwd", intake.sysIdArmDynamic(SysIdRoutine.Direction.kForward));
         Shuffleboard.getTab("SysId").add("Arm Dynamic Rev", intake.sysIdArmDynamic(SysIdRoutine.Direction.kReverse));
-        dashboard.putCommand("Reset Turret", Commands.runOnce(() -> turret.getSuzie().resetEncoders()));
-        dashboard.putCommand("Reset Orientation", drive.resetOrientation());
-        dashboard.putLimelightStream(LobbyConstants.VisionConstants.LimeLightConstants.kLeftLimeLightName);
-        dashboard.putLimelightStream(LobbyConstants.VisionConstants.LimeLightConstants.kFrontLimeLightName);
-        dashboard.putCommand("Reset Suzie Encoders", Commands.runOnce(() ->
-        {
-            turret.getSuzie().resetEncoders();
-        }));
-        DashboardSystem turntableSystem = dashboard.putSystem("Turntable");
-        turntableSystem
+        dashboard.putCommand("Driver", "Reset Turret",
+                Commands.runOnce(() -> turret.getSuzie().resetAngle()).ignoringDisable(true));
+        dashboard.putCommand("Driver", "Reset Orientation", drive.resetOrientation());
+        dashboard.putLimelightStream("Developer", LobbyConstants.VisionConstants.LimeLightConstants.kLeftLimeLightName);
+        dashboard.putLimelightStream("Developer",
+                LobbyConstants.VisionConstants.LimeLightConstants.kFrontLimeLightName);
+        dashboard.putSystem("Developer", "Drivetrain")
+                .withCommand("SysId Move Quasistatic Forward", (drive.sysIdQuasistaticTranslation(Direction.kForward)))
+                .withCommand("SysId Move Quasistatic Reverse", (drive.sysIdQuasistaticTranslation(Direction.kReverse)))
+                .withCommand("SysId Move Dynamic Forward", (drive.sysIdDynamicTranslation(Direction.kForward)))
+                .withCommand("SysId Move Dynamic Reverse", (drive.sysIdDynamicTranslation(Direction.kReverse)))
+                .withCommand("SysId Steer Quasistatic Forward", (drive.sysIdQuasistaticSteer(Direction.kForward)))
+                .withCommand("SysId Steer Quasistatic Reverse", (drive.sysIdQuasistaticSteer(Direction.kReverse)))
+                .withCommand("SysId Steer Dynamic Forward", (drive.sysIdDynamicSteer(Direction.kForward)))
+                .withCommand("SysId Steer Dynamic Reverse", (drive.sysIdDynamicSteer(Direction.kReverse)))
+                .withCommand("SysId Rotation Quasistatic Forward", (drive.sysIdQuasistaticRotation(Direction.kForward)))
+                .withCommand("SysId Rotation Quasistatic Reverse", (drive.sysIdQuasistaticRotation(Direction.kReverse)))
+                .withCommand("SysId Rotation Dynamic Forward", (drive.sysIdDynamicRotation(Direction.kForward)))
+                .withCommand("SysId Rotation Dynamic Reverse", (drive.sysIdDynamicRotation(Direction.kReverse)));
+        DashboardSystem turntableSystemDeveloper = dashboard.putSystem("Driver", "Turntable");
+        turntableSystemDeveloper
                 .withCommand("Turntable SysId Quasistatic Forward", turret.getSuzie().getSysIdQuasistaticForward())
                 .withCommand("Turntable SysId Quasistatic Reverse", turret.getSuzie().getSysIdQuasistaticReverse())
                 .withCommand("Turntable SysId Dynamic Forward", turret.getSuzie().getSysIdDynamicForward())
-                .withCommand("Turntable SysId Dynamic Reverse", turret.getSuzie().getSysIdDynamicReverse())
+                .withCommand("Turntable SysId Dynamic Reverse", turret.getSuzie().getSysIdDynamicReverse());
+        dashboard.putSystem("Driver", "Turntable")
+                .withCommand("Reset Trim", Commands.runOnce(() -> turret.resetTrim(), turret))
+                .withNumber("Current Trim",
+                        () -> Preferences.getDouble("suzieOffsetDegrees",
+                                turret.getConstants().offset().getRotation().getMeasure().in(Degrees)))
                 .withBooleanTunable("Turntable Brake Mode", (brake) ->
                 {
                     turret.getSuzie().setBrakeMode(brake);
@@ -315,17 +336,20 @@ public class LobbyContainer implements NFRRobotContainer
     {
         return Commands.defer(() ->
         {
-            Pose2d target = climber.getClosestClimbPose(drive.getPose());
+            Pose2d target = climber.getClosestPreClimbPose(drive.getPose());
             DogLog.log("Auto/DrivingToPreClimbPosition", target);
-            return driveToPose(target);
+            return closeDriveToPose(target);
         }, java.util.Set.of(drive));
     }
 
     public Command driveToClimbPost()
     {
-        return Commands.deadline(Commands.waitSeconds(0.5),
-                drive.applyRequest(() -> new SwerveRequest.ApplyRobotSpeeds().withSpeeds(
-                        new ChassisSpeeds(MetersPerSecond.of(0), MetersPerSecond.of(0.05), DegreesPerSecond.of(0)))));
+        return Commands.defer(() ->
+        {
+            Pose2d target = climber.getClosestClimbPose(drive.getPose());
+            DogLog.log("Auto/DrivingToClimbPosition", target);
+            return closeDriveToPose(target);
+        }, java.util.Set.of(drive));
     }
 
     @Override
@@ -413,34 +437,49 @@ public class LobbyContainer implements NFRRobotContainer
 
         DogLog.log("Velocity", drive.getVelocity());
         // DogLog.log("Drive/Predicted Pose", predictPose());
-        DogLog.log("CurrentDraw/General/Voltage", powerDistributionHub.getVoltage());
-        DogLog.log("CurrentDraw/General/TotalCurrent", powerDistributionHub.getTotalCurrent());
-        DogLog.log("CurrentDraw/PDH/Feeder", powerDistributionHub.getCurrent(8));
-        DogLog.log("CurrentDraw/PDH/Suzie", powerDistributionHub.getCurrent(9));
-        DogLog.log("CurrentDraw/PDH/LeftShooterMotor", powerDistributionHub.getCurrent(7));
-        DogLog.log("CurrentDraw/PDH/RightShooterMotor", powerDistributionHub.getCurrent(6));
-        DogLog.log("CurrentDraw/PDH/Suzie", powerDistributionHub.getCurrent(9));
-        DogLog.log("CurrentDraw/PDH/Carousel", powerDistributionHub.getCurrent(4));
-        DogLog.log("CurrentDraw/Turret/Shooter/LeftMotor", turret.getShooter().getMotor1Current());
-        DogLog.log("CurrentDraw/Turret/Shooter/RightMotor", turret.getShooter().getMotor2Current());
-        DogLog.log("Turret/Shooter/Speed", turret.getShooter().getSpeed());
+        // DogLog.log("CurrentDraw/General/Voltage", powerDistributionHub.getVoltage());
+        // DogLog.log("CurrentDraw/General/TotalCurrent",
+        // powerDistributionHub.getTotalCurrent());
+        // DogLog.log("CurrentDraw/PDH/Feeder", powerDistributionHub.getCurrent(8));
+        // DogLog.log("CurrentDraw/PDH/Suzie", powerDistributionHub.getCurrent(9));
+        // DogLog.log("CurrentDraw/PDH/LeftShooterMotor",
+        // powerDistributionHub.getCurrent(7));
+        // DogLog.log("CurrentDraw/PDH/RightShooterMotor",
+        // powerDistributionHub.getCurrent(6));
+        // DogLog.log("CurrentDraw/PDH/Suzie", powerDistributionHub.getCurrent(9));
+        // DogLog.log("CurrentDraw/PDH/Carousel", powerDistributionHub.getCurrent(4));
+        // DogLog.log("CurrentDraw/Turret/Shooter/LeftMotor",
+        // turret.getShooter().getMotor1Current());
+        // DogLog.log("CurrentDraw/Turret/Shooter/RightMotor",
+        // turret.getShooter().getMotor2Current());
+        // DogLog.log("Turret/Shooter/Speed", turret.getShooter().getSpeed());
 
-        DogLog.log("CurrentDraw/Turret/Suzie", turret.getSuzie().getCurrent());
-        DogLog.log("CurrentDraw/Intake/Rollers", intake.getRollerCurrent());
-        DogLog.log("CurrentDraw/Intake/Angling", intake.getAnglingCurrent());
+        // DogLog.log("CurrentDraw/Turret/Suzie", turret.getSuzie().getCurrent());
+        // DogLog.log("CurrentDraw/Intake/Rollers", intake.getRollerCurrent());
+        // DogLog.log("CurrentDraw/Intake/Angling", intake.getAnglingCurrent());
         // DogLog.log("CurrentDraw/Turret/Hood",
         // turret.getHood().getCurrent(powerDistributionHub));
-        DogLog.log("CurrentDraw/Spindexer/Feeder", spindexer.getFlicker().getCurrent());
-        DogLog.log("CurrentDraw/Spindexer/Carousel", spindexer.getCarousel().getCurrent());
+        // DogLog.log("CurrentDraw/Spindexer/Feeder",
+        // spindexer.getFlicker().getCurrent());
+        // DogLog.log("CurrentDraw/Spindexer/Carousel",
+        // spindexer.getCarousel().getCurrent());
 
-        DogLog.log("CurrentDraw/DriveTrain/FrontLeft/Drive", flDriveCurrent.getValue().in(Amps));
-        DogLog.log("CurrentDraw/DriveTrain/FrontLeft/Steer", flSteerCurrent.getValue().in(Amps));
-        DogLog.log("CurrentDraw/DriveTrain/FrontRight/Drive", frDriveCurrent.getValue().in(Amps));
-        DogLog.log("CurrentDraw/DriveTrain/FrontRight/Steer", frSteerCurrent.getValue().in(Amps));
-        DogLog.log("CurrentDraw/DriveTrain/BackLeft/Drive", blDriveCurrent.getValue().in(Amps));
-        DogLog.log("CurrentDraw/DriveTrain/BackLeft/Steer", blSteerCurrent.getValue().in(Amps));
-        DogLog.log("CurrentDraw/DriveTrain/BackRight/Drive", brDriveCurrent.getValue().in(Amps));
-        DogLog.log("CurrentDraw/DriveTrain/BackRight/Steer", brSteerCurrent.getValue().in(Amps));
+        // DogLog.log("CurrentDraw/DriveTrain/FrontLeft/Drive",
+        // flDriveCurrent.getValue().in(Amps));
+        // DogLog.log("CurrentDraw/DriveTrain/FrontLeft/Steer",
+        // flSteerCurrent.getValue().in(Amps));
+        // DogLog.log("CurrentDraw/DriveTrain/FrontRight/Drive",
+        // frDriveCurrent.getValue().in(Amps));
+        // DogLog.log("CurrentDraw/DriveTrain/FrontRight/Steer",
+        // frSteerCurrent.getValue().in(Amps));
+        // DogLog.log("CurrentDraw/DriveTrain/BackLeft/Drive",
+        // blDriveCurrent.getValue().in(Amps));
+        // DogLog.log("CurrentDraw/DriveTrain/BackLeft/Steer",
+        // blSteerCurrent.getValue().in(Amps));
+        // DogLog.log("CurrentDraw/DriveTrain/BackRight/Drive",
+        // brDriveCurrent.getValue().in(Amps));
+        // DogLog.log("CurrentDraw/DriveTrain/BackRight/Steer",
+        // brSteerCurrent.getValue().in(Amps));
     }
 
     @Override
@@ -515,7 +554,9 @@ public class LobbyContainer implements NFRRobotContainer
                 LobbyConstants.DrivetrainConstants.kCloseDriveRI, LobbyConstants.DrivetrainConstants.kCloseDriveRD,
                 LobbyConstants.DrivetrainConstants.kPPMaxVelocity);
         return Commands.runOnce(() -> request.reset(drive.getPose()))
-                .andThen(drive.applyRequest(() -> request).until(request::isFinished));
+                .andThen(drive.applyRequest(() -> request).until(request::isFinished))
+                .andThen(drive.applyRequest(() -> new SwerveRequest.ApplyRobotSpeeds().withSpeeds(new ChassisSpeeds()))
+                        .withTimeout(0.05));
     }
 
     public void resetOdometry(Pose2d pose)

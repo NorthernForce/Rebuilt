@@ -148,6 +148,21 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
                 SignalLogger.writeDouble("Rotational_Rate", output.in(Volts));
             }, null, this));
 
+    public void setTranslationSysId()
+    {
+        m_sysIdRoutineToApply = m_sysIdRoutineTranslation;
+    }
+
+    public void setSteerSysId()
+    {
+        m_sysIdRoutineToApply = m_sysIdRoutineSteer;
+    }
+
+    public void setRotationSysId()
+    {
+        m_sysIdRoutineToApply = m_sysIdRoutineRotation;
+    }
+
     /* The SysId routine to test */
     private SysIdRoutine m_sysIdRoutineToApply = m_sysIdRoutineTranslation;
 
@@ -483,9 +498,19 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
      * @param direction Direction of the SysId Quasistatic test
      * @return Command to run
      */
-    public Command sysIdQuasistatic(SysIdRoutine.Direction direction)
+    public Command sysIdQuasistaticTranslation(SysIdRoutine.Direction direction)
     {
-        return m_sysIdRoutineToApply.quasistatic(direction);
+        return m_sysIdRoutineTranslation.quasistatic(direction);
+    }
+
+    public Command sysIdQuasistaticRotation(SysIdRoutine.Direction direction)
+    {
+        return m_sysIdRoutineRotation.quasistatic(direction);
+    }
+
+    public Command sysIdQuasistaticSteer(SysIdRoutine.Direction direction)
+    {
+        return m_sysIdRoutineSteer.quasistatic(direction);
     }
 
     /**
@@ -495,9 +520,19 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
      * @param direction Direction of the SysId Dynamic test
      * @return Command to run
      */
-    public Command sysIdDynamic(SysIdRoutine.Direction direction)
+    public Command sysIdDynamicTranslation(SysIdRoutine.Direction direction)
     {
-        return m_sysIdRoutineToApply.dynamic(direction);
+        return m_sysIdRoutineTranslation.dynamic(direction);
+    }
+
+    public Command sysIdDynamicRotation(SysIdRoutine.Direction direction)
+    {
+        return m_sysIdRoutineRotation.dynamic(direction);
+    }
+
+    public Command sysIdDynamicSteer(SysIdRoutine.Direction direction)
+    {
+        return m_sysIdRoutineSteer.dynamic(direction);
     }
 
     @Override

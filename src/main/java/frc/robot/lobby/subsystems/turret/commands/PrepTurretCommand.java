@@ -1,6 +1,7 @@
 package frc.robot.lobby.subsystems.turret.commands;
 
 import static edu.wpi.first.units.Units.Degrees;
+import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static edu.wpi.first.units.Units.Radians;
 
 import java.util.function.Supplier;
@@ -51,7 +52,7 @@ public class PrepTurretCommand extends Command
         turret.setTargetPose(
                 new TurretPose(targetPose.suzieAngle(), targetPose.hoodAngle(), targetPose.shooterSpeed()));
 
-        turret.start();
+        turret.start(container.getDrive().getThetaVelocity().in(RadiansPerSecond));
     }
 
     @Override

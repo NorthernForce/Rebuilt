@@ -23,12 +23,12 @@ public class Climber extends SubsystemBase
 
     public Command runUp()
     {
-        return run(() -> climber.runUp());
+        return run(() -> climber.runUp()).handleInterrupt(() -> climber.stopMotor());
     }
 
     public Command runDown()
     {
-        return run(() -> climber.homeDown());
+        return run(() -> climber.homeDown()).handleInterrupt(() -> climber.stopMotor());
     }
 
     public Command getHomingCommand()
@@ -46,9 +46,14 @@ public class Climber extends SubsystemBase
         return sensor.atLimit();
     }
 
-    public Pose2d getClosestClimbPose(Pose2d currentPose)
+    public Pose2d getClosestPreClimbPose(Pose2d currentPose)
     {
         return climber.getNearestPreclimbPosition(currentPose);
+    }
+
+    public Pose2d getClosestClimbPose(Pose2d currentPose)
+    {
+        return climber.getNearestClimbPosition(currentPose);
     }
 
     public Command runToPosition(ClimbLevels level)

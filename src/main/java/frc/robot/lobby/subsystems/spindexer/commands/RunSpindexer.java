@@ -61,6 +61,10 @@ public class RunSpindexer extends Command
             {
                 spindexer.getCarousel().startCarousel();
                 spindexer.getFlicker().rampFlicker();
+            } else
+            {
+                spindexer.getCarousel().stopCarousel();
+                spindexer.getFlicker().stopFlicker();
             }
         } else
         {

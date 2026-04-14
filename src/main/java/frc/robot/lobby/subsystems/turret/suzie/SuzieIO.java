@@ -5,6 +5,7 @@ import static edu.wpi.first.units.Units.Rotations;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 import static edu.wpi.first.units.Units.Volts;
 
+import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.controls.ControlRequest;
 import com.ctre.phoenix6.signals.MotorArrangementValue;
 
@@ -58,6 +59,11 @@ public interface SuzieIO
     {
     }
 
+    public default void start(double chassisOmegaRadPerSec)
+    {
+        start(); // fallback for sim/stub implementations
+    }
+
     public default void stop()
     {
     }
@@ -81,11 +87,7 @@ public interface SuzieIO
         return false;
     }
 
-    public default void resetAngle(Angle angle)
-    {
-    }
-
-    public default void resetCRT()
+    public default void resetAngle()
     {
     }
 
@@ -118,5 +120,7 @@ public interface SuzieIO
     {
 
     }
+
+    public Slot0Configs getSlot0Configs();
 
 }

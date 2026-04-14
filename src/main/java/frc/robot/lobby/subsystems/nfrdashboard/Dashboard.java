@@ -17,15 +17,17 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 public class Dashboard extends SubsystemBase
 {
     private String outputPath;
-    private Map<String, Command> namesToCommands = new HashMap<String, Command>();
-    private Map<String, Long> namesToLastRequestId = new HashMap<String, Long>();
-    private Map<String, Command> namesToSafeCommands = new HashMap<String, Command>();
-    private Map<String, DoubleSupplier> namesToDoubles = new HashMap<String, DoubleSupplier>();
-    private Map<String, Supplier<String>> namesToStrings = new HashMap<String, Supplier<String>>();
-    private Map<String, BooleanSupplier> namesToBooleans = new HashMap<String, BooleanSupplier>();
-    private Map<String, Consumer<Double>> namesToDoubleTunables = new HashMap<String, Consumer<Double>>();
-    private Map<String, Consumer<String>> namesToStringsTunables = new HashMap<String, Consumer<String>>();
-    private Map<String, Consumer<Boolean>> namesToBooleansTunables = new HashMap<String, Consumer<Boolean>>();
+
+    private Map<String, Command> namesToCommands = new HashMap<>();
+    private Map<String, Long> namesToLastRequestId = new HashMap<>();
+    private Map<String, Command> namesToSafeCommands = new HashMap<>();
+    private Map<String, DoubleSupplier> namesToDoubles = new HashMap<>();
+    private Map<String, Supplier<String>> namesToStrings = new HashMap<>();
+    private Map<String, BooleanSupplier> namesToBooleans = new HashMap<>();
+    private Map<String, Consumer<Double>> namesToDoubleTunables = new HashMap<>();
+    private Map<String, Consumer<String>> namesToStringsTunables = new HashMap<>();
+    private Map<String, Consumer<Boolean>> namesToBooleansTunables = new HashMap<>();
+
     private NetworkTableInstance instance = NetworkTableInstance.getDefault();
 
     private Set<String> systems = new HashSet<>();
@@ -38,18 +40,46 @@ public class Dashboard extends SubsystemBase
         outputPath = "/NFRDashboard";
     }
 
-    public boolean putCommand(String name, Command command)
+    private String makeKey(String tab, String table, String section, String name)
     {
-        if (!namesToCommands.containsKey(name))
+        return tab + "::" + table + "::" + section + "::" + name;
+    }
+
+    private static class ParsedKey
+    {
+        final String tab, table, section, name;
+
+        ParsedKey(String tab, String table, String section, String name)
         {
-            namesToCommands.put(name, command);
-            namesToLastRequestId.put(name, 0L);
+            this.tab = tab;
+            this.table = table;
+            this.section = section;
+            this.name = name;
+        }
+    }
+
+    private ParsedKey parseKey(String key)
+    {
+        String[] parts = key.split("::", 4);
+        if (parts.length != 4)
+            return null;
+        return new ParsedKey(parts[0], parts[1], parts[2], parts[3]);
+    }
+
+    public boolean putCommand(String tab, String name, Command command)
+    {
+        String key = makeKey(tab, outputPath, "commands", name);
+        if (!namesToCommands.containsKey(key))
+        {
+            namesToCommands.put(key, command);
+            namesToLastRequestId.put(key, 0L);
 
             var commandTable = instance.getTable(outputPath).getSubTable("commands").getSubTable(name);
             commandTable.getEntry("running").setBoolean(false);
             commandTable.getEntry("requested").setBoolean(false);
             commandTable.getEntry("requestId").setInteger(0);
             commandTable.getEntry("lastHandledRequestId").setInteger(0);
+            commandTable.getEntry("tab").setString(tab);
 
             Command safeCommand = new Command()
             {
@@ -87,16 +117,16 @@ public class Dashboard extends SubsystemBase
                 }
             };
 
-            namesToSafeCommands.put(name, safeCommand);
+            namesToSafeCommands.put(key, safeCommand);
 
             return true;
         }
         return false;
     }
 
-    public boolean putCommand(String table, String name, Command command)
+    public boolean putCommand(String tab, String table, String name, Command command)
     {
-        String key = table + "/commands/" + name;
+        String key = makeKey(tab, table, "commands", name);
         if (!namesToCommands.containsKey(key))
         {
             namesToCommands.put(key, command);
@@ -107,6 +137,7 @@ public class Dashboard extends SubsystemBase
             commandTable.getEntry("requested").setBoolean(false);
             commandTable.getEntry("requestId").setInteger(0);
             commandTable.getEntry("lastHandledRequestId").setInteger(0);
+            commandTable.getEntry("tab").setString(tab);
 
             Command safeCommand = new Command()
             {
@@ -151,98 +182,111 @@ public class Dashboard extends SubsystemBase
         return false;
     }
 
-    public void putLimelightStream(String llName)
+    public void putLimelightStream(String tab, String llName)
     {
-        instance.getTable(outputPath).getSubTable("cameraStreams").getEntry(llName)
+        instance.getTable(outputPath).getSubTable("cameraStreams").getSubTable(llName).getEntry("url")
                 .setString("http://" + llName + ".local:5800");
+        instance.getTable(outputPath).getSubTable("cameraStreams").getSubTable(llName).getEntry("tab").setString(tab);
     }
 
-    public void putCameraStream(String name, String url)
+    public void putCameraStream(String tab, String name, String url)
     {
-        instance.getTable(outputPath).getSubTable("cameraStreams").getEntry(name).setString(url);
+        instance.getTable(outputPath).getSubTable("cameraStreams").getSubTable(name).getEntry("url").setString(url);
+        instance.getTable(outputPath).getSubTable("cameraStreams").getSubTable(name).getEntry("tab").setString(tab);
     }
 
-    public void putNumber(String name, DoubleSupplier number)
+    public void putNumber(String tab, String name, DoubleSupplier number)
     {
-        if (!namesToDoubles.containsKey(name))
-        {
-            namesToDoubles.put(name, number);
-
-            var numberTable = instance.getTable(outputPath).getSubTable("numbers").getSubTable(name);
-            numberTable.getEntry("value").setDouble(number.getAsDouble());
-        }
-    }
-
-    public void putNumber(String table, String name, DoubleSupplier number)
-    {
-        String key = table + "/numbers/" + name;
+        String key = makeKey(tab, outputPath, "numbers", name);
         if (!namesToDoubles.containsKey(key))
         {
             namesToDoubles.put(key, number);
+
+            var numberTable = instance.getTable(outputPath).getSubTable("numbers").getSubTable(name);
+            numberTable.getEntry("value").setDouble(number.getAsDouble());
+            numberTable.getEntry("tab").setString(tab);
         }
-        var numberTable = instance.getTable(table).getSubTable("numbers").getSubTable(name);
-        numberTable.getEntry("value").setDouble(number.getAsDouble());
     }
 
-    public void putString(String table, String name, Supplier<String> string)
+    public void putNumber(String tab, String table, String name, DoubleSupplier number)
     {
-        String key = table + "/strings/" + name;
+        String key = makeKey(tab, table, "numbers", name);
+        if (!namesToDoubles.containsKey(key))
+        {
+            namesToDoubles.put(key, number);
+            var numberTable = instance.getTable(table).getSubTable("numbers").getSubTable(name);
+            numberTable.getEntry("value").setDouble(number.getAsDouble());
+            numberTable.getEntry("tab").setString(tab);
+        }
+    }
+
+    public void putString(String tab, String name, Supplier<String> string)
+    {
+        String key = makeKey(tab, outputPath, "strings", name);
         if (!namesToStrings.containsKey(key))
         {
             namesToStrings.put(key, string);
-        }
-        var stringTable = instance.getTable(table).getSubTable("strings").getSubTable(name);
-        stringTable.getEntry("value").setString(string.get());
-    }
-
-    public void putBoolean(String name, BooleanSupplier booleanSupplier)
-    {
-        if (!namesToBooleans.containsKey(name))
-        {
-            namesToBooleans.put(name, booleanSupplier);
-            var booleanTable = instance.getTable(outputPath).getSubTable("booleans").getSubTable(name);
-            booleanTable.getEntry("value").setBoolean(booleanSupplier.getAsBoolean());
-        }
-    }
-
-    public void putString(String name, Supplier<String> string)
-    {
-        if (!namesToStrings.containsKey(name))
-        {
-            namesToStrings.put(name, string);
 
             var stringTable = instance.getTable(outputPath).getSubTable("strings").getSubTable(name);
             stringTable.getEntry("value").setString(string.get());
+            stringTable.getEntry("tab").setString(tab);
         }
     }
 
-    public void putBoolean(String table, String name, BooleanSupplier booleanSupplier)
+    public void putString(String tab, String table, String name, Supplier<String> string)
     {
-        String key = table + "/booleans/" + name;
+        String key = makeKey(tab, table, "strings", name);
+        if (!namesToStrings.containsKey(key))
+        {
+            namesToStrings.put(key, string);
+            var stringTable = instance.getTable(table).getSubTable("strings").getSubTable(name);
+            stringTable.getEntry("value").setString(string.get());
+            stringTable.getEntry("tab").setString(tab);
+        }
+    }
+
+    public void putBoolean(String tab, String name, BooleanSupplier booleanSupplier)
+    {
+        String key = makeKey(tab, outputPath, "booleans", name);
         if (!namesToBooleans.containsKey(key))
         {
             namesToBooleans.put(key, booleanSupplier);
+            var booleanTable = instance.getTable(outputPath).getSubTable("booleans").getSubTable(name);
+            booleanTable.getEntry("value").setBoolean(booleanSupplier.getAsBoolean());
+            booleanTable.getEntry("tab").setString(tab);
         }
-        var booleanTable = instance.getTable(table).getSubTable("booleans").getSubTable(name);
-        booleanTable.getEntry("value").setBoolean(booleanSupplier.getAsBoolean());
     }
 
-    public void putNumberTunable(String name, Consumer<Double> runOnChange)
+    public void putBoolean(String tab, String table, String name, BooleanSupplier booleanSupplier)
     {
-        if (!namesToDoubleTunables.containsKey(name))
+        String key = makeKey(tab, table, "booleans", name);
+        if (!namesToBooleans.containsKey(key))
+        {
+            namesToBooleans.put(key, booleanSupplier);
+            var booleanTable = instance.getTable(table).getSubTable("booleans").getSubTable(name);
+            booleanTable.getEntry("value").setBoolean(booleanSupplier.getAsBoolean());
+            booleanTable.getEntry("tab").setString(tab);
+        }
+    }
+
+    public void putNumberTunable(String tab, String name, Consumer<Double> runOnChange)
+    {
+        String key = makeKey(tab, outputPath, "tunableNumbers", name);
+        if (!namesToDoubleTunables.containsKey(key))
         {
 
-            namesToDoubleTunables.put(name, runOnChange);
+            namesToDoubleTunables.put(key, runOnChange);
             var doubleTable = instance.getTable(outputPath).getSubTable("tunableNumbers").getSubTable(name);
             doubleTable.getEntry("value").setNumber(0);
             doubleTable.getEntry("changed").setBoolean(false);
+            doubleTable.getEntry("tab").setString(tab);
 
         }
     }
 
-    public void putNumberTunable(String table, String name, Consumer<Double> runOnChange)
+    public void putNumberTunable(String tab, String table, String name, Consumer<Double> runOnChange)
     {
-        String key = table + "/tunableNumbers/" + name;
+        String key = makeKey(tab, table, "tunableNumbers", name);
         if (!namesToDoubleTunables.containsKey(key))
         {
 
@@ -250,26 +294,28 @@ public class Dashboard extends SubsystemBase
             var doubleTable = instance.getTable(table).getSubTable("tunableNumbers").getSubTable(name);
             doubleTable.getEntry("value").setNumber(0);
             doubleTable.getEntry("changed").setBoolean(false);
+            doubleTable.getEntry("tab").setString(tab);
 
         }
     }
 
-    public void putStringTunable(String name, Consumer<String> runOnChange)
+    public void putStringTunable(String tab, String name, Consumer<String> runOnChange)
     {
-        if (!namesToStringsTunables.containsKey(name))
+        String key = makeKey(tab, outputPath, "tunableStrings", name);
+        if (!namesToStringsTunables.containsKey(key))
         {
 
-            namesToStringsTunables.put(name, runOnChange);
+            namesToStringsTunables.put(key, runOnChange);
             var stringTable = instance.getTable(outputPath).getSubTable("tunableStrings").getSubTable(name);
             stringTable.getEntry("value").setString("");
             stringTable.getEntry("changed").setBoolean(false);
-
+            stringTable.getEntry("tab").setString(tab);
         }
     }
 
-    public void putStringTunable(String table, String name, Consumer<String> runOnChange)
+    public void putStringTunable(String tab, String table, String name, Consumer<String> runOnChange)
     {
-        String key = table + "/tunableStrings/" + name;
+        String key = makeKey(tab, table, "tunableStrings", name);
         if (!namesToStringsTunables.containsKey(key))
         {
 
@@ -277,26 +323,27 @@ public class Dashboard extends SubsystemBase
             var stringTable = instance.getTable(table).getSubTable("tunableStrings").getSubTable(name);
             stringTable.getEntry("value").setString("");
             stringTable.getEntry("changed").setBoolean(false);
-
+            stringTable.getEntry("tab").setString(tab);
         }
     }
 
-    public void putBooleanTunable(String name, Consumer<Boolean> runOnChange)
+    public void putBooleanTunable(String tab, String name, Consumer<Boolean> runOnChange)
     {
-        if (!namesToBooleansTunables.containsKey(name))
+        String key = makeKey(tab, outputPath, "tunableBooleans", name);
+        if (!namesToBooleansTunables.containsKey(key))
         {
 
-            namesToBooleansTunables.put(name, runOnChange);
+            namesToBooleansTunables.put(key, runOnChange);
             var booleanTable = instance.getTable(outputPath).getSubTable("tunableBooleans").getSubTable(name);
             booleanTable.getEntry("value").setBoolean(false);
             booleanTable.getEntry("changed").setBoolean(false);
-
+            booleanTable.getEntry("tab").setString(tab);
         }
     }
 
-    public void putBooleanTunable(String table, String name, Consumer<Boolean> runOnChange)
+    public void putBooleanTunable(String tab, String table, String name, Consumer<Boolean> runOnChange)
     {
-        String key = table + "/tunableBooleans/" + name;
+        String key = makeKey(tab, table, "tunableBooleans", name);
         if (!namesToBooleansTunables.containsKey(key))
         {
 
@@ -304,132 +351,93 @@ public class Dashboard extends SubsystemBase
             var booleanTable = instance.getTable(table).getSubTable("tunableBooleans").getSubTable(name);
             booleanTable.getEntry("value").setBoolean(false);
             booleanTable.getEntry("changed").setBoolean(false);
-
+            booleanTable.getEntry("tab").setString(tab);
         }
-    }
-
-    private static class ParsedKey
-    {
-        final String table;
-        final String name;
-
-        ParsedKey(String table, String name)
-        {
-            this.table = table;
-            this.name = name;
-        }
-    }
-
-    private ParsedKey parseCompositeKey(String key, String section)
-    {
-        String marker = "/" + section + "/";
-        int idx = key.indexOf(marker);
-        if (idx < 0)
-            return null;
-        String table = key.substring(0, idx);
-        String name = key.substring(idx + marker.length());
-        return new ParsedKey(table, name);
     }
 
     @Override
     public void periodic()
     {
-        Set<String> commandNames = namesToCommands.keySet();
-        for (String key : commandNames)
+        for (String key : namesToCommands.keySet())
         {
-            ParsedKey parsed = parseCompositeKey(key, "commands");
-            var table = (parsed == null) ? instance.getTable(outputPath).getSubTable("commands").getSubTable(key)
-                    : instance.getTable(parsed.table).getSubTable("commands").getSubTable(parsed.name);
+            ParsedKey p = parseKey(key);
+            if (p == null)
+                continue;
+            var table = instance.getTable(p.table).getSubTable("commands").getSubTable(p.name);
 
             long currentRequestId = table.getEntry("requestId").getInteger(0);
             long lastHandledRequestId = namesToLastRequestId.getOrDefault(key, 0L);
-
             if (currentRequestId != lastHandledRequestId)
             {
                 namesToLastRequestId.put(key, currentRequestId);
                 table.getEntry("lastHandledRequestId").setInteger(currentRequestId);
                 table.getEntry("requested").setBoolean(false);
 
-                Command safeCommand = namesToSafeCommands.get(key);
-                if (safeCommand != null)
+                Command safe = namesToSafeCommands.get(key);
+                if (safe != null)
                 {
-                    if (CommandScheduler.getInstance().isScheduled(safeCommand))
-                        CommandScheduler.getInstance().cancel(safeCommand);
+                    if (CommandScheduler.getInstance().isScheduled(safe))
+                        CommandScheduler.getInstance().cancel(safe);
                     else
-                        CommandScheduler.getInstance().schedule(safeCommand);
+                        CommandScheduler.getInstance().schedule(safe);
                 }
             }
         }
 
         for (String key : namesToDoubles.keySet())
         {
-            ParsedKey parsed = parseCompositeKey(key, "numbers");
-            if (parsed == null)
-            {
-                var numberTable = instance.getTable(outputPath).getSubTable("numbers").getSubTable(key);
-                numberTable.getEntry("value").setDouble(namesToDoubles.get(key).getAsDouble());
-            } else
-            {
-                var numberTable = instance.getTable(parsed.table).getSubTable("numbers").getSubTable(parsed.name);
-                numberTable.getEntry("value").setDouble(namesToDoubles.get(key).getAsDouble());
-            }
+            ParsedKey p = parseKey(key);
+            if (p == null)
+                continue;
+            instance.getTable(p.table).getSubTable("numbers").getSubTable(p.name).getEntry("value")
+                    .setDouble(namesToDoubles.get(key).getAsDouble());
         }
         for (String key : namesToStrings.keySet())
         {
-            ParsedKey parsed = parseCompositeKey(key, "strings");
-            if (parsed == null)
-            {
-                var stringTable = instance.getTable(outputPath).getSubTable("strings").getSubTable(key);
-                stringTable.getEntry("value").setString(namesToStrings.get(key).get());
-            } else
-            {
-                var stringTable = instance.getTable(parsed.table).getSubTable("strings").getSubTable(parsed.name);
-                stringTable.getEntry("value").setString(namesToStrings.get(key).get());
-            }
+            ParsedKey p = parseKey(key);
+            if (p == null)
+                continue;
+            instance.getTable(p.table).getSubTable("strings").getSubTable(p.name).getEntry("value")
+                    .setString(namesToStrings.get(key).get());
         }
         for (String key : namesToBooleans.keySet())
         {
-            ParsedKey parsed = parseCompositeKey(key, "booleans");
-            if (parsed == null)
-            {
-                var booleanTable = instance.getTable(outputPath).getSubTable("booleans").getSubTable(key);
-                booleanTable.getEntry("value").setBoolean(namesToBooleans.get(key).getAsBoolean());
-            } else
-            {
-                var booleanTable = instance.getTable(parsed.table).getSubTable("booleans").getSubTable(parsed.name);
-                booleanTable.getEntry("value").setBoolean(namesToBooleans.get(key).getAsBoolean());
-            }
+            ParsedKey p = parseKey(key);
+            if (p == null)
+                continue;
+            instance.getTable(p.table).getSubTable("booleans").getSubTable(p.name).getEntry("value")
+                    .setBoolean(namesToBooleans.get(key).getAsBoolean());
         }
-
         for (String key : namesToDoubleTunables.keySet())
         {
-            ParsedKey parsed = parseCompositeKey(key, "tunableNumbers");
-            var table = (parsed == null) ? instance.getTable(outputPath).getSubTable("tunableNumbers").getSubTable(key)
-                    : instance.getTable(parsed.table).getSubTable("tunableNumbers").getSubTable(parsed.name);
+            ParsedKey p = parseKey(key);
+            if (p == null)
+                continue;
+            var table = instance.getTable(p.table).getSubTable("tunableNumbers").getSubTable(p.name);
             if (table.getEntry("changed").getBoolean(false))
             {
                 namesToDoubleTunables.get(key).accept(table.getEntry("value").getDouble(0));
                 table.getEntry("changed").setBoolean(false);
             }
         }
-
         for (String key : namesToStringsTunables.keySet())
         {
-            ParsedKey parsed = parseCompositeKey(key, "tunableStrings");
-            var table = (parsed == null) ? instance.getTable(outputPath).getSubTable("tunableStrings").getSubTable(key)
-                    : instance.getTable(parsed.table).getSubTable("tunableStrings").getSubTable(parsed.name);
+            ParsedKey p = parseKey(key);
+            if (p == null)
+                continue;
+            var table = instance.getTable(p.table).getSubTable("tunableStrings").getSubTable(p.name);
             if (table.getEntry("changed").getBoolean(false))
             {
                 namesToStringsTunables.get(key).accept(table.getEntry("value").getString(""));
                 table.getEntry("changed").setBoolean(false);
             }
         }
-
         for (String key : namesToBooleansTunables.keySet())
         {
-            ParsedKey parsed = parseCompositeKey(key, "tunableBooleans");
-            var table = (parsed == null) ? instance.getTable(outputPath).getSubTable("tunableBooleans").getSubTable(key)
-                    : instance.getTable(parsed.table).getSubTable("tunableBooleans").getSubTable(parsed.name);
+            ParsedKey p = parseKey(key);
+            if (p == null)
+                continue;
+            var table = instance.getTable(p.table).getSubTable("tunableBooleans").getSubTable(p.name);
             if (table.getEntry("changed").getBoolean(false))
             {
                 namesToBooleansTunables.get(key).accept(table.getEntry("value").getBoolean(false));
@@ -438,19 +446,22 @@ public class Dashboard extends SubsystemBase
         }
     }
 
-    public DashboardSystem putSystem(String systemName)
+    // changed order to match usage: putSystem(tab, systemName)
+    public DashboardSystem putSystem(String tab, String systemName)
     {
         systems.add(systemName);
-        return new DashboardSystem(systemName);
+        return new DashboardSystem(systemName, tab);
     }
 
     public class DashboardSystem
     {
         private String name;
+        private String tab;
 
-        public DashboardSystem(String name)
+        public DashboardSystem(String name, String tab)
         {
             this.name = name;
+            this.tab = tab;
         }
 
         public String getName()
@@ -458,45 +469,50 @@ public class Dashboard extends SubsystemBase
             return name;
         }
 
+        public String getTab()
+        {
+            return tab;
+        }
+
         public DashboardSystem withCommand(String name, Command command)
         {
-            Dashboard.this.putCommand(outputPath + "/systems/" + this.name, name, command);
+            Dashboard.this.putCommand(tab, outputPath + "/systems/" + this.name, name, command);
             return this;
         }
 
         public DashboardSystem withNumber(String name, DoubleSupplier number)
         {
-            Dashboard.this.putNumber(outputPath + "/systems/" + this.name, name, number);
+            Dashboard.this.putNumber(tab, outputPath + "/systems/" + this.name, name, number);
             return this;
         }
 
         public DashboardSystem withString(String name, Supplier<String> string)
         {
-            Dashboard.this.putString(outputPath + "/systems/" + this.name, name, string);
+            Dashboard.this.putString(tab, outputPath + "/systems/" + this.name, name, string);
             return this;
         }
 
         public DashboardSystem withBoolean(String name, BooleanSupplier booleanSupplier)
         {
-            Dashboard.this.putBoolean(outputPath + "/systems/" + this.name, name, booleanSupplier);
+            Dashboard.this.putBoolean(tab, outputPath + "/systems/" + this.name, name, booleanSupplier);
             return this;
         }
 
         public DashboardSystem withNumberTunable(String name, Consumer<Double> runOnChange)
         {
-            Dashboard.this.putNumberTunable(outputPath + "/systems/" + this.name, name, runOnChange);
+            Dashboard.this.putNumberTunable(tab, outputPath + "/systems/" + this.name, name, runOnChange);
             return this;
         }
 
         public DashboardSystem withStringTunable(String name, Consumer<String> runOnChange)
         {
-            Dashboard.this.putStringTunable(outputPath + "/systems/" + this.name, name, runOnChange);
+            Dashboard.this.putStringTunable(tab, outputPath + "/systems/" + this.name, name, runOnChange);
             return this;
         }
 
         public DashboardSystem withBooleanTunable(String name, Consumer<Boolean> runOnChange)
         {
-            Dashboard.this.putBooleanTunable(outputPath + "/systems/" + this.name, name, runOnChange);
+            Dashboard.this.putBooleanTunable(tab, outputPath + "/systems/" + this.name, name, runOnChange);
             return this;
 
         }
