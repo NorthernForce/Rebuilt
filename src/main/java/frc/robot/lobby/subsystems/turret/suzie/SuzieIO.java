@@ -87,11 +87,7 @@ public interface SuzieIO
         return false;
     }
 
-    public default void resetAngle(Angle angle)
-    {
-    }
-
-    public default void resetCRT()
+    public default void resetAngle()
     {
     }
 

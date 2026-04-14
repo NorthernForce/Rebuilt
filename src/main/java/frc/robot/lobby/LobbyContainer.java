@@ -266,12 +266,13 @@ public class LobbyContainer implements NFRRobotContainer
                 intake.sysIdArmQuasistatic(SysIdRoutine.Direction.kReverse));
         Shuffleboard.getTab("SysId").add("Arm Dynamic Fwd", intake.sysIdArmDynamic(SysIdRoutine.Direction.kForward));
         Shuffleboard.getTab("SysId").add("Arm Dynamic Rev", intake.sysIdArmDynamic(SysIdRoutine.Direction.kReverse));
-        dashboard.putCommand("Reset Turret",
-                Commands.runOnce(() -> turret.getSuzie().resetEncoders()).ignoringDisable(true));
-        dashboard.putCommand("Reset Orientation", drive.resetOrientation());
-        dashboard.putLimelightStream(LobbyConstants.VisionConstants.LimeLightConstants.kLeftLimeLightName);
-        dashboard.putLimelightStream(LobbyConstants.VisionConstants.LimeLightConstants.kFrontLimeLightName);
-        dashboard.putSystem("Drivetrain")
+        dashboard.putCommand("Driver", "Reset Turret",
+                Commands.runOnce(() -> turret.getSuzie().resetAngle()).ignoringDisable(true));
+        dashboard.putCommand("Driver", "Reset Orientation", drive.resetOrientation());
+        dashboard.putLimelightStream("Developer", LobbyConstants.VisionConstants.LimeLightConstants.kLeftLimeLightName);
+        dashboard.putLimelightStream("Developer",
+                LobbyConstants.VisionConstants.LimeLightConstants.kFrontLimeLightName);
+        dashboard.putSystem("Developer", "Drivetrain")
                 .withCommand("SysId Move Quasistatic Forward", (drive.sysIdQuasistaticTranslation(Direction.kForward)))
                 .withCommand("SysId Move Quasistatic Reverse", (drive.sysIdQuasistaticTranslation(Direction.kReverse)))
                 .withCommand("SysId Move Dynamic Forward", (drive.sysIdDynamicTranslation(Direction.kForward)))
@@ -284,16 +285,13 @@ public class LobbyContainer implements NFRRobotContainer
                 .withCommand("SysId Rotation Quasistatic Reverse", (drive.sysIdQuasistaticRotation(Direction.kReverse)))
                 .withCommand("SysId Rotation Dynamic Forward", (drive.sysIdDynamicRotation(Direction.kForward)))
                 .withCommand("SysId Rotation Dynamic Reverse", (drive.sysIdDynamicRotation(Direction.kReverse)));
-        dashboard.putCommand("Reset Suzie Encoders", Commands.runOnce(() ->
-        {
-            turret.getSuzie().resetEncoders();
-        }));
-        DashboardSystem turntableSystem = dashboard.putSystem("Turntable");
-        turntableSystem
+        DashboardSystem turntableSystemDeveloper = dashboard.putSystem("Driver", "Turntable");
+        turntableSystemDeveloper
                 .withCommand("Turntable SysId Quasistatic Forward", turret.getSuzie().getSysIdQuasistaticForward())
                 .withCommand("Turntable SysId Quasistatic Reverse", turret.getSuzie().getSysIdQuasistaticReverse())
                 .withCommand("Turntable SysId Dynamic Forward", turret.getSuzie().getSysIdDynamicForward())
-                .withCommand("Turntable SysId Dynamic Reverse", turret.getSuzie().getSysIdDynamicReverse())
+                .withCommand("Turntable SysId Dynamic Reverse", turret.getSuzie().getSysIdDynamicReverse());
+        dashboard.putSystem("Driver", "Turntable")
                 .withCommand("Reset Trim", Commands.runOnce(() -> turret.resetTrim(), turret))
                 .withNumber("Current Trim",
                         () -> Preferences.getDouble("suzieOffsetDegrees",
@@ -338,7 +336,7 @@ public class LobbyContainer implements NFRRobotContainer
     {
         return Commands.defer(() ->
         {
-            Pose2d target = climber.getClosestClimbPose(drive.getPose());
+            Pose2d target = climber.getClosestPreClimbPose(drive.getPose());
             DogLog.log("Auto/DrivingToPreClimbPosition", target);
             return closeDriveToPose(target);
         }, java.util.Set.of(drive));
@@ -346,9 +344,12 @@ public class LobbyContainer implements NFRRobotContainer
 
     public Command driveToClimbPost()
     {
-        return Commands.deadline(Commands.waitSeconds(0.5),
-                drive.applyRequest(() -> new SwerveRequest.ApplyRobotSpeeds().withSpeeds(
-                        new ChassisSpeeds(MetersPerSecond.of(0), MetersPerSecond.of(0.05), DegreesPerSecond.of(0)))));
+        return Commands.defer(() ->
+        {
+            Pose2d target = climber.getClosestClimbPose(drive.getPose());
+            DogLog.log("Auto/DrivingToClimbPosition", target);
+            return closeDriveToPose(target);
+        }, java.util.Set.of(drive));
     }
 
     @Override
@@ -553,7 +554,9 @@ public class LobbyContainer implements NFRRobotContainer
                 LobbyConstants.DrivetrainConstants.kCloseDriveRI, LobbyConstants.DrivetrainConstants.kCloseDriveRD,
                 LobbyConstants.DrivetrainConstants.kPPMaxVelocity);
         return Commands.runOnce(() -> request.reset(drive.getPose()))
-                .andThen(drive.applyRequest(() -> request).until(request::isFinished));
+                .andThen(drive.applyRequest(() -> request).until(request::isFinished))
+                .andThen(drive.applyRequest(() -> new SwerveRequest.ApplyRobotSpeeds().withSpeeds(new ChassisSpeeds()))
+                        .withTimeout(0.05));
     }
 
     public void resetOdometry(Pose2d pose)

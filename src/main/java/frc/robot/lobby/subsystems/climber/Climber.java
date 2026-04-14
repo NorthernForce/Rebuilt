@@ -46,9 +46,14 @@ public class Climber extends SubsystemBase
         return sensor.atLimit();
     }
 
-    public Pose2d getClosestClimbPose(Pose2d currentPose)
+    public Pose2d getClosestPreClimbPose(Pose2d currentPose)
     {
         return climber.getNearestPreclimbPosition(currentPose);
+    }
+
+    public Pose2d getClosestClimbPose(Pose2d currentPose)
+    {
+        return climber.getNearestClimbPosition(currentPose);
     }
 
     public Command runToPosition(ClimbLevels level)

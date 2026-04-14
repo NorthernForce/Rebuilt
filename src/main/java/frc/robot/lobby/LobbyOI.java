@@ -68,7 +68,7 @@ public class LobbyOI
                 .alongWith(new PrepTurretCommand(container)))
                 .alongWith(Commands.waitSeconds(1.0).andThen(intake.pump())));
 
-        driveController.start().onTrue(Commands.runOnce(() -> suzie.resetCRT()));
+        driveController.start().onTrue(Commands.runOnce(() -> suzie.resetAngle()));
 
         driveController.leftBumper()
                 .whileTrue(new PrepTurretWithValues(turret, RotationsPerSecond.of(100), Degrees.of(21))
@@ -92,13 +92,13 @@ public class LobbyOI
         driveController.a().onTrue(Commands.runOnce(() -> turret.resetTrim()));
         driveController.povLeft().onTrue(Commands.runOnce(() -> suzie.start(), suzie))
                 .onFalse(Commands.runOnce(() -> suzie.stop(), suzie))
-                .whileTrue(Commands.sequence(
-                        Commands.run(() -> turret.setOffsetAngle(turret.getOffsetAngle().minus(Degrees.of(1))), turret),
+                .whileTrue(Commands.sequence(Commands
+                        .runOnce(() -> turret.setOffsetAngle(turret.getOffsetAngle().minus(Degrees.of(1))), turret),
                         Commands.waitSeconds(0.02)).repeatedly());
         driveController.povRight().onTrue(Commands.runOnce(() -> suzie.start(), suzie))
                 .onFalse(Commands.runOnce(() -> suzie.stop(), suzie))
-                .whileTrue(Commands.sequence(
-                        Commands.run(() -> turret.setOffsetAngle(turret.getOffsetAngle().plus(Degrees.of(1))), turret),
+                .whileTrue(Commands.sequence(Commands
+                        .runOnce(() -> turret.setOffsetAngle(turret.getOffsetAngle().plus(Degrees.of(1))), turret),
                         Commands.waitSeconds(0.02)).repeatedly());
 
         manipulatorController.back().onTrue(drive.resetOrientation());
@@ -119,7 +119,7 @@ public class LobbyOI
                 .alongWith(new PrepTurretCommand(container)))
                 .alongWith(Commands.waitSeconds(1.0).andThen(intake.pump())));
 
-        manipulatorController.start().onTrue(Commands.runOnce(() -> suzie.resetCRT()));
+        manipulatorController.start().onTrue(Commands.runOnce(() -> suzie.resetAngle()));
 
         manipulatorController.leftBumper()
                 .whileTrue(new PrepTurretWithValues(turret, RotationsPerSecond.of(120), Degrees.of(21))

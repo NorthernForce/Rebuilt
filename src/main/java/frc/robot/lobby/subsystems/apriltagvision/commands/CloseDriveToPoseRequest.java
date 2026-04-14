@@ -20,19 +20,23 @@ public class CloseDriveToPoseRequest implements SwerveRequest
     private final PIDController yPID;
     private final LinearVelocity maxVelocity;
 
+    private static final double kPositionToleranceMeters = 0.01;
+    private static final double kVelocityToleranceMps = 0.03;
+    private static final double kOutputDeadbandMps = 0.01;
+
     public CloseDriveToPoseRequest(Pose2d pose, double tP, double tI, double tD, double rP, double rI, double rD,
             LinearVelocity maxVelocity)
     {
         this.xPID = new PIDController(tP, tI, tD);
         this.yPID = new PIDController(tP, tI, tD);
-        xPID.setTolerance(0.02, 0.1);
-        yPID.setTolerance(0.02, 0.1);
+        xPID.setTolerance(kPositionToleranceMeters, kVelocityToleranceMps);
+        yPID.setTolerance(kPositionToleranceMeters, kVelocityToleranceMps);
         xPID.setSetpoint(pose.getX());
         yPID.setSetpoint(pose.getY());
         this.facingAngle = new FieldCentricFacingAngle();
         facingAngle.HeadingController.setPID(rP, rI, rD);
-        facingAngle.HeadingController.enableContinuousInput(0, Math.PI * 2);
-        facingAngle.HeadingController.setTolerance(Math.toRadians(2));
+        facingAngle.HeadingController.enableContinuousInput(-Math.PI, Math.PI);
+        facingAngle.HeadingController.setTolerance(Math.toRadians(2), Math.toRadians(15));
         facingAngle.withTargetDirection(pose.getRotation());
         facingAngle.withDriveRequestType(DriveRequestType.Velocity);
         this.maxVelocity = maxVelocity;
@@ -50,6 +54,23 @@ public class CloseDriveToPoseRequest implements SwerveRequest
     {
         double vx = xPID.calculate(parameters.currentPose.getX());
         double vy = yPID.calculate(parameters.currentPose.getY());
+
+        if (Math.abs(xPID.getPositionError()) < kPositionToleranceMeters
+                && Math.abs(xPID.getVelocityError()) < kVelocityToleranceMps)
+        {
+            vx = 0.0;
+        }
+        if (Math.abs(yPID.getPositionError()) < kPositionToleranceMeters
+                && Math.abs(yPID.getVelocityError()) < kVelocityToleranceMps)
+        {
+            vy = 0.0;
+        }
+
+        if (Math.abs(vx) < kOutputDeadbandMps)
+            vx = 0.0;
+        if (Math.abs(vy) < kOutputDeadbandMps)
+            vy = 0.0;
+
         ChassisSpeeds targetSpeeds = new ChassisSpeeds(vx, vy, 0);
 
         facingAngle.withVelocityX(MathUtil.clamp(targetSpeeds.vxMetersPerSecond, -maxVelocity.in(MetersPerSecond),
