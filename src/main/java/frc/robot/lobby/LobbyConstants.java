@@ -28,6 +28,7 @@ import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
@@ -43,6 +44,7 @@ import edu.wpi.first.units.measure.Temperature;
 import edu.wpi.first.units.measure.Time;
 import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj.PowerDistribution.ModuleType;
+import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import frc.robot.FieldConstants;
 import frc.robot.lobby.generated.LobbyTunerConstants;
 import frc.robot.lobby.subsystems.intake.IntakeIO.IntakeIOParameters;
@@ -101,20 +103,20 @@ public class LobbyConstants
         public static final PathConstraints kPPConstraints = new PathConstraints(kPPMaxVelocity, kPPMaxAcceleration,
                 kPPMaxAngularVelocity, kPPMaxAngularAcceleration);
 
-        public static final double kCloseDriveTP = 2.65;
+        public static final double kCloseDriveTP = 5;
         public static final double kCloseDriveTI = 0.0;
-        public static final double kCloseDriveTD = 0.3;
+        public static final double kCloseDriveTD = 0.0;
 
-        public static final double kCloseDriveRP = 5;
+        public static final double kCloseDriveRP = 10;
         public static final double kCloseDriveRI = 0.0;
         public static final double kCloseDriveRD = 0.0;
     }
 
     public class AutoConstants
     {
-        public static final PIDController xPid = new PIDController(10.0, 0.0, 0.0);
-        public static final PIDController yPid = new PIDController(10.0, 0.0, 0.0);
-        public static final PIDController rPid = new PIDController(7.0, 0.0, 0.0);
+        public static final PIDController xPid = new PIDController(1.79, 0.0, 0.0);
+        public static final PIDController yPid = new PIDController(1.79, 0.0, 0.0);
+        public static final PIDController rPid = new PIDController(0.7, 0.0, 0.0);
         static
         {
             rPid.enableContinuousInput(0, 2 * Math.PI);
@@ -152,8 +154,8 @@ public class LobbyConstants
             public static final String kFrontLimeLightName = "limelight-front";
             public static final String kBackLimeLightName = "limelight-back";
             public static final int[] kValidIds =
-            { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29,
-                    30, 31 };
+            { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 24, 25, 26, 27, 29, 30,
+                    31 };
 
         }
 
@@ -178,12 +180,13 @@ public class LobbyConstants
             private static int kMotorID = 19;
             private static int kDrivingEncoderID = 9;
             private static int kSensingEncoderID = 8;
-            private static double kS = 0.23196;
-            private static double kV = 4.0594;
-            private static double kA = 1.0709;
-            private static double kP = 38.746;
+            private static double kS = 0;
+            private static double kV = 0;
+            private static double kA = 0;
+            private static double kSimA = 0.1;
+            private static double kP = 100;
             private static double kI = 0;
-            private static double kD = 6.8457;
+            private static double kD = 0;
             private static double kG = 0;
 
             private static double kCruiseVelocity = 0;
@@ -203,6 +206,10 @@ public class LobbyConstants
 
             public static SuzieConstants kMinionConstants = new SuzieConstants(kMotorID, kDrivingEncoderID,
                     kSensingEncoderID, kS, kV, kA, kP, kI, kD, kG, kCruiseVelocity, kAcceleration, kJerk, kExpoV,
+                    kExpoA, kRotorToTurntableRatio, kDrivingGearTeeth, kSensingGearTeeth, kTurntableGearTeeth,
+                    kInverted, kLowerSoftLimit, kUpperSoftLimit, kErrorTolerance, kMotorArrangement);
+            public static SuzieConstants kSimConstants = new SuzieConstants(kMotorID, kDrivingEncoderID,
+                    kSensingEncoderID, kS, kV, kSimA, kP, kI, kD, kG, kCruiseVelocity, kAcceleration, kJerk, kExpoV,
                     kExpoA, kRotorToTurntableRatio, kDrivingGearTeeth, kSensingGearTeeth, kTurntableGearTeeth,
                     kInverted, kLowerSoftLimit, kUpperSoftLimit, kErrorTolerance, kMotorArrangement);
         }
@@ -234,7 +241,7 @@ public class LobbyConstants
                     FieldConstants.kBlueTrench2, FieldConstants.kRedTrench1, FieldConstants.kRedTrench2);
 
             // servo constants
-            private static int kServoID = 9;
+            private static int kServoID = 8;
             private static Angle kLowerServoLimit = Degrees.of(0);
             private static Angle kUpperServoLimit = Degrees.of(180);
             private static Angle kMechanismLowerAngle = Degrees.of(20);
@@ -255,7 +262,7 @@ public class LobbyConstants
             private static int kMotor1ID = 20;
             private static int kMotor2ID = 21;
             private static double kS = 0.25719;
-            private static double kV = 0.112;
+            private static double kV = 0.122;
             private static double kA = 0.0037127;
             private static double kSimA = 0.0037127;
             private static double kP = 0;
@@ -296,19 +303,33 @@ public class LobbyConstants
         public static final double kBottomRotations = 62.0;
         public static final double kStartRotations = 0;
         public static final double kTolerance = 5;
-        public static final double kDutyCyclePower = 0.4;
+        public static final double kDutyCyclePower = 1;
         public static final boolean kInverted = true;
+        public static final Distance offsetPrepPose = Meters.of(0.5);
 
         public static final int servoID = 9;
+        public static final Pose2d kLowerBluePose = new Pose2d(Meters.of(1.1), Meters.of(4.7),
+                new Rotation2d(Degrees.of(-90)));
+        public static final Pose2d kUpperBluePose = new Pose2d(Meters.of(1.108), Meters.of(2.988),
+                new Rotation2d(Degrees.of(90)));
+        public static final Pose2d kLowerRedPose = new Pose2d(Meters.of(14), Meters.of(4.813),
+                new Rotation2d(Degrees.of(-90)));
+        public static final Pose2d kUpperRedPose = new Pose2d(Meters.of(14), Meters.of(4.813),
+                new Rotation2d(Degrees.of(-90)));
 
-        public static final Pose2d kUpperRedPose = new Pose2d(Meters.of(14.841), Meters.of(4.745),
-                new Rotation2d(Degrees.of(0)));
-        public static final Pose2d kLowerRedPose = new Pose2d(Meters.of(14.841), Meters.of(3.889),
-                new Rotation2d(Degrees.of(0)));
-        public static final Pose2d kUpperBluePose = new Pose2d(Meters.of(1.591), Meters.of(4.745),
-                new Rotation2d(Degrees.of(0)));
-        public static final Pose2d kLowerBluePose = new Pose2d(Meters.of(1.591), Meters.of(3.889),
-                new Rotation2d(Degrees.of(0)));
+        public static final Pose2d kUpperRedPrepPose = kUpperRedPose
+                .plus(new Transform2d(Meters.of(-offsetPrepPose.in(Meters)), Meters.of(offsetPrepPose.in(Meters)),
+                        new Rotation2d(Degrees.zero())));
+        public static final Pose2d kLowerRedPrepPose = kLowerRedPose
+                .plus(new Transform2d(Meters.of(-offsetPrepPose.in(Meters)), Meters.of(offsetPrepPose.in(Meters)),
+                        new Rotation2d(Degrees.zero())));
+
+        public static final Pose2d kUpperBluePrepPose = kUpperBluePose
+                .plus(new Transform2d(Meters.of(-offsetPrepPose.in(Meters)), Meters.of(offsetPrepPose.in(Meters)),
+                        new Rotation2d(Degrees.zero())));
+
+        public static final Pose2d kLowerBluePrepPose = new Pose2d(Meters.of(1.2119691577698704),
+                Meters.of(5.191613285883749), new Rotation2d(Degrees.of(-90)));
 
         public static enum ClimbLevels
         {
@@ -336,8 +357,9 @@ public class LobbyConstants
 
         public static final ClimberParameters kClimberParameters = new ClimberParameters(kMotorID,
                 Rotations.of(kTopRotations), Rotations.of(kBottomRotations), Rotations.of(kStartRotations),
-                Rotations.of(kTolerance), kInverted, kUpperBluePose, kLowerBluePose, kUpperRedPose, kLowerRedPose,
-                kDutyCyclePower, gearRatio, maxHeight);
+                Rotations.of(kTolerance), kInverted, kUpperRedPrepPose, kLowerRedPrepPose, kUpperBluePrepPose,
+                kLowerBluePrepPose, kUpperRedPose, kLowerRedPose, kUpperBluePose, kLowerBluePose, kDutyCyclePower,
+                gearRatio, maxHeight);
 
     }
 
@@ -382,6 +404,7 @@ public class LobbyConstants
         public static final double kD = 2.6807;
         public static final double kS = 0.24758;
         public static final double kA = 0.85231;
+
         public static final double kV = 9.1813;
         public static final double kG = 0.15;
         public static final double kAcceleration = 4;

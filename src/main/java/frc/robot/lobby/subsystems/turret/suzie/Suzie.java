@@ -6,6 +6,7 @@ import static edu.wpi.first.units.Units.Second;
 import static edu.wpi.first.units.Units.Seconds;
 import static edu.wpi.first.units.Units.Volts;
 
+import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.controls.VoltageOut;
 
 import dev.doglog.DogLog;
@@ -55,6 +56,11 @@ public class Suzie extends SubsystemBase
         io.start();
     }
 
+    public void start(double chassisOmegaRadPerSec)
+    {
+        io.start(chassisOmegaRadPerSec);
+    }
+
     public void stop()
     {
         io.stop();
@@ -72,7 +78,7 @@ public class Suzie extends SubsystemBase
 
     public void resetAngle()
     {
-        io.resetAngle(Degrees.of(0.0));
+        io.resetAngle();
     }
 
     public Angle getTargetAngle()
@@ -88,24 +94,6 @@ public class Suzie extends SubsystemBase
     public void setTargetAngle(Angle angle)
     {
         io.setTargetAngle(angle);
-    }
-
-    public void resetCRT()
-    {
-        io.resetCRT();
-    }
-
-    public void resetEncoders()
-    {
-        io.setDrivingEncoderOffset(Degrees.of(0.0));
-        io.setSensingEncoderOffset(Degrees.of(0.0));
-
-        Preferences.setDouble("drivingEncoderOffset", io.getDrivingEncoderAngle().in(Rotations));
-        Preferences.setDouble("sensingEncoderOffset", io.getSensingEncoderAngle().in(Rotations));
-
-        io.setDrivingEncoderOffset(io.getDrivingEncoderAngle());
-        io.setSensingEncoderOffset(io.getSensingEncoderAngle());
-        io.resetCRT();
     }
 
     public Command getSysIdQuasistaticForward()
@@ -137,6 +125,12 @@ public class Suzie extends SubsystemBase
     public void periodic()
     {
         io.update();
+        // var config = io.getSlot0Configs();
+        // DogLog.log("Turret/Suzie/PID Values/kP", config.kP);
+        // DogLog.log("Turret/Suzie/PID Values/kI", config.kI);
+        // DogLog.log("Turret/Suzie/PID Values/kD", config.kD);
+        // DogLog.log("Turret/Suzie/PID Values/kV", config.kV);
+        // DogLog.log("Turret/Suzie/PID Values/kA", config.kA);
     }
 
     public double getCurrent()

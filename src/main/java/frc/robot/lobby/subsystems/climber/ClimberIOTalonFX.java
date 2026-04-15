@@ -15,6 +15,10 @@ public class ClimberIOTalonFX implements ClimberIO
     private final int motorID;
     private final TalonFX motor;
 
+    private final Pose2d upperRedPreClimbPosition;
+    private final Pose2d lowerRedPreClimbPosition;
+    private final Pose2d upperBluePreClimbPosition;
+    private final Pose2d lowerBluePreClimbPosition;
     private final Pose2d upperRedClimbPosition;
     private final Pose2d lowerRedClimbPosition;
     private final Pose2d upperBlueClimbPosition;
@@ -30,10 +34,14 @@ public class ClimberIOTalonFX implements ClimberIO
                 : InvertedValue.CounterClockwise_Positive;
         config.MotorOutput.NeutralMode = NeutralModeValue.Brake;
         motor.getConfigurator().apply(config);
-        upperRedClimbPosition = params.upperRedPrepPose();
-        lowerRedClimbPosition = params.lowerRedPrepPose();
-        upperBlueClimbPosition = params.upperBluePrepPose();
-        lowerBlueClimbPosition = params.lowerBluePrepPose();
+        upperRedPreClimbPosition = params.upperRedPrepPose();
+        lowerRedPreClimbPosition = params.lowerRedPrepPose();
+        upperBluePreClimbPosition = params.upperBluePrepPose();
+        lowerBluePreClimbPosition = params.lowerBluePrepPose();
+        upperRedClimbPosition = params.upperRedPose();
+        lowerRedClimbPosition = params.lowerRedPose();
+        upperBlueClimbPosition = params.upperBluePose();
+        lowerBlueClimbPosition = params.lowerBluePose();
         power = params.dutyCyclePower();
     }
 
@@ -56,6 +64,30 @@ public class ClimberIOTalonFX implements ClimberIO
     }
 
     public Pose2d getNearestPreclimbPosition(Pose2d robotPose)
+    {
+        DogLog.log("Climber/RobotPose", robotPose);
+        if (DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Blue)
+        {
+            double distanceToUpperBlue = robotPose.getTranslation()
+                    .getDistance(upperBluePreClimbPosition.getTranslation());
+            double distanceToLowerBlue = robotPose.getTranslation()
+                    .getDistance(lowerBluePreClimbPosition.getTranslation());
+            return distanceToUpperBlue < distanceToLowerBlue ? upperBluePreClimbPosition : lowerBluePreClimbPosition;
+        } else if (DriverStation.getAlliance().get() == Alliance.Red)
+        {
+            double distanceToUpperRed = robotPose.getTranslation()
+                    .getDistance(upperRedPreClimbPosition.getTranslation());
+            double distanceToLowerRed = robotPose.getTranslation()
+                    .getDistance(lowerRedPreClimbPosition.getTranslation());
+            return distanceToUpperRed < distanceToLowerRed ? upperRedPreClimbPosition : lowerRedPreClimbPosition;
+        } else
+        {
+            return robotPose;
+        }
+    }
+
+    @Override
+    public Pose2d getNearestClimbPosition(Pose2d robotPose)
     {
         DogLog.log("Climber/RobotPose", robotPose);
         if (DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Blue)

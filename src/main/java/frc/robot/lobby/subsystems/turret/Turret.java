@@ -13,6 +13,7 @@ import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.Preferences;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -34,12 +35,22 @@ public class Turret extends SubsystemBase
     private final TargetingCalculator shooterCalculator;
     private final TargetingCalculator tofCalculator;
     private final Angle shooterToRobotAngle;
+    private TurretState state = TurretState.RESTING;
+    private final TurretConstants constants;
 
     public Turret(TurretConstants constants, Suzie suzie, Hood hood, Shooter shooter,
             TargetingCalculator hoodCalculator, TargetingCalculator shooterCalculator,
             TargetingCalculator tofCalculator)
     {
-        offset = constants.offset();
+        offset = new Pose2d(
+                new Translation2d(
+                        Meters.of(Preferences.getDouble("suzieOffsetXMeters",
+                                constants.offset().getTranslation().getMeasureX().in(Meters))),
+                        Meters.of(Preferences.getDouble("suzieOffsetYMeters",
+                                constants.offset().getTranslation().getMeasureY().in(Meters)))),
+                new Rotation2d(Degrees.of(Preferences.getDouble("suzieOffsetDegrees",
+                        constants.offset().getRotation().getMeasure().in(Degrees)))));
+        this.constants = constants;
         this.suzie = suzie;
         this.hood = hood;
         this.shooter = shooter;
@@ -61,6 +72,11 @@ public class Turret extends SubsystemBase
 
     public static record TurretPose(Angle suzieAngle, Angle hoodAngle, AngularVelocity shooterSpeed) {
         public static TurretPose kZero = new TurretPose(Radians.of(0), Radians.of(0), RotationsPerSecond.of(0));
+    }
+
+    public static enum TurretState
+    {
+        SHOOTING, PASSING, RESTING
     }
 
     /**
@@ -146,6 +162,11 @@ public class Turret extends SubsystemBase
         }
     }
 
+    public TurretConstants getConstants()
+    {
+        return constants;
+    }
+
     /**
      * Check if the robot is in valid shooting range for the current alliance
      * Shooting range is between the center trench and the alliance station
@@ -173,6 +194,11 @@ public class Turret extends SubsystemBase
         shooter.setTargetSpeed(pose.shooterSpeed);
     }
 
+    public void resetTrim()
+    {
+        setOffsetAngle(constants.offset().getRotation().getMeasure());
+    }
+
     public TurretPose getPose()
     {
         return new TurretPose(suzie.getAngle(), hood.getAngle(), shooter.getSpeed());
@@ -192,11 +218,19 @@ public class Turret extends SubsystemBase
         shooter.start();
     }
 
+    public void start(double chassisOmegaRadPerSec)
+    {
+        suzie.start(chassisOmegaRadPerSec);
+        hood.start();
+        shooter.start();
+    }
+
     public void stop()
     {
         suzie.stop();
         hood.stop();
         shooter.stop();
+        setState(TurretState.RESTING);
     }
 
     public TurretPose calculateTargetPose(Translation2d predictedTurretPosition, Pose2d robotPose)
@@ -208,18 +242,23 @@ public class Turret extends SubsystemBase
 
         if (inAllianceZone)
         {
-            if (inRange)
-            {
-                // Target the hub for shooting
-                return calculateShootingPose(robotPose, predictedTurretPosition);
-            } else
-            {
-                return getPose();
-            }
+            setState(TurretState.SHOOTING);
+            return calculateShootingPose(robotPose, predictedTurretPosition);
         } else
         {
+            setState(TurretState.PASSING);
             return calculatePassingPose(robotPose, predictedTurretPosition);
         }
+    }
+
+    public void setState(TurretState state)
+    {
+        this.state = state;
+    }
+
+    public TurretState getState()
+    {
+        return state;
     }
 
     public Translation2d updateFromTOF(Pose2d robotPose, Translation2d predictedOffset)
@@ -239,7 +278,6 @@ public class Turret extends SubsystemBase
         AngularVelocity shooterSpeed = RotationsPerSecond
                 .of(shooterCalculator.getValueForDistance(shooterDistanceToHub.in(Meters)));
 
-        DogLog.log("Turret/TargetMode", "Shooting");
         DogLog.log("Turret/TargetPosition", new Translation2d(getHubPosition().getX(), getHubPosition().getY()));
 
         return new TurretPose(suzieAngle, hoodAngle, shooterSpeed);
@@ -261,7 +299,6 @@ public class Turret extends SubsystemBase
         Angle hoodAngle = Degrees.of(hoodCalculator.getValueForDistance(distanceToTarget));
         AngularVelocity shooterSpeed = RotationsPerSecond.of(shooterCalculator.getValueForDistance(distanceToTarget));
 
-        DogLog.log("Turret/TargetMode", "Passing");
         DogLog.log("Turret/TargetPosition", passingTarget);
         DogLog.log("Turret/DistanceToPassingTarget", distanceToTarget);
 
@@ -280,6 +317,9 @@ public class Turret extends SubsystemBase
     public void setOffsetAngle(Angle angle)
     {
         offset = new Pose2d(offset.getTranslation(), new Rotation2d(angle));
+        Preferences.setDouble("suzieOffsetDegrees", offset.getRotation().getMeasure().in(Degrees));
+        Preferences.setDouble("suzieOffsetXMeters", offset.getTranslation().getMeasureX().in(Meters));
+        Preferences.setDouble("suzieOffsetYMeters", offset.getTranslation().getMeasureY().in(Meters));
     }
 
     public Angle getOffsetAngle()
@@ -301,7 +341,7 @@ public class Turret extends SubsystemBase
 
     public boolean isAtTargetPose()
     {
-        return suzie.isAtTargetAngle() && shooter.isAtTargetSpeed();
+        return suzie.isAtTargetAngle() && shooter.isAtTargetSpeed() && !state.equals(TurretState.RESTING);
     }
 
     public boolean isAtTargetPoseStupid()
@@ -398,6 +438,7 @@ public class Turret extends SubsystemBase
     {
         return Commands.run(() ->
         {
+            shooter.setTargetSpeed(RotationsPerSecond.of(0));
             hood.setTargetMechanismAngle(Degrees.of(0));
             hood.start();
         }, this, hood);
@@ -412,5 +453,6 @@ public class Turret extends SubsystemBase
         DogLog.log("Turret/Hood/Angle", hood.getAngle().in(Radians));
         DogLog.log("Turret/Hood/TargetAngle", hood.getTargetAngle().in(Radians));
         DogLog.log("Turret/Hood/IsAtTarget", hood.isAtTargetAngle());
+        DogLog.log("Turret/State", state.toString());
     }
 }
