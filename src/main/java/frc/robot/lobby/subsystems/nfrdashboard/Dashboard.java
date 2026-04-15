@@ -445,7 +445,6 @@ public class Dashboard extends SubsystemBase
             scopedEntry(p.table, "booleans", p.tab, p.name).getEntry("value")
                     .setBoolean(namesToBooleans.get(key).getAsBoolean());
         }
-
         for (String key : namesToDoubleTunables.keySet())
         {
             ParsedKey p = parseKey(key);
