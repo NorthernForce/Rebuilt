@@ -37,6 +37,7 @@ import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import frc.robot.lobby.autos.SimpleAuto;
 import frc.robot.lobby.generated.LobbyTunerConstants;
 import frc.robot.lobby.subsystems.CommandSwerveDrivetrain;
@@ -135,7 +136,7 @@ public class LobbyContainer implements NFRRobotContainer
                             LobbyConstants.VisionConstants.LimeLightConstants.kLeftLimeLightName,
                             new SimCameraProperties(), LobbyConstants.CameraConstants.kLeftCameraTransform));
             turret = new Turret(new TurretConstants(LobbyConstants.Turret.offset),
-                    new Suzie(new SuzieIOTalonFXSSim(LobbyConstants.Turret.Suzie.kMinionConstants)),
+                    new Suzie(new SuzieIOTalonFXSSim(LobbyConstants.Turret.Suzie.kSimConstants)),
                     new Hood(new HoodIOServoSim(LobbyConstants.Turret.Hood.kServoConstants)),
                     new Shooter(new ShooterIOTalonFXSim(LobbyConstants.Turret.Shooter.kKrakenSimConstants)),
                     new TrigHoodTargetingCalculator(), new TrigHoodTargetingCalculator(),
@@ -237,6 +238,7 @@ public class LobbyContainer implements NFRRobotContainer
         autoUtil.bindAuto("S1-CLIMB", new PathPlannerAuto("S1-CLIMB"));
         autoUtil.bindAuto("S1-SHOOT-CLIMB", new PathPlannerAuto("S1-SHOOT-CLIMB"));
         autoUtil.bindAuto("S2-CLIMB", new PathPlannerAuto("S2-CLIMB"));
+        autoUtil.bindAuto("S2-DEPOT-CLIMB", new PathPlannerAuto("S2-DEPOT-CLIMB"));
         autoUtil.bindAuto("S3-CLIMB", new PathPlannerAuto("S3-CLIMB"));
         Shuffleboard.getTab("Developer").add(field);
         Shuffleboard.getTab("Developer").add("Reset Encoders", drive.resetEncoders());
@@ -291,15 +293,16 @@ public class LobbyContainer implements NFRRobotContainer
                 .withCommand("Turntable SysId Quasistatic Reverse", turret.getSuzie().getSysIdQuasistaticReverse())
                 .withCommand("Turntable SysId Dynamic Forward", turret.getSuzie().getSysIdDynamicForward())
                 .withCommand("Turntable SysId Dynamic Reverse", turret.getSuzie().getSysIdDynamicReverse());
-        dashboard.putSystem("Driver", "Turntable")
-                .withCommand("Reset Trim", Commands.runOnce(() -> turret.resetTrim(), turret))
-                .withNumber("Current Trim",
-                        () -> Preferences.getDouble("suzieOffsetDegrees",
-                                turret.getConstants().offset().getRotation().getMeasure().in(Degrees)))
-                .withBooleanTunable("Turntable Brake Mode", (brake) ->
-                {
-                    turret.getSuzie().setBrakeMode(brake);
-                });
+        dashboard.putCommand("Driver", "Reset Trim", Commands.runOnce(() -> turret.resetTrim(), turret));
+        dashboard.putNumber("Dashboard", "Current Trim", () -> Preferences.getDouble("suzieOffsetDegrees",
+                turret.getConstants().offset().getRotation().getMeasure().in(Degrees)));
+        dashboard.putBooleanTunable("Developer", "Turntable Brake Mode", (brake) ->
+        {
+            turret.getSuzie().setBrakeMode(brake);
+        });
+
+        dashboard.putField("Driver", "Main Field").withRobot("Lobby", () -> drive.getPose());
+
     }
 
     /**

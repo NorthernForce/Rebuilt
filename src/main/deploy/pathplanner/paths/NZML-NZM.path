@@ -3,29 +3,29 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 0.6202135231316732,
-        "y": 5.966275207591934
+        "x": 7.75,
+        "y": 6.235255041518387
       },
       "prevControl": null,
       "nextControl": {
-        "x": 1.054385309640772,
-        "y": 5.32004556536862
+        "x": 7.775081296510561,
+        "y": 4.77200481678851
       },
       "isLocked": false,
-      "linkedName": "D"
+      "linkedName": "NZML-FORWARD"
     },
     {
       "anchor": {
-        "x": 1.2119691577698704,
-        "y": 5.191613285883749
+        "x": 7.75,
+        "y": 4.75
       },
       "prevControl": {
-        "x": 0.7811523137914874,
-        "y": 5.921073737212994
+        "x": 7.764323029569399,
+        "y": 6.19221821727754
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "PCL"
+      "linkedName": "NZM-FORWARD"
     }
   ],
   "rotationTargets": [],
@@ -42,13 +42,13 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": -90.0
+    "rotation": -14.999999999999998
   },
   "reversed": false,
   "folder": null,
   "idealStartingState": {
-    "velocity": 0,
-    "rotation": -90.0
+    "velocity": 1.0,
+    "rotation": 22.65659960619783
   },
   "useDefaultConstraints": true
 }

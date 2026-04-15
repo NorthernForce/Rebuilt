@@ -183,6 +183,7 @@ public class LobbyConstants
             private static double kS = 0;
             private static double kV = 0;
             private static double kA = 0;
+            private static double kSimA = 0.1;
             private static double kP = 100;
             private static double kI = 0;
             private static double kD = 0;
@@ -205,6 +206,10 @@ public class LobbyConstants
 
             public static SuzieConstants kMinionConstants = new SuzieConstants(kMotorID, kDrivingEncoderID,
                     kSensingEncoderID, kS, kV, kA, kP, kI, kD, kG, kCruiseVelocity, kAcceleration, kJerk, kExpoV,
+                    kExpoA, kRotorToTurntableRatio, kDrivingGearTeeth, kSensingGearTeeth, kTurntableGearTeeth,
+                    kInverted, kLowerSoftLimit, kUpperSoftLimit, kErrorTolerance, kMotorArrangement);
+            public static SuzieConstants kSimConstants = new SuzieConstants(kMotorID, kDrivingEncoderID,
+                    kSensingEncoderID, kS, kV, kSimA, kP, kI, kD, kG, kCruiseVelocity, kAcceleration, kJerk, kExpoV,
                     kExpoA, kRotorToTurntableRatio, kDrivingGearTeeth, kSensingGearTeeth, kTurntableGearTeeth,
                     kInverted, kLowerSoftLimit, kUpperSoftLimit, kErrorTolerance, kMotorArrangement);
         }
@@ -303,7 +308,7 @@ public class LobbyConstants
         public static final Distance offsetPrepPose = Meters.of(0.5);
 
         public static final int servoID = 9;
-        public static final Pose2d kLowerBluePose = new Pose2d(Meters.of(1.134), Meters.of(4.813),
+        public static final Pose2d kLowerBluePose = new Pose2d(Meters.of(1.1), Meters.of(4.7),
                 new Rotation2d(Degrees.of(-90)));
         public static final Pose2d kUpperBluePose = new Pose2d(Meters.of(1.108), Meters.of(2.988),
                 new Rotation2d(Degrees.of(90)));
@@ -323,9 +328,8 @@ public class LobbyConstants
                 .plus(new Transform2d(Meters.of(-offsetPrepPose.in(Meters)), Meters.of(offsetPrepPose.in(Meters)),
                         new Rotation2d(Degrees.zero())));
 
-        public static final Pose2d kLowerBluePrepPose = kLowerBluePose
-                .plus(new Transform2d(Meters.of(-offsetPrepPose.in(Meters)), Meters.of(offsetPrepPose.in(Meters)),
-                        new Rotation2d(Degrees.zero())));
+        public static final Pose2d kLowerBluePrepPose = new Pose2d(Meters.of(1.2119691577698704),
+                Meters.of(5.191613285883749), new Rotation2d(Degrees.of(-90)));
 
         public static enum ClimbLevels
         {

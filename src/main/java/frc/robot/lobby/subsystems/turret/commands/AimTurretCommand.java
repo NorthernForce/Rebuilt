@@ -74,7 +74,6 @@ public class AimTurretCommand extends Command
     @Override
     public void end(boolean interrupted)
     {
-        turret.setTargetPose(TurretPose.kZero);
         DogLog.log("Turret/PrepCommand/Running", false);
         turret.stop();
     }
