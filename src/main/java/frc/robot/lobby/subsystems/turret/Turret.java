@@ -35,6 +35,7 @@ public class Turret extends SubsystemBase
     private final TargetingCalculator shooterCalculator;
     private final TargetingCalculator tofCalculator;
     private final Angle shooterToRobotAngle;
+    private TurretState state = TurretState.RESTING;
     private final TurretConstants constants;
 
     public Turret(TurretConstants constants, Suzie suzie, Hood hood, Shooter shooter,
@@ -71,6 +72,11 @@ public class Turret extends SubsystemBase
 
     public static record TurretPose(Angle suzieAngle, Angle hoodAngle, AngularVelocity shooterSpeed) {
         public static TurretPose kZero = new TurretPose(Radians.of(0), Radians.of(0), RotationsPerSecond.of(0));
+    }
+
+    public static enum TurretState
+    {
+        SHOOTING, PASSING, RESTING
     }
 
     /**
@@ -224,6 +230,7 @@ public class Turret extends SubsystemBase
         suzie.stop();
         hood.stop();
         shooter.stop();
+        setState(TurretState.RESTING);
     }
 
     public TurretPose calculateTargetPose(Translation2d predictedTurretPosition, Pose2d robotPose)
@@ -235,18 +242,23 @@ public class Turret extends SubsystemBase
 
         if (inAllianceZone)
         {
-            if (inRange)
-            {
-                // Target the hub for shooting
-                return calculateShootingPose(robotPose, predictedTurretPosition);
-            } else
-            {
-                return getPose();
-            }
+            setState(TurretState.SHOOTING);
+            return calculateShootingPose(robotPose, predictedTurretPosition);
         } else
         {
+            setState(TurretState.PASSING);
             return calculatePassingPose(robotPose, predictedTurretPosition);
         }
+    }
+
+    public void setState(TurretState state)
+    {
+        this.state = state;
+    }
+
+    public TurretState getState()
+    {
+        return state;
     }
 
     public Translation2d updateFromTOF(Pose2d robotPose, Translation2d predictedOffset)
@@ -266,7 +278,6 @@ public class Turret extends SubsystemBase
         AngularVelocity shooterSpeed = RotationsPerSecond
                 .of(shooterCalculator.getValueForDistance(shooterDistanceToHub.in(Meters)));
 
-        DogLog.log("Turret/TargetMode", "Shooting");
         DogLog.log("Turret/TargetPosition", new Translation2d(getHubPosition().getX(), getHubPosition().getY()));
 
         return new TurretPose(suzieAngle, hoodAngle, shooterSpeed);
@@ -288,7 +299,6 @@ public class Turret extends SubsystemBase
         Angle hoodAngle = Degrees.of(hoodCalculator.getValueForDistance(distanceToTarget));
         AngularVelocity shooterSpeed = RotationsPerSecond.of(shooterCalculator.getValueForDistance(distanceToTarget));
 
-        DogLog.log("Turret/TargetMode", "Passing");
         DogLog.log("Turret/TargetPosition", passingTarget);
         DogLog.log("Turret/DistanceToPassingTarget", distanceToTarget);
 
@@ -331,7 +341,7 @@ public class Turret extends SubsystemBase
 
     public boolean isAtTargetPose()
     {
-        return suzie.isAtTargetAngle() && shooter.isAtTargetSpeed();
+        return suzie.isAtTargetAngle() && shooter.isAtTargetSpeed() && !state.equals(TurretState.RESTING);
     }
 
     public boolean isAtTargetPoseStupid()
@@ -428,6 +438,7 @@ public class Turret extends SubsystemBase
     {
         return Commands.run(() ->
         {
+            shooter.setTargetSpeed(RotationsPerSecond.of(0));
             hood.setTargetMechanismAngle(Degrees.of(0));
             hood.start();
         }, this, hood);
@@ -442,5 +453,6 @@ public class Turret extends SubsystemBase
         DogLog.log("Turret/Hood/Angle", hood.getAngle().in(Radians));
         DogLog.log("Turret/Hood/TargetAngle", hood.getTargetAngle().in(Radians));
         DogLog.log("Turret/Hood/IsAtTarget", hood.isAtTargetAngle());
+        DogLog.log("Turret/State", state.toString());
     }
 }

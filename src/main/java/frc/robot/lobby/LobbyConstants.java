@@ -182,7 +182,8 @@ public class LobbyConstants
             private static int kSensingEncoderID = 8;
             private static double kS = 0;
             private static double kV = 0;
-            private static double kA = 0.1;
+            private static double kA = 0;
+            private static double kSimA = 0.1;
             private static double kP = 100;
             private static double kI = 0;
             private static double kD = 0;
@@ -205,6 +206,10 @@ public class LobbyConstants
 
             public static SuzieConstants kMinionConstants = new SuzieConstants(kMotorID, kDrivingEncoderID,
                     kSensingEncoderID, kS, kV, kA, kP, kI, kD, kG, kCruiseVelocity, kAcceleration, kJerk, kExpoV,
+                    kExpoA, kRotorToTurntableRatio, kDrivingGearTeeth, kSensingGearTeeth, kTurntableGearTeeth,
+                    kInverted, kLowerSoftLimit, kUpperSoftLimit, kErrorTolerance, kMotorArrangement);
+            public static SuzieConstants kSimConstants = new SuzieConstants(kMotorID, kDrivingEncoderID,
+                    kSensingEncoderID, kS, kV, kSimA, kP, kI, kD, kG, kCruiseVelocity, kAcceleration, kJerk, kExpoV,
                     kExpoA, kRotorToTurntableRatio, kDrivingGearTeeth, kSensingGearTeeth, kTurntableGearTeeth,
                     kInverted, kLowerSoftLimit, kUpperSoftLimit, kErrorTolerance, kMotorArrangement);
         }

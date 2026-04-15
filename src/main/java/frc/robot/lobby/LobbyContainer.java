@@ -37,6 +37,7 @@ import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import frc.robot.lobby.autos.SimpleAuto;
 import frc.robot.lobby.generated.LobbyTunerConstants;
 import frc.robot.lobby.subsystems.CommandSwerveDrivetrain;
@@ -135,7 +136,7 @@ public class LobbyContainer implements NFRRobotContainer
                             LobbyConstants.VisionConstants.LimeLightConstants.kLeftLimeLightName,
                             new SimCameraProperties(), LobbyConstants.CameraConstants.kLeftCameraTransform));
             turret = new Turret(new TurretConstants(LobbyConstants.Turret.offset),
-                    new Suzie(new SuzieIOTalonFXSSim(LobbyConstants.Turret.Suzie.kMinionConstants)),
+                    new Suzie(new SuzieIOTalonFXSSim(LobbyConstants.Turret.Suzie.kSimConstants)),
                     new Hood(new HoodIOServoSim(LobbyConstants.Turret.Hood.kServoConstants)),
                     new Shooter(new ShooterIOTalonFXSim(LobbyConstants.Turret.Shooter.kKrakenSimConstants)),
                     new TrigHoodTargetingCalculator(), new TrigHoodTargetingCalculator(),
