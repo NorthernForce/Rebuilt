@@ -3,32 +3,37 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 0.6202135231316732,
-        "y": 5.966275207591934
+        "x": 7.75,
+        "y": 4.75
       },
       "prevControl": null,
       "nextControl": {
-        "x": 1.054385309640772,
-        "y": 5.32004556536862
+        "x": 7.290913404507711,
+        "y": 5.568185053380782
       },
       "isLocked": false,
-      "linkedName": "D"
+      "linkedName": "NZM-FORWARD"
     },
     {
       "anchor": {
-        "x": 1.2119691577698704,
-        "y": 5.191613285883749
+        "x": 3.25,
+        "y": 5.5
       },
       "prevControl": {
-        "x": 0.7811523137914874,
-        "y": 5.921073737212994
+        "x": 3.857673075498896,
+        "y": 5.518121746907346
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "PCL"
+      "linkedName": "BL"
     }
   ],
-  "rotationTargets": [],
+  "rotationTargets": [
+    {
+      "waypointRelativePos": 0.55,
+      "rotationDegrees": 90.0
+    }
+  ],
   "constraintZones": [],
   "pointTowardsZones": [],
   "eventMarkers": [],
@@ -41,14 +46,14 @@
     "unlimited": false
   },
   "goalEndState": {
-    "velocity": 0,
-    "rotation": -90.0
+    "velocity": 1.0,
+    "rotation": 90.0
   },
   "reversed": false,
   "folder": null,
   "idealStartingState": {
     "velocity": 0,
-    "rotation": -90.0
+    "rotation": -14.999999999999998
   },
   "useDefaultConstraints": true
 }

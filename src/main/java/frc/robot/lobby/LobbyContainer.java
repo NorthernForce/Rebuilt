@@ -237,6 +237,7 @@ public class LobbyContainer implements NFRRobotContainer
         autoUtil.bindAuto("S1-CLIMB", new PathPlannerAuto("S1-CLIMB"));
         autoUtil.bindAuto("S1-SHOOT-CLIMB", new PathPlannerAuto("S1-SHOOT-CLIMB"));
         autoUtil.bindAuto("S2-CLIMB", new PathPlannerAuto("S2-CLIMB"));
+        autoUtil.bindAuto("S2-DEPOT-CLIMB", new PathPlannerAuto("S2-DEPOT-CLIMB"));
         autoUtil.bindAuto("S3-CLIMB", new PathPlannerAuto("S3-CLIMB"));
         Shuffleboard.getTab("Developer").add(field);
         Shuffleboard.getTab("Developer").add("Reset Encoders", drive.resetEncoders());
@@ -291,15 +292,13 @@ public class LobbyContainer implements NFRRobotContainer
                 .withCommand("Turntable SysId Quasistatic Reverse", turret.getSuzie().getSysIdQuasistaticReverse())
                 .withCommand("Turntable SysId Dynamic Forward", turret.getSuzie().getSysIdDynamicForward())
                 .withCommand("Turntable SysId Dynamic Reverse", turret.getSuzie().getSysIdDynamicReverse());
-        dashboard.putSystem("Driver", "Turntable")
-                .withCommand("Reset Trim", Commands.runOnce(() -> turret.resetTrim(), turret))
-                .withNumber("Current Trim",
-                        () -> Preferences.getDouble("suzieOffsetDegrees",
-                                turret.getConstants().offset().getRotation().getMeasure().in(Degrees)))
-                .withBooleanTunable("Turntable Brake Mode", (brake) ->
-                {
-                    turret.getSuzie().setBrakeMode(brake);
-                });
+        dashboard.putCommand("Driver", "Reset Trim", Commands.runOnce(() -> turret.resetTrim(), turret));
+        dashboard.putNumber("Dashboard", "Current Trim", () -> Preferences.getDouble("suzieOffsetDegrees",
+                turret.getConstants().offset().getRotation().getMeasure().in(Degrees)));
+        dashboard.putBooleanTunable("Developer", "Turntable Brake Mode", (brake) ->
+        {
+            turret.getSuzie().setBrakeMode(brake);
+        });
 
         dashboard.putField("Driver", "Main Field").withRobot("Lobby", () -> drive.getPose());
 
