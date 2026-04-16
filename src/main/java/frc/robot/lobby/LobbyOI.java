@@ -58,8 +58,8 @@ public class LobbyOI
                         LobbyConstants.SpindexerConstants.kPostDeJamTime, () -> turret.isAtTargetPose()))
                 .alongWith(new PrepTurretCommand(container))));
         driveController.b().whileTrue(Commands
-                .parallel(container.getClimber().runUp().withTimeout(6), container.driveToPreClimbPosition())
-                .andThen(container.driveToClimbPost()).andThen(container.getClimber().runDown().withTimeout(8)));
+                .parallel(container.getClimber().runUp().withTimeout(5), container.driveToPreClimbPosition())
+                .andThen(container.driveToClimbPost()).andThen(container.getClimber().runDown().withTimeout(4)));
         driveController.leftTrigger().whileTrue(intake.intakeMoving()).onFalse(intake.stopIntake());
 
         driveController.rightTrigger().whileTrue((Commands

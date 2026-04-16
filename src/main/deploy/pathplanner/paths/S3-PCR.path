@@ -16,19 +16,24 @@
     },
     {
       "anchor": {
-        "x": 0.75,
-        "y": 2.357
+        "x": 0.91144,
+        "y": 2.268488
       },
       "prevControl": {
-        "x": 0.8037959667852907,
-        "y": 1.5657651245551598
+        "x": 0.9652359667852908,
+        "y": 1.4772531245551597
       },
       "nextControl": null,
       "isLocked": false,
       "linkedName": "PCR"
     }
   ],
-  "rotationTargets": [],
+  "rotationTargets": [
+    {
+      "waypointRelativePos": 0.5,
+      "rotationDegrees": 180.0
+    }
+  ],
   "constraintZones": [
     {
       "name": "Constraints Zone",
@@ -56,7 +61,7 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 91.0
+    "rotation": 90.0
   },
   "reversed": false,
   "folder": null,

@@ -20,9 +20,9 @@ public class CloseDriveToPoseRequest implements SwerveRequest
     private final PIDController yPID;
     private final LinearVelocity maxVelocity;
 
-    private static final double kPositionToleranceMeters = 0.01;
-    private static final double kVelocityToleranceMps = 0.03;
-    private static final double kOutputDeadbandMps = 0.01;
+    private static final double kPositionToleranceMeters = 0.02;
+    private static final double kVelocityToleranceMps = 0.05;
+    private static final double kOutputDeadbandMps = 0.02;
 
     public CloseDriveToPoseRequest(Pose2d pose, double tP, double tI, double tD, double rP, double rI, double rD,
             LinearVelocity maxVelocity)
