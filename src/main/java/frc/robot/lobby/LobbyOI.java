@@ -48,7 +48,10 @@ public class LobbyOI
         }, () ->
         {
             return container.getWTrig() - container.getSTrig();
-        }, () -> 0));
+        }, () ->
+        {
+            return container.getArrowLeft() - container.getArrowRight();
+        }));
 
         intake.setDefaultCommand(intake.stopIntake().andThen(intake.getRunToIntakeAngleCommand()));
         // turret.setDefaultCommand(new AimTurretCommand(container));

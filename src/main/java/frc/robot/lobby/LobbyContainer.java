@@ -106,6 +106,8 @@ public class LobbyContainer implements NFRRobotContainer
     private final StatusSignal<Current> blSteerCurrent;
     private final StatusSignal<Current> brDriveCurrent;
     private final StatusSignal<Current> brSteerCurrent;
+    private int arrowLeft;
+    private int arrowRight;
 
     public LobbyContainer()
     {
@@ -297,14 +299,18 @@ public class LobbyContainer implements NFRRobotContainer
                 .withCommand("Turntable SysId Dynamic Forward", turret.getSuzie().getSysIdDynamicForward())
                 .withCommand("Turntable SysId Dynamic Reverse", turret.getSuzie().getSysIdDynamicReverse());
         dashboard.putCommand("Driver", "Reset Trim", Commands.runOnce(() -> turret.resetTrim(), turret));
-        dashboard.putKeybind('s', "Moves the robot left", Commands.runOnce(() -> aKey = 1),
+        dashboard.putKeybind("s", "Moves the robot left", Commands.runOnce(() -> aKey = 1),
                 Commands.runOnce(() -> aKey = 0));
-        dashboard.putKeybind('w', "Moves the robot right", Commands.runOnce(() -> dKey = 1),
+        dashboard.putKeybind("w", "Moves the robot right", Commands.runOnce(() -> dKey = 1),
                 Commands.runOnce(() -> dKey = 0));
-        dashboard.putKeybind('a', "Moves the robot up", Commands.runOnce(() -> wKey = 1),
+        dashboard.putKeybind("a", "Moves the robot up", Commands.runOnce(() -> wKey = 1),
                 Commands.runOnce(() -> wKey = 0));
-        dashboard.putKeybind('d', "Moves the robot down", Commands.runOnce(() -> sKey = 1),
+        dashboard.putKeybind("d", "Moves the robot down", Commands.runOnce(() -> sKey = 1),
                 Commands.runOnce(() -> sKey = 0));
+        dashboard.putKeybind("arrowleft", "Rotates the robot left", Commands.runOnce(() -> arrowLeft = 1),
+                Commands.runOnce(() -> arrowLeft = 0));
+        dashboard.putKeybind("arrowright", "Rotates the robot right", Commands.runOnce(() -> arrowRight = 1),
+                Commands.runOnce(() -> arrowRight = 0));
         dashboard.putNumber("Dashboard", "Current Trim", () -> Preferences.getDouble("suzieOffsetDegrees",
                 turret.getConstants().offset().getRotation().getMeasure().in(Degrees)));
         dashboard.putBooleanTunable("Developer", "Turntable Brake Mode", (brake) ->
@@ -334,6 +340,16 @@ public class LobbyContainer implements NFRRobotContainer
     public double getSTrig()
     {
         return sKey;
+    }
+
+    public double getArrowLeft()
+    {
+        return arrowLeft;
+    }
+
+    public double getArrowRight()
+    {
+        return arrowRight;
     }
 
     /**

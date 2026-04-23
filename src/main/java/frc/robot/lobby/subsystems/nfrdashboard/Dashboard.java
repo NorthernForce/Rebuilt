@@ -83,14 +83,14 @@ public class Dashboard extends SubsystemBase
                 .getSubTable(robotName);
     }
 
-    public void putKeybind(char key, String description, Command command)
+    public void putKeybind(String key, String description, Command command)
     {
         putKeybind(key, description, command, null);
     }
 
-    public void putKeybind(char key, String description, Command onTrue, Command onFalse)
+    public void putKeybind(String key, String description, Command onTrue, Command onFalse)
     {
-        String keyStr = Character.toString(key);
+        String keyStr = (key);
         String keybindKey = makeKey("Keybinds", outputPath, "commands", keyStr);
         if (!namesToCommands.containsKey(keybindKey))
         {
