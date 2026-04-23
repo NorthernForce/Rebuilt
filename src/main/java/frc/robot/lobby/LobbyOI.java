@@ -38,8 +38,18 @@ public class LobbyOI
         var shooter = container.getTurret().getShooter();
         var leds = container.getLeds();
 
-        drive.setDefaultCommand(drive.driveByJoystick(inputProc(driveController::getLeftY),
-                inputProc(driveController::getLeftX), inputProc(driveController::getRightX)));
+        // drive.setDefaultCommand(drive.driveByJoystick(inputProc(driveController::getLeftY),
+        // inputProc(driveController::getLeftX),
+        // inputProc(driveController::getRightX)));
+
+        drive.setDefaultCommand(drive.driveByJoystick(() ->
+        {
+            return container.getDTrig() - container.getATrig();
+        }, () ->
+        {
+            return container.getWTrig() - container.getSTrig();
+        }, () -> 0));
+
         intake.setDefaultCommand(intake.stopIntake().andThen(intake.getRunToIntakeAngleCommand()));
         // turret.setDefaultCommand(new AimTurretCommand(container));
         turret.setDefaultCommand(turret.runBasedOnLocation(() -> drive.getPose(),

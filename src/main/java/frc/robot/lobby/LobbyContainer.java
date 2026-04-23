@@ -37,7 +37,6 @@ import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
-import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import frc.robot.lobby.autos.SimpleAuto;
 import frc.robot.lobby.generated.LobbyTunerConstants;
 import frc.robot.lobby.subsystems.CommandSwerveDrivetrain;
@@ -91,6 +90,10 @@ public class LobbyContainer implements NFRRobotContainer
     private final Turret turret;
     private final Spindexer spindexer;
     private final LEDS leds;
+    private double aKey = 0;
+    private double dKey = 0;
+    private double wKey = 0;
+    private double sKey = 0;
     private final DriveToPoseWithVision driveToPoseCommand;
     private Optional<String> teamActivity = Optional.empty();
     private final PowerDistribution powerDistributionHub = new PowerDistribution(LobbyConstants.PDHConstants.kPDHPort,
@@ -294,6 +297,14 @@ public class LobbyContainer implements NFRRobotContainer
                 .withCommand("Turntable SysId Dynamic Forward", turret.getSuzie().getSysIdDynamicForward())
                 .withCommand("Turntable SysId Dynamic Reverse", turret.getSuzie().getSysIdDynamicReverse());
         dashboard.putCommand("Driver", "Reset Trim", Commands.runOnce(() -> turret.resetTrim(), turret));
+        dashboard.putKeybind('s', "Moves the robot left", Commands.runOnce(() -> aKey = 1),
+                Commands.runOnce(() -> aKey = 0));
+        dashboard.putKeybind('w', "Moves the robot right", Commands.runOnce(() -> dKey = 1),
+                Commands.runOnce(() -> dKey = 0));
+        dashboard.putKeybind('a', "Moves the robot up", Commands.runOnce(() -> wKey = 1),
+                Commands.runOnce(() -> wKey = 0));
+        dashboard.putKeybind('d', "Moves the robot down", Commands.runOnce(() -> sKey = 1),
+                Commands.runOnce(() -> sKey = 0));
         dashboard.putNumber("Dashboard", "Current Trim", () -> Preferences.getDouble("suzieOffsetDegrees",
                 turret.getConstants().offset().getRotation().getMeasure().in(Degrees)));
         dashboard.putBooleanTunable("Developer", "Turntable Brake Mode", (brake) ->
@@ -305,6 +316,26 @@ public class LobbyContainer implements NFRRobotContainer
 
     }
 
+    public double getATrig()
+    {
+        return aKey;
+    }
+
+    public double getDTrig()
+    {
+        return dKey;
+    }
+
+    public double getWTrig()
+    {
+        return wKey;
+    }
+
+    public double getSTrig()
+    {
+        return sKey;
+    }
+
     /**
      * gets the drive subsystem
      *
@@ -313,6 +344,11 @@ public class LobbyContainer implements NFRRobotContainer
     public CommandSwerveDrivetrain getDrive()
     {
         return drive;
+    }
+
+    public Dashboard getDashboard()
+    {
+        return dashboard;
     }
 
     public LEDS getLeds()

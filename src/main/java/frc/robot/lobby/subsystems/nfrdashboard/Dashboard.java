@@ -24,6 +24,8 @@ public class Dashboard extends SubsystemBase
     private Map<String, Command> namesToCommands = new HashMap<>();
     private Map<String, Long> namesToLastRequestId = new HashMap<>();
     private Map<String, Command> namesToSafeCommands = new HashMap<>();
+    private Map<String, Command> namesToKeybindOnFalseSafeCommands = new HashMap<>();
+    private Map<String, Boolean> namesToLastKeybindPressed = new HashMap<>();
     private Map<String, DoubleSupplier> namesToDoubles = new HashMap<>();
     private Map<String, Supplier<String>> namesToStrings = new HashMap<>();
     private Map<String, BooleanSupplier> namesToBooleans = new HashMap<>();
@@ -79,6 +81,103 @@ public class Dashboard extends SubsystemBase
     {
         return instance.getTable(outputPath).getSubTable("robots").getSubTable(tab).getSubTable(field)
                 .getSubTable(robotName);
+    }
+
+    public void putKeybind(char key, String description, Command command)
+    {
+        putKeybind(key, description, command, null);
+    }
+
+    public void putKeybind(char key, String description, Command onTrue, Command onFalse)
+    {
+        String keyStr = Character.toString(key);
+        String keybindKey = makeKey("Keybinds", outputPath, "commands", keyStr);
+        if (!namesToCommands.containsKey(keybindKey))
+        {
+            namesToCommands.put(keybindKey, onTrue);
+            namesToLastRequestId.put(keybindKey, 0L);
+            namesToLastKeybindPressed.put(keybindKey, false);
+
+            var commandTable = scopedEntry(outputPath, "commands", "Keybinds", keyStr);
+            commandTable.getEntry("running").setBoolean(false);
+            commandTable.getEntry("requested").setBoolean(false);
+            commandTable.getEntry("requestId").setInteger(0);
+            commandTable.getEntry("lastHandledRequestId").setInteger(0);
+            commandTable.getEntry("pressed").setBoolean(false);
+            commandTable.getEntry("tab").setString("Keybinds");
+            commandTable.getEntry("description").setString(description);
+
+            Command safeOnTrue = new Command()
+            {
+                final Command inner = onTrue;
+
+                @Override
+                public void initialize()
+                {
+                    var t = scopedEntry(outputPath, "commands", "Keybinds", keyStr);
+                    t.getEntry("running").setBoolean(true);
+                    CommandScheduler.getInstance().schedule(inner);
+                }
+
+                @Override
+                public void execute()
+                {
+                }
+
+                @Override
+                public void end(boolean interrupted)
+                {
+                    if (CommandScheduler.getInstance().isScheduled(inner))
+                        CommandScheduler.getInstance().cancel(inner);
+                    scopedEntry(outputPath, "commands", "Keybinds", keyStr).getEntry("running").setBoolean(false);
+                }
+
+                @Override
+                public boolean isFinished()
+                {
+                    return !CommandScheduler.getInstance().isScheduled(inner);
+                }
+            };
+
+            namesToSafeCommands.put(keybindKey, safeOnTrue);
+
+            if (onFalse != null)
+            {
+                Command safeOnFalse = new Command()
+                {
+                    final Command inner = onFalse;
+
+                    @Override
+                    public void initialize()
+                    {
+                        var t = scopedEntry(outputPath, "commands", "Keybinds", keyStr);
+                        t.getEntry("running").setBoolean(true);
+                        CommandScheduler.getInstance().schedule(inner);
+                    }
+
+                    @Override
+                    public void execute()
+                    {
+                    }
+
+                    @Override
+                    public void end(boolean interrupted)
+                    {
+                        if (CommandScheduler.getInstance().isScheduled(inner))
+                            CommandScheduler.getInstance().cancel(inner);
+                        scopedEntry(outputPath, "commands", "Keybinds", keyStr).getEntry("running").setBoolean(false);
+
+                    }
+
+                    @Override
+                    public boolean isFinished()
+                    {
+                        return !CommandScheduler.getInstance().isScheduled(inner);
+                    }
+                };
+                namesToKeybindOnFalseSafeCommands.put(keybindKey, safeOnFalse);
+            }
+        }
     }
 
     public boolean putCommand(String tab, String name, Command command)
@@ -418,6 +517,42 @@ public class Dashboard extends SubsystemBase
                         CommandScheduler.getInstance().cancel(safe);
                     else
                         CommandScheduler.getInstance().schedule(safe);
+                }
+            }
+        }
+
+        for (String key : namesToLastKeybindPressed.keySet())
+        {
+            ParsedKey p = parseKey(key);
+            if (p == null || !"Keybinds".equals(p.tab))
+                continue;
+
+            var table = scopedEntry(p.table, "commands", p.tab, p.name);
+            boolean pressed = table.getEntry("pressed").getBoolean(false);
+            boolean lastPressed = namesToLastKeybindPressed.getOrDefault(key, false);
+
+            if (pressed != lastPressed)
+            {
+                namesToLastKeybindPressed.put(key, pressed);
+                if (pressed)
+                {
+                    Command safeOnTrue = namesToSafeCommands.get(key);
+                    if (safeOnTrue != null)
+                    {
+                        if (CommandScheduler.getInstance().isScheduled(safeOnTrue))
+                            CommandScheduler.getInstance().cancel(safeOnTrue);
+                        CommandScheduler.getInstance().schedule(safeOnTrue);
+                    }
+                } else
+                {
+                    Command safeOnFalse = namesToKeybindOnFalseSafeCommands.get(key);
+                    if (safeOnFalse != null)
+                    {
+                        if (CommandScheduler.getInstance().isScheduled(safeOnFalse))
+                            CommandScheduler.getInstance().cancel(safeOnFalse);
+                        CommandScheduler.getInstance().schedule(safeOnFalse);
+                    }
+                    table.getEntry("running").setBoolean(false);
                 }
             }
         }
