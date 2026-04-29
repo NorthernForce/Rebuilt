@@ -1,9 +1,15 @@
 package frc.robot.lobby.subsystems.nfrdashboard;
 
 import java.util.Map;
+import java.util.Set;
 
 import static edu.wpi.first.units.Units.Degrees;
 
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
+import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.function.BooleanSupplier;
 import java.util.function.Consumer;
@@ -19,6 +25,9 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class Dashboard extends SubsystemBase
 {
+    // Global shared dashboard instance (singleton-style)
+    public static final Dashboard INSTANCE = new Dashboard();
+
     private String outputPath;
 
     private Map<String, Command> namesToCommands = new HashMap<>();
@@ -41,9 +50,15 @@ public class Dashboard extends SubsystemBase
     // this.outputPath = outputPath;
     // }
 
-    public Dashboard()
+    private Dashboard()
     {
         outputPath = "/NFRDashboard";
+    }
+
+    // Optional convenience accessor
+    public static Dashboard getInstance()
+    {
+        return INSTANCE;
     }
 
     private String makeKey(String tab, String table, String section, String name)
@@ -378,79 +393,82 @@ public class Dashboard extends SubsystemBase
         }
     }
 
-    public void putNumberTunable(String tab, String name, Consumer<Double> runOnChange)
+    public void putNumberTunable(String tab, String name, double initialValue, Consumer<Double> runOnChange)
     {
         String key = makeKey(tab, outputPath, "tunableNumbers", name);
         if (!namesToDoubleTunables.containsKey(key))
         {
             namesToDoubleTunables.put(key, runOnChange);
             var t = scopedEntry(outputPath, "tunableNumbers", tab, name);
-            t.getEntry("value").setNumber(0);
+            t.getEntry("value").setNumber(initialValue);
             t.getEntry("changed").setBoolean(false);
             t.getEntry("tab").setString(tab);
         }
     }
 
-    public void putNumberTunable(String tab, String table, String name, Consumer<Double> runOnChange)
+    public void putNumberTunable(String tab, String table, String name, double initialValue,
+            Consumer<Double> runOnChange)
     {
         String key = makeKey(tab, table, "tunableNumbers", name);
         if (!namesToDoubleTunables.containsKey(key))
         {
             namesToDoubleTunables.put(key, runOnChange);
             var t = scopedEntry(table, "tunableNumbers", tab, name);
-            t.getEntry("value").setNumber(0);
+            t.getEntry("value").setNumber(initialValue);
             t.getEntry("changed").setBoolean(false);
             t.getEntry("tab").setString(tab);
         }
     }
 
-    public void putStringTunable(String tab, String name, Consumer<String> runOnChange)
+    public void putStringTunable(String tab, String name, String initialValue, Consumer<String> runOnChange)
     {
         String key = makeKey(tab, outputPath, "tunableStrings", name);
         if (!namesToStringsTunables.containsKey(key))
         {
             namesToStringsTunables.put(key, runOnChange);
             var t = scopedEntry(outputPath, "tunableStrings", tab, name);
-            t.getEntry("value").setString("");
+            t.getEntry("value").setString(initialValue);
             t.getEntry("changed").setBoolean(false);
             t.getEntry("tab").setString(tab);
         }
     }
 
-    public void putStringTunable(String tab, String table, String name, Consumer<String> runOnChange)
+    public void putStringTunable(String tab, String table, String name, String initialValue,
+            Consumer<String> runOnChange)
     {
         String key = makeKey(tab, table, "tunableStrings", name);
         if (!namesToStringsTunables.containsKey(key))
         {
             namesToStringsTunables.put(key, runOnChange);
             var t = scopedEntry(table, "tunableStrings", tab, name);
-            t.getEntry("value").setString("");
+            t.getEntry("value").setString(initialValue);
             t.getEntry("changed").setBoolean(false);
             t.getEntry("tab").setString(tab);
         }
     }
 
-    public void putBooleanTunable(String tab, String name, Consumer<Boolean> runOnChange)
+    public void putBooleanTunable(String tab, String name, boolean initialValue, Consumer<Boolean> runOnChange)
     {
         String key = makeKey(tab, outputPath, "tunableBooleans", name);
         if (!namesToBooleansTunables.containsKey(key))
         {
             namesToBooleansTunables.put(key, runOnChange);
             var t = scopedEntry(outputPath, "tunableBooleans", tab, name);
-            t.getEntry("value").setBoolean(false);
+            t.getEntry("value").setBoolean(initialValue);
             t.getEntry("changed").setBoolean(false);
             t.getEntry("tab").setString(tab);
         }
     }
 
-    public void putBooleanTunable(String tab, String table, String name, Consumer<Boolean> runOnChange)
+    public void putBooleanTunable(String tab, String table, String name, boolean initialValue,
+            Consumer<Boolean> runOnChange)
     {
         String key = makeKey(tab, table, "tunableBooleans", name);
         if (!namesToBooleansTunables.containsKey(key))
         {
             namesToBooleansTunables.put(key, runOnChange);
             var t = scopedEntry(table, "tunableBooleans", tab, name);
-            t.getEntry("value").setBoolean(false);
+            t.getEntry("value").setBoolean(initialValue);
             t.getEntry("changed").setBoolean(false);
             t.getEntry("tab").setString(tab);
         }
@@ -712,23 +730,152 @@ public class Dashboard extends SubsystemBase
             return this;
         }
 
-        public DashboardSystem withNumberTunable(String name, Consumer<Double> runOnChange)
+        public DashboardSystem withNumberTunable(String name, double initialValue, Consumer<Double> runOnChange)
         {
-            Dashboard.this.putNumberTunable(tab, outputPath + "/systems/" + this.name, name, runOnChange);
+            Dashboard.this.putNumberTunable(tab, outputPath + "/systems/" + this.name, name, initialValue, runOnChange);
             return this;
         }
 
-        public DashboardSystem withStringTunable(String name, Consumer<String> runOnChange)
+        public DashboardSystem withStringTunable(String name, String initialValue, Consumer<String> runOnChange)
         {
-            Dashboard.this.putStringTunable(tab, outputPath + "/systems/" + this.name, name, runOnChange);
+            Dashboard.this.putStringTunable(tab, outputPath + "/systems/" + this.name, name, initialValue, runOnChange);
             return this;
         }
 
-        public DashboardSystem withBooleanTunable(String name, Consumer<Boolean> runOnChange)
+        public DashboardSystem withBooleanTunable(String name, boolean initialValue, Consumer<Boolean> runOnChange)
         {
-            Dashboard.this.putBooleanTunable(tab, outputPath + "/systems/" + this.name, name, runOnChange);
+            Dashboard.this.putBooleanTunable(tab, outputPath + "/systems/" + this.name, name, initialValue,
+                    runOnChange);
             return this;
 
+        }
+    }
+
+    @Retention(RetentionPolicy.RUNTIME)
+    @Target(ElementType.FIELD)
+    public @interface DashboardTunable {
+        String name();
+
+        String tab() default "Developer";
+    }
+
+    public static void register(Object system)
+    {
+        Class<?> clazz = system.getClass();
+        for (Field field : clazz.getDeclaredFields())
+        {
+            if (field.isAnnotationPresent(DashboardTunable.class))
+            {
+                String name = field.getAnnotation(DashboardTunable.class).name();
+                field.setAccessible(true);
+                if (field.getType() == double.class)
+                {
+                    try
+                    {
+                        double initialValue = field.getDouble(system);
+                        INSTANCE.putNumberTunable("Developer", name, initialValue, newValue ->
+                        {
+                            try
+                            {
+                                field.setDouble(system, newValue);
+                            } catch (IllegalAccessException e)
+                            {
+                                e.printStackTrace();
+                            }
+                        });
+                    } catch (IllegalAccessException e)
+                    {
+                        e.printStackTrace();
+                    }
+                }
+
+                if (field.getType() == int.class)
+                {
+                    try
+                    {
+                        int initialValue = field.getInt(system);
+                        INSTANCE.putNumberTunable("Developer", name, initialValue, newValue ->
+                        {
+                            try
+                            {
+                                field.setInt(system, (int) ((double) newValue));
+                            } catch (IllegalAccessException e)
+                            {
+                                e.printStackTrace();
+                            }
+                        });
+                    } catch (IllegalAccessException e)
+                    {
+                        e.printStackTrace();
+                    }
+                }
+
+                if (field.getType() == boolean.class)
+                {
+                    try
+                    {
+                        boolean initialValue = field.getBoolean(system);
+                        INSTANCE.putBooleanTunable("Developer", name, initialValue, newValue ->
+                        {
+                            try
+                            {
+                                field.setBoolean(system, newValue);
+                            } catch (IllegalAccessException e)
+                            {
+                                e.printStackTrace();
+                            }
+                        });
+                    } catch (IllegalAccessException e)
+                    {
+                        e.printStackTrace();
+                    }
+                }
+
+                if (field.getType() == String.class)
+                {
+                    try
+                    {
+                        String initialValue = (String) field.get(system);
+                        INSTANCE.putStringTunable("Developer", name, initialValue, newValue ->
+                        {
+                            try
+                            {
+                                field.set(system, newValue);
+                            } catch (IllegalAccessException e)
+                            {
+                                e.printStackTrace();
+                            }
+                        });
+                    } catch (IllegalAccessException e)
+                    {
+                        e.printStackTrace();
+                    }
+                }
+
+                if (field.getType() == char.class)
+                {
+                    try
+                    {
+                        char initialValue = field.getChar(system);
+                        INSTANCE.putStringTunable("Developer", name, String.valueOf(initialValue), newValue ->
+                        {
+                            try
+                            {
+                                if (newValue.length() > 0)
+                                {
+                                    field.setChar(system, newValue.charAt(0));
+                                }
+                            } catch (IllegalAccessException e)
+                            {
+                                e.printStackTrace();
+                            }
+                        });
+                    } catch (IllegalAccessException e)
+                    {
+                        e.printStackTrace();
+                    }
+                }
+            }
         }
     }
 }

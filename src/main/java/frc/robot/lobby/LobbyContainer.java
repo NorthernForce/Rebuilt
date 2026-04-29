@@ -80,7 +80,6 @@ import frc.robot.lobby.subsystems.leds.*;
 
 public class LobbyContainer implements NFRRobotContainer
 {
-    private final Dashboard dashboard;
     private final CommandSwerveDrivetrain drive;
     private final Intake intake;
     private final AprilTagVision vision;
@@ -108,11 +107,10 @@ public class LobbyContainer implements NFRRobotContainer
     private final StatusSignal<Current> brSteerCurrent;
     private int arrowLeft;
     private int arrowRight;
+    private final Dashboard dashboard = Dashboard.INSTANCE;
 
     public LobbyContainer()
     {
-        dashboard = new Dashboard();
-
         drive = new CommandSwerveDrivetrain(LobbyTunerConstants.DrivetrainConstants,
                 LobbyConstants.DrivetrainConstants.kMaxSpeed, LobbyConstants.DrivetrainConstants.kMaxAngularSpeed,
                 LobbyTunerConstants.FrontLeft, LobbyTunerConstants.FrontRight, LobbyTunerConstants.BackLeft,
@@ -279,6 +277,7 @@ public class LobbyContainer implements NFRRobotContainer
         dashboard.putLimelightStream("Developer", LobbyConstants.VisionConstants.LimeLightConstants.kLeftLimeLightName);
         dashboard.putLimelightStream("Developer",
                 LobbyConstants.VisionConstants.LimeLightConstants.kFrontLimeLightName);
+
         dashboard.putSystem("Developer", "Drivetrain")
                 .withCommand("SysId Move Quasistatic Forward", (drive.sysIdQuasistaticTranslation(Direction.kForward)))
                 .withCommand("SysId Move Quasistatic Reverse", (drive.sysIdQuasistaticTranslation(Direction.kReverse)))
@@ -292,6 +291,7 @@ public class LobbyContainer implements NFRRobotContainer
                 .withCommand("SysId Rotation Quasistatic Reverse", (drive.sysIdQuasistaticRotation(Direction.kReverse)))
                 .withCommand("SysId Rotation Dynamic Forward", (drive.sysIdDynamicRotation(Direction.kForward)))
                 .withCommand("SysId Rotation Dynamic Reverse", (drive.sysIdDynamicRotation(Direction.kReverse)));
+
         DashboardSystem turntableSystemDeveloper = dashboard.putSystem("Driver", "Turntable");
         turntableSystemDeveloper
                 .withCommand("Turntable SysId Quasistatic Forward", turret.getSuzie().getSysIdQuasistaticForward())
@@ -311,9 +311,10 @@ public class LobbyContainer implements NFRRobotContainer
                 Commands.runOnce(() -> arrowLeft = 0));
         dashboard.putKeybind("arrowright", "Rotates the robot right", Commands.runOnce(() -> arrowRight = 1),
                 Commands.runOnce(() -> arrowRight = 0));
+
         dashboard.putNumber("Dashboard", "Current Trim", () -> Preferences.getDouble("suzieOffsetDegrees",
                 turret.getConstants().offset().getRotation().getMeasure().in(Degrees)));
-        dashboard.putBooleanTunable("Developer", "Turntable Brake Mode", (brake) ->
+        dashboard.putBooleanTunable("Developer", "Turntable Brake Mode", false, (brake) ->
         {
             turret.getSuzie().setBrakeMode(brake);
         });
@@ -360,11 +361,6 @@ public class LobbyContainer implements NFRRobotContainer
     public CommandSwerveDrivetrain getDrive()
     {
         return drive;
-    }
-
-    public Dashboard getDashboard()
-    {
-        return dashboard;
     }
 
     public LEDS getLeds()
