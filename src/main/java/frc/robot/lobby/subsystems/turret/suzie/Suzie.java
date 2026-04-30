@@ -24,7 +24,7 @@ import frc.robot.lobby.subsystems.nfrdashboard.Dashboard.DashboardTunable;
 public class Suzie extends SubsystemBase
 {
     @DashboardTunable(name = "TestValue")
-    private double test = 0.0;
+    private Angle test = Degrees.of(0.0);
     protected final SuzieIO io;
     protected final DoubleSubscriber m_targetAngleOverride;
     protected final SysIdRoutine m_sysId;
@@ -48,7 +48,6 @@ public class Suzie extends SubsystemBase
                         .angularVelocity(io.getVelocity()), // Log motor voltage, position, and velocity
                 this // Require this subsystem
         ));
-        Dashboard.register(this);
     }
 
     public void setSpeed(double speed)
@@ -130,7 +129,6 @@ public class Suzie extends SubsystemBase
     public void periodic()
     {
         io.update();
-        System.out.println("test" + test);
         // var config = io.getSlot0Configs();
         // DogLog.log("Turret/Suzie/PID Values/kP", config.kP);
         // DogLog.log("Turret/Suzie/PID Values/kI", config.kI);

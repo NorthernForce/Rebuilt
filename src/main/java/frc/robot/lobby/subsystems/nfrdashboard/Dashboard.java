@@ -4,12 +4,18 @@ import java.util.Map;
 import java.util.Set;
 
 import static edu.wpi.first.units.Units.Degrees;
+import static edu.wpi.first.units.Units.Feet;
+import static edu.wpi.first.units.Units.Meters;
 
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
 import java.util.HashMap;
 import java.util.function.BooleanSupplier;
 import java.util.function.Consumer;
@@ -19,6 +25,8 @@ import java.util.function.Supplier;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.units.measure.Angle;
+import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -759,123 +767,193 @@ public class Dashboard extends SubsystemBase
         String tab() default "Developer";
     }
 
+    @Retention(RetentionPolicy.RUNTIME)
+    @Target(ElementType.TYPE)
+    public @interface DashboardTunableConstants {
+        String name();
+
+        String tab() default "Developer";
+    }
+
+    public static void putField(Object system, Field field)
+    {
+        DashboardTunable ann = field.getAnnotation(DashboardTunable.class);
+        String name = ((ann != null && !ann.name().isEmpty()) ? ann.name() : field.getName());
+        field.setAccessible(true);
+
+        if (field.getType() == double.class)
+        {
+            try
+            {
+                double initialValue = field.getDouble(system);
+                INSTANCE.putNumberTunable("Developer", name, initialValue, newValue ->
+                {
+                    try
+                    {
+                        field.setDouble(system, newValue);
+                    } catch (IllegalAccessException e)
+                    {
+                        e.printStackTrace();
+                    }
+                });
+            } catch (IllegalAccessException e)
+            {
+                e.printStackTrace();
+            }
+        }
+
+        if (field.getType() == int.class)
+        {
+            try
+            {
+                int initialValue = field.getInt(system);
+                INSTANCE.putNumberTunable("Developer", name, initialValue, newValue ->
+                {
+                    try
+                    {
+                        field.setInt(system, (int) ((double) newValue));
+                    } catch (IllegalAccessException e)
+                    {
+                        e.printStackTrace();
+                    }
+                });
+            } catch (IllegalAccessException e)
+            {
+                e.printStackTrace();
+            }
+        }
+
+        if (field.getType() == boolean.class)
+        {
+            try
+            {
+                boolean initialValue = field.getBoolean(system);
+                INSTANCE.putBooleanTunable("Developer", name, initialValue, newValue ->
+                {
+                    try
+                    {
+                        field.setBoolean(system, newValue);
+                    } catch (IllegalAccessException e)
+                    {
+                        e.printStackTrace();
+                    }
+                });
+            } catch (IllegalAccessException e)
+            {
+                e.printStackTrace();
+            }
+        }
+
+        if (field.getType() == String.class)
+        {
+            try
+            {
+                String initialValue = (String) field.get(system);
+                INSTANCE.putStringTunable("Developer", name, initialValue, newValue ->
+                {
+                    try
+                    {
+                        field.set(system, newValue);
+                    } catch (IllegalAccessException e)
+                    {
+                        e.printStackTrace();
+                    }
+                });
+            } catch (IllegalAccessException e)
+            {
+                e.printStackTrace();
+            }
+        }
+
+        if (field.getType() == char.class)
+        {
+            try
+            {
+                char initialValue = field.getChar(system);
+                INSTANCE.putStringTunable("Developer", name, String.valueOf(initialValue), newValue ->
+                {
+                    try
+                    {
+                        if (newValue.length() > 0)
+                        {
+                            field.setChar(system, newValue.charAt(0));
+                        }
+                    } catch (IllegalAccessException e)
+                    {
+                        e.printStackTrace();
+                    }
+                });
+            } catch (IllegalAccessException e)
+            {
+                e.printStackTrace();
+            }
+        }
+        if (field.getType() == Angle.class)
+        {
+            try
+            {
+                Angle initialValue = (Angle) field.get(system);
+                INSTANCE.putNumberTunable("Developer", name, (initialValue).in(Degrees), newValue ->
+                {
+                    try
+                    {
+                        field.set(system, Degrees.of(newValue));
+                    } catch (IllegalAccessException e)
+                    {
+                        e.printStackTrace();
+                    }
+                });
+            } catch (IllegalAccessException e)
+            {
+                e.printStackTrace();
+            }
+        }
+
+        if (field.getType() == Distance.class)
+        {
+            try
+            {
+                Distance initialValue = (Distance) field.get(system);
+                INSTANCE.putNumberTunable("Developer", name, (initialValue).in(Meters), newValue ->
+                {
+                    try
+                    {
+                        field.set(system, Meters.of(newValue));
+                    } catch (IllegalAccessException e)
+                    {
+                        e.printStackTrace();
+                    }
+                });
+            } catch (IllegalAccessException e)
+            {
+                e.printStackTrace();
+            }
+        }
+
+    }
+
     public static void register(Object system)
     {
-        Class<?> clazz = system.getClass();
+        Class<?> clazz = (system instanceof Class<?>) ? (Class<?>) system : system.getClass();
+        Object instance = (system instanceof Class<?>) ? null : system;
+        registerRecursive(instance, clazz);
+    }
+
+    private static void registerRecursive(Object instance, Class<?> clazz)
+    {
+        boolean classIsTunable = clazz.isAnnotationPresent(DashboardTunableConstants.class);
+
         for (Field field : clazz.getDeclaredFields())
         {
-            if (field.isAnnotationPresent(DashboardTunable.class))
+            if (classIsTunable || field.isAnnotationPresent(DashboardTunable.class))
             {
-                String name = field.getAnnotation(DashboardTunable.class).name();
-                field.setAccessible(true);
-                if (field.getType() == double.class)
-                {
-                    try
-                    {
-                        double initialValue = field.getDouble(system);
-                        INSTANCE.putNumberTunable("Developer", name, initialValue, newValue ->
-                        {
-                            try
-                            {
-                                field.setDouble(system, newValue);
-                            } catch (IllegalAccessException e)
-                            {
-                                e.printStackTrace();
-                            }
-                        });
-                    } catch (IllegalAccessException e)
-                    {
-                        e.printStackTrace();
-                    }
-                }
-
-                if (field.getType() == int.class)
-                {
-                    try
-                    {
-                        int initialValue = field.getInt(system);
-                        INSTANCE.putNumberTunable("Developer", name, initialValue, newValue ->
-                        {
-                            try
-                            {
-                                field.setInt(system, (int) ((double) newValue));
-                            } catch (IllegalAccessException e)
-                            {
-                                e.printStackTrace();
-                            }
-                        });
-                    } catch (IllegalAccessException e)
-                    {
-                        e.printStackTrace();
-                    }
-                }
-
-                if (field.getType() == boolean.class)
-                {
-                    try
-                    {
-                        boolean initialValue = field.getBoolean(system);
-                        INSTANCE.putBooleanTunable("Developer", name, initialValue, newValue ->
-                        {
-                            try
-                            {
-                                field.setBoolean(system, newValue);
-                            } catch (IllegalAccessException e)
-                            {
-                                e.printStackTrace();
-                            }
-                        });
-                    } catch (IllegalAccessException e)
-                    {
-                        e.printStackTrace();
-                    }
-                }
-
-                if (field.getType() == String.class)
-                {
-                    try
-                    {
-                        String initialValue = (String) field.get(system);
-                        INSTANCE.putStringTunable("Developer", name, initialValue, newValue ->
-                        {
-                            try
-                            {
-                                field.set(system, newValue);
-                            } catch (IllegalAccessException e)
-                            {
-                                e.printStackTrace();
-                            }
-                        });
-                    } catch (IllegalAccessException e)
-                    {
-                        e.printStackTrace();
-                    }
-                }
-
-                if (field.getType() == char.class)
-                {
-                    try
-                    {
-                        char initialValue = field.getChar(system);
-                        INSTANCE.putStringTunable("Developer", name, String.valueOf(initialValue), newValue ->
-                        {
-                            try
-                            {
-                                if (newValue.length() > 0)
-                                {
-                                    field.setChar(system, newValue.charAt(0));
-                                }
-                            } catch (IllegalAccessException e)
-                            {
-                                e.printStackTrace();
-                            }
-                        });
-                    } catch (IllegalAccessException e)
-                    {
-                        e.printStackTrace();
-                    }
-                }
+                putField(instance, field);
             }
+        }
+
+        for (Class<?> innerClazz : clazz.getDeclaredClasses())
+        {
+            registerRecursive(instance, innerClazz);
         }
     }
 }

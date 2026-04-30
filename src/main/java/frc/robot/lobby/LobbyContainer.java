@@ -320,6 +320,8 @@ public class LobbyContainer implements NFRRobotContainer
         });
 
         dashboard.putField("Driver", "Main Field").withRobot("Lobby", () -> drive.getPose());
+        Dashboard.register(turret.getSuzie());
+        Dashboard.register(LobbyConstants.class);
 
     }
 

@@ -49,6 +49,7 @@ import frc.robot.FieldConstants;
 import frc.robot.lobby.generated.LobbyTunerConstants;
 import frc.robot.lobby.subsystems.intake.IntakeIO.IntakeIOParameters;
 import frc.robot.lobby.subsystems.leds.LedsIO.LedsConstants;
+import frc.robot.lobby.subsystems.nfrdashboard.Dashboard.DashboardTunableConstants;
 import frc.robot.lobby.subsystems.climber.ClimberParameters;
 import frc.robot.lobby.subsystems.intake.Intake.IntakeParameters;
 import frc.robot.lobby.subsystems.turret.hood.HoodIO.HoodConstants;
@@ -57,10 +58,11 @@ import frc.robot.lobby.subsystems.turret.suzie.SuzieIO.SuzieConstants;
 
 public class LobbyConstants
 {
+    @DashboardTunableConstants(name = "PDHConstants")
     public class PDHConstants
     {
-        public static final int kPDHPort = 40;
-        public static final ModuleType kModuleType = ModuleType.kRev;
+        public static int kPDHPort = 40;
+        public static ModuleType kModuleType = ModuleType.kRev;
     }
 
     public class PhysicsConstants
@@ -214,6 +216,7 @@ public class LobbyConstants
                     kInverted, kLowerSoftLimit, kUpperSoftLimit, kErrorTolerance, kMotorArrangement);
         }
 
+        @DashboardTunableConstants(name = "HoodConstants")
         public class Hood
         {
             public static Distance kDangerZone = Feet.of(5);
