@@ -96,21 +96,22 @@
                       }
                     },
                     {
-                      "type": "named",
+                      "type": "parallel",
                       "data": {
-                        "name": "StopIntake"
-                      }
-                    },
-                    {
-                      "type": "named",
-                      "data": {
-                        "name": "StopShoot"
-                      }
-                    },
-                    {
-                      "type": "path",
-                      "data": {
-                        "pathName": "D-PCL"
+                        "commands": [
+                          {
+                            "type": "named",
+                            "data": {
+                              "name": "StopShoot"
+                            }
+                          },
+                          {
+                            "type": "path",
+                            "data": {
+                              "pathName": "D-PCL"
+                            }
+                          }
+                        ]
                       }
                     }
                   ]
@@ -132,7 +133,7 @@
               {
                 "type": "named",
                 "data": {
-                  "name": "StopIntake"
+                  "name": "StopIntakeAndStow"
                 }
               },
               {

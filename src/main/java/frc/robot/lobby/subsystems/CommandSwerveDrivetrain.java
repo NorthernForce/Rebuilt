@@ -454,7 +454,8 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
                                     pose.getTranslation(),
                                     mapleSimSwerveDrivetrain.mapleSimDrive.getSimulatedDriveTrainPose().getRotation()));
                         }
-                        resetTranslation(pose.getTranslation());
+                        // resetTranslation(pose.getTranslation());
+                        resetPose(pose);
                     }, // Consumer for seeding pose against auto
                     () -> getState().Speeds, // Supplier of current robot speeds
                     // Consumer of ChassisSpeeds and feedforwards to drive the robot

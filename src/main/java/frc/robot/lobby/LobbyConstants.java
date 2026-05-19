@@ -412,7 +412,7 @@ public class LobbyConstants
         public static final double kForwardSoftLimit = 0.4;
         public static final double kReverseSoftLimit = 0.005;
         public static final Current kHingeCurrentLimit = Amps.of(30);
-        public static final Current kRollerCurrentLimit = Amps.of(40);
+        public static final Current kRollerCurrentLimit = Amps.of(60);
         public static final Angle kAngleTolerance = Degrees.of(5);
 
         public static final IntakeIOParameters kIOParameters = new IntakeIOParameters(kRollerMotorId, kAngleMotorId,
@@ -429,7 +429,7 @@ public class LobbyConstants
         public static final double kDejamSpeed = 0.2;
 
         public static final int kMotorID = 15;
-        public static final double kSpeed = 0.75;
+        public static final double kSpeed = 1;
         public static final boolean kInverted = false;
         public static final double kGearRatio = 10.0;
 

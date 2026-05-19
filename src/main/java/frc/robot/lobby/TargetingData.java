@@ -10,13 +10,13 @@ public class TargetingData
             Map.entry(2.20, 21.0), Map.entry(2.40, 21.0), Map.entry(2.60, 21.0), Map.entry(2.80, 21.0),
             Map.entry(3.00, 21.0), Map.entry(3.20, 21.0), Map.entry(3.40, 23.0), Map.entry(3.60, 25.0),
             Map.entry(3.80, 27.0), Map.entry(4.00, 28.0), Map.entry(4.25, 31.0), Map.entry(4.44, 31.0),
-            Map.entry(4.72, 33.0), Map.entry(5.05, 35.0));
+            Map.entry(4.72, 33.0), Map.entry(5.05, 35.0), Map.entry(5.38, 37.0));
 
     public static final Map<Double, Double> SHOOTER_DATA = Map.ofEntries(Map.entry(1.80, 44.0), Map.entry(2.0, 46.0),
             Map.entry(2.20, 47.0), Map.entry(2.40, 49.0), Map.entry(2.60, 51.5), Map.entry(2.80, 53.1),
             Map.entry(3.00, 55.0), Map.entry(3.20, 57.5), Map.entry(3.40, 58.5), Map.entry(3.60, 58.5),
             Map.entry(3.80, 57.5), Map.entry(4.00, 58.0), Map.entry(4.25, 58.0), Map.entry(4.44, 59.5),
-            Map.entry(4.72, 60.5), Map.entry(5.05, 65.0));
+            Map.entry(4.72, 60.5), Map.entry(5.05, 65.0), Map.entry(5.38, 69.5), Map.entry(10.0, 100.0));
 //     public static final Map<Double, Double> TOF_DATA = Map.of(0.0, 0.41353, 6.0, 1.99294);
 
     public static final Map<Double, Double> TOF_DATA = Map.ofEntries(Map.entry(1.8, 4.66 - 3.82),

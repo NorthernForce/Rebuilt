@@ -21,9 +21,9 @@ public class LEDS extends SubsystemBase
         ALLIANCE_SHIFT4, END_GAME, TEST
     }
 
-    private boolean shiftChangeSoon = false;
+    public boolean shiftChangeSoon = false;
 
-    private GameState gameState;
+    public GameState gameState;
 
     private boolean hubActive;
 
@@ -155,7 +155,7 @@ public class LEDS extends SubsystemBase
                 {
                     shiftChangeSoon = false;
                 }
-            } else
+            } else if (matchTime > 0)
             {
                 gameState = GameState.END_GAME;
                 if (matchTime <= 10)
@@ -165,6 +165,10 @@ public class LEDS extends SubsystemBase
                 {
                     shiftChangeSoon = false;
                 }
+            } else
+            {
+                gameState = GameState.TELEOP;
+                shiftChangeSoon = false;
             }
         }
 
@@ -219,7 +223,7 @@ public class LEDS extends SubsystemBase
                 connected = true;
                 timer.restart();
             }
-            if (timer.hasElapsed(2.5))
+            if (timer.hasElapsed(2.4))
             {
                 if (gameState.equals(GameState.DISABLED))
                 {
@@ -236,7 +240,8 @@ public class LEDS extends SubsystemBase
                     {
                         blinkAnimation(Color.kYellow);
                     }
-                } else if (gameState.equals(GameState.AUTONOMOUS) || gameState.equals(GameState.TRANSITION))
+                } else if (gameState.equals(GameState.AUTONOMOUS) || gameState.equals(GameState.END_GAME)
+                        || gameState.equals(GameState.TRANSITION))
                 {
                     if (shiftChangeSoon)
                     {
@@ -278,7 +283,7 @@ public class LEDS extends SubsystemBase
                 connected = true;
                 timer.restart();
             }
-            if (timer.hasElapsed(2.5))
+            if (timer.hasElapsed(2.4))
             {
                 if (gameState.equals(GameState.DISABLED))
                 {

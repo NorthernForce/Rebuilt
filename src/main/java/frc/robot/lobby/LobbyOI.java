@@ -6,8 +6,11 @@ import static edu.wpi.first.units.Units.RotationsPerSecond;
 import java.util.function.DoubleSupplier;
 
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
+import frc.robot.lobby.subsystems.spindexer.commands.PurgeSpindexer;
 import frc.robot.lobby.subsystems.spindexer.commands.RunSpindexer;
 import frc.robot.lobby.subsystems.turret.Turret.TurretState;
 import frc.robot.lobby.subsystems.turret.commands.PrepTurretCommand;
@@ -37,6 +40,12 @@ public class LobbyOI
         var hood = container.getTurret().getHood();
         var shooter = container.getTurret().getShooter();
         var leds = container.getLeds();
+
+        new Trigger(() ->
+        {
+            return leds.shiftChangeSoon;
+        }).onTrue(Commands.runOnce(() -> driveController.setRumble(RumbleType.kBothRumble, 0.5)))
+                .onFalse(Commands.runOnce(() -> driveController.setRumble(RumbleType.kBothRumble, 0)));
 
         drive.setDefaultCommand(drive.driveByJoystick(inputProc(driveController::getLeftY),
                 inputProc(driveController::getLeftX), inputProc(driveController::getRightX)));
@@ -72,7 +81,7 @@ public class LobbyOI
         driveController.start().onTrue(Commands.runOnce(() -> suzie.resetAngle()));
 
         driveController.leftBumper()
-                .whileTrue(new PrepTurretWithValues(turret, RotationsPerSecond.of(100), Degrees.of(21))
+                .whileTrue(new PrepTurretWithValues(turret, RotationsPerSecond.of(50), Degrees.of(26))
                         .alongWith(Commands.waitSeconds(0.5)
                                 .andThen(new RunSpindexer(container.getSpindexer(),
                                         LobbyConstants.SpindexerConstants.kDeJamTime,
@@ -86,11 +95,14 @@ public class LobbyOI
                         LobbyConstants.SpindexerConstants.kPostDeJamTime, () -> turret.isAtTargetPose()))
                 .alongWith(new PrepTurretCommand(container))));
 
+        // driveController.leftBumper().whileTrue(new
+        // PurgeSpindexer(container.getSpindexer()));
+
         driveController.povUp().whileTrue(container.getClimber().runUp())
                 .onFalse(Commands.runOnce(() -> container.getClimber().stopMotor(), container.getClimber()));
         driveController.povDown().whileTrue(container.getClimber().runDown())
                 .onFalse(Commands.runOnce(() -> container.getClimber().stopMotor(), container.getClimber()));
-        driveController.a().onTrue(Commands.runOnce(() -> turret.resetTrim()));
+        driveController.a().whileTrue(new PurgeSpindexer(spindexer));
         driveController.povLeft().onTrue(Commands.runOnce(() -> suzie.start(), suzie))
                 .onFalse(Commands.runOnce(() -> suzie.stop(), suzie))
                 .whileTrue(Commands.sequence(Commands
@@ -123,7 +135,7 @@ public class LobbyOI
         manipulatorController.start().onTrue(Commands.runOnce(() -> suzie.resetAngle()));
 
         manipulatorController.leftBumper()
-                .whileTrue(new PrepTurretWithValues(turret, RotationsPerSecond.of(120), Degrees.of(21))
+                .whileTrue(new PrepTurretWithValues(turret, RotationsPerSecond.of(40), Degrees.of(21))
                         .alongWith(Commands.waitSeconds(0.5)
                                 .andThen(new RunSpindexer(container.getSpindexer(),
                                         LobbyConstants.SpindexerConstants.kDeJamTime,

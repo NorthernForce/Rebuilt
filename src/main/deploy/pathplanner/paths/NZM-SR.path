@@ -8,24 +8,24 @@
       },
       "prevControl": null,
       "nextControl": {
-        "x": 7.75,
-        "y": 2.25
+        "x": 8.451141226818828,
+        "y": 2.5405848787446508
       },
       "isLocked": false,
       "linkedName": "NZM-BACKWARD"
     },
     {
       "anchor": {
-        "x": 7.420023724792409,
-        "y": 0.9417319098457893
+        "x": 7.75,
+        "y": 0.9
       },
       "prevControl": {
-        "x": 7.596800420089045,
-        "y": 1.1185086051424264
+        "x": 7.944718375354003,
+        "y": 1.0567952623630508
       },
       "nextControl": {
-        "x": 6.712916943605863,
-        "y": 0.23462512865924046
+        "x": 6.380955777460769,
+        "y": -0.20241084165477774
       },
       "isLocked": false,
       "linkedName": "NZR"
@@ -46,7 +46,7 @@
   ],
   "rotationTargets": [
     {
-      "waypointRelativePos": 1.6,
+      "waypointRelativePos": 1.4082367053178733,
       "rotationDegrees": 90.0
     }
   ],

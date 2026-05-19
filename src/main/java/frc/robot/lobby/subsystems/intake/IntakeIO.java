@@ -59,6 +59,10 @@ public interface IntakeIO
     {
     }
 
+    public default void setHingeBrakeMode(boolean brake)
+    {
+    }
+
     public double getRollerCurrent();
 
     public double getAnglingCurrent();

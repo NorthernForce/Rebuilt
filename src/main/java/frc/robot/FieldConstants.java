@@ -52,9 +52,9 @@ public class FieldConstants
     public static final double kBlueAllianceStationX = 0.0;
     public static final double kRedAllianceStationX = kFieldLengthMeters;
 
-    public static final Translation2d kBlueLeftPassingTarget = new Translation2d(Meters.of(3.0),
+    public static final Translation2d kBlueLeftPassingTarget = new Translation2d(Meters.of(2.0),
             Meters.of(kFieldWidthMeters - 3.0));
-    public static final Translation2d kBlueRightPassingTarget = new Translation2d(Meters.of(3.0), Meters.of(3.0));
+    public static final Translation2d kBlueRightPassingTarget = new Translation2d(Meters.of(+2.0), Meters.of(3.0));
 
     public static final Translation2d kRedLeftPassingTarget = new Translation2d(Meters.of(kFieldLengthMeters - 3.0),
             Meters.of(kFieldWidthMeters - 3.0));
@@ -64,6 +64,6 @@ public class FieldConstants
     // Maximum shooting distance (meters)
     public static final double kMaxShootingDistance = 8.0;
     public static final double kMinShootingDistance = 1.6;
-    public static final Pose2d kLeftClimbPose = new Pose2d(Meters.of(1.061), Meters.of(4.643),
+    public static final Pose2d kLeftClimbPose = new Pose2d(Meters.of(1.1), Meters.of(4.548),
             new Rotation2d(Degrees.of(90)));
 }

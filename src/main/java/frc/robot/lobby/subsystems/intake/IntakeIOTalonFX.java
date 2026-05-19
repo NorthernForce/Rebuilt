@@ -1,9 +1,11 @@
 package frc.robot.lobby.subsystems.intake;
 
+import com.ctre.phoenix6.configs.CANcoderConfiguration;
 import com.ctre.phoenix6.configs.SoftwareLimitSwitchConfigs;
 import com.ctre.phoenix6.configs.TalonFXSConfiguration;
 import com.ctre.phoenix6.controls.MotionMagicVoltage;
 import com.ctre.phoenix6.controls.VoltageOut;
+import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.TalonFXS;
 import com.ctre.phoenix6.signals.ExternalFeedbackSensorSourceValue;
 import com.ctre.phoenix6.signals.GravityTypeValue;
@@ -27,12 +29,14 @@ public class IntakeIOTalonFX implements IntakeIO
 
     private final double forwardSoftLimit;
     private final double reverseSoftLimit;
+    private CANcoder cancoder;
 
     public IntakeIOTalonFX(IntakeIOParameters intakeParams)
     {
         this.rollerMotor = new TalonFXS(intakeParams.rollerMotorID());
         this.angleMotor = new TalonFXS(intakeParams.angleMotorID());
         this.req = new MotionMagicVoltage(0);
+        this.cancoder = new CANcoder(intakeParams.encoderID());
 
         var config = new TalonFXSConfiguration();
         config.ExternalFeedback.FeedbackRemoteSensorID = intakeParams.encoderID();
@@ -102,7 +106,11 @@ public class IntakeIOTalonFX implements IntakeIO
     @Override
     public void resetAngle()
     {
-        angleMotor.setPosition(0);
+        double currentAngle = cancoder.getPosition().getValueAsDouble();
+        CANcoderConfiguration cancoderConfig = new CANcoderConfiguration();
+        cancoder.getConfigurator().refresh(cancoderConfig);
+        cancoderConfig.MagnetSensor.MagnetOffset -= currentAngle;
+        cancoder.getConfigurator().apply(cancoderConfig);
     }
 
     @Override
@@ -135,6 +143,15 @@ public class IntakeIOTalonFX implements IntakeIO
     public double getArmVoltage()
     {
         return angleMotor.getMotorVoltage().getValueAsDouble();
+    }
+
+    @Override
+    public void setHingeBrakeMode(boolean brake)
+    {
+        var config = new TalonFXSConfiguration();
+        angleMotor.getConfigurator().refresh(config);
+        config.MotorOutput.NeutralMode = brake ? NeutralModeValue.Brake : NeutralModeValue.Coast;
+        angleMotor.getConfigurator().apply(config);
     }
 
     @Override

@@ -156,6 +156,11 @@ public class Intake extends SubsystemBase
         return new RunToAngleCommand(pumpAngle);
     }
 
+    public void setHingeBrakeMode(boolean brake)
+    {
+        io.setHingeBrakeMode(brake);
+    }
+
     public Command stopIntake()
     {
         return runOnce(() -> io.stopIntake());
@@ -182,6 +187,11 @@ public class Intake extends SubsystemBase
     public void periodic()
     {
         io.logArmSignals();
+    }
+
+    public void resetEncoder()
+    {
+        io.resetAngle();
     }
 
     public double getRollerCurrent()
