@@ -223,7 +223,7 @@ public class LobbyContainer implements NFRRobotContainer
         NamedCommands.registerCommand("RunUpClimber", climber.runUp());
         NamedCommands.registerCommand("RunDownClimber", climber.runDown());
         autoUtil = new AutoUtil(drive, LobbyConstants.AutoConstants.xPid, LobbyConstants.AutoConstants.yPid,
-                LobbyConstants.AutoConstants.rPid);
+                LobbyConstants.AutoConstants.rPid, dashboard);
         autoUtil.bindAutoDefault("DO NOTHING",
                 Commands.runOnce(() -> resetOdometry(new Pose2d(drive.getPose().getTranslation(),
                         DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Blue

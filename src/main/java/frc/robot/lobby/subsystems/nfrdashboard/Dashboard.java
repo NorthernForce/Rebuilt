@@ -22,13 +22,17 @@ import java.util.function.Consumer;
 import java.util.function.DoubleSupplier;
 import java.util.function.Supplier;
 
+import com.pathplanner.lib.commands.PathPlannerAuto;
+
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.Distance;
+import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class Dashboard extends SubsystemBase
@@ -42,6 +46,7 @@ public class Dashboard extends SubsystemBase
     private Map<String, Long> namesToLastRequestId = new HashMap<>();
     private Map<String, Command> namesToSafeCommands = new HashMap<>();
     private Map<String, Command> namesToKeybindOnFalseSafeCommands = new HashMap<>();
+    private Map<String, Command> namesToAutonomousCommands = new HashMap<>();
     private Map<String, Boolean> namesToLastKeybindPressed = new HashMap<>();
     private Map<String, DoubleSupplier> namesToDoubles = new HashMap<>();
     private Map<String, Supplier<String>> namesToStrings = new HashMap<>();
@@ -199,6 +204,37 @@ public class Dashboard extends SubsystemBase
                     }
                 };
                 namesToKeybindOnFalseSafeCommands.put(keybindKey, safeOnFalse);
+            }
+        }
+    }
+
+    public void putDefaultAutonomousCommand(String name, Command command)
+    {
+        String key = makeKey("Match", outputPath, "autonomousCommands", name);
+        if (!namesToAutonomousCommands.containsKey(key))
+        {
+            instance.getTable(outputPath).getSubTable("selectedAutonomous").getEntry("Match").setString(name);
+            putAutonomousCommand(name, command);
+
+        }
+    }
+
+    public void putAutonomousCommand(String name, Command command)
+    {
+        String key = makeKey("Match", outputPath, "autonomousCommands", name);
+        if (!namesToAutonomousCommands.containsKey(key))
+        {
+            namesToAutonomousCommands.put(key, command);
+            var commandTable = scopedEntry(outputPath, "autonomousCommands", "Match", name);
+            String simpleName = command.getClass().getSimpleName();
+            commandTable.getEntry("ClassName").setString(simpleName);
+            if (simpleName.equals("PathPlannerAuto"))
+            {
+                commandTable.getEntry("PathPlannerPath").setString(Filesystem.getDeployDirectory()
+                        + "/pathplanner/autos/" + ((PathPlannerAuto) command).getName() + ".auto");
+            } else
+            {
+                commandTable.getEntry("PathPlannerPath").setString("");
             }
         }
     }
@@ -955,5 +991,12 @@ public class Dashboard extends SubsystemBase
         {
             registerRecursive(instance, innerClazz);
         }
+    }
+
+    public Command getSelectedAutonomousCommand()
+    {
+        return namesToAutonomousCommands.getOrDefault(makeKey("Match", outputPath, "autonomousCommands",
+                instance.getTable(outputPath).getSubTable("selectedAutonomous").getEntry("Match").getString("")),
+                Commands.none());
     }
 }

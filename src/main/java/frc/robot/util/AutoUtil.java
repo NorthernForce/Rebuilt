@@ -13,13 +13,16 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import frc.robot.lobby.subsystems.CommandSwerveDrivetrain;
+import frc.robot.lobby.subsystems.nfrdashboard.Dashboard;
 
 public class AutoUtil
 {
     private final AutoFactory factory;
     private final SendableChooser<Command> chooser;
+    private final Dashboard dashboard;
 
-    public AutoUtil(CommandSwerveDrivetrain drive, PIDController xPid, PIDController yPid, PIDController rPid)
+    public AutoUtil(CommandSwerveDrivetrain drive, PIDController xPid, PIDController yPid, PIDController rPid,
+            Dashboard dashboard)
     {
         factory = new AutoFactory(() -> drive.getPose(), pose -> drive.resetTranslation(pose.getTranslation()),
                 (SwerveSample sample) ->
@@ -36,31 +39,38 @@ public class AutoUtil
         chooser = new SendableChooser<>();
         chooser.setDefaultOption("NONE", Commands.none());
 
+        this.dashboard = dashboard;
+
         Shuffleboard.getTab("Robot").add("Auto Selector", chooser);
     }
 
     public void bindAutoDefault(String name, Function<AutoFactory, AutoRoutine> autoBuilder)
     {
+        dashboard.putDefaultAutonomousCommand(name, autoBuilder.apply(factory).cmd());
         chooser.setDefaultOption(name, autoBuilder.apply(factory).cmd());
     }
 
     public void bindAutoDefault(String name, Command cmd)
     {
+        dashboard.putDefaultAutonomousCommand(name, cmd);
         chooser.setDefaultOption(name, cmd);
     }
 
     public void bindAuto(String name, Function<AutoFactory, AutoRoutine> autoBuilder)
     {
+        dashboard.putAutonomousCommand(name, autoBuilder.apply(factory).cmd());
         chooser.addOption(name, autoBuilder.apply(factory).cmd());
     }
 
     public void bindAuto(String name, Command cmd)
     {
+        dashboard.putAutonomousCommand(name, cmd);
         chooser.addOption(name, cmd);
     }
 
     public Command getSelected()
     {
-        return chooser.getSelected();
+        return dashboard.getSelectedAutonomousCommand();
     }
+
 }
