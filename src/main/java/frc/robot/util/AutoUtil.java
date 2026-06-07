@@ -2,6 +2,8 @@ package frc.robot.util;
 
 import java.util.function.Function;
 
+import com.github.daboss_1.Dashboard;
+
 import choreo.auto.AutoFactory;
 import choreo.auto.AutoRoutine;
 import choreo.trajectory.SwerveSample;
@@ -13,7 +15,6 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import frc.robot.lobby.subsystems.CommandSwerveDrivetrain;
-import frc.robot.lobby.subsystems.nfrdashboard.Dashboard;
 
 public class AutoUtil
 {

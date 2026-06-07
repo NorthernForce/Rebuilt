@@ -8,6 +8,8 @@ import static edu.wpi.first.units.Units.Volts;
 
 import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.controls.VoltageOut;
+import com.github.daboss_1.Dashboard;
+import com.github.daboss_1.Dashboard.DashboardTunable;
 
 import dev.doglog.DogLog;
 
@@ -18,8 +20,6 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
-import frc.robot.lobby.subsystems.nfrdashboard.Dashboard;
-import frc.robot.lobby.subsystems.nfrdashboard.Dashboard.DashboardTunable;
 
 public class Suzie extends SubsystemBase
 {
@@ -48,6 +48,7 @@ public class Suzie extends SubsystemBase
                         .angularVelocity(io.getVelocity()), // Log motor voltage, position, and velocity
                 this // Require this subsystem
         ));
+        Dashboard.INSTANCE.putNumber("Testing", "Testing", () -> test.in(Degrees));
     }
 
     public void setSpeed(double speed)

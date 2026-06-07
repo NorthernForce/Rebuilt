@@ -20,6 +20,7 @@ import java.util.List;
 
 import com.ctre.phoenix6.signals.AnimationDirectionValue;
 import com.ctre.phoenix6.signals.MotorArrangementValue;
+import com.github.daboss_1.Dashboard.DashboardTunableConstants;
 import com.pathplanner.lib.config.PIDConstants;
 import com.pathplanner.lib.path.PathConstraints;
 import edu.wpi.first.math.VecBuilder;
@@ -49,7 +50,6 @@ import frc.robot.FieldConstants;
 import frc.robot.lobby.generated.LobbyTunerConstants;
 import frc.robot.lobby.subsystems.intake.IntakeIO.IntakeIOParameters;
 import frc.robot.lobby.subsystems.leds.LedsIO.LedsConstants;
-import frc.robot.lobby.subsystems.nfrdashboard.Dashboard.DashboardTunableConstants;
 import frc.robot.lobby.subsystems.climber.ClimberParameters;
 import frc.robot.lobby.subsystems.intake.Intake.IntakeParameters;
 import frc.robot.lobby.subsystems.turret.hood.HoodIO.HoodConstants;

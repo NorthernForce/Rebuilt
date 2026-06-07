@@ -15,6 +15,8 @@ import org.photonvision.simulation.SimCameraProperties;
 
 import com.ctre.phoenix6.Utils;
 import com.ctre.phoenix6.swerve.SwerveRequest;
+import com.github.daboss_1.Dashboard;
+import com.github.daboss_1.Dashboard.DashboardSystem;
 import com.pathplanner.lib.auto.NamedCommands;
 import com.pathplanner.lib.commands.PathPlannerAuto;
 import choreo.auto.AutoFactory;
@@ -53,8 +55,6 @@ import frc.robot.lobby.subsystems.climber.ClimberIOTalonFXSim;
 import frc.robot.lobby.subsystems.climber.sensor.SensorIOLimitSwitch;
 import frc.robot.lobby.subsystems.intake.Intake;
 import frc.robot.lobby.subsystems.intake.IntakeIOTalonFX;
-import frc.robot.lobby.subsystems.nfrdashboard.Dashboard;
-import frc.robot.lobby.subsystems.nfrdashboard.Dashboard.DashboardSystem;
 import frc.robot.lobby.subsystems.spindexer.Spindexer;
 import frc.robot.lobby.subsystems.spindexer.Spindexer.SpindexerParameters;
 import frc.robot.lobby.subsystems.spindexer.carousel.CarouselIO.CarouselConstants;
