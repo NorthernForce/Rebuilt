@@ -7,6 +7,8 @@ import static edu.wpi.first.units.Units.Amps;
 import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.Radians;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
+import static edu.wpi.first.units.Units.Volts;
+
 import java.util.Optional;
 import org.northernforce.util.NFRRobotContainer;
 import org.photonvision.simulation.SimCameraProperties;
@@ -32,8 +34,10 @@ import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj.Preferences;
 import edu.wpi.first.wpilibj.RobotController;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
+import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
@@ -228,21 +232,35 @@ public class LobbyContainer implements NFRRobotContainer
                 Commands.runOnce(() -> resetOdometry(new Pose2d(drive.getPose().getTranslation(),
                         DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Blue
                                 ? new Rotation2d(Degrees.of(0))
-                                : new Rotation2d(Degrees.of(180))))));
-        autoUtil.bindAuto("S1-DEPOT", new PathPlannerAuto("S1-DEPOT"));
-        autoUtil.bindAuto("S2-DEPOT", new PathPlannerAuto("S2-DEPOT"));
-        autoUtil.bindAuto("S1-SHOOT", new PathPlannerAuto("S1-SHOOT"));
-        autoUtil.bindAuto("S1-SHOOT-BUMP", new PathPlannerAuto("S1-SHOOT-BUMP"));
+                                : new Rotation2d(Degrees.of(180))))),
+                "Reset odometry and do nothing.");
+        autoUtil.bindAuto("S1-DEPOT", new PathPlannerAuto("S1-DEPOT"),
+                "Starts under left trench and goes to shoot loaded balls and empty depot.");
+        autoUtil.bindAuto("S2-DEPOT", new PathPlannerAuto("S2-DEPOT"),
+                "Starts up against the center hub wall on the alliance zone side, shoots loaded balls, and goes to empty the depot.");
+        autoUtil.bindAuto("S1-SHOOT", new PathPlannerAuto("S1-SHOOT"),
+                "Starts under left trench, goes for the first pass of balls in the neutral zone (without shooting loaded ones first), then goes for a second pass.");
+        autoUtil.bindAuto("S1-SHOOT-BUMP", new PathPlannerAuto("S1-SHOOT-BUMP"),
+                "Starts under left trench, and goes for two passes of balls in the neutral zone by going over the bump.");
 
-        autoUtil.bindAuto("S3-SHOOT", new PathPlannerAuto("S3-SHOOT"));
-        autoUtil.bindAuto("S1-SHOOT-DEPOT", new PathPlannerAuto("S1-SHOOT-DEPOT"));
-        autoUtil.bindAuto("S1-SIMPLE", new SimpleAuto(this, new PathPlannerAuto("S1-SHOOT").getStartingPose()));
-        autoUtil.bindAuto("S3-SIMPLE", new SimpleAuto(this, new PathPlannerAuto("S3-SHOOT").getStartingPose()));
-        autoUtil.bindAuto("S1-CLIMB", new PathPlannerAuto("S1-CLIMB"));
-        autoUtil.bindAuto("S1-SHOOT-CLIMB", new PathPlannerAuto("S1-SHOOT-CLIMB"));
-        autoUtil.bindAuto("S2-CLIMB", new PathPlannerAuto("S2-CLIMB"));
-        autoUtil.bindAuto("S2-DEPOT-CLIMB", new PathPlannerAuto("S2-DEPOT-CLIMB"));
-        autoUtil.bindAuto("S3-CLIMB", new PathPlannerAuto("S3-CLIMB"));
+        autoUtil.bindAuto("S3-SHOOT", new PathPlannerAuto("S3-SHOOT"),
+                "Starts under the right trench, goes for the first pass of balls in the neutral zone (without shooting loaded ones first), then goes for a second pass.");
+        autoUtil.bindAuto("S1-SHOOT-DEPOT", new PathPlannerAuto("S1-SHOOT-DEPOT"),
+                "Starts under the left trench, goes for one pass of the neutral zone, then shoots shoots on the move to the depot, which is then emptied.");
+        autoUtil.bindAuto("S1-SIMPLE", new SimpleAuto(this, new PathPlannerAuto("S1-SHOOT").getStartingPose()),
+                "Starts under the left trench and shoots loaded balls.");
+        autoUtil.bindAuto("S3-SIMPLE", new SimpleAuto(this, new PathPlannerAuto("S3-SHOOT").getStartingPose()),
+                "Starts under the right trench and shoots loaded balls.");
+        autoUtil.bindAuto("S1-CLIMB", new PathPlannerAuto("S1-CLIMB"),
+                "Starts under the left trench, shoots loaded balls, and goes to climb the left post.");
+        autoUtil.bindAuto("S1-SHOOT-CLIMB", new PathPlannerAuto("S1-SHOOT-CLIMB"),
+                "Starts under the left trench, shoots loaded balls, goes for a pass in the neutral zone, then shoots on the move to the ladder, which is then climbed.");
+        autoUtil.bindAuto("S2-CLIMB", new PathPlannerAuto("S2-CLIMB"),
+                "Starts up against the center hub wall on the alliance zone side, shoots loaded balls, and goes to climb the left post.");
+        autoUtil.bindAuto("S2-DEPOT-CLIMB", new PathPlannerAuto("S2-DEPOT-CLIMB"),
+                "Starts up against the center hub wall on the alliance zone side, shoots loaded balls, goes to empty the depot, then climbs the left post.");
+        autoUtil.bindAuto("S3-CLIMB", new PathPlannerAuto("S3-CLIMB"),
+                "Starts under the right trench, shoots loaded balls, and goes to climb the right post.");
         Shuffleboard.getTab("Developer").add(field);
         Shuffleboard.getTab("Developer").add("Reset Encoders", drive.resetEncoders());
         Shuffleboard.getTab("Developer").add("Reset Orientation", drive.resetOrientation());
@@ -307,9 +325,9 @@ public class LobbyContainer implements NFRRobotContainer
                 Commands.runOnce(() -> wKey = 0));
         dashboard.putKeybind("d", "Moves the robot down", Commands.runOnce(() -> sKey = 1),
                 Commands.runOnce(() -> sKey = 0));
-        dashboard.putKeybind("arrowleft", "Rotates the robot left", Commands.runOnce(() -> arrowLeft = 1),
+        dashboard.putKeybind("j", "Rotates the robot left", Commands.runOnce(() -> arrowLeft = 1),
                 Commands.runOnce(() -> arrowLeft = 0));
-        dashboard.putKeybind("arrowright", "Rotates the robot right", Commands.runOnce(() -> arrowRight = 1),
+        dashboard.putKeybind("l", "Rotates the robot right", Commands.runOnce(() -> arrowRight = 1),
                 Commands.runOnce(() -> arrowRight = 0));
 
         dashboard.putNumber("Dashboard", "Current Trim", () -> Preferences.getDouble("suzieOffsetDegrees",
@@ -320,9 +338,13 @@ public class LobbyContainer implements NFRRobotContainer
         });
 
         dashboard.putField("Driver", "Main Field").withRobot("Lobby", () -> drive.getPose());
-        Dashboard.register(turret.getSuzie());
-        Dashboard.register(LobbyConstants.class);
+        dashboard.register(turret.getSuzie());
+        dashboard.register(LobbyConstants.class);
+        dashboard.putBatteryVoltage(() -> Volts.of(powerDistributionHub.getVoltage()));
 
+        dashboard.setDashboardLight(Color.kPurple);
+        dashboard.putNumber("Driver", "Test Number", () -> Timer.getFPGATimestamp());
+        dashboard.putChecklistItem("Test", () -> true);
     }
 
     public double getATrig()

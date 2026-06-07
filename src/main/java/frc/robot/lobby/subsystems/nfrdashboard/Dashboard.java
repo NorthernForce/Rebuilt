@@ -6,6 +6,7 @@ import java.util.Set;
 import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.Feet;
 import static edu.wpi.first.units.Units.Meters;
+import static edu.wpi.first.units.Units.Volts;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -28,8 +29,11 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.units.measure.Angle;
+import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Distance;
+import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj.Filesystem;
+import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -56,6 +60,14 @@ public class Dashboard extends SubsystemBase
     private Map<String, Consumer<Boolean>> namesToBooleansTunables = new HashMap<>();
     private Map<String, DashboardField> namesToFields = new HashMap<>();
     private Map<String, DashboardRobot> namesToRobots = new HashMap<>();
+    private Supplier<Voltage> batteryVoltageSupplier;
+
+    // Pre-match checklist: name → healthy supplier + optional message supplier
+    private Map<String, BooleanSupplier> checklistHealthySuppliers = new HashMap<>();
+    private Map<String, Supplier<String>> checklistMessageSuppliers = new HashMap<>();
+
+    // Critical alerts: name → active supplier (severity & message are static)
+    private Map<String, BooleanSupplier> alertActiveSuppliers = new HashMap<>();
 
     private NetworkTableInstance instance = NetworkTableInstance.getDefault();
 
@@ -65,7 +77,7 @@ public class Dashboard extends SubsystemBase
 
     private Dashboard()
     {
-        outputPath = "/NFRDashboard";
+        outputPath = "/ChronosDashboard";
     }
 
     // Optional convenience accessor
@@ -208,18 +220,18 @@ public class Dashboard extends SubsystemBase
         }
     }
 
-    public void putDefaultAutonomousCommand(String name, Command command)
+    public void putDefaultAutonomousCommand(String name, String description, Command command)
     {
         String key = makeKey("Match", outputPath, "autonomousCommands", name);
         if (!namesToAutonomousCommands.containsKey(key))
         {
             instance.getTable(outputPath).getSubTable("selectedAutonomous").getEntry("Match").setString(name);
-            putAutonomousCommand(name, command);
+            putAutonomousCommand(name, description, command);
 
         }
     }
 
-    public void putAutonomousCommand(String name, Command command)
+    public void putAutonomousCommand(String name, String description, Command command)
     {
         String key = makeKey("Match", outputPath, "autonomousCommands", name);
         if (!namesToAutonomousCommands.containsKey(key))
@@ -228,6 +240,7 @@ public class Dashboard extends SubsystemBase
             var commandTable = scopedEntry(outputPath, "autonomousCommands", "Match", name);
             String simpleName = command.getClass().getSimpleName();
             commandTable.getEntry("ClassName").setString(simpleName);
+            commandTable.getEntry("Description").setString(description);
             if (simpleName.equals("PathPlannerAuto"))
             {
                 commandTable.getEntry("PathPlannerPath").setString(Filesystem.getDeployDirectory()
@@ -688,6 +701,27 @@ public class Dashboard extends SubsystemBase
             robotTable.getEntry("y").setDouble(pose.getY());
             robotTable.getEntry("rotation").setDouble(pose.getRotation().getMeasure().in(Degrees));
         }
+
+        if (batteryVoltageSupplier != null)
+        {
+            instance.getTable(outputPath).getSubTable("battery").getEntry("voltage")
+                    .setDouble(batteryVoltageSupplier.get().in(Volts));
+        }
+
+        for (String name : checklistHealthySuppliers.keySet())
+        {
+            var t = instance.getTable(outputPath).getSubTable("checklist").getSubTable(name);
+            t.getEntry("status").setString(checklistHealthySuppliers.get(name).getAsBoolean() ? "ok" : "error");
+            Supplier<String> msgSupplier = checklistMessageSuppliers.get(name);
+            if (msgSupplier != null)
+                t.getEntry("message").setString(msgSupplier.get());
+        }
+
+        for (String name : alertActiveSuppliers.keySet())
+        {
+            instance.getTable(outputPath).getSubTable("alerts").getSubTable(name).getEntry("active")
+                    .setBoolean(alertActiveSuppliers.get(name).getAsBoolean());
+        }
     }
 
     public class DashboardRobot
@@ -968,7 +1002,7 @@ public class Dashboard extends SubsystemBase
 
     }
 
-    public static void register(Object system)
+    public void register(Object system)
     {
         Class<?> clazz = (system instanceof Class<?>) ? (Class<?>) system : system.getClass();
         Object instance = (system instanceof Class<?>) ? null : system;
@@ -998,5 +1032,101 @@ public class Dashboard extends SubsystemBase
         return namesToAutonomousCommands.getOrDefault(makeKey("Match", outputPath, "autonomousCommands",
                 instance.getTable(outputPath).getSubTable("selectedAutonomous").getEntry("Match").getString("")),
                 Commands.none());
+    }
+
+    public void setDashboardLight(Color color)
+    {
+        instance.getTable(outputPath).getSubTable("dashboardLight").getEntry("color").setString(color.toHexString());
+    }
+
+    public Command setDashboardLightCommand(Color color)
+    {
+        return Commands.runOnce(() -> setDashboardLight(color));
+    }
+
+    public void putBatteryVoltage(Supplier<Voltage> voltageSupplier)
+    {
+        batteryVoltageSupplier = voltageSupplier;
+    }
+
+    // ──────────────────────────────────────────────────────────────
+    // Pre-match checklist
+    // ──────────────────────────────────────────────────────────────
+
+    /**
+     * Register a checklist item that publishes to
+     * /NFRDashboard/checklist/&lt;name&gt;/status ("ok" | "error").
+     */
+    public void putChecklistItem(String name, BooleanSupplier healthy)
+    {
+        putChecklistItem(name, healthy, null);
+    }
+
+    /**
+     * Register a checklist item that publishes status and an optional live message
+     * to /NFRDashboard/checklist/&lt;name&gt;/.
+     */
+    public void putChecklistItem(String name, BooleanSupplier healthy, Supplier<String> message)
+    {
+        if (checklistHealthySuppliers.containsKey(name))
+            return;
+        checklistHealthySuppliers.put(name, healthy);
+        checklistMessageSuppliers.put(name, message);
+        var t = instance.getTable(outputPath).getSubTable("checklist").getSubTable(name);
+        t.getEntry("status").setString(healthy.getAsBoolean() ? "ok" : "error");
+        if (message != null)
+            t.getEntry("message").setString(message.get());
+    }
+
+    // ──────────────────────────────────────────────────────────────
+    // Critical alerts
+    // ──────────────────────────────────────────────────────────────
+
+    /**
+     * Register an alert that publishes to /NFRDashboard/alerts/&lt;name&gt;/.
+     *
+     * @param name     Unique alert identifier (also shown as title)
+     * @param severity "info" | "warn" | "error" | "critical"
+     * @param message  Static description shown in the dashboard toast
+     * @param active   Supplier returning true while the alert is active
+     */
+    public void putAlert(String name, String severity, String message, BooleanSupplier active)
+    {
+        if (alertActiveSuppliers.containsKey(name))
+            return;
+        alertActiveSuppliers.put(name, active);
+        var t = instance.getTable(outputPath).getSubTable("alerts").getSubTable(name);
+        t.getEntry("severity").setString(severity);
+        t.getEntry("message").setString(message);
+        t.getEntry("active").setBoolean(active.getAsBoolean());
+    }
+
+    // ──────────────────────────────────────────────────────────────
+    // AdvantageScope bridge helpers
+    // ──────────────────────────────────────────────────────────────
+
+    /**
+     * Publish a Field2d-compatible pose array to AdvantageKit/RealOutputs. Call
+     * this from your drive subsystem's periodic() if you want the Dashboard's
+     * backend bridge to forward poses rather than the frontend hook.
+     *
+     * @param name       Sub-key under /AdvantageKit/RealOutputs/ (e.g. "Drive")
+     * @param x          Pose X in metres
+     * @param y          Pose Y in metres
+     * @param headingRad Pose heading in radians (WPILib convention: CCW positive)
+     */
+    public void publishAdvantageKitPose(String name, double x, double y, double headingRad)
+    {
+        instance.getTable("/AdvantageKit/RealOutputs").getSubTable(name).getEntry("Pose").setDoubleArray(new double[]
+        { x, y, headingRad });
+    }
+
+    /**
+     * Mark the AdvantageScope bridge as ready/not-ready. The frontend polls
+     * /NFRDashboard/advantagescope/ready to show a badge.
+     */
+    public void setAdvantageScopeReady(boolean ready)
+    {
+        instance.getTable(outputPath).getSubTable("advantagescope").getEntry("ready").setBoolean(ready);
     }
 }

@@ -44,27 +44,27 @@ public class AutoUtil
         Shuffleboard.getTab("Robot").add("Auto Selector", chooser);
     }
 
-    public void bindAutoDefault(String name, Function<AutoFactory, AutoRoutine> autoBuilder)
+    public void bindAutoDefault(String name, Function<AutoFactory, AutoRoutine> autoBuilder, String description)
     {
-        dashboard.putDefaultAutonomousCommand(name, autoBuilder.apply(factory).cmd());
+        dashboard.putDefaultAutonomousCommand(name, description, autoBuilder.apply(factory).cmd());
         chooser.setDefaultOption(name, autoBuilder.apply(factory).cmd());
     }
 
-    public void bindAutoDefault(String name, Command cmd)
+    public void bindAutoDefault(String name, Command cmd, String description)
     {
-        dashboard.putDefaultAutonomousCommand(name, cmd);
+        dashboard.putDefaultAutonomousCommand(name, description, cmd);
         chooser.setDefaultOption(name, cmd);
     }
 
-    public void bindAuto(String name, Function<AutoFactory, AutoRoutine> autoBuilder)
+    public void bindAuto(String name, Function<AutoFactory, AutoRoutine> autoBuilder, String description)
     {
-        dashboard.putAutonomousCommand(name, autoBuilder.apply(factory).cmd());
+        dashboard.putAutonomousCommand(name, description, autoBuilder.apply(factory).cmd());
         chooser.addOption(name, autoBuilder.apply(factory).cmd());
     }
 
-    public void bindAuto(String name, Command cmd)
+    public void bindAuto(String name, Command cmd, String description)
     {
-        dashboard.putAutonomousCommand(name, cmd);
+        dashboard.putAutonomousCommand(name, description, cmd);
         chooser.addOption(name, cmd);
     }
 
