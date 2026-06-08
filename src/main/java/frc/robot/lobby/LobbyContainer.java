@@ -31,6 +31,7 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
@@ -349,6 +350,7 @@ public class LobbyContainer implements NFRRobotContainer
         dashboard.putChecklistItem("Cameras Up and Receiving", () -> false,
                 () -> "Camera \"left-limelight\" is not responding... check for loose connections or power issues.");
         dashboard.putChecklistItem("Turret Functioning", () -> true);
+        setDriverDashboard("Driver");
     }
 
     public double getATrig()
@@ -429,6 +431,12 @@ public class LobbyContainer implements NFRRobotContainer
             DogLog.log("Auto/DrivingToClimbPosition", target);
             return closeDriveToPose(target);
         }, java.util.Set.of(drive));
+    }
+
+    public void setDriverDashboard(String tabName)
+    {
+        NetworkTableInstance.getDefault().getTable("/ChronosDashboardMetaData").getSubTable("driverDashboard")
+                .getEntry("tab").setString(tabName);
     }
 
     @Override
