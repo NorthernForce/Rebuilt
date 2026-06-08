@@ -84,6 +84,7 @@ import frc.robot.lobby.subsystems.leds.*;
 
 public class LobbyContainer implements NFRRobotContainer
 {
+    private boolean test = false;
     private final CommandSwerveDrivetrain drive;
     private final Intake intake;
     private final AprilTagVision vision;
@@ -342,9 +343,11 @@ public class LobbyContainer implements NFRRobotContainer
         dashboard.register(LobbyConstants.class);
         dashboard.putBatteryVoltage(() -> Volts.of(powerDistributionHub.getVoltage()));
 
-        dashboard.setDashboardLight(Color.kPurple);
         dashboard.putNumber("Driver", "Test Number", () -> Timer.getFPGATimestamp());
-        dashboard.putChecklistItem("Test", () -> true);
+        dashboard.putChecklistItem("Swerve Modules Working", () -> true);
+        dashboard.putChecklistItem("Cameras Up and Receiving", () -> false,
+                () -> "Camera \"left-limelight\" is not responding... check for loose connections or power issues.");
+        dashboard.putChecklistItem("Turret Functioning", () -> true);
     }
 
     public double getATrig()
@@ -430,6 +433,16 @@ public class LobbyContainer implements NFRRobotContainer
     @Override
     public void periodic()
     {
+        dashboard.putAlert("Swerve Modules", "critical", "Swerve Module \"9\" is not responding", () ->
+        {
+            if (Timer.getFPGATimestamp() > 5 && Timer.getFPGATimestamp() < 10)
+            {
+                test = true;
+                return true;
+            }
+            return false;
+        });
+
         StatusSignal.refreshAll(flDriveCurrent, flSteerCurrent, frDriveCurrent, frSteerCurrent, blDriveCurrent,
                 blSteerCurrent, brDriveCurrent, brSteerCurrent);
         var state = drive.getState();
