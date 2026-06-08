@@ -16,6 +16,7 @@ import org.photonvision.simulation.SimCameraProperties;
 import com.ctre.phoenix6.Utils;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 import com.github.daboss_1.Dashboard;
+import com.github.daboss_1.Dashboard.DashboardAlertSeverity;
 import com.github.daboss_1.Dashboard.DashboardSystem;
 import com.pathplanner.lib.auto.NamedCommands;
 import com.pathplanner.lib.commands.PathPlannerAuto;
@@ -433,15 +434,16 @@ public class LobbyContainer implements NFRRobotContainer
     @Override
     public void periodic()
     {
-        dashboard.putAlert("Swerve Modules", "critical", "Swerve Module \"9\" is not responding", () ->
-        {
-            if (Timer.getFPGATimestamp() > 5 && Timer.getFPGATimestamp() < 10)
-            {
-                test = true;
-                return true;
-            }
-            return false;
-        });
+        dashboard.putAlert("Swerve Modules", DashboardAlertSeverity.CRITICAL, "Swerve Module \"9\" is not responding",
+                () ->
+                {
+                    if (Timer.getFPGATimestamp() > 5 && Timer.getFPGATimestamp() < 10)
+                    {
+                        test = true;
+                        return true;
+                    }
+                    return false;
+                });
 
         StatusSignal.refreshAll(flDriveCurrent, flSteerCurrent, frDriveCurrent, frSteerCurrent, blDriveCurrent,
                 blSteerCurrent, brDriveCurrent, brSteerCurrent);

@@ -1,20 +1,20 @@
 {
-    "fileName": "ChronosBackend.json",
-    "name": "Chronos Dashboard Backend",
-    "version": "1.0.0",
-    "frcYear": "2026",
-    "uuid": "4c3b6d21-f89a-4123-be76-9d5a8c2b714e",
-    "mavenUrls": [
-        "https://jitpack.io"
-    ],
-    "jsonUrl": "https://raw.githubusercontent.com/Daboss-1/ChronosBackend/main/ChronosBackend.json",
-    "javaDependencies": [
-        {
-            "groupId": "com.github.Daboss-1",
-            "artifactId": "ChronosBackend",
-            "version": "1.0.0"
-        }
-    ],
-    "jniDependencies": [],
-    "cppDependencies": []
+  "fileName": "ChronosBackend.json",
+  "name": "Chronos Dashboard Backend",
+  "version": "1.1.1",
+  "frcYear": "2026",
+  "uuid": "4c3b6d21-f89a-4123-be76-9d5a8c2b714e",
+  "mavenUrls": [
+    "https://jitpack.io"
+  ],
+  "jsonUrl": "https://raw.githubusercontent.com/Daboss-1/ChronosBackend/main/ChronosBackend.json",
+  "javaDependencies": [
+    {
+      "groupId": "com.github.Daboss-1",
+      "artifactId": "ChronosBackend",
+      "version": "1.1.1"
+    }
+  ],
+  "jniDependencies": [],
+  "cppDependencies": []
 }
